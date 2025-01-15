@@ -114,14 +114,14 @@ abstract class AbstractTermModel extends AbstractComponent implements TermModelI
     /**
      * @param mixed $name
      */
-    public function set_name(string $name) : void
+    public function set_name(string $name): void
     {
         $this->name = $name;
     }
     /**
      * @param mixed $id
      */
-    public function set_id($id) : void
+    public function set_id($id): void
     {
         $this->id = $id;
     }

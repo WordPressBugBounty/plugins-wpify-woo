@@ -50,7 +50,7 @@ class Data implements JsonSerializable, Stringable
      * if value is null, then validation failed, tin and vat_payer are not checked
      */
     public ?Subject $adis = null;
-    public function setAdis(Subject $adis) : void
+    public function setAdis(Subject $adis): void
     {
         if ($adis->exists) {
             $this->vat_payer = $adis->isVatPayer;
@@ -64,7 +64,7 @@ class Data implements JsonSerializable, Stringable
     /**
      * @return array<string, scalar|array<string>>
      */
-    public function jsonSerialize() : mixed
+    public function jsonSerialize(): mixed
     {
         $data = $this->toArray();
         // export dates
@@ -76,21 +76,21 @@ class Data implements JsonSerializable, Stringable
         /** @var  array<string, scalar|array<string>> $data */
         return $data;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return (string) \json_encode($this);
+        return (string) json_encode($this);
     }
     /**
      * @return DataType
      */
-    public function __serialize() : array
+    public function __serialize(): array
     {
         return $this->toArray();
     }
     /**
      * @param DataType $data
      */
-    public function __unserialize(array $data) : void
+    public function __unserialize(array $data): void
     {
         foreach ($data as $name => $value) {
             $this->{$name} = $value;
@@ -99,9 +99,9 @@ class Data implements JsonSerializable, Stringable
     /**
      * @return DataType
      */
-    public function toArray() : array
+    public function toArray(): array
     {
-        $data = \get_object_vars($this);
+        $data = get_object_vars($this);
         unset($data['original'], $data['adis']);
         return $data;
     }

@@ -9,7 +9,7 @@ class PostTag extends AbstractTermModel
 {
     /** @var PostModelInterface */
     public $posts;
-    protected function posts_relation() : TermPostsRelation
+    protected function posts_relation(): TermPostsRelation
     {
         return new TermPostsRelation($this, 'posts', $this->model_repository()->get_post_repository());
     }

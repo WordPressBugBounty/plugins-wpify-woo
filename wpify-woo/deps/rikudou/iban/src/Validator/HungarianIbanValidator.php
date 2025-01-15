@@ -15,27 +15,27 @@ class HungarianIbanValidator implements ValidatorInterface
     {
         $this->iban = $iban;
     }
-    public function isValid() : bool
+    public function isValid(): bool
     {
-        $stringIban = \strtoupper($this->iban->asString());
-        if (\substr($stringIban, 0, 2) !== 'HU') {
+        $stringIban = strtoupper($this->iban->asString());
+        if (substr($stringIban, 0, 2) !== 'HU') {
             return \false;
         }
-        $accountNumber = \substr($stringIban, 4);
-        if (\strlen($accountNumber) !== 24) {
+        $accountNumber = substr($stringIban, 4);
+        if (strlen($accountNumber) !== 24) {
             return \false;
         }
-        $bankBranchPart = \substr($accountNumber, 0, 8);
-        $accountNumberPart = \substr($accountNumber, 8);
+        $bankBranchPart = substr($accountNumber, 0, 8);
+        $accountNumberPart = substr($accountNumber, 8);
         return $this->checkGroup($bankBranchPart) && $this->checkGroup($accountNumberPart);
     }
-    private function checkGroup(string $group) : bool
+    private function checkGroup(string $group): bool
     {
-        $length = \strlen($group) - 1;
-        $expectedChecksum = (int) \substr($group, $length, 1);
+        $length = strlen($group) - 1;
+        $expectedChecksum = (int) substr($group, $length, 1);
         $sum = 0;
         for ($i = 0; $i < $length; $i++) {
-            $weight = self::WEIGHTS[$i % \count(self::WEIGHTS)];
+            $weight = self::WEIGHTS[$i % count(self::WEIGHTS)];
             $sum += (int) $group[$i] * $weight;
         }
         $lastDigit = $sum % 10;

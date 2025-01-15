@@ -19,9 +19,9 @@ final class TransportProvider
     public function __construct(private RequestFactoryInterface $requestFactory, private ClientInterface $client, private StreamFactoryInterface $streamFactory)
     {
     }
-    public function response(RequestInterface|string $url) : ResponseInterface
+    public function response(RequestInterface|string $url): ResponseInterface
     {
-        $request = $url instanceof RequestInterface ? $url : $this->createRequest($url);
+        $request = ($url instanceof RequestInterface) ? $url : $this->createRequest($url);
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $e) {
@@ -29,24 +29,24 @@ final class TransportProvider
         }
         return $response;
     }
-    public function toJson(ResponseInterface $response) : stdClass
+    public function toJson(ResponseInterface $response): stdClass
     {
         try {
             $json = Json::decode($response->getBody()->getContents());
-            \assert($json instanceof stdClass);
+            assert($json instanceof stdClass);
         } catch (JsonException $e) {
             throw new ServerResponseException($e->getMessage(), $e->getCode(), $e);
         }
         return $json;
     }
-    public function createRequest(string $url, string $method = 'GET') : RequestInterface
+    public function createRequest(string $url, string $method = 'GET'): RequestInterface
     {
         return $this->requestFactory->createRequest($method, $url)->withHeader('X-Powered-By', 'h4kuna/ares');
     }
     /**
      * @param array<string, mixed> $data
      */
-    public function createJsonRequest(string $url, array $data = []) : RequestInterface
+    public function createJsonRequest(string $url, array $data = []): RequestInterface
     {
         $request = $this->createPost($url, 'application/json');
         if ($data !== []) {
@@ -54,14 +54,14 @@ final class TransportProvider
         }
         return $request;
     }
-    public function createXmlRequest(string $url, string|StreamInterface $body) : RequestInterface
+    public function createXmlRequest(string $url, string|StreamInterface $body): RequestInterface
     {
-        if (\is_string($body)) {
+        if (is_string($body)) {
             $body = $this->streamFactory->createStream($body);
         }
         return $this->createPost($url, 'application/xml')->withBody($body);
     }
-    private function createPost(string $url, string $contentType) : RequestInterface
+    private function createPost(string $url, string $contentType): RequestInterface
     {
         return $this->createRequest($url, 'POST')->withHeader('Content-Type', "{$contentType}; charset=utf-8");
     }

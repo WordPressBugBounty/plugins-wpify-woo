@@ -21,18 +21,18 @@ class CategoryRepository extends AbstractTermRepository
 {
     /** @var PostRepository */
     protected $post_repository;
-    public function taxonomy() : string
+    public function taxonomy(): string
     {
         return 'category';
     }
-    public function model() : string
+    public function model(): string
     {
         return Category::class;
     }
     /**
      * @return PostRepository
      */
-    public function get_post_repository() : PostRepository
+    public function get_post_repository(): PostRepository
     {
         if (empty($this->post_repository)) {
             $this->post_repository = new PostRepository();

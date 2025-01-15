@@ -29,7 +29,7 @@ class OrderItemRepository extends AbstractRepository implements RepositoryInterf
      */
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
     /**
      * @return AbstractPostModel[]
@@ -86,13 +86,13 @@ class OrderItemRepository extends AbstractRepository implements RepositoryInterf
      * @return WC_Order
      * @throws NotFoundException
      */
-    protected function resolve_object($data) : WC_Order_Item
+    protected function resolve_object($data): WC_Order_Item
     {
-        if (\is_object($data) && \get_class($data) === $this::model()) {
+        if (is_object($data) && get_class($data) === $this::model()) {
             $object = $data->source_object();
         } elseif ($data instanceof WC_Order_Item) {
             $object = $data;
-        } elseif (\is_null($data)) {
+        } elseif (is_null($data)) {
             $object = new WC_Order_Item();
         } elseif (isset($data->id)) {
             $object = new WC_Order_Item($data->id);
@@ -104,7 +104,7 @@ class OrderItemRepository extends AbstractRepository implements RepositoryInterf
         }
         return $object;
     }
-    public function model() : string
+    public function model(): string
     {
         return $this->model;
     }

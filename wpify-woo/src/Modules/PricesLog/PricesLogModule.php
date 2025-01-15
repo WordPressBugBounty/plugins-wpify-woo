@@ -30,6 +30,7 @@ class PricesLogModule extends AbstractModule {
 		add_action( 'woocommerce_product_options_pricing', [ $this, 'display_lowest_price' ] );
 		add_action( 'woocommerce_variation_options_pricing', [ $this, 'variation_lowest_price' ], 10, 3 );
 
+		add_shortcode( 'wpify_woo_lowest_price', array( $this, 'display_lowest_price_shortcode' ) );
 	}
 
 	function id() {
@@ -148,7 +149,7 @@ class PricesLogModule extends AbstractModule {
 		}
 
 		?>
-        <div id="wpify_prices_log" class="panel woocommerce_options_panel">
+		<div id="wpify_prices_log" class="panel woocommerce_options_panel">
 			<?php
 			if ( $product->is_type( 'variable' ) ) {
 				/** @var \WC_Product_Variable $product */
@@ -163,7 +164,7 @@ class PricesLogModule extends AbstractModule {
 				$this->display_log_table( $product->get_id() );
 			}
 			?>
-        </div>
+		</div>
 		<?php
 	}
 
@@ -174,36 +175,53 @@ class PricesLogModule extends AbstractModule {
 	 */
 	public function display_log_table( $id ) {
 		?>
-        <table class="wp-list-table widefat fixed striped table-view-list">
-            <thead>
-            <tr>
-                <th>Product ID</th>
-                <th>Regular price</th>
-                <th>Sale price</th>
-                <th>Date</th>
-            </tr>
-            </thead>
-            <tbody>
+		<table class="wp-list-table widefat fixed striped table-view-list">
+			<thead>
+			<tr>
+				<th>Product ID</th>
+				<th>Regular price</th>
+				<th>Sale price</th>
+				<th>Date</th>
+			</tr>
+			</thead>
+			<tbody>
 			<?php foreach ( array_reverse( $this->prices_log_repository->find_by_product_id( $id ) ) as $item ) { ?>
-                <tr>
-                    <td><?php echo $item->product_id; ?></td>
-                    <td><?php echo $item->regular_price; ?></td>
-                    <td><?php echo $item->sale_price; ?></td>
-                    <td><?php echo $item->created_at; ?></td>
-                </tr>
+				<tr>
+					<td><?php echo $item->product_id; ?></td>
+					<td><?php echo $item->regular_price; ?></td>
+					<td><?php echo $item->sale_price; ?></td>
+					<td><?php echo $item->created_at; ?></td>
+				</tr>
 			<?php } ?>
 
-            </tbody>
+			</tbody>
 
-        </table>
+		</table>
 	<?php }
+
+	/**
+	 * Get the lowest price last 30 days
+	 *
+	 * @param $id
+	 */
+	public function get_lowest_price( $id ) {
+		$price = $this->prices_log_repository->find_lowest_price( $id ) ?: 0;
+		if ( ! $price ) {
+			$p = wc_get_product( $id );
+			if ( $p ) {
+				$price = $p->get_price();
+			}
+		}
+
+		return floatval( $price );
+	}
 
 	/**
 	 * Lowest price for variation product
 	 *
-	 * @param int $loop Position in the loop.
-	 * @param array $variation_data Variation data.
-	 * @param WP_Post $variation Post data.
+	 * @param int     $loop           Position in the loop.
+	 * @param array   $variation_data Variation data.
+	 * @param WP_Post $variation      Post data.
 	 */
 	public function variation_lowest_price( $loop, $variation_data, $variation ) {
 		$this->display_lowest_price( $variation->ID );
@@ -219,11 +237,15 @@ class PricesLogModule extends AbstractModule {
 			$id = (int) $_GET['post'] ?? 0;
 		}
 
-		$price = $this->prices_log_repository->find_lowest_price( $id );
+		$price = $this->get_lowest_price( $id );
 		if ( ! $price ) {
 			return;
 		}
 
 		echo sprintf( '<p class="form-row form-row-full">%s: %s</p>', __( 'The lowest price for the last 30 days', 'wpify-woo' ), wc_price( $price ) );
+	}
+
+	public function display_lowest_price_shortcode() {
+		return wc_price( $this->get_lowest_price( get_the_ID() ) );
 	}
 }

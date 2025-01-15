@@ -89,17 +89,17 @@ class ClosureExpressionVisitor extends ExpressionVisitor
     public static function sortByField($name, $orientation = 1, ?Closure $next = null)
     {
         if (!$next) {
-            $next = static function () : int {
+            $next = static function (): int {
                 return 0;
             };
         }
-        return static function ($a, $b) use($name, $next, $orientation) : int {
+        return static function ($a, $b) use ($name, $next, $orientation): int {
             $aValue = ClosureExpressionVisitor::getObjectFieldValue($a, $name);
             $bValue = ClosureExpressionVisitor::getObjectFieldValue($b, $name);
             if ($aValue === $bValue) {
                 return $next($a, $b);
             }
-            return ($aValue > $bValue ? 1 : -1) * $orientation;
+            return (($aValue > $bValue) ? 1 : -1) * $orientation;
         };
     }
     /**
@@ -112,45 +112,45 @@ class ClosureExpressionVisitor extends ExpressionVisitor
         // shortcut for walkValue()
         switch ($comparison->getOperator()) {
             case Comparison::EQ:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return ClosureExpressionVisitor::getObjectFieldValue($object, $field) === $value;
                 };
             case Comparison::NEQ:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return ClosureExpressionVisitor::getObjectFieldValue($object, $field) !== $value;
                 };
             case Comparison::LT:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return ClosureExpressionVisitor::getObjectFieldValue($object, $field) < $value;
                 };
             case Comparison::LTE:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return ClosureExpressionVisitor::getObjectFieldValue($object, $field) <= $value;
                 };
             case Comparison::GT:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return ClosureExpressionVisitor::getObjectFieldValue($object, $field) > $value;
                 };
             case Comparison::GTE:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return ClosureExpressionVisitor::getObjectFieldValue($object, $field) >= $value;
                 };
             case Comparison::IN:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     $fieldValue = ClosureExpressionVisitor::getObjectFieldValue($object, $field);
                     return in_array($fieldValue, $value, is_scalar($fieldValue));
                 };
             case Comparison::NIN:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     $fieldValue = ClosureExpressionVisitor::getObjectFieldValue($object, $field);
                     return !in_array($fieldValue, $value, is_scalar($fieldValue));
                 };
             case Comparison::CONTAINS:
-                return static function ($object) use($field, $value) {
+                return static function ($object) use ($field, $value) {
                     return strpos(ClosureExpressionVisitor::getObjectFieldValue($object, $field), $value) !== \false;
                 };
             case Comparison::MEMBER_OF:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     $fieldValues = ClosureExpressionVisitor::getObjectFieldValue($object, $field);
                     if (!is_array($fieldValues)) {
                         $fieldValues = iterator_to_array($fieldValues);
@@ -158,11 +158,11 @@ class ClosureExpressionVisitor extends ExpressionVisitor
                     return in_array($value, $fieldValues, \true);
                 };
             case Comparison::STARTS_WITH:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return strpos(ClosureExpressionVisitor::getObjectFieldValue($object, $field), $value) === 0;
                 };
             case Comparison::ENDS_WITH:
-                return static function ($object) use($field, $value) : bool {
+                return static function ($object) use ($field, $value): bool {
                     return $value === substr(ClosureExpressionVisitor::getObjectFieldValue($object, $field), -strlen($value));
                 };
             default:
@@ -195,9 +195,9 @@ class ClosureExpressionVisitor extends ExpressionVisitor
         }
     }
     /** @param callable[] $expressions */
-    private function andExpressions(array $expressions) : callable
+    private function andExpressions(array $expressions): callable
     {
-        return static function ($object) use($expressions) : bool {
+        return static function ($object) use ($expressions): bool {
             foreach ($expressions as $expression) {
                 if (!$expression($object)) {
                     return \false;
@@ -207,9 +207,9 @@ class ClosureExpressionVisitor extends ExpressionVisitor
         };
     }
     /** @param callable[] $expressions */
-    private function orExpressions(array $expressions) : callable
+    private function orExpressions(array $expressions): callable
     {
-        return static function ($object) use($expressions) : bool {
+        return static function ($object) use ($expressions): bool {
             foreach ($expressions as $expression) {
                 if ($expression($object)) {
                     return \true;

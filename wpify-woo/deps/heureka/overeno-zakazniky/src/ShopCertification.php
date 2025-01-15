@@ -54,10 +54,10 @@ class ShopCertification
     {
         $this->apiKey = $apiKey;
         $defaultOptions = ['service' => self::HEUREKA_CZ];
-        $this->options = \array_merge($defaultOptions, $options);
+        $this->options = array_merge($defaultOptions, $options);
         $apiEndpoint = new ApiEndpoint($this->options['service']);
         if ($requester === null) {
-            if (\function_exists('curl_version')) {
+            if (function_exists('curl_version')) {
                 $requester = new ShopCertification\CurlRequester();
             } else {
                 $requester = new ShopCertification\PhpRequester();
@@ -84,8 +84,8 @@ class ShopCertification
      */
     public function setOrderId($orderId)
     {
-        if (!\is_int($orderId)) {
-            throw new InvalidArgumentException(\sprintf('OrderId must be an integer, "%s" given.', \print_r($orderId, \true)));
+        if (!is_int($orderId)) {
+            throw new InvalidArgumentException(sprintf('OrderId must be an integer, "%s" given.', print_r($orderId, \true)));
         }
         $this->orderId = $orderId;
         return $this;
@@ -99,8 +99,8 @@ class ShopCertification
     public function addProductItemId($productItemId)
     {
         $productItemId = (string) $productItemId;
-        if (\array_search($productItemId, $this->productItemIds) !== \false) {
-            throw new DuplicateProductItemIdException(\sprintf('The productItemId "%s" was already added. Please check the implementation.', $productItemId));
+        if (array_search($productItemId, $this->productItemIds) !== \false) {
+            throw new DuplicateProductItemIdException(sprintf('The productItemId "%s" was already added. Please check the implementation.', $productItemId));
         }
         $this->productItemIds[] = $productItemId;
         return $this;

@@ -9,11 +9,11 @@ interface BicDictionaryInterface
     /**
      * Returns the two-letter country code this dictionary is relevant to
      */
-    public function getCountryCode() : string;
+    public function getCountryCode(): string;
     /**
      * Returns the BIC, throws BicNotFoundException if the BIC could not be found
      *
      * @throws BicNotFoundException
      */
-    public function getBic(IbanInterface $iban) : string;
+    public function getBic(IbanInterface $iban): string;
 }

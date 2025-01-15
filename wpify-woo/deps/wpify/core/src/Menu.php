@@ -76,9 +76,9 @@ class Menu extends AbstractComponent
         $this->raw_options = $this->options;
         $this->options = wp_parse_args((array) $this->options, array('depth' => 0));
         $this->depth = (int) $this->options['depth'];
-        if ($this->slug != 0 && \is_numeric($this->slug)) {
+        if ($this->slug != 0 && is_numeric($this->slug)) {
             $menu_id = $this->slug;
-        } elseif (\is_array($locations) && !empty($locations)) {
+        } elseif (is_array($locations) && !empty($locations)) {
             $menu_id = $this->get_menu_id_from_locations($this->slug, $locations);
         } elseif ($this->slug === \false) {
             $menu_id = \false;
@@ -104,12 +104,12 @@ class Menu extends AbstractComponent
         if ($slug === 0) {
             $slug = $this->get_menu_id_from_terms($slug);
         }
-        if (\is_numeric($slug)) {
-            $slug = \array_search($slug, $locations);
+        if (is_numeric($slug)) {
+            $slug = array_search($slug, $locations);
         }
         if (isset($locations[$slug])) {
             $menu_id = $locations[$slug];
-            if (\function_exists('wpml_object_id_filter')) {
+            if (function_exists('WpifyWooDeps\wpml_object_id_filter')) {
                 $menu_id = wpml_object_id_filter($locations[$slug], 'nav_menu');
             }
             return $menu_id;
@@ -123,7 +123,7 @@ class Menu extends AbstractComponent
      */
     protected function get_menu_id_from_terms($slug = 0)
     {
-        if (!\is_numeric($slug) && \is_string($slug)) {
+        if (!is_numeric($slug) && is_string($slug)) {
             // we have a string so lets search for that
             $menu = get_term_by('slug', $slug, 'nav_menu');
             if ($menu) {
@@ -135,7 +135,7 @@ class Menu extends AbstractComponent
             }
         }
         $menus = get_terms('nav_menu', array('hide_empty' => \true));
-        if (\is_array($menus) && \count($menus)) {
+        if (is_array($menus) && count($menus)) {
             if (isset($menus[0]->term_id)) {
                 return $menus[0]->term_id;
             }
@@ -152,12 +152,12 @@ class Menu extends AbstractComponent
         $menu = wp_get_nav_menu_items($menu_id);
         $locations = get_nav_menu_locations();
         // Set theme location if available.
-        if (!empty($locations) && \in_array($menu_id, $locations, \true)) {
-            $this->theme_location = \array_search($menu_id, $locations, \true);
+        if (!empty($locations) && in_array($menu_id, $locations, \true)) {
+            $this->theme_location = array_search($menu_id, $locations, \true);
         }
         if ($menu) {
             _wp_menu_item_classes_by_context($menu);
-            if (\is_array($menu)) {
+            if (is_array($menu)) {
                 /**
                  * Default arguments from wp_nav_menu() function.
                  * @see wp_nav_menu()
@@ -253,7 +253,7 @@ class Menu extends AbstractComponent
                 $mi->__title = $mi->post_title;
             }
             _wp_menu_item_classes_by_context($menu);
-            if (\is_array($menu)) {
+            if (is_array($menu)) {
                 $menu = self::order_children($menu);
             }
             $this->items = $menu;
@@ -281,7 +281,7 @@ class Menu extends AbstractComponent
      */
     public function get_items()
     {
-        if (\is_array($this->items)) {
+        if (is_array($this->items)) {
             return $this->items;
         }
         return array();
@@ -289,49 +289,49 @@ class Menu extends AbstractComponent
     /**
      * @return int
      */
-    public function get_depth() : int
+    public function get_depth(): int
     {
         return $this->depth;
     }
     /**
      * @return int
      */
-    public function get_term_id() : int
+    public function get_term_id(): int
     {
         return $this->term_id;
     }
     /**
      * @return string
      */
-    public function get_name() : string
+    public function get_name(): string
     {
         return $this->name;
     }
     /**
      * @return string
      */
-    public function get_title() : string
+    public function get_title(): string
     {
         return $this->title;
     }
     /**
      * @return array
      */
-    public function get_options() : array
+    public function get_options(): array
     {
         return $this->options;
     }
     /**
      * @return array
      */
-    public function get_raw_options() : array
+    public function get_raw_options(): array
     {
         return $this->raw_options;
     }
     /**
      * @return string
      */
-    public function get_theme_location() : string
+    public function get_theme_location(): string
     {
         return $this->theme_location;
     }

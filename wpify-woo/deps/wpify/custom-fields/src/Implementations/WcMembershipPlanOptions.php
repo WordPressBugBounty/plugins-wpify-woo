@@ -39,7 +39,7 @@ final class WcMembershipPlanOptions extends AbstractPostImplementation
         if (\is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }

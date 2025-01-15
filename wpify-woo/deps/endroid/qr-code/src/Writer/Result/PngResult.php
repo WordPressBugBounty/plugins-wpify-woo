@@ -17,13 +17,13 @@ final class PngResult extends AbstractResult
     {
         return $this->image;
     }
-    public function getString() : string
+    public function getString(): string
     {
-        \ob_start();
-        \imagepng($this->image);
-        return \strval(\ob_get_clean());
+        ob_start();
+        imagepng($this->image);
+        return strval(ob_get_clean());
     }
-    public function getMimeType() : string
+    public function getMimeType(): string
     {
         return 'image/png';
     }

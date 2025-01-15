@@ -30,12 +30,12 @@ class MenuItem extends AbstractPostModel
     {
         return $this->item_children;
     }
-    public function to_array(array $props = array()) : array
+    public function to_array(array $props = array()): array
     {
         $data = parent::to_array($props);
         if ($data['children']) {
             unset($data['item_children']);
-            $data['children'] = \array_map(function ($item) {
+            $data['children'] = array_map(function ($item) {
                 return $item->to_array();
             }, $data['children']);
         }

@@ -10,11 +10,11 @@ final class OpenSans implements FontInterface
     {
         $this->size = $size;
     }
-    public function getPath() : string
+    public function getPath(): string
     {
         return __DIR__ . '/../../../assets/open_sans.ttf';
     }
-    public function getSize() : int
+    public function getSize(): int
     {
         return $this->size;
     }

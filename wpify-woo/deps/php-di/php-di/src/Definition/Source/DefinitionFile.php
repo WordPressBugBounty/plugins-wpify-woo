@@ -33,7 +33,7 @@ class DefinitionFile extends DefinitionArray
         $this->initialize();
         return parent::getDefinition($name);
     }
-    public function getDefinitions() : array
+    public function getDefinitions(): array
     {
         $this->initialize();
         return parent::getDefinitions();
@@ -46,8 +46,8 @@ class DefinitionFile extends DefinitionArray
         if ($this->initialized === \true) {
             return;
         }
-        $definitions = (require $this->file);
-        if (!\is_array($definitions)) {
+        $definitions = require $this->file;
+        if (!is_array($definitions)) {
             throw new \Exception("File {$this->file} should return an array of definitions");
         }
         $this->addDefinitions($definitions);

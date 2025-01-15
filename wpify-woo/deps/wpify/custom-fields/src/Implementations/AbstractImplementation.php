@@ -72,7 +72,7 @@ abstract class AbstractImplementation
      *
      * @return mixed
      */
-    public abstract function set_field($name, $value, $field);
+    abstract public function set_field($name, $value, $field);
     /**
      * @param string $object_type
      * @param string $tag
@@ -87,9 +87,9 @@ abstract class AbstractImplementation
         $data = $this->fill_values($data);
         $data['items'] = $this->fill_selects($data['items']);
         $data['api'] = array('url' => $this->api->get_rest_url(), 'nonce' => $this->api->get_rest_nonce(), 'path' => $this->api->get_rest_path());
-        $class = empty($attributes['class']) ? 'js-wcf' : 'js-wcf ' . $attributes['class'];
+        $class = empty($attributes['class']) ? 'js-wcf' : ('js-wcf ' . $attributes['class']);
         $json = wp_json_encode($data, \JSON_UNESCAPED_UNICODE);
-        $hash = 'd' . \md5($json);
+        $hash = 'd' . md5($json);
         do_action('wcf_before_fields', $data);
         $script = 'try{window.wcf_data=(window.wcf_data||{});window.wcf_data.' . $hash . '=' . $json . ';}catch(e){console.error(e);}';
         echo '<script type="text/javascript">' . $script . '</script>';
@@ -113,13 +113,13 @@ abstract class AbstractImplementation
         if (empty($args['value'])) {
             $args['value'] = array();
         }
-        if (\is_string($args['value'])) {
-            $args['value'] = \json_decode($args['value']);
+        if (is_string($args['value'])) {
+            $args['value'] = json_decode($args['value']);
         }
-        if (!\is_array($args['value'])) {
+        if (!is_array($args['value'])) {
             $args['value'] = array($args['value']);
         }
-        $args['value'] = \array_filter($args['value']);
+        $args['value'] = array_filter($args['value']);
         $args['query_args'] = $args['query_args'] ?? array();
         $query_args = wp_parse_args($args['query_args'], array('posts_per_page' => empty($args['search']) ? 100 : -1, 'post_type' => $args['post_type'] ?? array('post'), 'ignore_sticky_posts' => \true));
         if (!empty($args['search'])) {
@@ -130,28 +130,28 @@ abstract class AbstractImplementation
             $query_args['orderby'] = 'post__in';
         }
         $posts = $this->query_posts($query_args);
-        $post_ids = \array_map(function ($post) {
+        $post_ids = array_map(function ($post) {
             return $post->ID;
         }, $posts);
-        $args['post__not_in'] = \array_map(function ($post) {
+        $args['post__not_in'] = array_map(function ($post) {
             return $post->ID;
         }, $posts);
         unset($query_args['post__in']);
         unset($query_args['orderby']);
         unset($query_args['s']);
         foreach ($this->query_posts($query_args) as $post) {
-            if (!\in_array($post->ID, $post_ids)) {
+            if (!in_array($post->ID, $post_ids)) {
                 $posts[] = $post;
             }
         }
-        return \array_map(function ($post) {
+        return array_map(function ($post) {
             return array('value' => $post->ID, 'label' => get_the_title($post) . ' (ID ' . $post->ID . ')', 'excerpt' => get_the_excerpt($post), 'thumbnail' => get_the_post_thumbnail_url($post), 'permalink' => get_permalink($post));
         }, $posts);
     }
     public function fill_selects($items, $prefix = null, $fill_options = \true)
     {
         foreach ($items as $key => $item) {
-            if (\in_array($item['type'], array('post', 'multi_post', 'link')) && empty($item['options'])) {
+            if (in_array($item['type'], array('post', 'multi_post', 'link')) && empty($item['options'])) {
                 $items[$key]['options'] = array($this, 'get_post_options');
             }
             if (!empty($item['list_id'])) {
@@ -159,7 +159,7 @@ abstract class AbstractImplementation
             } else {
                 $id = ($prefix ?? $this->implementation_id) . ':' . $item['id'];
             }
-            if (isset($items[$key]['options']) && \is_callable($items[$key]['options'])) {
+            if (isset($items[$key]['options']) && is_callable($items[$key]['options'])) {
                 $callback = $items[$key]['options'];
                 if (!empty($item['async'])) {
                     $items[$key]['options'] = $id;
@@ -167,11 +167,11 @@ abstract class AbstractImplementation
                 } elseif ($fill_options) {
                     $items[$key]['options'] = Helpers::normalize_options($callback($item));
                 }
-            } elseif (isset($items[$key]['options']) && \is_array($items[$key]['options']) && !empty($item['async'])) {
+            } elseif (isset($items[$key]['options']) && is_array($items[$key]['options']) && !empty($item['async'])) {
                 $items[$key]['options'] = $id;
-                $this->wcf->set_api_callback($items[$key]['options'], function ($args) use($item) {
+                $this->wcf->set_api_callback($items[$key]['options'], function ($args) use ($item) {
                     if (!empty($args['search'])) {
-                        return \array_filter($item['options'], function ($option) use($args) {
+                        return array_filter($item['options'], function ($option) use ($args) {
                             return $this->search_in_string($option['label'] ?? '', $args['search']) || $this->search_in_string($option['value'] ?? '', $args['search']) || $this->search_in_string($option['excerpt'] ?? '', $args['search']);
                         });
                     }
@@ -192,17 +192,17 @@ abstract class AbstractImplementation
      *
      * @return array
      */
-    public function normalize_for_search($input = '') : array
+    public function normalize_for_search($input = ''): array
     {
-        return \explode(' ', \trim(\preg_replace('/\\s+/m', ' ', \strtolower(remove_accents(\strval($input))))));
+        return explode(' ', trim(preg_replace('/\s+/m', ' ', strtolower(remove_accents(strval($input))))));
     }
     public function search_in_string($haystack, $needle)
     {
         $haystack = $this->normalize_for_search($haystack);
         $needle = $this->normalize_for_search($needle);
-        $matched = \array_map(function ($needle_word) use($haystack) {
+        $matched = array_map(function ($needle_word) use ($haystack) {
             foreach ($haystack as $haystack_word) {
-                if (\strpos($haystack_word, $needle_word) !== \false) {
+                if (strpos($haystack_word, $needle_word) !== \false) {
                     return \true;
                 }
             }
@@ -218,7 +218,7 @@ abstract class AbstractImplementation
     /**
      * @return array
      */
-    public abstract function get_data();
+    abstract public function get_data();
     /**
      * @param array $definition
      *
@@ -230,7 +230,7 @@ abstract class AbstractImplementation
             $value = $this->get_field($item['id'], $item);
             $value = $this->parse_value($value, $item);
             if (!empty($definition['items'][$key]['items'])) {
-                $definition['items'][$key]['items'] = \array_filter(\array_map(array($this, 'normalize_item'), $definition['items'][$key]['items']));
+                $definition['items'][$key]['items'] = array_filter(array_map(array($this, 'normalize_item'), $definition['items'][$key]['items']));
             }
             if (!isset($value)) {
                 $definition['items'][$key]['value'] = '';
@@ -256,8 +256,8 @@ abstract class AbstractImplementation
      *
      * @return mixed
      */
-    public abstract function get_field(string $name, array $item);
-    public abstract function set_wcf_shown(WP_Screen $current_screen);
+    abstract public function get_field(string $name, array $item);
+    abstract public function set_wcf_shown(WP_Screen $current_screen);
     /**
      * @param array $item
      *
@@ -299,7 +299,7 @@ abstract class AbstractImplementation
         foreach ($items as $key => $item) {
             $items[$key] = $this->normalize_item($item);
         }
-        return \array_values(\array_filter($items));
+        return array_values(array_filter($items));
     }
     /**
      * @param array $args
@@ -316,18 +316,18 @@ abstract class AbstractImplementation
                 $args['type'] = $correct;
             }
         }
-        if (\in_array($args['type'], array('number', 'post', 'attachment')) && empty($args['default'])) {
+        if (in_array($args['type'], array('number', 'post', 'attachment')) && empty($args['default'])) {
             $args['default'] = 0;
         }
-        if (\in_array($args['type'], array('group', 'multi_group', 'multi_post', 'multi_attachment', 'multi_toggle', 'multi_select', 'link')) && empty($args['default'])) {
+        if (in_array($args['type'], array('group', 'multi_group', 'multi_post', 'multi_attachment', 'multi_toggle', 'multi_select', 'link')) && empty($args['default'])) {
             $args['default'] = array();
         }
-        if (\in_array($args['type'], array('toggle', 'checkbox')) && empty($args['default'])) {
+        if (in_array($args['type'], array('toggle', 'checkbox')) && empty($args['default'])) {
             $args['default'] = \false;
         }
         if (!empty($args['post_type'])) {
             $args['async'] = $args['async'] ?? \true;
-            if (\is_string($args['post_type'])) {
+            if (is_string($args['post_type'])) {
                 $args['post_type'] = array($args['post_type']);
             }
             $post_type_names = array();
@@ -335,7 +335,7 @@ abstract class AbstractImplementation
                 $post_type = get_post_type_object($post_type);
                 $post_type_names[] = empty($post_type->labels->singular_name) ? __('Item', 'wpify-custom-fields') : $post_type->labels->singular_name;
             }
-            $args['post_type_name'] = \join(', ', $post_type_names);
+            $args['post_type_name'] = join(', ', $post_type_names);
         }
         $args_aliases = array('label' => 'title', 'desc' => 'description', 'async_list_type' => 'list_type');
         foreach ($args_aliases as $alias => $correct) {
@@ -347,11 +347,11 @@ abstract class AbstractImplementation
             $args['type'] = 'multi_group';
             unset($args['multi']);
         }
-        if (!empty($args['items']) && \is_array($args['items'])) {
+        if (!empty($args['items']) && is_array($args['items'])) {
             foreach ($args['items'] as $key => $item) {
                 $args['items'][$key] = $this->normalize_item($item);
             }
-            $args['items'] = \array_values(\array_filter($args['items']));
+            $args['items'] = array_values(array_filter($args['items']));
         }
         if ('group' === $args['type']) {
             $default = empty($args['default']) ? array() : $args['default'];
@@ -360,19 +360,19 @@ abstract class AbstractImplementation
                 $args['default'][$item_id] = $item['default'] ?? $default[$item_id] ?? '';
             }
         }
-        if (isset($args['display']) && \is_callable($args['display']) && $args['display']($args, $this) === \false || isset($args['display']) && $args['display'] === \false) {
+        if (isset($args['display']) && is_callable($args['display']) && $args['display']($args, $this) === \false || isset($args['display']) && $args['display'] === \false) {
             return null;
         }
         return $args;
     }
-    public function unique_id($data, $prefix = '') : string
+    public function unique_id($data, $prefix = ''): string
     {
         unset($data['items']);
         unset($data['render_callback']);
         unset($data['display']);
-        \ob_start();
-        \var_dump($data, $prefix);
-        return \md5(\ob_get_clean());
+        ob_start();
+        var_dump($data, $prefix);
+        return md5(ob_get_clean());
     }
     public function register_selects()
     {

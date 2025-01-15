@@ -16,10 +16,10 @@ final class Sanitizer
     public function __construct()
     {
         foreach ($this->sanitizers as $type => $function_name) {
-            add_filter('wcf_sanitize_' . $type . '_value_callback', function ($callable) use($function_name, $type) {
-                if (\method_exists($this, $function_name)) {
+            add_filter('wcf_sanitize_' . $type . '_value_callback', function ($callable) use ($function_name, $type) {
+                if (method_exists($this, $function_name)) {
                     return array($this, $function_name);
-                } elseif (\function_exists($function_name)) {
+                } elseif (function_exists($function_name)) {
                     return $function_name;
                 }
                 return $callable;
@@ -33,10 +33,10 @@ final class Sanitizer
      */
     public function sanitize_group_value($value)
     {
-        if (\is_string($value)) {
-            $value = \json_decode($value, \true);
+        if (is_string($value)) {
+            $value = json_decode($value, \true);
         }
-        if (\is_array($value)) {
+        if (is_array($value)) {
             return $value;
         }
         return array();
@@ -48,8 +48,8 @@ final class Sanitizer
      */
     public function sanitize_number_value($value)
     {
-        if (\is_numeric($value)) {
-            return \floatval($value);
+        if (is_numeric($value)) {
+            return floatval($value);
         }
         return null;
     }

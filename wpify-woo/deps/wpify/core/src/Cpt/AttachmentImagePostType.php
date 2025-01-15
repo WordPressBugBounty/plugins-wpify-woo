@@ -8,7 +8,7 @@ class AttachmentImagePostType extends AttachmentPostType
     /**
      * @inheritDoc
      */
-    public function model() : string
+    public function model(): string
     {
         return AttachmentImageModel::class;
     }

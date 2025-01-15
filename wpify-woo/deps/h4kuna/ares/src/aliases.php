@@ -12,4 +12,4 @@ if (\false) {
 }
 namespace WpifyWooDeps\h4kuna\Ares;
 
-\class_alias(Ares\Core\Data::class, 'WpifyWooDeps\\h4kuna\\Ares\\Basic\\Data');
+class_alias(Ares\Core\Data::class, 'WpifyWooDeps\h4kuna\Ares\Basic\Data');

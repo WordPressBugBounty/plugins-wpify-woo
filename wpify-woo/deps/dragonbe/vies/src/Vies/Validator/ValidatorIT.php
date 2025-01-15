@@ -31,18 +31,18 @@ class ValidatorIT extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 11) {
+        if (strlen($vatNumber) != 11) {
             return \false;
         }
-        if (!\ctype_digit($vatNumber)) {
+        if (!ctype_digit($vatNumber)) {
             return \false;
         }
-        if (\substr($vatNumber, 0, 7) == '0000000') {
+        if (substr($vatNumber, 0, 7) == '0000000') {
             return \false;
         }
-        $checksum = (int) \substr($vatNumber, -1);
+        $checksum = (int) substr($vatNumber, -1);
         $Sum1 = 0;
         $Sum2 = 0;
         for ($i = 1; $i <= 10; $i++) {

@@ -62,7 +62,7 @@ class ResolverDispatcher implements DefinitionResolver
         $definitionResolver = $this->getDefinitionResolver($definition);
         return $definitionResolver->resolve($definition, $parameters);
     }
-    public function isResolvable(Definition $definition, array $parameters = []) : bool
+    public function isResolvable(Definition $definition, array $parameters = []): bool
     {
         // Special case, tested early for speed
         if ($definition instanceof SelfResolvingDefinition) {
@@ -76,7 +76,7 @@ class ResolverDispatcher implements DefinitionResolver
      *
      * @throws \RuntimeException No definition resolver was found for this type of definition.
      */
-    private function getDefinitionResolver(Definition $definition) : DefinitionResolver
+    private function getDefinitionResolver(Definition $definition): DefinitionResolver
     {
         switch (\true) {
             case $definition instanceof ObjectDefinition:
@@ -110,7 +110,7 @@ class ResolverDispatcher implements DefinitionResolver
                 }
                 return $this->instanceResolver;
             default:
-                throw new \RuntimeException('No definition resolver was configured for definition of type ' . \get_class($definition));
+                throw new \RuntimeException('No definition resolver was configured for definition of type ' . get_class($definition));
         }
     }
 }

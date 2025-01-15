@@ -29,12 +29,12 @@ class ValidatorBE extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 10) {
+        if (strlen($vatNumber) != 10) {
             return \false;
         }
-        $checkVal = (int) \substr($vatNumber, 0, -2);
-        return 97 - $checkVal % 97 == (int) \substr($vatNumber, -2);
+        $checkVal = (int) substr($vatNumber, 0, -2);
+        return 97 - $checkVal % 97 == (int) substr($vatNumber, -2);
     }
 }

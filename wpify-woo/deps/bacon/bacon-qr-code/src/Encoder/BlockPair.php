@@ -37,7 +37,7 @@ final class BlockPair
      *
      * @return SplFixedArray<int>
      */
-    public function getDataBytes() : SplFixedArray
+    public function getDataBytes(): SplFixedArray
     {
         return $this->dataBytes;
     }
@@ -46,7 +46,7 @@ final class BlockPair
      *
      * @return SplFixedArray<int>
      */
-    public function getErrorCorrectionBytes() : SplFixedArray
+    public function getErrorCorrectionBytes(): SplFixedArray
     {
         return $this->errorCorrectionBytes;
     }

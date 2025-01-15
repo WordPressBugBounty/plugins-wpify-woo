@@ -7,7 +7,7 @@ use WpifyWooDeps\PHPStan\PhpDocParser\Ast\NodeAttributes;
 class ConstExprNullNode implements ConstExprNode
 {
     use NodeAttributes;
-    public function __toString() : string
+    public function __toString(): string
     {
         return 'null';
     }

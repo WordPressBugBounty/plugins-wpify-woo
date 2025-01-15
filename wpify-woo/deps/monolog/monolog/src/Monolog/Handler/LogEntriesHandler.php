@@ -30,17 +30,17 @@ class LogEntriesHandler extends SocketHandler
      */
     public function __construct(string $token, bool $useSSL = \true, $level = Logger::DEBUG, bool $bubble = \true, string $host = 'data.logentries.com')
     {
-        if ($useSSL && !\extension_loaded('openssl')) {
+        if ($useSSL && !extension_loaded('openssl')) {
             throw new MissingExtensionException('The OpenSSL PHP plugin is required to use SSL encrypted connection for LogEntriesHandler');
         }
-        $endpoint = $useSSL ? 'ssl://' . $host . ':443' : $host . ':80';
+        $endpoint = $useSSL ? 'ssl://' . $host . ':443' : ($host . ':80');
         parent::__construct($endpoint, $level, $bubble);
         $this->logToken = $token;
     }
     /**
      * {@inheritDoc}
      */
-    protected function generateDataStream(array $record) : string
+    protected function generateDataStream(array $record): string
     {
         return $this->logToken . ' ' . $record['formatted'];
     }

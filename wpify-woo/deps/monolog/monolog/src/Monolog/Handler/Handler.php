@@ -21,7 +21,7 @@ abstract class Handler implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function handleBatch(array $records) : void
+    public function handleBatch(array $records): void
     {
         foreach ($records as $record) {
             $this->handle($record);
@@ -30,7 +30,7 @@ abstract class Handler implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function close() : void
+    public function close(): void
     {
     }
     public function __destruct()
@@ -44,6 +44,6 @@ abstract class Handler implements HandlerInterface
     public function __sleep()
     {
         $this->close();
-        return \array_keys(\get_object_vars($this));
+        return array_keys(get_object_vars($this));
     }
 }

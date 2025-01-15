@@ -75,7 +75,7 @@ abstract class AbstractUserRepository extends AbstractRepository implements User
             foreach ($model->own_props() as $key => $prop) {
                 if ($prop['source'] === 'meta' && $prop['changed']) {
                     $model->store_meta($prop['source_name'], $model->{$key});
-                } elseif ($prop['source'] === 'relation' && \is_callable($prop['assign']) && $prop['changed']) {
+                } elseif ($prop['source'] === 'relation' && is_callable($prop['assign']) && $prop['changed']) {
                     $prop['assign']($model);
                 }
             }
@@ -91,17 +91,17 @@ abstract class AbstractUserRepository extends AbstractRepository implements User
      * @return WP_User
      * @throws NotFoundException
      */
-    protected function resolve_object($data) : WP_User
+    protected function resolve_object($data): WP_User
     {
-        if (\is_object($data) && \get_class($data) === $this->model()) {
+        if (is_object($data) && get_class($data) === $this->model()) {
             $object = $data->source_object();
         } elseif ($data instanceof WP_User) {
             $object = $data;
-        } elseif (\is_null($data)) {
+        } elseif (is_null($data)) {
             $object = new WP_User((object) array('ID' => null, 'user_login' => '', 'user_pass' => '', 'user_nicename' => '', 'user_email' => '', 'user_url' => '', 'user_registered' => '', 'user_activation_key' => '', 'user_status' => 1, 'display_name' => ''));
         } elseif (isset($data->id)) {
             $object = get_user_by('ID', $data->id);
-        } elseif (\is_numeric($data)) {
+        } elseif (is_numeric($data)) {
             $object = get_user_by('ID', $data);
         } elseif (is_email($data)) {
             $object = get_user_by('email', $data);
@@ -132,6 +132,6 @@ abstract class AbstractUserRepository extends AbstractRepository implements User
      */
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
 }

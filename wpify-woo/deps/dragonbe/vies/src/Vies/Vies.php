@@ -79,7 +79,7 @@ class Vies
      *
      * @return self
      */
-    public function allowTestCodes() : self
+    public function allowTestCodes(): self
     {
         $this->allowTestCodes = \true;
         return $this;
@@ -89,7 +89,7 @@ class Vies
      *
      * @return self
      */
-    public function disallowTestCodes() : self
+    public function disallowTestCodes(): self
     {
         $this->allowTestCodes = \false;
         return $this;
@@ -99,7 +99,7 @@ class Vies
      *
      * @return bool
      */
-    public function areTestCodesAllowed() : bool
+    public function areTestCodesAllowed(): bool
     {
         return $this->allowTestCodes;
     }
@@ -109,7 +109,7 @@ class Vies
      *
      * @return SoapClient
      */
-    public function getSoapClient() : SoapClient
+    public function getSoapClient(): SoapClient
     {
         $this->soapClient = $this->soapClient ?? new SoapClient($this->getWsdl(), $this->getOptions());
         return $this->soapClient;
@@ -122,7 +122,7 @@ class Vies
      * @param SoapClient $soapClient
      * @return self
      */
-    public function setSoapClient(SoapClient $soapClient) : self
+    public function setSoapClient(SoapClient $soapClient): self
     {
         $this->soapClient = $soapClient;
         return $this;
@@ -132,9 +132,9 @@ class Vies
      *
      * @return string
      */
-    public function getWsdl() : string
+    public function getWsdl(): string
     {
-        $this->wsdl = $this->wsdl ?? \sprintf('%s://%s%s', self::VIES_PROTO, self::VIES_DOMAIN, self::VIES_WSDL);
+        $this->wsdl = $this->wsdl ?? sprintf('%s://%s%s', self::VIES_PROTO, self::VIES_DOMAIN, self::VIES_WSDL);
         return $this->wsdl;
     }
     /**
@@ -146,7 +146,7 @@ class Vies
      *
      * @example http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl
      */
-    public function setWsdl(string $wsdl) : self
+    public function setWsdl(string $wsdl): self
     {
         $this->wsdl = $wsdl;
         return $this;
@@ -156,7 +156,7 @@ class Vies
      *
      * @return array
      */
-    public function getOptions() : array
+    public function getOptions(): array
     {
         $this->options = $this->options ?? [];
         return $this->options;
@@ -168,7 +168,7 @@ class Vies
      * @return self
      * @link http://php.net/manual/en/soapclient.soapclient.php
      */
-    public function setOptions(array $options) : self
+    public function setOptions(array $options): self
     {
         $this->options = $options;
         return $this;
@@ -179,7 +179,7 @@ class Vies
      *
      * @return HeartBeat
      */
-    public function getHeartBeat() : HeartBeat
+    public function getHeartBeat(): HeartBeat
     {
         $this->heartBeat = $this->heartBeat ?? new HeartBeat(self::VIES_DOMAIN, self::VIES_PORT, HeartBeat::DEFAULT_TIMEOUT, self::VIES_PATH);
         return $this->heartBeat;
@@ -191,7 +191,7 @@ class Vies
      * @param HeartBeat $heartBeat
      * @return self
      */
-    public function setHeartBeat(HeartBeat $heartBeat) : self
+    public function setHeartBeat(HeartBeat $heartBeat): self
     {
         $this->heartBeat = $heartBeat;
         return $this;
@@ -217,21 +217,21 @@ class Vies
      * @throws ViesException
      * @throws ViesServiceException
      */
-    public function validateVat(string $countryCode, string $vatNumber, string $requesterCountryCode = '', string $requesterVatNumber = '', string $traderName = '', string $traderCompanyType = '', string $traderStreet = '', string $traderPostcode = '', string $traderCity = '') : CheckVatResponse
+    public function validateVat(string $countryCode, string $vatNumber, string $requesterCountryCode = '', string $requesterVatNumber = '', string $traderName = '', string $traderCompanyType = '', string $traderStreet = '', string $traderPostcode = '', string $traderCity = ''): CheckVatResponse
     {
         if ($this->validateCountryCode($countryCode, \true) === \false) {
-            throw new ViesException(\sprintf('Invalid country code "%s" provided', $countryCode));
+            throw new ViesException(sprintf('Invalid country code "%s" provided', $countryCode));
         }
-        if ($this->areTestCodesAllowed() && \in_array((int) $vatNumber, self::VIES_TEST_VAT_NRS, \true)) {
+        if ($this->areTestCodesAllowed() && in_array((int) $vatNumber, self::VIES_TEST_VAT_NRS, \true)) {
             return $this->validateTestVat($countryCode, $vatNumber);
         }
         $vatNumber = self::filterVat($vatNumber);
         if (!$this->validateVatSum($countryCode, $vatNumber)) {
-            $params = (object) ['countryCode' => $countryCode, 'vatNumber' => $vatNumber, 'requestDate' => \date_create(), 'valid' => \false];
+            $params = (object) ['countryCode' => $countryCode, 'vatNumber' => $vatNumber, 'requestDate' => date_create(), 'valid' => \false];
             return new CheckVatResponse($params);
         }
-        if (\array_key_exists($countryCode, self::VIES_EXCLUDED_COUNTRY_CODES)) {
-            throw new ViesServiceException(\sprintf('Country %s is no longer supported by VIES services provided by EC since %s because of %s', self::VIES_EXCLUDED_COUNTRY_CODES[$countryCode]['name'], self::VIES_EXCLUDED_COUNTRY_CODES[$countryCode]['excluded'], self::VIES_EXCLUDED_COUNTRY_CODES[$countryCode]['reason']));
+        if (array_key_exists($countryCode, self::VIES_EXCLUDED_COUNTRY_CODES)) {
+            throw new ViesServiceException(sprintf('Country %s is no longer supported by VIES services provided by EC since %s because of %s', self::VIES_EXCLUDED_COUNTRY_CODES[$countryCode]['name'], self::VIES_EXCLUDED_COUNTRY_CODES[$countryCode]['excluded'], self::VIES_EXCLUDED_COUNTRY_CODES[$countryCode]['reason']));
         }
         $requestParams = ['countryCode' => $countryCode, 'vatNumber' => $vatNumber];
         $this->addOptionalArguments($requestParams, 'traderName', $traderName);
@@ -241,7 +241,7 @@ class Vies
         $this->addOptionalArguments($requestParams, 'traderCity', $traderCity);
         if ($requesterCountryCode && $requesterVatNumber) {
             if ($this->validateCountryCode($requesterCountryCode) === \false) {
-                throw new ViesException(\sprintf('Invalid requestor country code "%s" provided', $requesterCountryCode));
+                throw new ViesException(sprintf('Invalid requestor country code "%s" provided', $requesterCountryCode));
             }
             $requesterVatNumber = self::filterVat($requesterVatNumber);
             $requestParams['requesterCountryCode'] = $requesterCountryCode;
@@ -250,7 +250,7 @@ class Vies
         try {
             return new CheckVatResponse($this->getSoapClient()->__soapCall('checkVatApprox', [$requestParams]));
         } catch (SoapFault $e) {
-            $message = \sprintf('Back-end VIES service cannot validate the VAT number "%s%s" at this moment. ' . 'The service responded with the critical error "%s". This is probably a temporary ' . 'problem. Please try again later.', $countryCode, $vatNumber, $e->getMessage());
+            $message = sprintf('Back-end VIES service cannot validate the VAT number "%s%s" at this moment. ' . 'The service responded with the critical error "%s". This is probably a temporary ' . 'problem. Please try again later.', $countryCode, $vatNumber, $e->getMessage());
             throw new ViesServiceException($message, 0, $e);
         }
     }
@@ -264,10 +264,10 @@ class Vies
      * @return bool
      * @throws ViesException
      */
-    public function validateVatSum(string $countryCode, string $vatNumber) : bool
+    public function validateVatSum(string $countryCode, string $vatNumber): bool
     {
         if ($this->validateCountryCode($countryCode, \true) === \false) {
-            throw new ViesException(\sprintf('Invalid country code "%s" provided', $countryCode));
+            throw new ViesException(sprintf('Invalid country code "%s" provided', $countryCode));
         }
         $className = self::VIES_EU_COUNTRY_LIST[$countryCode]['validator'];
         return (new $className())->validate(self::filterVat($vatNumber));
@@ -279,9 +279,9 @@ class Vies
      * @return string
      * @static
      */
-    public static function filterVat(string $vatNumber) : string
+    public static function filterVat(string $vatNumber): string
     {
-        return \str_replace([' ', '.', '-'], '', $vatNumber);
+        return str_replace([' ', '.', '-'], '', $vatNumber);
     }
     /**
      * Splits a VAT ID on country code and VAT number
@@ -289,22 +289,22 @@ class Vies
      * @param string $vatId
      * @return array
      */
-    public function splitVatId(string $vatId) : array
+    public function splitVatId(string $vatId): array
     {
-        return ['country' => \substr($vatId, 0, 2), 'id' => \substr($vatId, 2)];
+        return ['country' => substr($vatId, 0, 2), 'id' => substr($vatId, 2)];
     }
     /**
      * A list of European Union countries as of January 2015
      *
      * @return array
      */
-    public static function listEuropeanCountries() : array
+    public static function listEuropeanCountries(): array
     {
         static $list;
         if (!$list) {
-            $list = \array_combine(\array_keys(self::VIES_EU_COUNTRY_LIST), \array_column(self::VIES_EU_COUNTRY_LIST, 'name'));
+            $list = array_combine(array_keys(self::VIES_EU_COUNTRY_LIST), array_column(self::VIES_EU_COUNTRY_LIST, 'name'));
             unset($list['EU']);
-            foreach (\array_keys(self::VIES_EXCLUDED_COUNTRY_CODES) as $excludedCountryCode) {
+            foreach (array_keys(self::VIES_EXCLUDED_COUNTRY_CODES) as $excludedCountryCode) {
                 unset($list[$excludedCountryCode]);
             }
         }
@@ -318,7 +318,7 @@ class Vies
      * @param string $argumentValue
      * @return bool
      */
-    private function addOptionalArguments(array &$requestParams, string $argumentKey, string $argumentValue) : bool
+    private function addOptionalArguments(array &$requestParams, string $argumentKey, string $argumentValue): bool
     {
         if ('' !== $argumentValue) {
             $argumentValue = $this->filterArgument($argumentValue);
@@ -337,10 +337,10 @@ class Vies
      * @param string $argumentValue
      * @return string
      */
-    private function filterArgument(string $argumentValue) : string
+    private function filterArgument(string $argumentValue): string
     {
-        $argumentValue = \str_replace(['"', '\''], '', $argumentValue);
-        return \filter_var($argumentValue, \FILTER_UNSAFE_RAW, \FILTER_FLAG_STRIP_LOW);
+        $argumentValue = str_replace(['"', '\''], '', $argumentValue);
+        return filter_var($argumentValue, \FILTER_UNSAFE_RAW, \FILTER_FLAG_STRIP_LOW);
     }
     /**
      * Validate the data to prevent XSS and other nasty things
@@ -349,10 +349,10 @@ class Vies
      * @param string $argumentValue
      * @return bool
      */
-    private function validateArgument(string $argumentValue) : bool
+    private function validateArgument(string $argumentValue): bool
     {
-        $regexp = '/^[a-zA-Z0-9\\s\\.\\-,&\\+\\(\\)\\/º\\pL]+$/u';
-        if (\false === \filter_var($argumentValue, \FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => $regexp]])) {
+        $regexp = '/^[a-zA-Z0-9\s\.\-,&\+\(\)\/º\pL]+$/u';
+        if (\false === filter_var($argumentValue, \FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => $regexp]])) {
             return \false;
         }
         return \true;
@@ -364,15 +364,15 @@ class Vies
      * @return CheckVatResponse
      * @throws ViesServiceException
      */
-    private function validateTestVat(string $countryCode, string $testVatNumber) : CheckVatResponse
+    private function validateTestVat(string $countryCode, string $testVatNumber): CheckVatResponse
     {
-        $wsdlUri = \sprintf('%s://%s%s', self::VIES_PROTO, self::VIES_DOMAIN, self::VIES_TEST_WSDL);
+        $wsdlUri = sprintf('%s://%s%s', self::VIES_PROTO, self::VIES_DOMAIN, self::VIES_TEST_WSDL);
         $this->setWsdl($wsdlUri);
         $requestParams = ['countryCode' => $countryCode, 'vatNumber' => $testVatNumber];
         try {
             return new CheckVatResponse($this->getSoapClient()->__soapCall('checkVat', [$requestParams]));
         } catch (SoapFault $e) {
-            $message = \sprintf('Back-end VIES service cannot validate the VAT number "%s%s" at this moment. ' . 'The service responded with the critical error "%s". This is probably a temporary ' . 'problem. Please try again later.', $countryCode, $testVatNumber, $e->getMessage());
+            $message = sprintf('Back-end VIES service cannot validate the VAT number "%s%s" at this moment. ' . 'The service responded with the critical error "%s". This is probably a temporary ' . 'problem. Please try again later.', $countryCode, $testVatNumber, $e->getMessage());
             throw new ViesServiceException($message, 0, $e);
         }
     }
@@ -382,7 +382,7 @@ class Vies
      *
      * @return bool
      */
-    private function validateCountryCode(string $countryCode, bool $useExcludedCountries = \false) : bool
+    private function validateCountryCode(string $countryCode, bool $useExcludedCountries = \false): bool
     {
         if (!isset(self::VIES_EU_COUNTRY_LIST[$countryCode])) {
             return \false;

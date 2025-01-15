@@ -9,12 +9,12 @@ use WpifyWooDeps\Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelInterfa
 use WpifyWooDeps\Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeInterface;
 interface QrCodeInterface
 {
-    public function getData() : string;
-    public function getEncoding() : EncodingInterface;
-    public function getErrorCorrectionLevel() : ErrorCorrectionLevelInterface;
-    public function getSize() : int;
-    public function getMargin() : int;
-    public function getRoundBlockSizeMode() : RoundBlockSizeModeInterface;
-    public function getForegroundColor() : ColorInterface;
-    public function getBackgroundColor() : ColorInterface;
+    public function getData(): string;
+    public function getEncoding(): EncodingInterface;
+    public function getErrorCorrectionLevel(): ErrorCorrectionLevelInterface;
+    public function getSize(): int;
+    public function getMargin(): int;
+    public function getRoundBlockSizeMode(): RoundBlockSizeModeInterface;
+    public function getForegroundColor(): ColorInterface;
+    public function getBackgroundColor(): ColorInterface;
 }

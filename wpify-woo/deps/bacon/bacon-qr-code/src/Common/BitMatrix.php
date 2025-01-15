@@ -52,12 +52,12 @@ class BitMatrix
         $this->width = $width;
         $this->height = $height;
         $this->rowSize = $width + 31 >> 5;
-        $this->bits = SplFixedArray::fromArray(\array_fill(0, $this->rowSize * $height, 0));
+        $this->bits = SplFixedArray::fromArray(array_fill(0, $this->rowSize * $height, 0));
     }
     /**
      * Gets the requested bit, where true means black.
      */
-    public function get(int $x, int $y) : bool
+    public function get(int $x, int $y): bool
     {
         $offset = $y * $this->rowSize + ($x >> 5);
         return 0 !== (BitUtils::unsignedRightShift($this->bits[$offset], $x & 0x1f) & 1);
@@ -65,7 +65,7 @@ class BitMatrix
     /**
      * Sets the given bit to true.
      */
-    public function set(int $x, int $y) : void
+    public function set(int $x, int $y): void
     {
         $offset = $y * $this->rowSize + ($x >> 5);
         $this->bits[$offset] = $this->bits[$offset] | 1 << ($x & 0x1f);
@@ -73,7 +73,7 @@ class BitMatrix
     /**
      * Flips the given bit.
      */
-    public function flip(int $x, int $y) : void
+    public function flip(int $x, int $y): void
     {
         $offset = $y * $this->rowSize + ($x >> 5);
         $this->bits[$offset] = $this->bits[$offset] ^ 1 << ($x & 0x1f);
@@ -81,9 +81,9 @@ class BitMatrix
     /**
      * Clears all bits (set to false).
      */
-    public function clear() : void
+    public function clear(): void
     {
-        $max = \count($this->bits);
+        $max = count($this->bits);
         for ($i = 0; $i < $max; ++$i) {
             $this->bits[$i] = 0;
         }
@@ -95,7 +95,7 @@ class BitMatrix
      * @throws InvalidArgumentException if width or height are smaller than 1
      * @throws InvalidArgumentException if region does not fit into the matix
      */
-    public function setRegion(int $left, int $top, int $width, int $height) : void
+    public function setRegion(int $left, int $top, int $width, int $height): void
     {
         if ($top < 0 || $left < 0) {
             throw new InvalidArgumentException('Left and top must be non-negative');
@@ -119,7 +119,7 @@ class BitMatrix
     /**
      * A fast method to retrieve one row of data from the matrix as a BitArray.
      */
-    public function getRow(int $y, BitArray $row = null) : BitArray
+    public function getRow(int $y, BitArray $row = null): BitArray
     {
         if (null === $row || $row->getSize() < $this->width) {
             $row = new BitArray($this->width);
@@ -133,7 +133,7 @@ class BitMatrix
     /**
      * Sets a row of data from a BitArray.
      */
-    public function setRow(int $y, BitArray $row) : void
+    public function setRow(int $y, BitArray $row): void
     {
         $bits = $row->getBitArray();
         for ($i = 0; $i < $this->rowSize; ++$i) {
@@ -145,7 +145,7 @@ class BitMatrix
      *
      * @return int[]|null
      */
-    public function getEnclosingRectangle() : ?array
+    public function getEnclosingRectangle(): ?array
     {
         $left = $this->width;
         $top = $this->height;
@@ -196,16 +196,16 @@ class BitMatrix
      *
      * @return int[]|null
      */
-    public function getTopLeftOnBit() : ?array
+    public function getTopLeftOnBit(): ?array
     {
         $bitsOffset = 0;
-        while ($bitsOffset < \count($this->bits) && 0 === $this->bits[$bitsOffset]) {
+        while ($bitsOffset < count($this->bits) && 0 === $this->bits[$bitsOffset]) {
             ++$bitsOffset;
         }
-        if (\count($this->bits) === $bitsOffset) {
+        if (count($this->bits) === $bitsOffset) {
             return null;
         }
-        $x = \intdiv($bitsOffset, $this->rowSize);
+        $x = intdiv($bitsOffset, $this->rowSize);
         $y = $bitsOffset % $this->rowSize << 5;
         $bits = $this->bits[$bitsOffset];
         $bit = 0;
@@ -222,16 +222,16 @@ class BitMatrix
      *
      * @return int[]|null
      */
-    public function getBottomRightOnBit() : ?array
+    public function getBottomRightOnBit(): ?array
     {
-        $bitsOffset = \count($this->bits) - 1;
+        $bitsOffset = count($this->bits) - 1;
         while ($bitsOffset >= 0 && 0 === $this->bits[$bitsOffset]) {
             --$bitsOffset;
         }
         if ($bitsOffset < 0) {
             return null;
         }
-        $x = \intdiv($bitsOffset, $this->rowSize);
+        $x = intdiv($bitsOffset, $this->rowSize);
         $y = $bitsOffset % $this->rowSize << 5;
         $bits = $this->bits[$bitsOffset];
         $bit = 0;
@@ -244,14 +244,14 @@ class BitMatrix
     /**
      * Gets the width of the matrix,
      */
-    public function getWidth() : int
+    public function getWidth(): int
     {
         return $this->width;
     }
     /**
      * Gets the height of the matrix.
      */
-    public function getHeight() : int
+    public function getHeight(): int
     {
         return $this->height;
     }

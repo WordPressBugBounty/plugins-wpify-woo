@@ -15,19 +15,19 @@ trait BaseObjectTrait
     public function __get($name)
     {
         $func = "get_{$name}";
-        if (\method_exists($this, $func)) {
+        if (method_exists($this, $func)) {
             return $this->{$func}();
         }
-        $func = 'get' . \ucfirst($name);
-        if (\method_exists($this, $func)) {
+        $func = 'get' . ucfirst($name);
+        if (method_exists($this, $func)) {
             return $this->{$func}();
         }
         $func = "is_{$name}";
-        if (\method_exists($this, $func)) {
+        if (method_exists($this, $func)) {
             return $this->{$func}();
         }
-        $func = 'is' . \ucfirst($name);
-        if (\method_exists($this, $func)) {
+        $func = 'is' . ucfirst($name);
+        if (method_exists($this, $func)) {
             return $this->{$func}();
         }
         if (isset($GLOBALS[$name])) {
@@ -45,27 +45,27 @@ trait BaseObjectTrait
     public function __set($name, $value)
     {
         $func = "set_{$name}";
-        if (\method_exists($this, $func)) {
+        if (method_exists($this, $func)) {
             $this->{$func}($value);
             return;
         }
-        $func = 'set' . \ucfirst($name);
-        if (\method_exists($this, $func)) {
+        $func = 'set' . ucfirst($name);
+        if (method_exists($this, $func)) {
             return $this->{$func}($value);
         }
         $func = "get_{$name}";
-        if (\method_exists($this, $func) || \method_exists($this, 'get' . \ucfirst($name))) {
-            throw new ReadOnlyException(\sprintf('Property %s is read-only', $name));
+        if (method_exists($this, $func) || method_exists($this, 'get' . ucfirst($name))) {
+            throw new ReadOnlyException(sprintf('Property %s is read-only', $name));
         }
         $func = "is_{$name}";
-        if (\method_exists($this, $func) || \method_exists($this, 'is' . \ucfirst($name))) {
-            throw new ReadOnlyException(\sprintf('Property %s is read-only', $name));
+        if (method_exists($this, $func) || method_exists($this, 'is' . ucfirst($name))) {
+            throw new ReadOnlyException(sprintf('Property %s is read-only', $name));
         }
         if (isset($GLOBALS[$name])) {
             $GLOBALS[$name] = $value;
             return;
         }
-        throw new InexistentPropertyException(\sprintf('Inexistent property: %s', $name));
+        throw new InexistentPropertyException(sprintf('Inexistent property: %s', $name));
     }
     /**
      * @param $name
@@ -75,19 +75,19 @@ trait BaseObjectTrait
     public function __isset($name)
     {
         $func = "get_{$name}";
-        if (\method_exists($this, $func)) {
+        if (method_exists($this, $func)) {
             return \true;
         }
-        $func = 'get' . \ucfirst($name);
-        if (\method_exists($this, $func)) {
+        $func = 'get' . ucfirst($name);
+        if (method_exists($this, $func)) {
             return $this->{$func}();
         }
         $func = "is_{$name}";
-        if (\method_exists($this, $func)) {
+        if (method_exists($this, $func)) {
             return \true;
         }
-        $func = 'is' . \ucfirst($name);
-        if (\method_exists($this, $func)) {
+        $func = 'is' . ucfirst($name);
+        if (method_exists($this, $func)) {
             return $this->{$func}();
         }
         return isset($GLOBALS[$name]);
@@ -98,7 +98,7 @@ trait BaseObjectTrait
     }
     public function get_full_class_name()
     {
-        return '\\' . \ltrim((new ReflectionClass($this))->getName(), '\\');
+        return '\\' . ltrim((new ReflectionClass($this))->getName(), '\\');
     }
     public function get_file_name()
     {

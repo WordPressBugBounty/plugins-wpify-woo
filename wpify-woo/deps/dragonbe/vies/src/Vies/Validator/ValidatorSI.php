@@ -32,12 +32,12 @@ class ValidatorSI extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 8) {
+        if (strlen($vatNumber) != 8) {
             return \false;
         }
-        if (\intval($vatNumber[0]) == 0) {
+        if (intval($vatNumber[0]) == 0) {
             return \false;
         }
         $checksum = (int) $vatNumber[7];
@@ -47,7 +47,7 @@ class ValidatorSI extends ValidatorAbstract
         if ($mod === 11) {
             return \false;
         }
-        $checkVal = $mod == 10 ? 0 : $mod;
+        $checkVal = ($mod == 10) ? 0 : $mod;
         return $checksum == $checkVal;
     }
 }

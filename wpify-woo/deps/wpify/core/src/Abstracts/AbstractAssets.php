@@ -144,12 +144,12 @@ abstract class AbstractAssets extends AbstractComponent
      *
      * @return string
      */
-    public function asset($file, $absolute = \true) : ?string
+    public function asset($file, $absolute = \true): ?string
     {
-        if (\preg_match('/^https?:\\/\\//', $file) || \preg_match('/^\\//', $file)) {
+        if (preg_match('/^https?:\/\//', $file) || preg_match('/^\//', $file)) {
             return $file;
         }
-        if (\file_exists($this->plugin->get_asset_path($file))) {
+        if (file_exists($this->plugin->get_asset_path($file))) {
             return $absolute ? $this->plugin->get_asset_url($file) : $file;
         }
         return null;
@@ -163,11 +163,11 @@ abstract class AbstractAssets extends AbstractComponent
      */
     public function get_file_type($filename)
     {
-        if (\filter_var($filename, \FILTER_VALIDATE_URL)) {
+        if (filter_var($filename, \FILTER_VALIDATE_URL)) {
             $parts = wp_parse_url($filename);
-            $extension = \pathinfo($parts['path'], \PATHINFO_EXTENSION);
+            $extension = pathinfo($parts['path'], \PATHINFO_EXTENSION);
         } else {
-            $extension = \pathinfo($filename, \PATHINFO_EXTENSION);
+            $extension = pathinfo($filename, \PATHINFO_EXTENSION);
         }
         switch ($extension) {
             case 'js':
@@ -182,7 +182,7 @@ abstract class AbstractAssets extends AbstractComponent
         }
         return $file_type;
     }
-    public abstract function assets() : array;
+    abstract public function assets(): array;
     /**
      * Check if the asset has been enqueued already
      *
@@ -192,7 +192,7 @@ abstract class AbstractAssets extends AbstractComponent
      */
     public function is_asset_enqueued($handle)
     {
-        return \in_array($handle, $this->enqueued_assets);
+        return in_array($handle, $this->enqueued_assets);
     }
     /**
      * @param array $asset
@@ -260,7 +260,7 @@ abstract class AbstractAssets extends AbstractComponent
             $handle = $asset['handle'];
             $wp_styles = wp_styles();
             $preload_uri = $wp_styles->registered[$handle]->src . '?ver=' . $wp_styles->registered[$handle]->ver;
-            \printf('<link rel="preload" id="%s-preload" href="%s" as="style">', esc_attr($handle), esc_url($preload_uri));
+            printf('<link rel="preload" id="%s-preload" href="%s" as="style">', esc_attr($handle), esc_url($preload_uri));
             echo "\n";
         }
     }
@@ -271,7 +271,7 @@ abstract class AbstractAssets extends AbstractComponent
      */
     private function get_styles()
     {
-        return \array_filter($this->assets, function ($asset) {
+        return array_filter($this->assets, function ($asset) {
             return isset($asset['type']) && $asset['type'] === 'style';
         });
     }
@@ -294,11 +294,11 @@ abstract class AbstractAssets extends AbstractComponent
         if (empty($handles)) {
             return;
         }
-        $handles = \array_filter($handles, function ($handle) {
-            return !\in_array($handle, $this->printed_assets);
+        $handles = array_filter($handles, function ($handle) {
+            return !in_array($handle, $this->printed_assets);
         });
-        $assets = \array_filter($this->assets, function ($asset) use($handles) {
-            return \in_array($asset['handle'], $handles) && $asset['preload'];
+        $assets = array_filter($this->assets, function ($asset) use ($handles) {
+            return in_array($asset['handle'], $handles) && $asset['preload'];
         });
         foreach ($assets as $asset) {
             $this->printed_assets[] = $asset['handle'];

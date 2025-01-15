@@ -29,20 +29,20 @@ class HungarianIbanAdapter implements IbanInterface
      *
      * @return string
      */
-    public function asString() : string
+    public function asString(): string
     {
         if ($this->iban === null) {
-            $accountNumber = \strtoupper((string) \preg_replace('/[\\s\\-]+/', '', $this->account));
-            if (!\in_array(\strlen($accountNumber), [16, 24])) {
+            $accountNumber = strtoupper((string) preg_replace('/[\s\-]+/', '', $this->account));
+            if (!in_array(strlen($accountNumber), [16, 24])) {
                 throw new InvalidArgumentException('Account number length is not valid. It either has to consists of 16 or 24 numbers.');
             }
-            $accountNumber = \str_pad($accountNumber, 24, '0');
-            $checkString = (string) \preg_replace_callback('/[A-Z]/', function ($matches) {
-                return \base_convert($matches[0], 36, 10);
-            }, \ltrim($accountNumber, '0') . 'HU00');
+            $accountNumber = str_pad($accountNumber, 24, '0');
+            $checkString = (string) preg_replace_callback('/[A-Z]/', function ($matches) {
+                return base_convert($matches[0], 36, 10);
+            }, ltrim($accountNumber, '0') . 'HU00');
             $mod = (int) Utils::bcmod($checkString, '97');
             $code = (string) (98 - $mod);
-            $this->iban = \sprintf('HU%s%s', \str_pad($code, 2, '0', \STR_PAD_LEFT), $accountNumber);
+            $this->iban = sprintf('HU%s%s', str_pad($code, 2, '0', \STR_PAD_LEFT), $accountNumber);
         }
         return $this->iban;
     }
@@ -51,7 +51,7 @@ class HungarianIbanAdapter implements IbanInterface
      *
      * @return ValidatorInterface|NULL
      */
-    public function getValidator() : ?ValidatorInterface
+    public function getValidator(): ?ValidatorInterface
     {
         return new CompoundValidator(new HungarianIbanValidator($this), new GenericIbanValidator($this));
     }

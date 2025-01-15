@@ -24,34 +24,34 @@ final class EyeFill
         $this->externalColor = $externalColor;
         $this->internalColor = $internalColor;
     }
-    public static function uniform(ColorInterface $color) : self
+    public static function uniform(ColorInterface $color): self
     {
         return new self($color, $color);
     }
-    public static function inherit() : self
+    public static function inherit(): self
     {
-        return self::$inherit ?: (self::$inherit = new self(null, null));
+        return self::$inherit ?: self::$inherit = new self(null, null);
     }
-    public function inheritsBothColors() : bool
+    public function inheritsBothColors(): bool
     {
         return null === $this->externalColor && null === $this->internalColor;
     }
-    public function inheritsExternalColor() : bool
+    public function inheritsExternalColor(): bool
     {
         return null === $this->externalColor;
     }
-    public function inheritsInternalColor() : bool
+    public function inheritsInternalColor(): bool
     {
         return null === $this->internalColor;
     }
-    public function getExternalColor() : ColorInterface
+    public function getExternalColor(): ColorInterface
     {
         if (null === $this->externalColor) {
             throw new RuntimeException('External eye color inherits foreground color');
         }
         return $this->externalColor;
     }
-    public function getInternalColor() : ColorInterface
+    public function getInternalColor(): ColorInterface
     {
         if (null === $this->internalColor) {
             throw new RuntimeException('Internal eye color inherits foreground color');

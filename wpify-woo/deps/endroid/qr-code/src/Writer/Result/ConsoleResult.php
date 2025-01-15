@@ -19,19 +19,19 @@ class ConsoleResult extends AbstractResult
     public function __construct(MatrixInterface $matrix, ColorInterface $foreground, ColorInterface $background)
     {
         $this->matrix = $matrix;
-        $this->colorEscapeCode = \sprintf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", $foreground->getRed(), $foreground->getGreen(), $foreground->getBlue(), $background->getRed(), $background->getGreen(), $background->getBlue());
+        $this->colorEscapeCode = sprintf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", $foreground->getRed(), $foreground->getGreen(), $foreground->getBlue(), $background->getRed(), $background->getGreen(), $background->getBlue());
     }
-    public function getMimeType() : string
+    public function getMimeType(): string
     {
         return 'text/plain';
     }
-    public function getString() : string
+    public function getString(): string
     {
         $side = $this->matrix->getBlockCount();
         $marginLeft = $this->colorEscapeCode . self::twoblocks[0] . self::twoblocks[0];
         $marginRight = self::twoblocks[0] . self::twoblocks[0] . "\x1b[0m" . \PHP_EOL;
-        $marginVertical = $marginLeft . \str_repeat(self::twoblocks[0], $side) . $marginRight;
-        \ob_start();
+        $marginVertical = $marginLeft . str_repeat(self::twoblocks[0], $side) . $marginRight;
+        ob_start();
         echo $marginVertical;
         // margin-top
         for ($rowIndex = 0; $rowIndex < $side; $rowIndex += 2) {
@@ -49,6 +49,6 @@ class ConsoleResult extends AbstractResult
         }
         echo $marginVertical;
         // margin-bottom
-        return (string) \ob_get_clean();
+        return (string) ob_get_clean();
     }
 }

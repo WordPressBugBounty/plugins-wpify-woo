@@ -33,7 +33,7 @@ class UdpSocket
             $domain = \AF_UNIX;
             $protocol = \IPPROTO_IP;
         }
-        $this->socket = \socket_create($domain, \SOCK_DGRAM, $protocol) ?: null;
+        $this->socket = socket_create($domain, \SOCK_DGRAM, $protocol) ?: null;
     }
     /**
      * @param  string $line
@@ -44,23 +44,23 @@ class UdpSocket
     {
         $this->send($this->assembleMessage($line, $header));
     }
-    public function close() : void
+    public function close(): void
     {
-        if (\is_resource($this->socket) || $this->socket instanceof Socket) {
-            \socket_close($this->socket);
+        if (is_resource($this->socket) || $this->socket instanceof Socket) {
+            socket_close($this->socket);
             $this->socket = null;
         }
     }
-    protected function send(string $chunk) : void
+    protected function send(string $chunk): void
     {
-        if (!\is_resource($this->socket) && !$this->socket instanceof Socket) {
+        if (!is_resource($this->socket) && !$this->socket instanceof Socket) {
             throw new \RuntimeException('The UdpSocket to ' . $this->ip . ':' . $this->port . ' has been closed and can not be written to anymore');
         }
-        \socket_sendto($this->socket, $chunk, \strlen($chunk), $flags = 0, $this->ip, $this->port);
+        socket_sendto($this->socket, $chunk, strlen($chunk), $flags = 0, $this->ip, $this->port);
     }
-    protected function assembleMessage(string $line, string $header) : string
+    protected function assembleMessage(string $line, string $header): string
     {
-        $chunkSize = static::DATAGRAM_MAX_LENGTH - \strlen($header);
+        $chunkSize = static::DATAGRAM_MAX_LENGTH - strlen($header);
         return $header . Utils::substr($line, 0, $chunkSize);
     }
 }

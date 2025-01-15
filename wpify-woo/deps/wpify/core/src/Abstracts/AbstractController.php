@@ -18,7 +18,7 @@ abstract class AbstractController extends AbstractComponent
     /**
      * @return string
      */
-    public function get_template() : string
+    public function get_template(): string
     {
         return $this->template;
     }
@@ -34,7 +34,7 @@ abstract class AbstractController extends AbstractComponent
     /**
      * @return array
      */
-    public function get_assets() : array
+    public function get_assets(): array
     {
         return $this->assets;
     }

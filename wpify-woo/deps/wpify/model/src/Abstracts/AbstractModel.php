@@ -46,36 +46,36 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
                 $this->_props[$name] = array('name' => $name, 'changed' => \false);
             }
             if ($property->getDocComment()) {
-                $parsed_doc = $parser->parse(\get_class($this), 'properties', $property->getDocComment(), $name);
+                $parsed_doc = $parser->parse(get_class($this), 'properties', $property->getDocComment(), $name);
             } else {
                 $parsed_doc = null;
             }
             if (empty($this->_props[$name]['type'])) {
-                if (\method_exists($property, 'getType') && $property->getType()) {
-                    $this->_props[$name]['type'] = \strval($property->getType());
+                if (method_exists($property, 'getType') && $property->getType()) {
+                    $this->_props[$name]['type'] = strval($property->getType());
                 }
             }
             if (empty($this->_props[$name]['type']) && $parsed_doc) {
                 foreach ($parsed_doc->children as $child) {
                     if (isset($child->name) && $child->name === '@var') {
-                        $this->_props[$name]['type'] = isset($child->value) ? \strval($child->value) : null;
+                        $this->_props[$name]['type'] = isset($child->value) ? strval($child->value) : null;
                         break;
                     }
                 }
             }
-            $object_vars = \is_object($this->_object) ? \get_object_vars($this->_object) : array();
+            $object_vars = is_object($this->_object) ? get_object_vars($this->_object) : array();
             if (empty($this->_props[$name]['source'])) {
-                if (\method_exists($this, 'get_' . $name)) {
+                if (method_exists($this, 'get_' . $name)) {
                     $this->_props[$name]['getter'] = array($this, 'get_' . $name);
                 }
-                if (\method_exists($this, 'set_' . $name)) {
+                if (method_exists($this, 'set_' . $name)) {
                     $this->_props[$name]['setter'] = array($this, 'set_' . $name);
                 }
-                if (\method_exists($this, $name . '_relation')) {
+                if (method_exists($this, $name . '_relation')) {
                     $this->_props[$name]['source'] = 'relation';
                     $method = $name . '_relation';
                     $this->_props[$name]['relation'] = $this->{$method}();
-                } elseif (\array_key_exists($name, $object_vars)) {
+                } elseif (array_key_exists($name, $object_vars)) {
                     $this->_props[$name]['source'] = 'object';
                 } else {
                     $this->_props[$name]['source'] = 'meta';
@@ -87,7 +87,7 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
             if (empty($this->_props[$name]['source_name'])) {
                 $this->_props[$name]['source_name'] = $name;
             }
-            if (empty($this->_props[$name]['setter']) && \method_exists($this, 'set_' . $name)) {
+            if (empty($this->_props[$name]['setter']) && method_exists($this, 'set_' . $name)) {
                 $this->_props[$name]['setter'] = 'set_' . $name;
             }
             if ($parsed_doc) {
@@ -105,7 +105,7 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
     /**
      * @return ArrayIterator
      */
-    public function getIterator() : ArrayIterator
+    public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->to_array());
     }
@@ -114,10 +114,10 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
      *
      * @return array
      */
-    public function to_array(array $props = array()) : array
+    public function to_array(array $props = array()): array
     {
         if (empty($props)) {
-            $props = \array_keys($this->_props);
+            $props = array_keys($this->_props);
         }
         $data = array();
         foreach ($props as $prop) {
@@ -129,7 +129,7 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
      * @param mixed $offset
      * @param mixed $value
      */
-    public function offsetSet($offset, $value) : void
+    public function offsetSet($offset, $value): void
     {
         $this->_data[$offset] = $value;
     }
@@ -138,14 +138,14 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
      *
      * @return bool
      */
-    public function offsetExists($offset) : bool
+    public function offsetExists($offset): bool
     {
         return isset($this->_props[$offset]);
     }
     /**
      * @param mixed $offset
      */
-    public function offsetUnset($offset) : void
+    public function offsetUnset($offset): void
     {
         unset($this->_data[$offset]);
     }
@@ -154,7 +154,7 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
      *
      * @return array|false|mixed|null
      */
-    public function offsetGet($offset) : mixed
+    public function offsetGet($offset): mixed
     {
         return isset($this->_props[$offset]) ? $this->{$offset} : null;
     }
@@ -193,7 +193,7 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
             $prop = $this->_props[$key];
             if (!isset($this->_data[$key])) {
                 $source_name = $prop['source_name'];
-                if (isset($prop['getter']) && \is_callable($prop['getter'])) {
+                if (isset($prop['getter']) && is_callable($prop['getter'])) {
                     $getter = $prop['getter'];
                     $this->_data[$key] = $getter();
                 } elseif ($prop['source'] === 'relation') {
@@ -201,7 +201,7 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
                     $this->_data[$key] = $relation->fetch();
                 } elseif ($prop['source'] === 'object') {
                     $getter = 'get_' . $source_name;
-                    if ($this->_object && \method_exists($this->_object, $getter)) {
+                    if ($this->_object && method_exists($this->_object, $getter)) {
                         $this->_data[$key] = $this->_object->{$getter}();
                     } elseif (isset($this->_object->{$source_name})) {
                         $this->_data[$key] = $this->_object->{$source_name};
@@ -234,7 +234,7 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
         if (isset($this->_props[$key])) {
             $this->_data[$key] = $value;
             $prop = $this->_props[$key];
-            if (isset($prop['setter']) && \is_callable(array($this, $prop['setter']))) {
+            if (isset($prop['setter']) && is_callable(array($this, $prop['setter']))) {
                 $setter = $prop['setter'];
                 $this->_data[$key] = $setter($value);
             } else {
@@ -244,8 +244,8 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
                 $this->_object->{$prop['source_name']} = $this->_data[$key];
             }
             $this->_props[$key]['changed'] = \true;
-            $after_set_hook = \sprintf('after_%s_set', $key);
-            if (\method_exists($this, $after_set_hook)) {
+            $after_set_hook = sprintf('after_%s_set', $key);
+            if (method_exists($this, $after_set_hook)) {
                 $this->{$after_set_hook}();
             }
         }
@@ -262,26 +262,26 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
     /**
      * @return mixed
      */
-    static abstract function meta_type();
+    abstract static function meta_type();
     private function maybe_convert_to_type($type, $value)
     {
-        if (($type === 'int' || $type === 'integer') && !\is_int($value)) {
-            return \intval($value);
+        if (($type === 'int' || $type === 'integer') && !is_int($value)) {
+            return intval($value);
         }
-        if ($type === 'float' && !\is_float($value)) {
-            return \floatval($value);
+        if ($type === 'float' && !is_float($value)) {
+            return floatval($value);
         }
-        if ($type === 'string' && !\is_string($value)) {
-            return \strval($value);
+        if ($type === 'string' && !is_string($value)) {
+            return strval($value);
         }
-        if (($type === 'bool' || $type === 'boolean') && !\is_bool($value)) {
-            return \boolval($value);
+        if (($type === 'bool' || $type === 'boolean') && !is_bool($value)) {
+            return boolval($value);
         }
-        if ($type === 'array' && \is_string($value)) {
-            return \json_decode($value, \true, 512, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        if ($type === 'array' && is_string($value)) {
+            return json_decode($value, \true, 512, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
         }
-        if ($type === 'object' && \is_string($value)) {
-            return \json_decode($value, \false, 512, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        if ($type === 'object' && is_string($value)) {
+            return json_decode($value, \false, 512, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
         }
         return $value;
     }
@@ -298,14 +298,14 @@ abstract class AbstractModel implements ModelInterface, IteratorAggregate, Array
     /**
      * @return array
      */
-    public function own_props() : array
+    public function own_props(): array
     {
         return $this->_props;
     }
     /**
      * @return object
      */
-    public function source_object() : object
+    public function source_object(): object
     {
         return $this->_object;
     }

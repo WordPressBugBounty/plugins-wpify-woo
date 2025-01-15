@@ -20,8 +20,8 @@ class TypeAliasImportTagValueNode implements PhpDocTagValueNode
         $this->importedFrom = $importedFrom;
         $this->importedAs = $importedAs;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return \trim("{$this->importedAlias} from {$this->importedFrom}" . ($this->importedAs !== null ? " as {$this->importedAs}" : ''));
+        return trim("{$this->importedAlias} from {$this->importedFrom}" . (($this->importedAs !== null) ? " as {$this->importedAs}" : ''));
     }
 }

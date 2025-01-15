@@ -32,14 +32,14 @@ final class EcBlocks
     /**
      * Returns the number of EC codewords per block.
      */
-    public function getEcCodewordsPerBlock() : int
+    public function getEcCodewordsPerBlock(): int
     {
         return $this->ecCodewordsPerBlock;
     }
     /**
      * Returns the total number of EC block appearances.
      */
-    public function getNumBlocks() : int
+    public function getNumBlocks(): int
     {
         $total = 0;
         foreach ($this->ecBlocks as $ecBlock) {
@@ -50,7 +50,7 @@ final class EcBlocks
     /**
      * Returns the total count of EC codewords.
      */
-    public function getTotalEcCodewords() : int
+    public function getTotalEcCodewords(): int
     {
         return $this->ecCodewordsPerBlock * $this->getNumBlocks();
     }
@@ -59,7 +59,7 @@ final class EcBlocks
      *
      * @return EcBlock[]
      */
-    public function getEcBlocks() : array
+    public function getEcBlocks(): array
     {
         return $this->ecBlocks;
     }

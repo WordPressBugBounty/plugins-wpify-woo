@@ -17,7 +17,7 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
      */
     public function all(array $args = array())
     {
-        $args = \array_merge(array('hide_empty' => \false), $args);
+        $args = array_merge(array('hide_empty' => \false), $args);
         return $this->find($args);
     }
     /**
@@ -36,7 +36,7 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
         }
         return $this->collection_factory($collection);
     }
-    public abstract function taxonomy() : string;
+    abstract public function taxonomy(): string;
     /**
      * @return AbstractTermModel[]
      */
@@ -77,7 +77,7 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
      */
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
     /**
      * @param int $parent_id
@@ -88,7 +88,7 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
     public function children_of(int $parent_id = 0, array $args = array())
     {
         if ($parent_id > 0) {
-            $args = \array_merge(array('child_of' => $parent_id), $args);
+            $args = array_merge(array('child_of' => $parent_id), $args);
             return $this->find($args);
         }
         return $this->collection_factory(array());
@@ -134,7 +134,7 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
         } else {
             $result = wp_insert_term($model->name, $model->taxonomy_name, $args);
             // Term exists
-            if (is_wp_error($result) && \is_int($result->get_error_data())) {
+            if (is_wp_error($result) && is_int($result->get_error_data())) {
                 $model->id = $result->get_error_data();
             } elseif (is_wp_error($result)) {
                 throw new NotPersistedException();
@@ -146,7 +146,7 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
             foreach ($model->own_props() as $key => $prop) {
                 if ($prop['source'] === 'meta' && $prop['changed']) {
                     $model->store_meta($prop['source_name'], $model->{$key});
-                } elseif ($prop['source'] === 'relation' && isset($prop['relation']) && \method_exists($prop['relation'], 'assign') && $prop['changed']) {
+                } elseif ($prop['source'] === 'relation' && isset($prop['relation']) && method_exists($prop['relation'], 'assign') && $prop['changed']) {
                     $prop['relation']->assign();
                 }
             }
@@ -161,10 +161,10 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
      * @return ?WP_Term
      * @throws NotFoundException
      */
-    protected function resolve_object($data = null) : ?WP_Term
+    protected function resolve_object($data = null): ?WP_Term
     {
         $object = null;
-        if (\is_object($data) && \get_class($data) === $this->model()) {
+        if (is_object($data) && get_class($data) === $this->model()) {
             $object = $data->source_object();
         } elseif ($data instanceof WP_Term) {
             $object = $data;
@@ -173,19 +173,19 @@ abstract class AbstractTermRepository extends AbstractRepository implements Term
             $object->taxonomy = $this->taxonomy();
         } elseif (isset($data->id)) {
             $object = get_term_by('ID', $data->id, $this->taxonomy());
-        } elseif (\is_numeric($data)) {
+        } elseif (is_numeric($data)) {
             $object = get_term_by('ID', (int) $data, $this->taxonomy());
-        } elseif (\is_string($data)) {
+        } elseif (is_string($data)) {
             $object = get_term_by('slug', $data, $this->taxonomy());
-        } elseif (\is_int($data)) {
+        } elseif (is_int($data)) {
             $object = get_term_by('ID', $data, $this->taxonomy());
-        } elseif (\is_array($data) && isset($data['field']) && isset($data['value'])) {
+        } elseif (is_array($data) && isset($data['field']) && isset($data['value'])) {
             $object = get_term_by($data['field'], $data['value'], $this->taxonomy());
         }
-        if (!\is_object($object)) {
-            throw new NotFoundException("The term (" . $this->taxonomy() . ") was not found\n\n" . \print_r($data, \true));
+        if (!is_object($object)) {
+            throw new NotFoundException("The term (" . $this->taxonomy() . ") was not found\n\n" . print_r($data, \true));
         }
         return $object;
     }
-    public abstract function model() : string;
+    abstract public function model(): string;
 }

@@ -7,7 +7,7 @@ trait ToStringIbanTrait
 {
     public function __toString()
     {
-        if (!\method_exists($this, 'asString')) {
+        if (!method_exists($this, 'asString')) {
             return '';
         }
         try {

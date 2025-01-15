@@ -30,16 +30,16 @@ class ValidatorHU extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 8) {
+        if (strlen($vatNumber) != 8) {
             return \false;
         }
         $weights = [9, 7, 3, 1, 9, 7, 3];
         $checksum = (int) $vatNumber[7];
         $checkVal = $this->sumWeights($weights, $vatNumber);
-        $checkVal = (int) \substr((string) $checkVal, -1);
-        $checkVal = $checkVal > 0 ? 10 - $checkVal : 0;
+        $checkVal = (int) substr((string) $checkVal, -1);
+        $checkVal = ($checkVal > 0) ? 10 - $checkVal : 0;
         return $checksum == $checkVal;
     }
 }

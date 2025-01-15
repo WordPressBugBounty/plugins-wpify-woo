@@ -33,17 +33,17 @@ class InsightOpsHandler extends SocketHandler
      */
     public function __construct(string $token, string $region = 'us', bool $useSSL = \true, $level = Logger::DEBUG, bool $bubble = \true)
     {
-        if ($useSSL && !\extension_loaded('openssl')) {
+        if ($useSSL && !extension_loaded('openssl')) {
             throw new MissingExtensionException('The OpenSSL PHP plugin is required to use SSL encrypted connection for InsightOpsHandler');
         }
-        $endpoint = $useSSL ? 'ssl://' . $region . '.data.logs.insight.rapid7.com:443' : $region . '.data.logs.insight.rapid7.com:80';
+        $endpoint = $useSSL ? 'ssl://' . $region . '.data.logs.insight.rapid7.com:443' : ($region . '.data.logs.insight.rapid7.com:80');
         parent::__construct($endpoint, $level, $bubble);
         $this->logToken = $token;
     }
     /**
      * {@inheritDoc}
      */
-    protected function generateDataStream(array $record) : string
+    protected function generateDataStream(array $record): string
     {
         return $this->logToken . ' ' . $record['formatted'];
     }

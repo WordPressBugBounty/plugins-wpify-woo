@@ -15,19 +15,19 @@ abstract class ExpressionVisitor
      *
      * @return mixed
      */
-    public abstract function walkComparison(Comparison $comparison);
+    abstract public function walkComparison(Comparison $comparison);
     /**
      * Converts a value expression into the target query language part.
      *
      * @return mixed
      */
-    public abstract function walkValue(Value $value);
+    abstract public function walkValue(Value $value);
     /**
      * Converts a composite expression into the target query language output.
      *
      * @return mixed
      */
-    public abstract function walkCompositeExpression(CompositeExpression $expr);
+    abstract public function walkCompositeExpression(CompositeExpression $expr);
     /**
      * Dispatches walking an expression to the appropriate handler.
      *

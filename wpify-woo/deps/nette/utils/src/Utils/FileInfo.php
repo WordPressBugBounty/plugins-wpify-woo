@@ -24,22 +24,22 @@ final class FileInfo extends \SplFileInfo
     /**
      * Returns the relative directory path.
      */
-    public function getRelativePath() : string
+    public function getRelativePath(): string
     {
         return $this->relativePath;
     }
     /**
      * Returns the relative path including file name.
      */
-    public function getRelativePathname() : string
+    public function getRelativePathname(): string
     {
-        return ($this->relativePath === '' ? '' : $this->relativePath . \DIRECTORY_SEPARATOR) . $this->getBasename();
+        return (($this->relativePath === '') ? '' : ($this->relativePath . \DIRECTORY_SEPARATOR)) . $this->getBasename();
     }
     /**
      * Returns the contents of the file.
      * @throws Nette\IOException
      */
-    public function read() : string
+    public function read(): string
     {
         return FileSystem::read($this->getPathname());
     }
@@ -47,7 +47,7 @@ final class FileInfo extends \SplFileInfo
      * Writes the contents to the file.
      * @throws Nette\IOException
      */
-    public function write(string $content) : void
+    public function write(string $content): void
     {
         FileSystem::write($this->getPathname(), $content);
     }

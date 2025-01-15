@@ -23,21 +23,21 @@ abstract class AbstractPostRepository extends AbstractRepository implements Post
     protected $category_repository;
     /** @var ?TermRepositoryInterface */
     protected $post_tag_repository;
-    public function get_user_repository() : UserRepositoryInterface
+    public function get_user_repository(): UserRepositoryInterface
     {
         if (empty($this->user_repository)) {
             $this->user_repository = new UserRepository();
         }
         return $this->user_repository;
     }
-    public function get_category_repository() : TermRepositoryInterface
+    public function get_category_repository(): TermRepositoryInterface
     {
         if (empty($this->category_repository)) {
             $this->category_repository = new CategoryRepository();
         }
         return $this->category_repository;
     }
-    public function get_post_tag_repository() : TermRepositoryInterface
+    public function get_post_tag_repository(): TermRepositoryInterface
     {
         if (empty($this->post_tag_repository)) {
             $this->post_tag_repository = new PostTagRepository();
@@ -53,7 +53,7 @@ abstract class AbstractPostRepository extends AbstractRepository implements Post
      */
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
     /**
      * @return AbstractPostModel[]
@@ -85,20 +85,20 @@ abstract class AbstractPostRepository extends AbstractRepository implements Post
     /**
      * @return string
      */
-    static abstract function post_type() : string;
+    abstract static function post_type(): string;
     /**
      * @param $data
      *
      * @return WP_Post
      * @throws NotFoundException
      */
-    protected function resolve_object($data) : WP_Post
+    protected function resolve_object($data): WP_Post
     {
-        if (\is_object($data) && \get_class($data) === $this->model()) {
+        if (is_object($data) && get_class($data) === $this->model()) {
             $object = $data->source_object();
         } elseif ($data instanceof WP_Post) {
             $object = $data;
-        } elseif (\is_null($data)) {
+        } elseif (is_null($data)) {
             $object = new WP_Post((object) array('ID' => null, 'post_author' => get_current_user_id(), 'post_date' => current_time('mysql'), 'post_date_gmt' => current_time('mysql', 1), 'post_type' => $this::post_type()));
         } elseif (isset($data->id)) {
             $object = get_post($data->id);
@@ -188,14 +188,14 @@ abstract class AbstractPostRepository extends AbstractRepository implements Post
     {
         $to_assign = array();
         foreach ($terms as $term) {
-            if (isset($to_assign[$term->taxonomy_name]) && \is_array($to_assign[$term->taxonomy_name])) {
+            if (isset($to_assign[$term->taxonomy_name]) && is_array($to_assign[$term->taxonomy_name])) {
                 $to_assign[$term->taxonomy_name][] = $term;
             } else {
                 $to_assign[$term->taxonomy_name] = array($term);
             }
         }
         foreach ($to_assign as $taxonomy => $assigns) {
-            wp_set_post_terms($model->id, \array_values(\array_map(function ($term) {
+            wp_set_post_terms($model->id, array_values(array_map(function ($term) {
                 return $term->id;
             }, $assigns)), $taxonomy, $append);
         }
@@ -207,7 +207,7 @@ abstract class AbstractPostRepository extends AbstractRepository implements Post
         $args = wp_parse_args($args, $default_args);
         return paginate_links($args);
     }
-    public function get_pagination() : array
+    public function get_pagination(): array
     {
         return array('found_posts' => $this->query->found_posts, 'current_page' => $this->query->query_vars['paged'] ?: 1, 'total_pages' => $this->query->max_num_pages, 'per_page' => $this->query->query_vars['posts_per_page']);
     }

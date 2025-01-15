@@ -47,23 +47,23 @@ final class Cmyk implements ColorInterface
         $this->yellow = $yellow;
         $this->black = $black;
     }
-    public function getCyan() : int
+    public function getCyan(): int
     {
         return $this->cyan;
     }
-    public function getMagenta() : int
+    public function getMagenta(): int
     {
         return $this->magenta;
     }
-    public function getYellow() : int
+    public function getYellow(): int
     {
         return $this->yellow;
     }
-    public function getBlack() : int
+    public function getBlack(): int
     {
         return $this->black;
     }
-    public function toRgb() : Rgb
+    public function toRgb(): Rgb
     {
         $k = $this->black / 100;
         $c = (-$k * $this->cyan + $k * 100 + $this->cyan) / 100;
@@ -71,11 +71,11 @@ final class Cmyk implements ColorInterface
         $y = (-$k * $this->yellow + $k * 100 + $this->yellow) / 100;
         return new Rgb((int) (-$c * 255 + 255), (int) (-$m * 255 + 255), (int) (-$y * 255 + 255));
     }
-    public function toCmyk() : Cmyk
+    public function toCmyk(): Cmyk
     {
         return $this;
     }
-    public function toGray() : Gray
+    public function toGray(): Gray
     {
         return $this->toRgb()->toGray();
     }

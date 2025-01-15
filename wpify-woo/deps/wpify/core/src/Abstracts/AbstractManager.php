@@ -29,28 +29,28 @@ abstract class AbstractManager extends AbstractComponent
      */
     public function load_components()
     {
-        if (0 < \count(\array_filter($this->modules, 'is_object'))) {
+        if (0 < count(array_filter($this->modules, 'is_object'))) {
             return \false;
         }
-        $reflect = new ReflectionClass(\get_called_class());
-        $class = \strtolower($reflect->getShortName());
+        $reflect = new ReflectionClass(get_called_class());
+        $class = strtolower($reflect->getShortName());
         $namespace = static::MODULE_NAMESPACE;
         if (empty($namespace)) {
             $namespace = $reflect->getNamespaceName();
         }
-        $component = \explode('\\', $namespace);
-        $component = \strtolower(\end($component));
+        $component = explode('\\', $namespace);
+        $component = strtolower(end($component));
         $slug = $this->plugin->safe_slug;
         $filter = "{$slug}_{$component}_{$class}_modules";
         /*
          * Deprecated: Old filter, likely to be removed
          */
         $modules_list = apply_filters($filter, $this->modules);
-        $modules_list = apply_filters("{$slug}_manager_modules", $this->modules, \get_class($this));
+        $modules_list = apply_filters("{$slug}_manager_modules", $this->modules, get_class($this));
         $this->modules = [];
         foreach ($modules_list as $module) {
-            $class = \trim($module, '\\');
-            if (\false === \strpos($module, '\\')) {
+            $class = trim($module, '\\');
+            if (\false === strpos($module, '\\')) {
                 $class = $namespace . '\\' . $module;
             }
             $this->modules[$module] = $this->create_component($class);
@@ -86,7 +86,7 @@ abstract class AbstractManager extends AbstractComponent
     {
         $module = $this->get_module($name);
         if (!$module) {
-            $module = $this->get_module(\ucfirst($name));
+            $module = $this->get_module(ucfirst($name));
         }
         if (!$module) {
             if (isset($this->find_cache[$name])) {
@@ -94,14 +94,14 @@ abstract class AbstractManager extends AbstractComponent
             }
         }
         if (!$module) {
-            $module_keys = \array_keys($this->modules);
+            $module_keys = array_keys($this->modules);
             foreach ($module_keys as $module_key) {
-                $module_key_converted = \ltrim($module_key, '\\');
-                if (\preg_match('/[a-z]/', $module_key_converted)) {
-                    $module_key_converted = \preg_replace('/[A-Z]/', 'WpifyWooDeps\\_', \lcfirst($module_key_converted));
+                $module_key_converted = ltrim($module_key, '\\');
+                if (preg_match('/[a-z]/', $module_key_converted)) {
+                    $module_key_converted = preg_replace('/[A-Z]/', 'WpifyWooDeps\_', lcfirst($module_key_converted));
                 }
-                $module_key_converted = \strtolower($module_key_converted);
-                $lower_name = \strtolower($name);
+                $module_key_converted = strtolower($module_key_converted);
+                $lower_name = strtolower($name);
                 if ($module_key_converted === $lower_name || "\\{$module_key_converted}" === $lower_name) {
                     $module = $this->get_module($module_key);
                     $this->find_cache[$name] = $module_key;

@@ -5,5 +5,5 @@ namespace WpifyWooDeps\Endroid\QrCode\Encoding;
 
 interface EncodingInterface
 {
-    public function __toString() : string;
+    public function __toString(): string;
 }

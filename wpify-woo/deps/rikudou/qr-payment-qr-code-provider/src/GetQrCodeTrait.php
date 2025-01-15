@@ -10,7 +10,7 @@ trait GetQrCodeTrait
      * @var QrCodeProvider|null
      */
     private $provider = null;
-    public function getQrCode() : QrCode
+    public function getQrCode(): QrCode
     {
         if (!$this instanceof QrPaymentInterface) {
             throw new InvalidTraitTargetException('This trait must be used on an instance of ' . QrPaymentInterface::class);

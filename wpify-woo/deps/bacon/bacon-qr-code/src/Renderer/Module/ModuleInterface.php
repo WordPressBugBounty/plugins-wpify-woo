@@ -13,5 +13,5 @@ use WpifyWooDeps\BaconQrCode\Renderer\Path\Path;
  */
 interface ModuleInterface
 {
-    public function createPath(ByteMatrix $matrix) : Path;
+    public function createPath(ByteMatrix $matrix): Path;
 }

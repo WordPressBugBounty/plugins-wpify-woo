@@ -6,5 +6,5 @@ namespace WpifyWooDeps\BaconQrCode\Renderer;
 use WpifyWooDeps\BaconQrCode\Encoder\QrCode;
 interface RendererInterface
 {
-    public function render(QrCode $qrCode) : string;
+    public function render(QrCode $qrCode): string;
 }

@@ -13,8 +13,8 @@ class UnionTypeNode implements TypeNode
     {
         $this->types = $types;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return '(' . \implode(' | ', $this->types) . ')';
+        return '(' . implode(' | ', $this->types) . ')';
     }
 }

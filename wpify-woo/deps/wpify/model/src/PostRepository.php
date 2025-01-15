@@ -16,11 +16,11 @@ use WpifyWooDeps\Wpify\Model\Abstracts\AbstractPostRepository;
  */
 class PostRepository extends AbstractPostRepository
 {
-    static function post_type() : string
+    static function post_type(): string
     {
         return 'post';
     }
-    public function model() : string
+    public function model(): string
     {
         return Post::class;
     }

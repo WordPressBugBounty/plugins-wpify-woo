@@ -44,7 +44,7 @@ class SwiftMailerHandler extends MailHandler
     /**
      * {@inheritDoc}
      */
-    protected function send(string $content, array $records) : void
+    protected function send(string $content, array $records): void
     {
         $this->mailer->send($this->buildMessage($content, $records));
     }
@@ -53,7 +53,7 @@ class SwiftMailerHandler extends MailHandler
      *
      * @param string|null $format The format of the subject
      */
-    protected function getSubjectFormatter(?string $format) : FormatterInterface
+    protected function getSubjectFormatter(?string $format): FormatterInterface
     {
         return new LineFormatter($format);
     }
@@ -66,13 +66,13 @@ class SwiftMailerHandler extends MailHandler
      *
      * @phpstan-param Record[] $records
      */
-    protected function buildMessage(string $content, array $records) : Swift_Message
+    protected function buildMessage(string $content, array $records): Swift_Message
     {
         $message = null;
         if ($this->messageTemplate instanceof Swift_Message) {
             $message = clone $this->messageTemplate;
             $message->generateId();
-        } elseif (\is_callable($this->messageTemplate)) {
+        } elseif (is_callable($this->messageTemplate)) {
             $message = ($this->messageTemplate)($content, $records);
         }
         if (!$message instanceof Swift_Message) {
@@ -88,11 +88,11 @@ class SwiftMailerHandler extends MailHandler
         }
         $message->setBody($content, $mime);
         /** @phpstan-ignore-next-line */
-        if (\version_compare(Swift::VERSION, '6.0.0', '>=')) {
+        if (version_compare(Swift::VERSION, '6.0.0', '>=')) {
             $message->setDate(new \DateTimeImmutable());
         } else {
             /** @phpstan-ignore-next-line */
-            $message->setDate(\time());
+            $message->setDate(time());
         }
         return $message;
     }

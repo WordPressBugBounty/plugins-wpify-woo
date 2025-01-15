@@ -7,14 +7,14 @@ use WpifyWooDeps\Endroid\QrCode\Writer\PngWriter;
 use WpifyWooDeps\Endroid\QrCode\Writer\Result\ResultInterface;
 final class EndroidQrCode4Provider implements QrCodeProvider
 {
-    public function getQrCode(string $data) : QrCode
+    public function getQrCode(string $data): QrCode
     {
         $code = EndroidQrCode::create($data);
         $writer = new PngWriter();
         return new EndroidQrCode4($writer->write($code));
     }
-    public static function isInstalled() : bool
+    public static function isInstalled(): bool
     {
-        return \interface_exists(ResultInterface::class);
+        return interface_exists(ResultInterface::class);
     }
 }

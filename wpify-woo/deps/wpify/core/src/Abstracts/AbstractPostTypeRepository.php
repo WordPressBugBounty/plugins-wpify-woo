@@ -20,13 +20,13 @@ abstract class AbstractPostTypeRepository extends AbstractComponent implements R
         $this->post_type = $this->post_type();
         parent::init();
     }
-    public abstract function post_type();
+    abstract public function post_type();
     /**
      * @param array $args
      *
      * @return ArrayCollection
      */
-    public function all($args = array()) : ArrayCollection
+    public function all($args = array()): ArrayCollection
     {
         $defaults = array('posts_per_page' => -1);
         $args = wp_parse_args($args, $defaults);
@@ -54,7 +54,7 @@ abstract class AbstractPostTypeRepository extends AbstractComponent implements R
      *
      * @throws PluginException
      */
-    public function get($post) : ?PostTypeModelInterface
+    public function get($post): ?PostTypeModelInterface
     {
         $model = $this->plugin->create_component($this->post_type->model, ['post' => $post, 'post_type' => $this->post_type]);
         $model->init();
@@ -70,7 +70,7 @@ abstract class AbstractPostTypeRepository extends AbstractComponent implements R
     /**
      * @param AbstractPostType $post_type
      */
-    public function set_post_type(AbstractPostType $post_type) : void
+    public function set_post_type(AbstractPostType $post_type): void
     {
         $this->post_type = $post_type;
     }

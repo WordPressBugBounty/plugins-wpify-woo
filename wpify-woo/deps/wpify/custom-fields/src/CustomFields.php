@@ -39,7 +39,7 @@ final class CustomFields
      */
     public function __construct(string $wcf_url = '')
     {
-        $assets_path = \realpath(__DIR__ . '/../build');
+        $assets_path = realpath(__DIR__ . '/../build');
         $this->assets = new Assets($assets_path, $wcf_url);
         $this->sanitizer = new Sanitizer();
         $this->parser = new Parser();
@@ -191,28 +191,28 @@ final class CustomFields
     /**
      * @return Parser
      */
-    public function get_parser() : Parser
+    public function get_parser(): Parser
     {
         return $this->parser;
     }
     /**
      * @return Sanitizer
      */
-    public function get_sanitizer() : Sanitizer
+    public function get_sanitizer(): Sanitizer
     {
         return $this->sanitizer;
     }
     /**
      * @return Api
      */
-    public function get_api() : Api
+    public function get_api(): Api
     {
         return $this->api;
     }
     /**
      * @return Assets
      */
-    public function get_assets() : Assets
+    public function get_assets(): Assets
     {
         return $this->assets;
     }

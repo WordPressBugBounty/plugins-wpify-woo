@@ -39,10 +39,10 @@ final class WooCommerceSettings extends AbstractImplementation
         $this->section = $args['section'];
         $this->class = $args['class'];
         $this->items = $args['items'];
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -75,7 +75,7 @@ final class WooCommerceSettings extends AbstractImplementation
     public function woocommerce_settings_tabs_array($tabs)
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return $tabs;
         }
         if (empty($tabs[$this->tab['id']])) {
@@ -92,7 +92,7 @@ final class WooCommerceSettings extends AbstractImplementation
     public function woocommerce_get_sections($sections)
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return $sections;
         }
         if (!empty($this->section)) {
@@ -116,13 +116,13 @@ final class WooCommerceSettings extends AbstractImplementation
     {
         global $current_section;
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         if ($this->is_new_tab) {
             $sections = $this->get_sections();
-            if (!empty($sections) || \count($sections) > 1) {
-                $array_keys = \array_keys($sections);
+            if (!empty($sections) || count($sections) > 1) {
+                $array_keys = array_keys($sections);
                 ?>
 				<ul class="subsubsub">
 					<?php 
@@ -133,14 +133,14 @@ final class WooCommerceSettings extends AbstractImplementation
                     echo admin_url('admin.php?page=wc-settings&tab=' . $this->tab['id'] . '&section=' . sanitize_title($id));
                     ?>"
 							   class="<?php 
-                    echo $current_section == $id ? 'current' : '';
+                    echo ($current_section == $id) ? 'current' : '';
                     ?>">
 								<?php 
                     echo wp_kses_post($label);
                     ?>
 							</a>
 							<?php 
-                    echo \end($array_keys) == $id ? '' : '|';
+                    echo (end($array_keys) == $id) ? '' : '|';
                     ?>
 						</li>
 					<?php 
@@ -184,7 +184,7 @@ final class WooCommerceSettings extends AbstractImplementation
     public function get_field(string $name, array $item)
     {
         if (!empty($item['callback_get'])) {
-            return \call_user_func($item['callback_get'], $item);
+            return call_user_func($item['callback_get'], $item);
         } else {
             return WC_Admin_Settings::get_option($name, isset($item['default']) ? $item['default'] : '');
         }
@@ -219,7 +219,7 @@ final class WooCommerceSettings extends AbstractImplementation
     public function set_field($name, $value, $item)
     {
         if (!empty($item['callback_set'])) {
-            return \call_user_func($item['callback_set'], $item, $name, $value);
+            return call_user_func($item['callback_set'], $item, $name, $value);
         } else {
             return update_option($name, $value);
         }

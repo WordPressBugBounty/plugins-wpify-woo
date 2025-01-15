@@ -54,7 +54,7 @@ final class Assets
         if (empty($data)) {
             return null;
         }
-        if (wp_register_script($data['handle'], $data['src'], \array_merge($deps, $data['dependencies']), $data['version'], $in_footer) && !empty($localize)) {
+        if (wp_register_script($data['handle'], $data['src'], array_merge($deps, $data['dependencies']), $data['version'], $in_footer) && !empty($localize)) {
             foreach ($localize as $variable => $value) {
                 wp_add_inline_script($data['handle'], 'try { var ' . $variable . ' = ' . wp_json_encode($value, \JSON_UNESCAPED_UNICODE) . '; } catch (e) { console.error(e); }', 'before');
             }
@@ -68,19 +68,19 @@ final class Assets
      */
     private function get_file($file)
     {
-        if (\array_key_exists($file, $this->found_files)) {
+        if (array_key_exists($file, $this->found_files)) {
             return $this->found_files[$file];
         }
-        $asset_path = trailingslashit($this->assets_path) . \preg_replace("/\\.\\S+\$/", '.asset.php', $file);
+        $asset_path = trailingslashit($this->assets_path) . preg_replace("/\\.\\S+\$/", '.asset.php', $file);
         $path = trailingslashit($this->assets_path) . $file;
-        $pathinfo = \pathinfo($path);
-        $manifest = \file_exists($asset_path) ? require $asset_path : array('dependencies' => array(), 'version' => null);
+        $pathinfo = pathinfo($path);
+        $manifest = file_exists($asset_path) ? require $asset_path : array('dependencies' => array(), 'version' => null);
         if ($pathinfo['extension'] === 'css') {
             $manifest['dependencies'] = array();
         }
         $manifest['path'] = $path;
         $manifest['src'] = $this->path_to_url($path);
-        $manifest['handle'] = 'wcf_' . $pathinfo['filename'] . '_' . $pathinfo['extension'] . '_' . \md5($path);
+        $manifest['handle'] = 'wcf_' . $pathinfo['filename'] . '_' . $pathinfo['extension'] . '_' . md5($path);
         $this->found_files[$file] = $manifest;
         return $manifest;
     }
@@ -92,12 +92,12 @@ final class Assets
     public function path_to_url(string $path = '')
     {
         if (!empty($this->wcf_url)) {
-            if (\is_dir($path) && \basename($path) === 'build') {
+            if (is_dir($path) && basename($path) === 'build') {
                 return esc_url_raw($this->wcf_url . '/build/');
             }
-            return esc_url_raw($this->wcf_url . '/build/' . \basename($path));
+            return esc_url_raw($this->wcf_url . '/build/' . basename($path));
         }
-        return esc_url_raw(\str_replace(wp_normalize_path(untrailingslashit(ABSPATH)), site_url(), wp_normalize_path($path)));
+        return esc_url_raw(str_replace(wp_normalize_path(untrailingslashit(\ABSPATH)), site_url(), wp_normalize_path($path)));
     }
     /**
      * @param string $file
@@ -121,7 +121,7 @@ final class Assets
         if (empty($data)) {
             return null;
         }
-        wp_register_style($data['handle'], $data['src'], \array_merge($deps, $data['dependencies']), $data['version'], $media);
+        wp_register_style($data['handle'], $data['src'], array_merge($deps, $data['dependencies']), $data['version'], $media);
         return $data['handle'];
     }
     public function get_code_editor_settings()
@@ -137,7 +137,7 @@ final class Assets
     /**
      * @return string
      */
-    public function get_assets_path() : string
+    public function get_assets_path(): string
     {
         return $this->assets_path;
     }

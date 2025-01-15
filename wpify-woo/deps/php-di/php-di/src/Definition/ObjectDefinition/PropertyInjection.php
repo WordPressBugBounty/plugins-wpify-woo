@@ -37,7 +37,7 @@ class PropertyInjection
         $this->value = $value;
         $this->className = $className;
     }
-    public function getPropertyName() : string
+    public function getPropertyName(): string
     {
         return $this->propertyName;
     }

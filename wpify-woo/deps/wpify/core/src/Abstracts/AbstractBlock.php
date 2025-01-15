@@ -12,7 +12,7 @@ abstract class AbstractBlock extends AbstractComponent
     /**
      * Registers the block. Called by init method.
      */
-    public abstract function register() : void;
+    abstract public function register(): void;
     /**
      * Initializes the block
      *
@@ -44,7 +44,7 @@ abstract class AbstractBlock extends AbstractComponent
      *
      * @return array
      */
-    public function default_values() : array
+    public function default_values(): array
     {
         $attributes = $this->attributes();
         $default_values = array();
@@ -62,19 +62,19 @@ abstract class AbstractBlock extends AbstractComponent
      *
      * @return array
      */
-    public abstract function attributes() : array;
+    abstract public function attributes(): array;
     /**
      * Returns block name
      *
      * @return string
      */
-    public abstract function name() : string;
+    abstract public function name(): string;
     /**
      * Enqueues frontend assets if the block is present on the output.
      */
     public function enqueue_frontend_assets()
     {
-        if (has_block($this->name()) && \method_exists($this, 'enqueue_assets')) {
+        if (has_block($this->name()) && method_exists($this, 'enqueue_assets')) {
             $this->enqueue_assets();
         }
     }

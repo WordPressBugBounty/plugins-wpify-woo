@@ -16,27 +16,27 @@ use WpifyWooDeps\Psr\Http\Message\StreamInterface;
  */
 final class HttpFactory implements RequestFactoryInterface, StreamFactoryInterface
 {
-    public function createStream(string $content = '') : StreamInterface
+    public function createStream(string $content = ''): StreamInterface
     {
         return Utils::streamFor($content);
     }
-    public function createStreamFromFile(string $file, string $mode = 'r') : StreamInterface
+    public function createStreamFromFile(string $file, string $mode = 'r'): StreamInterface
     {
         try {
             $resource = Utils::tryFopen($file, $mode);
         } catch (\RuntimeException $e) {
             if ('' === $mode || \false === \in_array($mode[0], ['r', 'w', 'a', 'x', 'c'], \true)) {
-                throw new \InvalidArgumentException(\sprintf('Invalid file opening mode "%s"', $mode), 0, $e);
+                throw new \InvalidArgumentException(sprintf('Invalid file opening mode "%s"', $mode), 0, $e);
             }
             throw $e;
         }
         return Utils::streamFor($resource);
     }
-    public function createStreamFromResource($resource) : StreamInterface
+    public function createStreamFromResource($resource): StreamInterface
     {
         return Utils::streamFor($resource);
     }
-    public function createRequest(string $method, $uri) : RequestInterface
+    public function createRequest(string $method, $uri): RequestInterface
     {
         return new Request($method, $uri);
     }

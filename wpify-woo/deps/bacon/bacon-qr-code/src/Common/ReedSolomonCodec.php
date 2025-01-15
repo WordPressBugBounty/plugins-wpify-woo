@@ -97,8 +97,8 @@ final class ReedSolomonCodec
         $this->symbolSize = $symbolSize;
         $this->blockSize = (1 << $symbolSize) - 1;
         $this->padding = $padding;
-        $this->alphaTo = SplFixedArray::fromArray(\array_fill(0, $this->blockSize + 1, 0), \false);
-        $this->indexOf = SplFixedArray::fromArray(\array_fill(0, $this->blockSize + 1, 0), \false);
+        $this->alphaTo = SplFixedArray::fromArray(array_fill(0, $this->blockSize + 1, 0), \false);
+        $this->indexOf = SplFixedArray::fromArray(array_fill(0, $this->blockSize + 1, 0), \false);
         // Generate galous field lookup table
         $this->indexOf[0] = $this->blockSize;
         $this->alphaTo[$this->blockSize] = 0;
@@ -116,14 +116,14 @@ final class ReedSolomonCodec
             throw new RuntimeException('Field generator polynomial is not primitive');
         }
         // Form RS code generator polynomial from its roots
-        $this->generatorPoly = SplFixedArray::fromArray(\array_fill(0, $numRoots + 1, 0), \false);
+        $this->generatorPoly = SplFixedArray::fromArray(array_fill(0, $numRoots + 1, 0), \false);
         $this->firstRoot = $firstRoot;
         $this->primitive = $primitive;
         $this->numRoots = $numRoots;
         // Find prim-th root of 1, used in decoding
         for ($iPrimitive = 1; $iPrimitive % $primitive !== 0; $iPrimitive += $this->blockSize) {
         }
-        $this->iPrimitive = \intdiv($iPrimitive, $primitive);
+        $this->iPrimitive = intdiv($iPrimitive, $primitive);
         $this->generatorPoly[0] = 1;
         for ($i = 0, $root = $firstRoot * $primitive; $i < $numRoots; ++$i, $root += $primitive) {
             $this->generatorPoly[$i + 1] = 1;
@@ -144,7 +144,7 @@ final class ReedSolomonCodec
     /**
      * Encodes data and writes result back into parity array.
      */
-    public function encode(SplFixedArray $data, SplFixedArray $parity) : void
+    public function encode(SplFixedArray $data, SplFixedArray $parity): void
     {
         for ($i = 0; $i < $this->numRoots; ++$i) {
             $parity[$i] = 0;
@@ -172,20 +172,20 @@ final class ReedSolomonCodec
     /**
      * Decodes received data.
      */
-    public function decode(SplFixedArray $data, SplFixedArray $erasures = null) : ?int
+    public function decode(SplFixedArray $data, SplFixedArray $erasures = null): ?int
     {
         // This speeds up the initialization a bit.
-        $numRootsPlusOne = SplFixedArray::fromArray(\array_fill(0, $this->numRoots + 1, 0), \false);
-        $numRoots = SplFixedArray::fromArray(\array_fill(0, $this->numRoots, 0), \false);
+        $numRootsPlusOne = SplFixedArray::fromArray(array_fill(0, $this->numRoots + 1, 0), \false);
+        $numRoots = SplFixedArray::fromArray(array_fill(0, $this->numRoots, 0), \false);
         $lambda = clone $numRootsPlusOne;
         $b = clone $numRootsPlusOne;
         $t = clone $numRootsPlusOne;
         $omega = clone $numRootsPlusOne;
         $root = clone $numRoots;
         $loc = clone $numRoots;
-        $numErasures = null !== $erasures ? \count($erasures) : 0;
+        $numErasures = (null !== $erasures) ? count($erasures) : 0;
         // Form the Syndromes; i.e., evaluate data(x) at roots of g(x)
-        $syndromes = SplFixedArray::fromArray(\array_fill(0, $this->numRoots, $data[0]), \false);
+        $syndromes = SplFixedArray::fromArray(array_fill(0, $this->numRoots, $data[0]), \false);
         for ($i = 1; $i < $this->blockSize - $this->padding; ++$i) {
             for ($j = 0; $j < $this->numRoots; ++$j) {
                 if ($syndromes[$j] === 0) {
@@ -237,8 +237,8 @@ final class ReedSolomonCodec
             $discrepancyR = $this->indexOf[$discrepancyR];
             if ($discrepancyR === $this->blockSize) {
                 $tmp = $b->toArray();
-                \array_unshift($tmp, $this->blockSize);
-                \array_pop($tmp);
+                array_unshift($tmp, $this->blockSize);
+                array_pop($tmp);
                 $b = SplFixedArray::fromArray($tmp, \false);
                 continue;
             }
@@ -253,12 +253,12 @@ final class ReedSolomonCodec
             if (2 * $el <= $r + $numErasures - 1) {
                 $el = $r + $numErasures - $el;
                 for ($i = 0; $i <= $this->numRoots; ++$i) {
-                    $b[$i] = $lambda[$i] === 0 ? $this->blockSize : $this->modNn($this->indexOf[$lambda[$i]] - $discrepancyR + $this->blockSize);
+                    $b[$i] = ($lambda[$i] === 0) ? $this->blockSize : $this->modNn($this->indexOf[$lambda[$i]] - $discrepancyR + $this->blockSize);
                 }
             } else {
                 $tmp = $b->toArray();
-                \array_unshift($tmp, $this->blockSize);
-                \array_pop($tmp);
+                array_unshift($tmp, $this->blockSize);
+                array_pop($tmp);
                 $b = SplFixedArray::fromArray($tmp, \false);
             }
             $lambda = clone $t;
@@ -323,7 +323,7 @@ final class ReedSolomonCodec
             $num2 = $this->alphaTo[$this->modNn($root[$j] * ($this->firstRoot - 1) + $this->blockSize)];
             $den = 0;
             // lambda[i+1] for i even is the formal derivativelambda_pr of lambda[i]
-            for ($i = \min($degLambda, $this->numRoots - 1) & ~1; $i >= 0; $i -= 2) {
+            for ($i = min($degLambda, $this->numRoots - 1) & ~1; $i >= 0; $i -= 2) {
                 if ($lambda[$i + 1] !== $this->blockSize) {
                     $den ^= $this->alphaTo[$this->modNn($lambda[$i + 1] + $i * $root[$j])];
                 }
@@ -334,7 +334,7 @@ final class ReedSolomonCodec
             }
         }
         if (null !== $erasures) {
-            if (\count($erasures) < $count) {
+            if (count($erasures) < $count) {
                 $erasures->setSize($count);
             }
             for ($i = 0; $i < $count; $i++) {
@@ -346,7 +346,7 @@ final class ReedSolomonCodec
     /**
      * Computes $x % GF_SIZE, where GF_SIZE is 2**GF_BITS - 1, without a slow divide.
      */
-    private function modNn(int $x) : int
+    private function modNn(int $x): int
     {
         while ($x >= $this->blockSize) {
             $x -= $this->blockSize;

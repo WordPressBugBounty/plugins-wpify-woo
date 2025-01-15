@@ -63,29 +63,29 @@ class WebpackManifest
             $this->handle_prefix = '';
         }
         try {
-            if (!empty($this->manifest_path) && \file_exists($this->get_plugin()->get_asset_path($this->manifest_path))) {
+            if (!empty($this->manifest_path) && file_exists($this->get_plugin()->get_asset_path($this->manifest_path))) {
                 $this->manifest_path = $this->get_plugin()->get_asset_path($this->manifest_path);
-                $manifest_file = \file_get_contents($this->manifest_path);
+                $manifest_file = file_get_contents($this->manifest_path);
                 // phpcs:ignore
-                $info_path = \preg_replace('/[^\\/]+\\.json/m', 'assets.php', $this->manifest_path);
-                $assets_info = (include $info_path);
+                $info_path = preg_replace('/[^\/]+\.json/m', 'assets.php', $this->manifest_path);
+                $assets_info = include $info_path;
             }
         } catch (PluginException $exception) {
         }
         // phpcs:ignore
         if (!empty($manifest_file)) {
-            $manifest = \json_decode($manifest_file, \true);
+            $manifest = json_decode($manifest_file, \true);
         }
         $this->manifest = $manifest;
         foreach ($this->manifest as $file => $path) {
-            $filename = \strrpos($path, '/') !== \false ? \substr($path, \strrpos($path, '/') + 1) : $path;
+            $filename = (strrpos($path, '/') !== \false) ? substr($path, strrpos($path, '/') + 1) : $path;
             $info = isset($assets_info[$filename]) ? $assets_info[$filename] : null;
-            $chunks = \explode('~', \substr($file, 0, \strrpos($file, '.')));
+            $chunks = explode('~', substr($file, 0, strrpos($file, '.')));
             $type = $this->get_file_type($filename) ? $this->get_file_type($filename) : 'other';
-            if (\strpos($path, '/') !== 0) {
+            if (strpos($path, '/') !== 0) {
                 $path = $this->plugin->get_asset_url('build/' . $path);
             }
-            $this->manifest[$file] = array('key' => $file, 'file' => $path, 'handle' => $this->handle_prefix . \join('~', $chunks) . '~' . $type, 'deps' => $info ? $info['dependencies'] : array(), 'version' => $info ? $info['version'] : null, 'chunks' => $chunks, 'type' => $type, 'load' => \true);
+            $this->manifest[$file] = array('key' => $file, 'file' => $path, 'handle' => $this->handle_prefix . join('~', $chunks) . '~' . $type, 'deps' => $info ? $info['dependencies'] : array(), 'version' => $info ? $info['version'] : null, 'chunks' => $chunks, 'type' => $type, 'load' => \true);
         }
     }
     /**
@@ -97,11 +97,11 @@ class WebpackManifest
      */
     public function get_file_type(string $filename = '')
     {
-        if (\filter_var($filename, \FILTER_VALIDATE_URL)) {
+        if (filter_var($filename, \FILTER_VALIDATE_URL)) {
             $parts = wp_parse_url($filename);
-            $extension = \pathinfo($parts['path'], \PATHINFO_EXTENSION);
+            $extension = pathinfo($parts['path'], \PATHINFO_EXTENSION);
         } else {
-            $extension = \pathinfo($filename, \PATHINFO_EXTENSION);
+            $extension = pathinfo($filename, \PATHINFO_EXTENSION);
         }
         switch ($extension) {
             case 'js':
@@ -170,7 +170,7 @@ class WebpackManifest
         if (empty($main_asset)) {
             $main_asset = empty($asset) ? null : $asset;
         }
-        return !empty($main_asset['handle']) ? $main_asset['handle'] : null;
+        return (!empty($main_asset['handle'])) ? $main_asset['handle'] : null;
     }
     /**
      * Get asset tree from the single asset.
@@ -184,11 +184,11 @@ class WebpackManifest
      */
     public function get_assets(string $name, $handle = '', $localize = array(), $deps = array())
     {
-        $chunk = \substr($name, 0, \strrpos($name, '.'));
+        $chunk = substr($name, 0, strrpos($name, '.'));
         $assets = array();
         $main_asset = $this->get_asset($name, $handle, $localize, $deps);
-        $chunks = \array_filter($this->manifest, function ($asset) use($chunk, $name, $main_asset) {
-            return !empty($main_asset) && \in_array($chunk, $asset['chunks'], \true) && $asset['key'] !== $name && $asset['type'] === $main_asset['type'];
+        $chunks = array_filter($this->manifest, function ($asset) use ($chunk, $name, $main_asset) {
+            return !empty($main_asset) && in_array($chunk, $asset['chunks'], \true) && $asset['key'] !== $name && $asset['type'] === $main_asset['type'];
         });
         foreach ($chunks as $chunk) {
             $assets[] = $chunk;
@@ -216,8 +216,8 @@ class WebpackManifest
             $asset = $this->manifest[$name];
             $asset['handle'] = empty($handle) ? $asset['handle'] : $handle;
             $asset['localize'] = $localize;
-            $asset['deps'] = \array_merge($asset['deps'], $deps);
-            $asset['file'] = \str_replace('/build/build/', '/build/', $asset['file']);
+            $asset['deps'] = array_merge($asset['deps'], $deps);
+            $asset['file'] = str_replace('/build/build/', '/build/', $asset['file']);
             return $asset;
         }
         return null;

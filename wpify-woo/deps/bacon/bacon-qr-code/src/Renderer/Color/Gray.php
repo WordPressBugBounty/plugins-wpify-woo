@@ -20,19 +20,19 @@ final class Gray implements ColorInterface
         }
         $this->gray = (int) $gray;
     }
-    public function getGray() : int
+    public function getGray(): int
     {
         return $this->gray;
     }
-    public function toRgb() : Rgb
+    public function toRgb(): Rgb
     {
         return new Rgb((int) ($this->gray * 2.55), (int) ($this->gray * 2.55), (int) ($this->gray * 2.55));
     }
-    public function toCmyk() : Cmyk
+    public function toCmyk(): Cmyk
     {
         return new Cmyk(0, 0, 0, 100 - $this->gray);
     }
-    public function toGray() : Gray
+    public function toGray(): Gray
     {
         return $this;
     }

@@ -11,7 +11,7 @@ final class BinaryResult extends AbstractResult
     {
         $this->matrix = $matrix;
     }
-    public function getString() : string
+    public function getString(): string
     {
         $binaryString = '';
         for ($rowIndex = 0; $rowIndex < $this->matrix->getBlockCount(); ++$rowIndex) {
@@ -22,7 +22,7 @@ final class BinaryResult extends AbstractResult
         }
         return $binaryString;
     }
-    public function getMimeType() : string
+    public function getMimeType(): string
     {
         return 'text/plain';
     }

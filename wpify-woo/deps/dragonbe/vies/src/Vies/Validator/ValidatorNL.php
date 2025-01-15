@@ -26,12 +26,12 @@ class ValidatorNL extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 12) {
+        if (strlen($vatNumber) != 12) {
             return \false;
         }
-        if (\strtoupper($vatNumber[9]) != 'B') {
+        if (strtoupper($vatNumber[9]) != 'B') {
             return \false;
         }
         return $this->validateCommercial($vatNumber) || $this->validateSoleProprietor($vatNumber);
@@ -55,15 +55,15 @@ class ValidatorNL extends ValidatorAbstract
      * @param string $vatNumber
      * @return bool
      */
-    protected function validateCommercial(string $vatNumber) : bool
+    protected function validateCommercial(string $vatNumber): bool
     {
-        if ((int) \substr($vatNumber, -2) == 0) {
+        if ((int) substr($vatNumber, -2) == 0) {
             return \false;
         }
         $checksum = (int) $vatNumber[8];
         $weights = [9, 8, 7, 6, 5, 4, 3, 2];
         $checkVal = $this->sumWeights($weights, $vatNumber);
-        $checkVal = $checkVal % 11 > 9 ? 0 : $checkVal % 11;
+        $checkVal = ($checkVal % 11 > 9) ? 0 : ($checkVal % 11);
         return $checkVal == $checksum;
     }
     /**
@@ -78,19 +78,19 @@ class ValidatorNL extends ValidatorAbstract
      * @param string $vatNumber
      * @return bool
      */
-    protected function validateSoleProprietor(string $vatNumber) : bool
+    protected function validateSoleProprietor(string $vatNumber): bool
     {
-        if (!\preg_match("#^[A-Z0-9+*]{9}B[0-9]{2}\$#u", $vatNumber)) {
+        if (!preg_match("#^[A-Z0-9+*]{9}B[0-9]{2}\$#u", $vatNumber)) {
             return \false;
         }
-        $sumBase = \array_reduce(\str_split($vatNumber), function ($acc, $e) {
-            if (\ctype_digit($e)) {
+        $sumBase = array_reduce(str_split($vatNumber), function ($acc, $e) {
+            if (ctype_digit($e)) {
                 return $acc . $e;
             }
             return $acc . $this->checkCharacter[$e];
         }, '2321');
-        if (\PHP_INT_SIZE === 4 && \extension_loaded('bcmath')) {
-            return \bcmod($sumBase, '97') === '1';
+        if (\PHP_INT_SIZE === 4 && extension_loaded('bcmath')) {
+            return bcmod($sumBase, '97') === '1';
         } else {
             return (int) $sumBase % 97 === 1;
         }

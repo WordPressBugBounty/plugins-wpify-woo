@@ -12,7 +12,7 @@ interface RepositoryInterface
     /**
      * @return class-string
      */
-    public function model() : string;
+    public function model(): string;
     /**
      * @param array $args
      *

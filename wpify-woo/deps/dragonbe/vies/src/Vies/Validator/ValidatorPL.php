@@ -30,9 +30,9 @@ class ValidatorPL extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 10) {
+        if (strlen($vatNumber) != 10) {
             return \false;
         }
         $weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];

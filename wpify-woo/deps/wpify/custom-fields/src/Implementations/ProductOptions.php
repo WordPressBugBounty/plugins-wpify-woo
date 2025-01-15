@@ -36,10 +36,10 @@ final class ProductOptions extends AbstractPostImplementation
         $args = wp_parse_args($args, array('product_id' => null, 'tab' => array('id' => 'general', 'label' => null, 'priority' => 100, 'target' => null, 'class' => array()), 'items' => array(), 'init_priority' => 10, 'display' => function () {
             return \true;
         }));
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -78,7 +78,7 @@ final class ProductOptions extends AbstractPostImplementation
     public function set_wcf_shown(WP_Screen $current_screen)
     {
         global $pagenow;
-        $this->wcf_shown = $current_screen->base === 'post' && $current_screen->post_type === 'product' && \in_array($pagenow, array('post-new.php', 'post.php'));
+        $this->wcf_shown = $current_screen->base === 'post' && $current_screen->post_type === 'product' && in_array($pagenow, array('post-new.php', 'post.php'));
     }
     /**
      * @param array $tabs
@@ -106,7 +106,7 @@ final class ProductOptions extends AbstractPostImplementation
     public function render_data_panels()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         if ($this->is_new_tab) {
@@ -127,7 +127,7 @@ final class ProductOptions extends AbstractPostImplementation
     public function render_custom_fields()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         global $post;
@@ -156,7 +156,7 @@ final class ProductOptions extends AbstractPostImplementation
     public function get_field(string $name, array $item)
     {
         if (!empty($item['callback_get'])) {
-            return \call_user_func($item['callback_get'], $item, $this->product_id);
+            return call_user_func($item['callback_get'], $item, $this->product_id);
         } else {
             return get_post_meta($this->product_id, $name, \true);
         }
@@ -186,7 +186,7 @@ final class ProductOptions extends AbstractPostImplementation
     public function set_field($name, $value, $item)
     {
         if (!empty($item['callback_set'])) {
-            return \call_user_func($item['callback_set'], $item, $this->product_id, $value);
+            return call_user_func($item['callback_set'], $item, $this->product_id, $value);
         } else {
             return update_post_meta($this->product_id, $name, wp_slash($value));
         }

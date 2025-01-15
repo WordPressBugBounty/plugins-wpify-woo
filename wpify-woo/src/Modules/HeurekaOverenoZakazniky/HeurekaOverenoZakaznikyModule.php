@@ -176,8 +176,10 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				$options['service'] = ShopCertification::HEUREKA_SK;
 			}
 
+			$api_key = apply_filters('wpify_woo_heureka_overeno_zakazniky_api_key', $this->get_setting( 'api_key' ));
+			$options = apply_filters('wpify_woo_heureka_overeno_zakazniky_options', $options);
 
-			$shop_certification = new ShopCertification( $this->get_setting( 'api_key' ), $options, ( new WpRequester() ) );
+			$shop_certification = new ShopCertification( $api_key, $options, ( new WpRequester() ) );
 			$shop_certification->setEmail( $order->get_wc_order()->get_billing_email() );
 			$shop_certification->setOrderId( $order->get_id() );
 

@@ -48,7 +48,7 @@ final class Options extends AbstractImplementation
         $args = wp_parse_args($args, array('type' => 'normal', 'parent_slug' => null, 'page_title' => '', 'menu_title' => '', 'capability' => 'manage_options', 'menu_slug' => null, 'section' => null, 'page' => null, 'icon_url' => null, 'position' => null, 'priority' => 100, 'init_priority' => 10, 'items' => array(), 'display' => function () {
             return \true;
         }));
-        $this->type = \in_array($args['type'], array('normal', 'user', 'network')) ? $args['type'] : 'normal';
+        $this->type = in_array($args['type'], array('normal', 'user', 'network')) ? $args['type'] : 'normal';
         $this->parent_slug = $args['parent_slug'];
         $this->page_title = $args['page_title'];
         $this->menu_title = $args['menu_title'];
@@ -59,10 +59,10 @@ final class Options extends AbstractImplementation
         $this->icon_url = $args['icon_url'];
         $this->position = $args['position'];
         $this->items = $args['items'];
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -82,7 +82,7 @@ final class Options extends AbstractImplementation
     public function register()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         if (empty($this->parent_slug)) {
@@ -107,7 +107,7 @@ final class Options extends AbstractImplementation
     public function register_settings()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         add_settings_section('general', null, array($this, 'render_section'), $this->menu_slug);
@@ -204,7 +204,7 @@ final class Options extends AbstractImplementation
     {
         foreach ($this->get_items() as $item) {
             if (!empty($_POST[$item['id']])) {
-                $this->set_field($item['id'], \json_decode(wp_unslash($_POST[$item['id']]), ARRAY_A), $item);
+                $this->set_field($item['id'], json_decode(wp_unslash($_POST[$item['id']]), \ARRAY_A), $item);
             }
         }
         wp_safe_redirect(wp_get_referer());

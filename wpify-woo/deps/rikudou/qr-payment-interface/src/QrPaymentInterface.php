@@ -40,23 +40,23 @@ interface QrPaymentInterface
      *
      * @return string
      */
-    public function getQrString() : string;
+    public function getQrString(): string;
     /**
      * Returns the three-letter currency code
      *
      * @return string
      */
-    public function getCurrency() : string;
+    public function getCurrency(): string;
     /**
      * Returns the amount. If no amount was set, returns 0.
      *
      * @return float
      */
-    public function getAmount() : float;
+    public function getAmount(): float;
     /**
      * Returns the due date. If no due date was set returns current date.
      *
      * @return DateTimeInterface
      */
-    public function getDueDate() : DateTimeInterface;
+    public function getDueDate(): DateTimeInterface;
 }

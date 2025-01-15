@@ -30,13 +30,13 @@ class ValidatorSK extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 10 || \intval($vatNumber[0]) == 0 || !\in_array((int) $vatNumber[2], [2, 3, 4, 7, 8, 9])) {
+        if (strlen($vatNumber) != 10 || intval($vatNumber[0]) == 0 || !in_array((int) $vatNumber[2], [2, 3, 4, 7, 8, 9])) {
             return \false;
         }
-        if (\PHP_INT_SIZE === 4 && \extension_loaded("bcmath")) {
-            return \bcmod($vatNumber, '11') === '0';
+        if (\PHP_INT_SIZE === 4 && extension_loaded("bcmath")) {
+            return bcmod($vatNumber, '11') === '0';
         } else {
             return $vatNumber % 11 == 0;
         }

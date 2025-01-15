@@ -21,7 +21,7 @@ class IBAN implements IbanInterface
      *
      * @return string
      */
-    public function asString() : string
+    public function asString(): string
     {
         return $this->iban;
     }
@@ -30,7 +30,7 @@ class IBAN implements IbanInterface
      *
      * @return ValidatorInterface|null
      */
-    public function getValidator() : ?ValidatorInterface
+    public function getValidator(): ?ValidatorInterface
     {
         return new GenericIbanValidator($this);
     }

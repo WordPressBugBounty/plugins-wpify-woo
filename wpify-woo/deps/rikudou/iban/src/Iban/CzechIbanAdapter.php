@@ -8,11 +8,11 @@ use WpifyWooDeps\Rikudou\Iban\Validator\GenericIbanValidator;
 use WpifyWooDeps\Rikudou\Iban\Validator\ValidatorInterface;
 class CzechIbanAdapter extends CzechAndSlovakIbanAdapter
 {
-    public function getValidator() : ?ValidatorInterface
+    public function getValidator(): ?ValidatorInterface
     {
         return new CompoundValidator(new CzechIbanValidator($this->accountNumber, $this->bankCode), new GenericIbanValidator($this));
     }
-    protected function getCountryCode() : string
+    protected function getCountryCode(): string
     {
         return 'CZ';
     }

@@ -36,11 +36,11 @@ final class SvgImageBackEnd implements ImageBackEndInterface
     private $gradientCount;
     public function __construct()
     {
-        if (!\class_exists(XMLWriter::class)) {
+        if (!class_exists(XMLWriter::class)) {
             throw new RuntimeException('You need to install the libxml extension to use this back end');
         }
     }
-    public function new(int $size, ColorInterface $backgroundColor) : void
+    public function new(int $size, ColorInterface $backgroundColor): void
     {
         $this->xmlWriter = new XMLWriter();
         $this->xmlWriter->openMemory();
@@ -72,34 +72,34 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         }
         $this->xmlWriter->endElement();
     }
-    public function scale(float $size) : void
+    public function scale(float $size): void
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
         }
         $this->xmlWriter->startElement('g');
-        $this->xmlWriter->writeAttribute('transform', \sprintf('scale(%s)', \round($size, self::PRECISION)));
+        $this->xmlWriter->writeAttribute('transform', sprintf('scale(%s)', round($size, self::PRECISION)));
         ++$this->stack[$this->currentStack];
     }
-    public function translate(float $x, float $y) : void
+    public function translate(float $x, float $y): void
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
         }
         $this->xmlWriter->startElement('g');
-        $this->xmlWriter->writeAttribute('transform', \sprintf('translate(%s,%s)', \round($x, self::PRECISION), \round($y, self::PRECISION)));
+        $this->xmlWriter->writeAttribute('transform', sprintf('translate(%s,%s)', round($x, self::PRECISION), round($y, self::PRECISION)));
         ++$this->stack[$this->currentStack];
     }
-    public function rotate(int $degrees) : void
+    public function rotate(int $degrees): void
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
         }
         $this->xmlWriter->startElement('g');
-        $this->xmlWriter->writeAttribute('transform', \sprintf('rotate(%d)', $degrees));
+        $this->xmlWriter->writeAttribute('transform', sprintf('rotate(%d)', $degrees));
         ++$this->stack[$this->currentStack];
     }
-    public function push() : void
+    public function push(): void
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
@@ -108,7 +108,7 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         $this->stack[] = 1;
         ++$this->currentStack;
     }
-    public function pop() : void
+    public function pop(): void
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
@@ -116,10 +116,10 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         for ($i = 0; $i < $this->stack[$this->currentStack]; ++$i) {
             $this->xmlWriter->endElement();
         }
-        \array_pop($this->stack);
+        array_pop($this->stack);
         --$this->currentStack;
     }
-    public function drawPathWithColor(Path $path, ColorInterface $color) : void
+    public function drawPathWithColor(Path $path, ColorInterface $color): void
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
@@ -135,7 +135,7 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         }
         $this->xmlWriter->endElement();
     }
-    public function drawPathWithGradient(Path $path, Gradient $gradient, float $x, float $y, float $width, float $height) : void
+    public function drawPathWithGradient(Path $path, Gradient $gradient, float $x, float $y, float $width, float $height): void
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
@@ -145,7 +145,7 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         $this->xmlWriter->writeAttribute('fill', 'url(#' . $gradientId . ')');
         $this->xmlWriter->endElement();
     }
-    public function done() : string
+    public function done(): string
     {
         if (null === $this->xmlWriter) {
             throw new RuntimeException('No image has been started');
@@ -163,35 +163,35 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         $this->gradientCount = null;
         return $blob;
     }
-    private function startPathElement(Path $path) : void
+    private function startPathElement(Path $path): void
     {
         $pathData = [];
         foreach ($path as $op) {
             switch (\true) {
                 case $op instanceof Move:
-                    $pathData[] = \sprintf('M%s %s', \round($op->getX(), self::PRECISION), \round($op->getY(), self::PRECISION));
+                    $pathData[] = sprintf('M%s %s', round($op->getX(), self::PRECISION), round($op->getY(), self::PRECISION));
                     break;
                 case $op instanceof Line:
-                    $pathData[] = \sprintf('L%s %s', \round($op->getX(), self::PRECISION), \round($op->getY(), self::PRECISION));
+                    $pathData[] = sprintf('L%s %s', round($op->getX(), self::PRECISION), round($op->getY(), self::PRECISION));
                     break;
                 case $op instanceof EllipticArc:
-                    $pathData[] = \sprintf('A%s %s %s %u %u %s %s', \round($op->getXRadius(), self::PRECISION), \round($op->getYRadius(), self::PRECISION), \round($op->getXAxisAngle(), self::PRECISION), $op->isLargeArc(), $op->isSweep(), \round($op->getX(), self::PRECISION), \round($op->getY(), self::PRECISION));
+                    $pathData[] = sprintf('A%s %s %s %u %u %s %s', round($op->getXRadius(), self::PRECISION), round($op->getYRadius(), self::PRECISION), round($op->getXAxisAngle(), self::PRECISION), $op->isLargeArc(), $op->isSweep(), round($op->getX(), self::PRECISION), round($op->getY(), self::PRECISION));
                     break;
                 case $op instanceof Curve:
-                    $pathData[] = \sprintf('C%s %s %s %s %s %s', \round($op->getX1(), self::PRECISION), \round($op->getY1(), self::PRECISION), \round($op->getX2(), self::PRECISION), \round($op->getY2(), self::PRECISION), \round($op->getX3(), self::PRECISION), \round($op->getY3(), self::PRECISION));
+                    $pathData[] = sprintf('C%s %s %s %s %s %s', round($op->getX1(), self::PRECISION), round($op->getY1(), self::PRECISION), round($op->getX2(), self::PRECISION), round($op->getY2(), self::PRECISION), round($op->getX3(), self::PRECISION), round($op->getY3(), self::PRECISION));
                     break;
                 case $op instanceof Close:
                     $pathData[] = 'Z';
                     break;
                 default:
-                    throw new RuntimeException('Unexpected draw operation: ' . \get_class($op));
+                    throw new RuntimeException('Unexpected draw operation: ' . get_class($op));
             }
         }
         $this->xmlWriter->startElement('path');
         $this->xmlWriter->writeAttribute('fill-rule', 'evenodd');
-        $this->xmlWriter->writeAttribute('d', \implode('', $pathData));
+        $this->xmlWriter->writeAttribute('d', implode('', $pathData));
     }
-    private function createGradientFill(Gradient $gradient, float $x, float $y, float $width, float $height) : string
+    private function createGradientFill(Gradient $gradient, float $x, float $y, float $width, float $height): string
     {
         $this->xmlWriter->startElement('defs');
         $startColor = $gradient->getStartColor();
@@ -204,36 +204,36 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         $this->xmlWriter->writeAttribute('gradientUnits', 'userSpaceOnUse');
         switch ($gradient->getType()) {
             case GradientType::HORIZONTAL():
-                $this->xmlWriter->writeAttribute('x1', (string) \round($x, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y1', (string) \round($y, self::PRECISION));
-                $this->xmlWriter->writeAttribute('x2', (string) \round($x + $width, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y2', (string) \round($y, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x1', (string) round($x, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y1', (string) round($y, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x2', (string) round($x + $width, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y2', (string) round($y, self::PRECISION));
                 break;
             case GradientType::VERTICAL():
-                $this->xmlWriter->writeAttribute('x1', (string) \round($x, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y1', (string) \round($y, self::PRECISION));
-                $this->xmlWriter->writeAttribute('x2', (string) \round($x, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y2', (string) \round($y + $height, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x1', (string) round($x, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y1', (string) round($y, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x2', (string) round($x, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y2', (string) round($y + $height, self::PRECISION));
                 break;
             case GradientType::DIAGONAL():
-                $this->xmlWriter->writeAttribute('x1', (string) \round($x, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y1', (string) \round($y, self::PRECISION));
-                $this->xmlWriter->writeAttribute('x2', (string) \round($x + $width, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y2', (string) \round($y + $height, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x1', (string) round($x, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y1', (string) round($y, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x2', (string) round($x + $width, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y2', (string) round($y + $height, self::PRECISION));
                 break;
             case GradientType::INVERSE_DIAGONAL():
-                $this->xmlWriter->writeAttribute('x1', (string) \round($x, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y1', (string) \round($y + $height, self::PRECISION));
-                $this->xmlWriter->writeAttribute('x2', (string) \round($x + $width, self::PRECISION));
-                $this->xmlWriter->writeAttribute('y2', (string) \round($y, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x1', (string) round($x, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y1', (string) round($y + $height, self::PRECISION));
+                $this->xmlWriter->writeAttribute('x2', (string) round($x + $width, self::PRECISION));
+                $this->xmlWriter->writeAttribute('y2', (string) round($y, self::PRECISION));
                 break;
             case GradientType::RADIAL():
-                $this->xmlWriter->writeAttribute('cx', (string) \round(($x + $width) / 2, self::PRECISION));
-                $this->xmlWriter->writeAttribute('cy', (string) \round(($y + $height) / 2, self::PRECISION));
-                $this->xmlWriter->writeAttribute('r', (string) \round(\max($width, $height) / 2, self::PRECISION));
+                $this->xmlWriter->writeAttribute('cx', (string) round(($x + $width) / 2, self::PRECISION));
+                $this->xmlWriter->writeAttribute('cy', (string) round(($y + $height) / 2, self::PRECISION));
+                $this->xmlWriter->writeAttribute('r', (string) round(max($width, $height) / 2, self::PRECISION));
                 break;
         }
-        $id = \sprintf('g%d', ++$this->gradientCount);
+        $id = sprintf('g%d', ++$this->gradientCount);
         $this->xmlWriter->writeAttribute('id', $id);
         $this->xmlWriter->startElement('stop');
         $this->xmlWriter->writeAttribute('offset', '0%');
@@ -253,9 +253,9 @@ final class SvgImageBackEnd implements ImageBackEndInterface
         $this->xmlWriter->endElement();
         return $id;
     }
-    private function getColorString(ColorInterface $color) : string
+    private function getColorString(ColorInterface $color): string
     {
         $color = $color->toRgb();
-        return \sprintf('#%02x%02x%02x', $color->getRed(), $color->getGreen(), $color->getBlue());
+        return sprintf('#%02x%02x%02x', $color->getRed(), $color->getGreen(), $color->getBlue());
     }
 }

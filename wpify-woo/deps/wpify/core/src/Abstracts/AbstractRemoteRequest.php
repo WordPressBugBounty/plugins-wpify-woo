@@ -74,13 +74,13 @@ abstract class AbstractRemoteRequest extends AbstractComponent
         // Set the endpoint
         $url = $this->get_request_url();
         // JSON Encode the body if asked to
-        if (isset($args['body']) && \is_array($args['body']) && $this->json_encode_body && $this->method !== $this::METHOD_GET) {
-            $args['body'] = \json_encode($args['body']);
+        if (isset($args['body']) && is_array($args['body']) && $this->json_encode_body && $this->method !== $this::METHOD_GET) {
+            $args['body'] = json_encode($args['body']);
         }
         $response = \false;
         // Perform the request
         $this->response = wp_remote_request($url, $args);
-        $log = array('args' => $args, 'response' => $this->response, 'datetime' => \date('Y-m-d H:i:s'));
+        $log = array('args' => $args, 'response' => $this->response, 'datetime' => date('Y-m-d H:i:s'));
         do_action('wpify_remote_request_sent', $log);
         if (!$this->response) {
             return new WP_Error(400, 'Error when sending request', $response);
@@ -106,7 +106,7 @@ abstract class AbstractRemoteRequest extends AbstractComponent
     {
         $merged = $array1;
         foreach ($array2 as $key => &$value) {
-            if (\is_array($value) && isset($merged[$key]) && \is_array($merged[$key])) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
                 $merged[$key] = $this->array_merge_recursive_distinct($merged[$key], $value);
             } else {
                 $merged[$key] = $value;
@@ -122,7 +122,7 @@ abstract class AbstractRemoteRequest extends AbstractComponent
     function get_request_url()
     {
         $url = $this->api_url . $this->endpoint;
-        if ($this->method === $this::METHOD_GET && isset($this->request_args['body']) && \is_array($this->request_args['body'])) {
+        if ($this->method === $this::METHOD_GET && isset($this->request_args['body']) && is_array($this->request_args['body'])) {
             $url = add_query_arg($this->request_args['body'], $url);
         }
         return $url;
@@ -154,7 +154,7 @@ abstract class AbstractRemoteRequest extends AbstractComponent
         foreach ($body->error as $error) {
             $errors[] = $error;
         }
-        return new WP_Error(wp_remote_retrieve_response_code($this->response), \implode(',', $errors), $body);
+        return new WP_Error(wp_remote_retrieve_response_code($this->response), implode(',', $errors), $body);
     }
     /**
      * Get the response body
@@ -163,7 +163,7 @@ abstract class AbstractRemoteRequest extends AbstractComponent
      */
     function get_response_body()
     {
-        return \json_decode(wp_remote_retrieve_body($this->response));
+        return json_decode(wp_remote_retrieve_body($this->response));
     }
     /**
      * Prepare the success response return
@@ -218,7 +218,7 @@ abstract class AbstractRemoteRequest extends AbstractComponent
     /**
      * @return string
      */
-    public function get_api_url() : string
+    public function get_api_url(): string
     {
         return $this->api_url;
     }
@@ -234,14 +234,14 @@ abstract class AbstractRemoteRequest extends AbstractComponent
     /**
      * @return array
      */
-    public function get_default_args() : array
+    public function get_default_args(): array
     {
         return $this->default_args;
     }
     /**
      * @param array $default_args
      */
-    public function set_default_args(array $default_args) : void
+    public function set_default_args(array $default_args): void
     {
         $this->default_args = $default_args;
     }
@@ -264,7 +264,7 @@ abstract class AbstractRemoteRequest extends AbstractComponent
     /**
      * @param mixed $method
      */
-    public function set_method($method) : void
+    public function set_method($method): void
     {
         $this->method = $method;
     }
@@ -278,21 +278,21 @@ abstract class AbstractRemoteRequest extends AbstractComponent
     /**
      * @param mixed $endpoint
      */
-    public function set_endpoint($endpoint) : void
+    public function set_endpoint($endpoint): void
     {
         $this->endpoint = $endpoint;
     }
     /**
      * @return array
      */
-    public function get_request_args() : array
+    public function get_request_args(): array
     {
         return $this->request_args;
     }
     /**
      * @param array $request_args
      */
-    public function set_request_args(array $request_args) : void
+    public function set_request_args(array $request_args): void
     {
         $this->request_args = $request_args;
     }

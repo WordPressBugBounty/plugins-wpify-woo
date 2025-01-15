@@ -44,13 +44,13 @@ abstract class AbstractLogger extends AbstractComponent
      * Urgent alert.
      */
     public const EMERGENCY = 600;
-    public abstract function channel() : string;
+    abstract public function channel(): string;
     /**
      * Return the Monolog Handler
      *
      * @return mixed
      */
-    public abstract function handler();
+    abstract public function handler();
     /**
      * @var Logger $logger
      */

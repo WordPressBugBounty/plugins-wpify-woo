@@ -9,9 +9,9 @@ use WpifyWooDeps\Endroid\QrCode\Label\Font\FontInterface;
 use WpifyWooDeps\Endroid\QrCode\Label\Margin\MarginInterface;
 interface LabelInterface
 {
-    public function getText() : string;
-    public function getFont() : FontInterface;
-    public function getAlignment() : LabelAlignmentInterface;
-    public function getMargin() : MarginInterface;
-    public function getTextColor() : ColorInterface;
+    public function getText(): string;
+    public function getFont(): FontInterface;
+    public function getAlignment(): LabelAlignmentInterface;
+    public function getMargin(): MarginInterface;
+    public function getTextColor(): ColorInterface;
 }

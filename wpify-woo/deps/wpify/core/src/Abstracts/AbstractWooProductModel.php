@@ -26,9 +26,9 @@ abstract class AbstractWooProductModel extends AbstractPostTypeModel implements 
     public function __construct($product, $post_type)
     {
         $this->post_type = $post_type;
-        if (\is_a($product, WC_Product::class)) {
+        if (is_a($product, WC_Product::class)) {
             $this->wc_product = $product;
-        } elseif (\is_numeric($product)) {
+        } elseif (is_numeric($product)) {
             $this->wc_product = wc_get_product($product);
         }
         if ($this->wc_product) {

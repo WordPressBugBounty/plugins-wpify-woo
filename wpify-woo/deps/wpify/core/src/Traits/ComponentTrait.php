@@ -52,10 +52,10 @@ trait ComponentTrait
     public function get_closest($class)
     {
         $parent = $this;
-        while ($parent->has_parent() && !\is_a($parent, $class)) {
+        while ($parent->has_parent() && !is_a($parent, $class)) {
             $parent = $parent->get_parent();
         }
-        if ($parent === $this || !\is_a($parent, $class)) {
+        if ($parent === $this || !is_a($parent, $class)) {
             return \false;
         }
         return $parent;
@@ -92,7 +92,7 @@ trait ComponentTrait
     public function create_component($class, array $args = array())
     {
         $component = $this->create_object($class, $args);
-        if (\method_exists($component, 'set_parent')) {
+        if (method_exists($component, 'set_parent')) {
             $component->set_parent($this);
         }
         return $component;
@@ -127,10 +127,10 @@ trait ComponentTrait
             $this->plugin = $parent;
         }
         if ($this->plugin === $this && !$this instanceof AbstractPlugin) {
-            throw new PluginException(\sprintf('Plugin property on %s is equal to self. Did you forget to set the parent or create a getter?', $this->get_full_class_name()));
+            throw new PluginException(sprintf('Plugin property on %s is equal to self. Did you forget to set the parent or create a getter?', $this->get_full_class_name()));
         }
         if (!$this->plugin instanceof AbstractPlugin) {
-            throw new PluginException(\sprintf('Parent property on %s not set. Did you forget to set the parent?', $this->get_full_class_name()));
+            throw new PluginException(sprintf('Parent property on %s not set. Did you forget to set the parent?', $this->get_full_class_name()));
         }
         return $this->plugin;
     }
@@ -205,12 +205,12 @@ trait ComponentTrait
             return [];
         }
         static $cache = array();
-        $hash = \spl_object_hash($this);
+        $hash = spl_object_hash($this);
         if (isset($cache[$hash])) {
             return $cache[$hash];
         }
         $components = (new ReflectionClass($this))->getProperties();
-        $components = \array_map(
+        $components = array_map(
             /**
              * @param ReflectionProperty $property
              *
@@ -221,12 +221,12 @@ trait ComponentTrait
             },
             $components
         );
-        $components = \array_diff($components, ['plugin', 'parent', 'auto_init', 'auto_init_list', 'inited']);
-        if (!empty($this->auto_init_list) && \is_array($this->auto_init_list)) {
-            $components = \array_intersect($components, $this->auto_init_list);
+        $components = array_diff($components, ['plugin', 'parent', 'auto_init', 'auto_init_list', 'inited']);
+        if (!empty($this->auto_init_list) && is_array($this->auto_init_list)) {
+            $components = array_intersect($components, $this->auto_init_list);
         }
-        $components = \array_filter($components, [$this, 'is_component']);
-        $components = \array_map(
+        $components = array_filter($components, [$this, 'is_component']);
+        $components = array_map(
             /**
              * @param ReflectionProperty $component
              *
@@ -234,11 +234,11 @@ trait ComponentTrait
              */
             function ($component) {
                 $getter = "get_{$component}";
-                if (\method_exists($this, $getter)) {
+                if (method_exists($this, $getter)) {
                     return $this->{$getter}();
                 }
-                $getter = 'get' . \ucfirst($component);
-                if (\method_exists($this, $getter)) {
+                $getter = 'get' . ucfirst($component);
+                if (method_exists($this, $getter)) {
                     return $this->{$getter}();
                 }
                 return $this->get_private_property($this, $component);
@@ -246,14 +246,14 @@ trait ComponentTrait
             $components
         );
         if (!empty($components)) {
-            $components = \array_map(static function ($component) {
-                if (!\is_array($component)) {
+            $components = array_map(static function ($component) {
+                if (!is_array($component)) {
                     return [$component];
                 }
                 return $component;
             }, $components);
-            $components = \call_user_func_array('array_merge', $components);
-            $components = \array_filter($components, [$this, 'is_component']);
+            $components = call_user_func_array('array_merge', $components);
+            $components = array_filter($components, [$this, 'is_component']);
         }
         $cache[$hash] = $components;
         return $components;
@@ -275,7 +275,7 @@ trait ComponentTrait
     private function get_private_property($component, $name)
     {
         static $cache = [];
-        $class = \get_class($component);
+        $class = get_class($component);
         if (!isset($cache[$class])) {
             $cache[$class] = new ReflectionClass($component);
         }
@@ -330,10 +330,8 @@ trait ComponentTrait
         $result = null;
         if (null !== $error) {
             $result = $error;
-        } else {
-            if ($this !== $component) {
-                $result = $component->init();
-            }
+        } else if ($this !== $component) {
+            $result = $component->init();
         }
         if ($this->is_error($result)) {
             if ($result instanceof Exception) {
@@ -348,7 +346,7 @@ trait ComponentTrait
                  */
                 $args[] = $result->get_error_message();
             }
-            return new ComponentInitFailureException(\vsprintf($message, $args));
+            return new ComponentInitFailureException(vsprintf($message, $args));
         }
     }
     /**
@@ -376,13 +374,13 @@ trait ComponentTrait
     protected function is_component($component, $use_cache = \true)
     {
         static $cache = [];
-        if (!\is_object($component)) {
-            if (!\is_string($component)) {
+        if (!is_object($component)) {
+            if (!is_string($component)) {
                 return \false;
             }
             $found = \false;
-            foreach (['get_' . $component, 'get' . \ucfirst($component)] as $getter) {
-                if (\method_exists($this, $getter) && (new ReflectionMethod($this, $getter))->isPublic()) {
+            foreach (['get_' . $component, 'get' . ucfirst($component)] as $getter) {
+                if (method_exists($this, $getter) && (new ReflectionMethod($this, $getter))->isPublic()) {
                     $found = \true;
                     break;
                 }
@@ -399,32 +397,32 @@ trait ComponentTrait
         /**
          * @noinspection CallableParameterUseCaseInTypeContextInspection
          */
-        if (\is_array($component)) {
-            $count = \count(\array_filter($component, function ($component) {
+        if (is_array($component)) {
+            $count = count(array_filter($component, function ($component) {
                 return $this->is_component($component);
             }));
-            return $count > 0 && $count === \count($component);
+            return $count > 0 && $count === count($component);
         }
-        if (!\is_object($component)) {
+        if (!is_object($component)) {
             return \false;
         }
         if ($component instanceof stdClass) {
             return \false;
         }
-        $hash = \spl_object_hash($component);
+        $hash = spl_object_hash($component);
         if ($use_cache && isset($cache[$hash])) {
             return $cache[$hash];
         }
         $trait = __TRAIT__;
-        $used = \class_uses($component);
+        $used = class_uses($component);
         if (!isset($used[$trait])) {
-            $parents = \class_parents($component);
+            $parents = class_parents($component);
             while (!isset($used[$trait]) && $parents) {
                 //get trait used by parents
-                $used = \class_uses(\array_pop($parents));
+                $used = class_uses(array_pop($parents));
             }
         }
-        $cache[$hash] = \in_array($trait, $used, \true);
+        $cache[$hash] = in_array($trait, $used, \true);
         return $cache[$hash];
     }
     /**
@@ -438,25 +436,25 @@ trait ComponentTrait
      */
     protected function load($component, ...$args)
     {
-        if (!\property_exists($this, $component)) {
+        if (!property_exists($this, $component)) {
             return \false;
         }
         $class = $this->{$component};
-        if (!\is_string($class) && !\is_array($class)) {
+        if (!is_string($class) && !is_array($class)) {
             return \false;
         }
         $class = (array) $class;
         foreach ($class as $index => $class_element) {
-            if (!\is_string($class_element)) {
+            if (!is_string($class_element)) {
                 return \false;
             }
-            if (!\class_exists($class_element)) {
-                throw new ComponentMissingException(\sprintf('Can not find class "%s" for Component "%s" in parent Component "%s"', $class_element, $component, __CLASS__));
+            if (!class_exists($class_element)) {
+                throw new ComponentMissingException(sprintf('Can not find class "%s" for Component "%s" in parent Component "%s"', $class_element, $component, __CLASS__));
             }
             $class[$index] = $this->create_object($class_element, $args);
         }
-        if (1 === \count($class)) {
-            $class = \array_pop($class);
+        if (1 === count($class)) {
+            $class = array_pop($class);
         }
         $this->{$component} = $class;
         return \true;
@@ -470,16 +468,16 @@ trait ComponentTrait
      */
     protected function is_loaded($component)
     {
-        if (!\property_exists($this, $component)) {
+        if (!property_exists($this, $component)) {
             return \false;
         }
         $property = $this->{$component};
-        $property = \is_array($property) ? $property : [$property];
-        if (0 === \count($property)) {
+        $property = is_array($property) ? $property : [$property];
+        if (0 === count($property)) {
             return \false;
         }
         foreach ($property as $item) {
-            if (!\is_object($item)) {
+            if (!is_object($item)) {
                 return \false;
             }
             if ($item instanceof stdClass) {

@@ -50,21 +50,21 @@ class JsonFormatter extends NormalizerFormatter
      * compatibility with some API endpoints, alternative styles
      * are available.
      */
-    public function getBatchMode() : int
+    public function getBatchMode(): int
     {
         return $this->batchMode;
     }
     /**
      * True if newlines are appended to every formatted record
      */
-    public function isAppendingNewlines() : bool
+    public function isAppendingNewlines(): bool
     {
         return $this->appendNewline;
     }
     /**
      * {@inheritDoc}
      */
-    public function format(array $record) : string
+    public function format(array $record): string
     {
         $normalized = $this->normalize($record);
         if (isset($normalized['context']) && $normalized['context'] === []) {
@@ -86,7 +86,7 @@ class JsonFormatter extends NormalizerFormatter
     /**
      * {@inheritDoc}
      */
-    public function formatBatch(array $records) : string
+    public function formatBatch(array $records): string
     {
         switch ($this->batchMode) {
             case static::BATCH_MODE_NEWLINES:
@@ -108,7 +108,7 @@ class JsonFormatter extends NormalizerFormatter
      *
      * @phpstan-param Record[] $records
      */
-    protected function formatBatchJson(array $records) : string
+    protected function formatBatchJson(array $records): string
     {
         return $this->toJson($this->normalize($records), \true);
     }
@@ -118,16 +118,16 @@ class JsonFormatter extends NormalizerFormatter
      *
      * @phpstan-param Record[] $records
      */
-    protected function formatBatchNewlines(array $records) : string
+    protected function formatBatchNewlines(array $records): string
     {
         $instance = $this;
         $oldNewline = $this->appendNewline;
         $this->appendNewline = \false;
-        \array_walk($records, function (&$value, $key) use($instance) {
+        array_walk($records, function (&$value, $key) use ($instance) {
             $value = $instance->format($value);
         });
         $this->appendNewline = $oldNewline;
-        return \implode("\n", $records);
+        return implode("\n", $records);
     }
     /**
      * Normalizes given $data.
@@ -141,12 +141,12 @@ class JsonFormatter extends NormalizerFormatter
         if ($depth > $this->maxNormalizeDepth) {
             return 'Over ' . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
         }
-        if (\is_array($data)) {
+        if (is_array($data)) {
             $normalized = [];
             $count = 1;
             foreach ($data as $key => $value) {
                 if ($count++ > $this->maxNormalizeItemCount) {
-                    $normalized['...'] = 'Over ' . $this->maxNormalizeItemCount . ' items (' . \count($data) . ' total), aborting normalization';
+                    $normalized['...'] = 'Over ' . $this->maxNormalizeItemCount . ' items (' . count($data) . ' total), aborting normalization';
                     break;
                 }
                 $normalized[$key] = $this->normalize($value, $depth + 1);
@@ -159,7 +159,7 @@ class JsonFormatter extends NormalizerFormatter
         if ($data instanceof Throwable) {
             return $this->normalizeException($data, $depth);
         }
-        if (\is_resource($data)) {
+        if (is_resource($data)) {
             return parent::normalize($data);
         }
         return $data;
@@ -170,7 +170,7 @@ class JsonFormatter extends NormalizerFormatter
      *
      * {@inheritDoc}
      */
-    protected function normalizeException(Throwable $e, int $depth = 0) : array
+    protected function normalizeException(Throwable $e, int $depth = 0): array
     {
         $data = parent::normalizeException($e, $depth);
         if (!$this->includeStacktraces) {

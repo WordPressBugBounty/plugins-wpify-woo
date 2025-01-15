@@ -13,19 +13,19 @@ final class EndroidQrCode3 implements QrCode
     {
         $this->qrCode = $qrCode;
     }
-    public function getRawString() : string
+    public function getRawString(): string
     {
         return $this->qrCode->writeString();
     }
-    public function writeToFile(string $path) : void
+    public function writeToFile(string $path): void
     {
         $this->qrCode->writeFile($path);
     }
-    public function getDataUri() : string
+    public function getDataUri(): string
     {
         return $this->qrCode->writeDataUri();
     }
-    public function getRawObject() : object
+    public function getRawObject(): object
     {
         return $this->qrCode;
     }

@@ -56,7 +56,7 @@ final class EasyHandle
      * @throws \RuntimeException if no headers have been received or the first
      *                           header line is invalid.
      */
-    public function createResponse() : void
+    public function createResponse(): void
     {
         [$ver, $status, $reason, $headers] = HeaderProcessor::parseHeaders($this->headers);
         $normalizedKeys = Utils::normalizeHeaderKeys($headers);
@@ -85,7 +85,7 @@ final class EasyHandle
      */
     public function __get($name)
     {
-        $msg = $name === 'handle' ? 'The EasyHandle has been released' : 'Invalid property: ' . $name;
+        $msg = ($name === 'handle') ? 'The EasyHandle has been released' : ('Invalid property: ' . $name);
         throw new \BadMethodCallException($msg);
     }
 }

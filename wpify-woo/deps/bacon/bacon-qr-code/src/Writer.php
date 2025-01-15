@@ -34,9 +34,9 @@ final class Writer
      *
      * @throws InvalidArgumentException if the content is empty
      */
-    public function writeString(string $content, string $encoding = Encoder::DEFAULT_BYTE_MODE_ECODING, ?ErrorCorrectionLevel $ecLevel = null, ?Version $forcedVersion = null) : string
+    public function writeString(string $content, string $encoding = Encoder::DEFAULT_BYTE_MODE_ECODING, ?ErrorCorrectionLevel $ecLevel = null, ?Version $forcedVersion = null): string
     {
-        if (\strlen($content) === 0) {
+        if (strlen($content) === 0) {
             throw new InvalidArgumentException('Found empty contents');
         }
         if (null === $ecLevel) {
@@ -49,8 +49,8 @@ final class Writer
      *
      * @see Writer::writeString()
      */
-    public function writeFile(string $content, string $filename, string $encoding = Encoder::DEFAULT_BYTE_MODE_ECODING, ?ErrorCorrectionLevel $ecLevel = null, ?Version $forcedVersion = null) : void
+    public function writeFile(string $content, string $filename, string $encoding = Encoder::DEFAULT_BYTE_MODE_ECODING, ?ErrorCorrectionLevel $ecLevel = null, ?Version $forcedVersion = null): void
     {
-        \file_put_contents($filename, $this->writeString($content, $encoding, $ecLevel, $forcedVersion));
+        file_put_contents($filename, $this->writeString($content, $encoding, $ecLevel, $forcedVersion));
     }
 }

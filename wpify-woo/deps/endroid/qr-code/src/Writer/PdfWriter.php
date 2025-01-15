@@ -15,7 +15,7 @@ final class PdfWriter implements WriterInterface
     public const WRITER_OPTION_PDF = 'fpdf';
     public const WRITER_OPTION_X = 'x';
     public const WRITER_OPTION_Y = 'y';
-    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []) : ResultInterface
+    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []): ResultInterface
     {
         $matrixFactory = new MatrixFactory();
         $matrix = $matrixFactory->create($qrCode);
@@ -24,14 +24,14 @@ final class PdfWriter implements WriterInterface
             $unit = $options[self::WRITER_OPTION_UNIT];
         }
         $allowedUnits = ['mm', 'pt', 'cm', 'in'];
-        if (!\in_array($unit, $allowedUnits)) {
-            throw new \Exception(\sprintf('PDF Measure unit should be one of [%s]', \implode(', ', $allowedUnits)));
+        if (!in_array($unit, $allowedUnits)) {
+            throw new \Exception(sprintf('PDF Measure unit should be one of [%s]', implode(', ', $allowedUnits)));
         }
         $labelSpace = 0;
         if ($label instanceof LabelInterface) {
             $labelSpace = 30;
         }
-        if (!\class_exists(\WpifyWooDeps\FPDF::class)) {
+        if (!class_exists(\WpifyWooDeps\FPDF::class)) {
             throw new \Exception('Unable to find FPDF: check your installation');
         }
         $foregroundColor = $qrCode->getForegroundColor();
@@ -80,7 +80,7 @@ final class PdfWriter implements WriterInterface
         }
         return new PdfResult($fpdf);
     }
-    private function addLogo(LogoInterface $logo, \WpifyWooDeps\FPDF $fpdf, float $x, float $y, float $size) : void
+    private function addLogo(LogoInterface $logo, \WpifyWooDeps\FPDF $fpdf, float $x, float $y, float $size): void
     {
         $logoPath = $logo->getPath();
         $logoHeight = $logo->getResizeToHeight();
@@ -88,7 +88,7 @@ final class PdfWriter implements WriterInterface
         if (null === $logoHeight || null === $logoWidth) {
             $imageSize = \getimagesize($logoPath);
             if (!$imageSize) {
-                throw new \Exception(\sprintf('Unable to read image size for logo "%s"', $logoPath));
+                throw new \Exception(sprintf('Unable to read image size for logo "%s"', $logoPath));
             }
             [$logoSourceWidth, $logoSourceHeight] = $imageSize;
             if (null === $logoWidth) {

@@ -14,15 +14,15 @@ final class QrCodeProviderLocator
      */
     public function __construct(iterable $providers = [])
     {
-        if (!\is_countable($providers)) {
-            $providers = \iterator_to_array($providers);
+        if (!is_countable($providers)) {
+            $providers = iterator_to_array($providers);
         }
-        if (!\count($providers)) {
+        if (!count($providers)) {
             $providers = [new EndroidQrCode3Provider(), new EndroidQrCode4Provider(), new BaconQrCodeProvider(), new ChillerlanQrCodeProvider()];
         }
         $this->providers = $providers;
     }
-    public function getProvider() : QrCodeProvider
+    public function getProvider(): QrCodeProvider
     {
         foreach ($this->providers as $provider) {
             if ($provider::isInstalled()) {

@@ -55,10 +55,10 @@ final class Metabox extends AbstractPostImplementation
         $this->post_types = $args['post_types'];
         $this->nonce = $args['id'] . '_nonce';
         $this->post_id = $args['post_id'];
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -93,7 +93,7 @@ final class Metabox extends AbstractPostImplementation
     public function set_wcf_shown(WP_Screen $current_screen)
     {
         global $pagenow;
-        $this->wcf_shown = $current_screen->base === 'post' && \in_array($current_screen->post_type, $this->post_types) && \in_array($pagenow, array('post-new.php', 'post.php'));
+        $this->wcf_shown = $current_screen->base === 'post' && in_array($current_screen->post_type, $this->post_types) && in_array($pagenow, array('post-new.php', 'post.php'));
     }
     /**
      * @param string $post_type
@@ -101,10 +101,10 @@ final class Metabox extends AbstractPostImplementation
     public function add_meta_box($post_type)
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
-        if (\in_array($post_type, $this->post_types)) {
+        if (in_array($post_type, $this->post_types)) {
             add_meta_box($this->id, $this->title, array($this, 'render'), $this->screen, $this->context, $this->priority, $this->callback_args);
         }
     }
@@ -139,7 +139,7 @@ final class Metabox extends AbstractPostImplementation
     public function get_field($name, $item)
     {
         if (!empty($item['callback_get'])) {
-            return \call_user_func($item['callback_get'], $item, $this->post_id);
+            return call_user_func($item['callback_get'], $item, $this->post_id);
         } else {
             return get_post_meta($this->post_id, $name, \true);
         }
@@ -158,10 +158,10 @@ final class Metabox extends AbstractPostImplementation
         if (!wp_verify_nonce($nonce, $this->id)) {
             return $post_id;
         }
-        if (\defined('WpifyWooDeps\\DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        if (defined('WpifyWooDeps\DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $post_id;
         }
-        if (!\in_array($_POST['post_type'], $this->post_types)) {
+        if (!in_array($_POST['post_type'], $this->post_types)) {
             return $post_id;
         }
         if (!current_user_can('edit_post', $post_id)) {
@@ -187,7 +187,7 @@ final class Metabox extends AbstractPostImplementation
     public function set_field($name, $value, $item)
     {
         if (!empty($item['callback_set'])) {
-            return \call_user_func($item['callback_set'], $item, $this->post_id, $value);
+            return call_user_func($item['callback_set'], $item, $this->post_id, $value);
         } else {
             return update_post_meta($this->post_id, $name, wp_slash($value));
         }

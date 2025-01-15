@@ -13,7 +13,7 @@ abstract class AbstractDbTableRepository extends AbstractRepository implements R
         $this->db = $wpdb;
         $this->db_table = $this::table();
     }
-    public static abstract function table() : string;
+    abstract public static function table(): string;
     public function all()
     {
         $collection = array();
@@ -54,16 +54,12 @@ abstract class AbstractDbTableRepository extends AbstractRepository implements R
         $object = null;
         if (\is_object($data) && \get_class($data) === $this->model()) {
             $object = $data->source_object();
-        } else {
-            if (\is_object($data)) {
-                $object = $data;
-            } else {
-                if (\is_numeric($data)) {
-                    $row = $this->get_db_row('id', $data);
-                    if ($row) {
-                        $object = $row;
-                    }
-                }
+        } else if (is_object($data)) {
+            $object = $data;
+        } else if (is_numeric($data)) {
+            $row = $this->get_db_row('id', $data);
+            if ($row) {
+                $object = $row;
             }
         }
         return $object;
@@ -77,7 +73,7 @@ abstract class AbstractDbTableRepository extends AbstractRepository implements R
         if ($force) {
             return $this->db->delete($this->db_table, ['id' => $model->id]);
         } else {
-            return $this->db->update($this->db_table, ['deleted_at' => \date('Y-m-d H:i:s')], ['id' => $model->id]);
+            return $this->db->update($this->db_table, ['deleted_at' => date('Y-m-d H:i:s')], ['id' => $model->id]);
         }
     }
     /**
@@ -86,7 +82,7 @@ abstract class AbstractDbTableRepository extends AbstractRepository implements R
      * @return AbstractDbTableModel
      * @throws \Exception
      */
-    public function save($model) : AbstractDbTableModel
+    public function save($model): AbstractDbTableModel
     {
         if ($model->id) {
             $result = $this->db->update($this->db_table, $model->get_db_data(), ['id' => $model->id]);
@@ -106,7 +102,7 @@ abstract class AbstractDbTableRepository extends AbstractRepository implements R
     {
         return $this->find(['where' => $this->db->prepare("{$field} = %s", $value)]);
     }
-    public function create() : AbstractDbTableModel
+    public function create(): AbstractDbTableModel
     {
         return $this->factory(null);
     }
@@ -115,6 +111,6 @@ abstract class AbstractDbTableRepository extends AbstractRepository implements R
      */
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
 }

@@ -19,9 +19,9 @@ class CallableTypeNode implements TypeNode
         $this->parameters = $parameters;
         $this->returnType = $returnType;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        $parameters = \implode(', ', $this->parameters);
+        $parameters = implode(', ', $this->parameters);
         return "{$this->identifier}({$parameters}): {$this->returnType}";
     }
 }

@@ -13,7 +13,7 @@ trait CustomFieldsTrait
     /**
      * @return CustomFieldsFactoryInterface
      */
-    public function get_custom_fields_factory() : CustomFieldsFactoryInterface
+    public function get_custom_fields_factory(): CustomFieldsFactoryInterface
     {
         return $this->custom_fields_factory;
     }
@@ -54,7 +54,7 @@ trait CustomFieldsTrait
      * Set custom fields factory needed for custom fields registration / manipulation
      * @return string
      */
-    public function custom_fields_factory() : ?string
+    public function custom_fields_factory(): ?string
     {
         return null;
     }

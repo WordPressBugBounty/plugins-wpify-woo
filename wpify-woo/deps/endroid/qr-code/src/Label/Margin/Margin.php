@@ -16,24 +16,24 @@ final class Margin implements MarginInterface
         $this->bottom = $bottom;
         $this->left = $left;
     }
-    public function getTop() : int
+    public function getTop(): int
     {
         return $this->top;
     }
-    public function getRight() : int
+    public function getRight(): int
     {
         return $this->right;
     }
-    public function getBottom() : int
+    public function getBottom(): int
     {
         return $this->bottom;
     }
-    public function getLeft() : int
+    public function getLeft(): int
     {
         return $this->left;
     }
     /** @return array<string, int> */
-    public function toArray() : array
+    public function toArray(): array
     {
         return ['top' => $this->top, 'right' => $this->right, 'bottom' => $this->bottom, 'left' => $this->left];
     }

@@ -8,6 +8,6 @@ use WpifyWooDeps\Doctrine\Common\Collections\ArrayCollection;
  */
 interface RepositoryInterface
 {
-    public function all() : ArrayCollection;
+    public function all(): ArrayCollection;
     public function get($id);
 }

@@ -17,7 +17,7 @@ use WpifyWooDeps\Wpify\Model\Interfaces\TermModelInterface;
  */
 class ProductRepository extends AbstractRepository implements RepositoryInterface
 {
-    static function post_type() : string
+    static function post_type(): string
     {
         return 'product';
     }
@@ -30,7 +30,7 @@ class ProductRepository extends AbstractRepository implements RepositoryInterfac
      */
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
     /**
      * @return AbstractPostModel[]
@@ -88,7 +88,7 @@ class ProductRepository extends AbstractRepository implements RepositoryInterfac
                     $object_data['meta_input'] = array();
                 }
                 $object_data['meta_input'][$source_name] = $model->{$key};
-            } elseif ($prop['source'] === 'relation' && \is_callable($prop['assign']) && $prop['changed']) {
+            } elseif ($prop['source'] === 'relation' && is_callable($prop['assign']) && $prop['changed']) {
                 $prop['assign']($model);
             }
         }
@@ -113,13 +113,13 @@ class ProductRepository extends AbstractRepository implements RepositoryInterfac
      * @return WC_Product
      * @throws NotFoundException
      */
-    protected function resolve_object($data) : WC_Product
+    protected function resolve_object($data): WC_Product
     {
-        if (\is_object($data) && \get_class($data) === $this::model()) {
+        if (is_object($data) && get_class($data) === $this::model()) {
             $object = $data->source_object();
         } elseif ($data instanceof WC_Product) {
             $object = $data;
-        } elseif (\is_null($data)) {
+        } elseif (is_null($data)) {
             $object = new WC_Product();
         } elseif (isset($data->id)) {
             $object = wc_get_product($data->id);
@@ -131,7 +131,7 @@ class ProductRepository extends AbstractRepository implements RepositoryInterfac
         }
         return $object;
     }
-    public function model() : string
+    public function model(): string
     {
         return Product::class;
     }
@@ -154,14 +154,14 @@ class ProductRepository extends AbstractRepository implements RepositoryInterfac
     {
         $to_assign = [];
         foreach ($terms as $term) {
-            if (isset($to_assign[$term->taxonomy_name]) && \is_array($to_assign[$term->taxonomy_name])) {
+            if (isset($to_assign[$term->taxonomy_name]) && is_array($to_assign[$term->taxonomy_name])) {
                 $to_assign[$term->taxonomy_name][] = $term;
             } else {
                 $to_assign[$term->taxonomy_name] = array($term);
             }
         }
         foreach ($to_assign as $taxonomy => $assigns) {
-            wp_set_post_terms($model->id, \array_values(\array_map(function ($term) {
+            wp_set_post_terms($model->id, array_values(array_map(function ($term) {
                 return $term->id;
             }, $assigns)), $taxonomy);
         }

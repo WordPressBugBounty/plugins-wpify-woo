@@ -18,7 +18,7 @@ final class Client
     public function __construct(private TransportProvider $requestProvider)
     {
     }
-    public function request(StreamInterface $body) : stdClass
+    public function request(StreamInterface $body): stdClass
     {
         $request = $this->requestProvider->createXmlRequest(self::$url, $body);
         $response = $this->requestProvider->response($request);

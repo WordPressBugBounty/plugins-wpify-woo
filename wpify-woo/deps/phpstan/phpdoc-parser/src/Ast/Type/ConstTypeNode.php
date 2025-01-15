@@ -14,7 +14,7 @@ class ConstTypeNode implements TypeNode
     {
         $this->constExpr = $constExpr;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->constExpr->__toString();
     }

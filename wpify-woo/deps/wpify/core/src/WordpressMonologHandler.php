@@ -55,7 +55,7 @@ class WordpressMonologHandler extends AbstractProcessingHandler
      */
     public function __construct($wpdb = null, $table = 'wpify_logs', $additionalFields = array(), $level = Logger::DEBUG, $bubble = \true)
     {
-        if (!\is_null($wpdb)) {
+        if (!is_null($wpdb)) {
             $this->wpdb = $wpdb;
         }
         $this->table = $table;
@@ -71,7 +71,7 @@ class WordpressMonologHandler extends AbstractProcessingHandler
      */
     public function set_max_table_rows(int $max_table_rows)
     {
-        $this->max_table_rows = \max(0, $max_table_rows);
+        $this->max_table_rows = max(0, $max_table_rows);
     }
     /**
      * Returns the full log tables name
@@ -108,7 +108,7 @@ class WordpressMonologHandler extends AbstractProcessingHandler
             $additionalFields .= ",\n`{$f}` TEXT NULL DEFAULT NULL";
         }
         $sql = "CREATE TABLE {$table_name} (\n            id INT(11) NOT NULL AUTO_INCREMENT,\n            channel VARCHAR(255),\n            level INTEGER,\n            message LONGTEXT,\n            time INTEGER UNSIGNED{$extraFields}{$additionalFields},\n            PRIMARY KEY  (id)\n            ) {$charset_collate};";
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        require_once \ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
         $this->initialized = \true;
     }
@@ -119,7 +119,7 @@ class WordpressMonologHandler extends AbstractProcessingHandler
     {
         $table_name = $this->get_table_name();
         $sql = "DROP TABLE IF EXISTS {$table_name};";
-        if (!\is_null($this->wpdb)) {
+        if (!is_null($this->wpdb)) {
             $this->wpdb->query($sql);
         }
     }
@@ -138,7 +138,7 @@ class WordpressMonologHandler extends AbstractProcessingHandler
         $table_name = $this->get_table_name();
         $sql = "SELECT count(*) FROM {$table_name};";
         $count = $this->wpdb->get_var($sql);
-        if (\is_numeric($count) && $this->max_table_rows <= (int) $count) {
+        if (is_numeric($count) && $this->max_table_rows <= (int) $count) {
             // using `LIMIT -1`, `LIMIT 0`, `LIMIT NULL` may not be compatible with all db systems
             // deleting 10000 rows in one go is good enough anyway, it'll converge pretty fast
             $sql = "DELETE FROM {$table_name} WHERE `id` IN ( SELECT * FROM (SELECT `id` FROM {$table_name} ORDER BY `id` DESC LIMIT 10000 OFFSET {$this->max_table_rows}) as `workaround_subquery_for_older_mysql_versions` );";
@@ -153,7 +153,7 @@ class WordpressMonologHandler extends AbstractProcessingHandler
      *
      * @return void
      */
-    protected function write(array $record) : void
+    protected function write(array $record): void
     {
         if (!$this->initialized) {
             $this->initialize($record);
@@ -163,17 +163,17 @@ class WordpressMonologHandler extends AbstractProcessingHandler
         // Make sure to use the formatted values for context and extra, if available
         $recordExtra = isset($record['formatted']['extra']) ? $record['formatted']['extra'] : $record['extra'];
         $recordContext = isset($record['formatted']['context']) ? $record['formatted']['context'] : $record['context'];
-        $recordContExtra = \array_merge($recordExtra, $recordContext);
+        $recordContExtra = array_merge($recordExtra, $recordContext);
         // json encode values as needed
-        \array_walk($recordContExtra, function (&$value, $key) {
-            if (\is_array($value) || $value instanceof \Traversable) {
-                $value = \json_encode($value);
+        array_walk($recordContExtra, function (&$value, $key) {
+            if (is_array($value) || $value instanceof \Traversable) {
+                $value = json_encode($value);
             }
         });
         $contentArray = $contentArray + $recordContExtra;
-        if (\count($this->additionalFields) > 0) {
+        if (count($this->additionalFields) > 0) {
             // Fill content array with "null" values if not provided
-            $contentArray = $contentArray + \array_combine($this->additionalFields, \array_fill(0, \count($this->additionalFields), null));
+            $contentArray = $contentArray + array_combine($this->additionalFields, array_fill(0, count($this->additionalFields), null));
         }
         $table_name = $this->get_table_name();
         $this->wpdb->insert($table_name, $contentArray);

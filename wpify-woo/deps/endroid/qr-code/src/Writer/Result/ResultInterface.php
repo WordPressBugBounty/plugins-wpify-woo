@@ -5,8 +5,8 @@ namespace WpifyWooDeps\Endroid\QrCode\Writer\Result;
 
 interface ResultInterface
 {
-    public function getString() : string;
-    public function getDataUri() : string;
-    public function saveToFile(string $path) : void;
-    public function getMimeType() : string;
+    public function getString(): string;
+    public function getDataUri(): string;
+    public function saveToFile(string $path): void;
+    public function getMimeType(): string;
 }

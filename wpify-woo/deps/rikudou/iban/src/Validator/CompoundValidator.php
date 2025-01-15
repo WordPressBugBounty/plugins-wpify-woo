@@ -11,12 +11,12 @@ class CompoundValidator implements ValidatorInterface
     private $validators;
     public function __construct(ValidatorInterface ...$validators)
     {
-        if (!\count($validators)) {
+        if (!count($validators)) {
             throw new InvalidArgumentException('At least one validator is required');
         }
         $this->validators = $validators;
     }
-    public function isValid() : bool
+    public function isValid(): bool
     {
         foreach ($this->validators as $validator) {
             if (!$validator->isValid()) {

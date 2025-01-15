@@ -16,5 +16,5 @@ interface ValidatorInterface
      *
      * @return bool
      */
-    public function validate(string $vatNumber) : bool;
+    public function validate(string $vatNumber): bool;
 }

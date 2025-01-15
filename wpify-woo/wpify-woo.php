@@ -3,7 +3,7 @@
 /*
  * Plugin Name:          WPify Woo
  * Description:          Custom functionality for WooCommerce
- * Version:              4.1.12
+ * Version:              4.1.13
  * Requires PHP:         8.0.0
  * Requires at least:    6.2
  * Author:               WPify s.r.o.

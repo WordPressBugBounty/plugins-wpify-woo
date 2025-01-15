@@ -138,8 +138,8 @@ class Criteria
      */
     public function orderBy(array $orderings)
     {
-        $this->orderings = array_map(static function (string $ordering) : string {
-            return strtoupper($ordering) === Criteria::ASC ? Criteria::ASC : Criteria::DESC;
+        $this->orderings = array_map(static function (string $ordering): string {
+            return (strtoupper($ordering) === Criteria::ASC) ? Criteria::ASC : Criteria::DESC;
         }, $orderings);
         return $this;
     }

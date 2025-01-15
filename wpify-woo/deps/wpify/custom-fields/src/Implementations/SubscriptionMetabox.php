@@ -61,10 +61,10 @@ class SubscriptionMetabox extends AbstractPostImplementation
         $this->post_types = $args['post_types'];
         $this->nonce = $args['id'] . '_nonce';
         $this->post_id = $args['post_id'];
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -98,7 +98,7 @@ class SubscriptionMetabox extends AbstractPostImplementation
     public function set_wcf_shown(WP_Screen $current_screen)
     {
         global $pagenow;
-        $this->wcf_shown = $current_screen->base === wc_get_page_screen_id('shop-subscription') && \in_array($pagenow, array('admin.php'));
+        $this->wcf_shown = $current_screen->base === wc_get_page_screen_id('shop-subscription') && in_array($pagenow, array('admin.php'));
     }
     /**
      * @param string $post_type
@@ -110,7 +110,7 @@ class SubscriptionMetabox extends AbstractPostImplementation
         if ($screen !== $post_type) {
             return;
         }
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         add_meta_box($this->id, $this->title, array($this, 'render'), $this->screen, $this->context, $this->priority, $this->callback_args);
@@ -147,7 +147,7 @@ class SubscriptionMetabox extends AbstractPostImplementation
     public function get_field($name, $item)
     {
         if (!empty($item['callback_get'])) {
-            return \call_user_func($item['callback_get'], $item, $this->post_id);
+            return call_user_func($item['callback_get'], $item, $this->post_id);
         } else {
             return $this->order->get_meta($name);
         }
@@ -167,7 +167,7 @@ class SubscriptionMetabox extends AbstractPostImplementation
         if (!wp_verify_nonce($nonce, $this->id)) {
             return $post_id;
         }
-        if (\defined('WpifyWooDeps\\DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        if (defined('WpifyWooDeps\DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $post_id;
         }
         $this->set_post($post_id);
@@ -191,7 +191,7 @@ class SubscriptionMetabox extends AbstractPostImplementation
     public function set_field($name, $value, $item)
     {
         if (!empty($item['callback_set'])) {
-            return \call_user_func($item['callback_set'], $item, $this->post_id, $value);
+            return call_user_func($item['callback_set'], $item, $this->post_id, $value);
         } else {
             return $this->order->update_meta_data($name, wp_slash($value));
         }

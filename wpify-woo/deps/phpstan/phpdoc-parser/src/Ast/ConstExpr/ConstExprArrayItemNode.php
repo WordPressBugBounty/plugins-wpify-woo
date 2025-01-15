@@ -16,7 +16,7 @@ class ConstExprArrayItemNode implements ConstExprNode
         $this->key = $key;
         $this->value = $value;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
         if ($this->key !== null) {
             return "{$this->key} => {$this->value}";

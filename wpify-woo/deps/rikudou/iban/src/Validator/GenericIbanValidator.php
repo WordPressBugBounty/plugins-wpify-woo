@@ -15,12 +15,12 @@ class GenericIbanValidator implements ValidatorInterface
     {
         $this->iban = $iban;
     }
-    public function isValid() : bool
+    public function isValid(): bool
     {
-        $stringIban = \strtoupper($this->iban->asString());
-        $country = \substr($stringIban, 0, 2);
-        $checksum = \substr($stringIban, 2, 2);
-        $account = \substr($stringIban, 4);
+        $stringIban = strtoupper($this->iban->asString());
+        $country = substr($stringIban, 0, 2);
+        $checksum = substr($stringIban, 2, 2);
+        $account = substr($stringIban, 4);
         $numericCountry = $this->getNumericRepresentation($country);
         $numericAccount = $this->getNumericRepresentation($account);
         $inverted = $numericAccount . $numericCountry . $checksum;
@@ -32,14 +32,14 @@ class GenericIbanValidator implements ValidatorInterface
         }
         // @codeCoverageIgnoreEnd
     }
-    private function getNumericRepresentation(string $string) : string
+    private function getNumericRepresentation(string $string): string
     {
         $result = '';
-        $length = \strlen($string);
+        $length = strlen($string);
         for ($i = 0; $i < $length; $i++) {
             $char = $string[$i];
-            if (!\is_numeric($char)) {
-                $result .= \ord($char) - \ord('A') + 10;
+            if (!is_numeric($char)) {
+                $result .= ord($char) - ord('A') + 10;
             } else {
                 $result .= $char;
             }

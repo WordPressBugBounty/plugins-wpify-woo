@@ -13,12 +13,12 @@ class ContentProvider
     /**
      * @return array<stdClass>
      */
-    public function load(string $in) : array
+    public function load(string $in): array
     {
         $content = $this->xml('Ico', $in)->Osoba;
-        return \is_array($content) ? $content : [$content];
+        return is_array($content) ? $content : [$content];
     }
-    protected function xml(string $parameter, string $value) : stdClass
+    protected function xml(string $parameter, string $value): stdClass
     {
         $xml = <<<XML
 <GetInfoRequest xmlns="http://seznam.gov.cz/ovm/ws/v1">

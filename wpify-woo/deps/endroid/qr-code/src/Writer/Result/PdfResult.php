@@ -10,15 +10,15 @@ final class PdfResult extends AbstractResult
     {
         $this->fpdf = $fpdf;
     }
-    public function getPdf() : \WpifyWooDeps\FPDF
+    public function getPdf(): \WpifyWooDeps\FPDF
     {
         return $this->fpdf;
     }
-    public function getString() : string
+    public function getString(): string
     {
         return $this->fpdf->Output('S');
     }
-    public function getMimeType() : string
+    public function getMimeType(): string
     {
         return 'application/pdf';
     }

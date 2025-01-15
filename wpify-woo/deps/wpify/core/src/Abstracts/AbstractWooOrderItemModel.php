@@ -51,14 +51,14 @@ abstract class AbstractWooOrderItemModel extends AbstractComponent
     /**
      * @return WC_Order_Item
      */
-    public function get_wc_order_item() : WC_Order_Item
+    public function get_wc_order_item(): WC_Order_Item
     {
         return $this->wc_order_item;
     }
     /**
      * @param WC_Order_Item $wc_order_item
      */
-    public function set_wc_order_item(WC_Order_Item $wc_order_item) : void
+    public function set_wc_order_item(WC_Order_Item $wc_order_item): void
     {
         $this->wc_order_item = $wc_order_item;
     }
@@ -96,11 +96,11 @@ abstract class AbstractWooOrderItemModel extends AbstractComponent
     }
     public function get_unit_price($inc_tax = \true)
     {
-        if (\is_callable(array($this->wc_order_item, 'get_total')) && $this->wc_order_item->get_quantity()) {
+        if (is_callable(array($this->wc_order_item, 'get_total')) && $this->wc_order_item->get_quantity()) {
             if ($inc_tax) {
                 $total = ($this->wc_order_item->get_total() + $this->wc_order_item->get_total_tax()) / $this->wc_order_item->get_quantity();
             } else {
-                $total = \floatval($this->wc_order_item->get_total()) / $this->wc_order_item->get_quantity();
+                $total = floatval($this->wc_order_item->get_total()) / $this->wc_order_item->get_quantity();
             }
         }
         return $total;

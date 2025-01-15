@@ -95,7 +95,7 @@ class CheckVatResponse
      *
      * @return self
      */
-    public function setCountryCode(string $countryCode) : self
+    public function setCountryCode(string $countryCode): self
     {
         $this->countryCode = $countryCode;
         return $this;
@@ -106,7 +106,7 @@ class CheckVatResponse
      *
      * @return string
      */
-    public function getCountryCode() : string
+    public function getCountryCode(): string
     {
         return $this->countryCode;
     }
@@ -117,7 +117,7 @@ class CheckVatResponse
      *
      * @return self
      */
-    public function setVatNumber(string $vatNumber) : self
+    public function setVatNumber(string $vatNumber): self
     {
         $this->vatNumber = $vatNumber;
         return $this;
@@ -127,7 +127,7 @@ class CheckVatResponse
      *
      * @return string
      */
-    public function getVatNumber() : string
+    public function getVatNumber(): string
     {
         return $this->vatNumber;
     }
@@ -138,7 +138,7 @@ class CheckVatResponse
      *
      * @return self
      */
-    public function setRequestDate(DateTime $requestDate) : self
+    public function setRequestDate(DateTime $requestDate): self
     {
         $this->requestDate = $requestDate;
         return $this;
@@ -148,9 +148,9 @@ class CheckVatResponse
      *
      * @return DateTime
      */
-    public function getRequestDate() : DateTime
+    public function getRequestDate(): DateTime
     {
-        $this->requestDate = $this->requestDate ?? \date_create();
+        $this->requestDate = $this->requestDate ?? date_create();
         return $this->requestDate;
     }
     /**
@@ -160,7 +160,7 @@ class CheckVatResponse
      *
      * @return self
      */
-    public function setValid(bool $flag) : self
+    public function setValid(bool $flag): self
     {
         $this->valid = $flag;
         return $this;
@@ -170,7 +170,7 @@ class CheckVatResponse
      *
      * @return bool
      */
-    public function isValid() : bool
+    public function isValid(): bool
     {
         return $this->valid;
     }
@@ -181,7 +181,7 @@ class CheckVatResponse
      *
      * @return self
      */
-    public function setName(string $name) : self
+    public function setName(string $name): self
     {
         $this->name = $name;
         return $this;
@@ -191,7 +191,7 @@ class CheckVatResponse
      *
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -202,7 +202,7 @@ class CheckVatResponse
      *
      * @return self
      */
-    public function setAddress(string $address) : self
+    public function setAddress(string $address): self
     {
         $this->address = $address;
         return $this;
@@ -212,7 +212,7 @@ class CheckVatResponse
      *
      * @return string
      */
-    public function getAddress() : string
+    public function getAddress(): string
     {
         return $this->address;
     }
@@ -223,7 +223,7 @@ class CheckVatResponse
      *
      * @return self
      */
-    public function setIdentifier(string $identifier) : self
+    public function setIdentifier(string $identifier): self
     {
         $this->identifier = $identifier;
         return $this;
@@ -233,14 +233,14 @@ class CheckVatResponse
      *
      * @return string
      */
-    public function getIdentifier() : string
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }
     /**
      * @return string
      */
-    public function getNameMatch() : string
+    public function getNameMatch(): string
     {
         return $this->nameMatch;
     }
@@ -248,7 +248,7 @@ class CheckVatResponse
      * @param string $nameMatch
      * @return CheckVatResponse
      */
-    public function setNameMatch(string $nameMatch) : self
+    public function setNameMatch(string $nameMatch): self
     {
         $this->nameMatch = $nameMatch;
         return $this;
@@ -256,7 +256,7 @@ class CheckVatResponse
     /**
      * @return string
      */
-    public function getCompanyTypeMatch() : string
+    public function getCompanyTypeMatch(): string
     {
         return $this->companyTypeMatch;
     }
@@ -264,7 +264,7 @@ class CheckVatResponse
      * @param string $companyTypeMatch
      * @return CheckVatResponse
      */
-    public function setCompanyTypeMatch(string $companyTypeMatch) : self
+    public function setCompanyTypeMatch(string $companyTypeMatch): self
     {
         $this->companyTypeMatch = $companyTypeMatch;
         return $this;
@@ -272,7 +272,7 @@ class CheckVatResponse
     /**
      * @return string
      */
-    public function getStreetMatch() : string
+    public function getStreetMatch(): string
     {
         return $this->streetMatch;
     }
@@ -280,7 +280,7 @@ class CheckVatResponse
      * @param string $streetMatch
      * @return CheckVatResponse
      */
-    public function setStreetMatch(string $streetMatch) : self
+    public function setStreetMatch(string $streetMatch): self
     {
         $this->streetMatch = $streetMatch;
         return $this;
@@ -288,7 +288,7 @@ class CheckVatResponse
     /**
      * @return string
      */
-    public function getPostcodeMatch() : string
+    public function getPostcodeMatch(): string
     {
         return $this->postcodeMatch;
     }
@@ -296,7 +296,7 @@ class CheckVatResponse
      * @param string $postcodeMatch
      * @return CheckVatResponse
      */
-    public function setPostcodeMatch(string $postcodeMatch) : self
+    public function setPostcodeMatch(string $postcodeMatch): self
     {
         $this->postcodeMatch = $postcodeMatch;
         return $this;
@@ -304,7 +304,7 @@ class CheckVatResponse
     /**
      * @return string
      */
-    public function getCityMatch() : string
+    public function getCityMatch(): string
     {
         return $this->cityMatch;
     }
@@ -312,7 +312,7 @@ class CheckVatResponse
      * @param string $cityMatch
      * @return CheckVatResponse
      */
-    public function setCityMatch(string $cityMatch) : self
+    public function setCityMatch(string $cityMatch): self
     {
         $this->cityMatch = $cityMatch;
         return $this;
@@ -322,9 +322,9 @@ class CheckVatResponse
      *
      * @param array|stdClass $row
      */
-    public function populate($row) : void
+    public function populate($row): void
     {
-        if (\is_array($row)) {
+        if (is_array($row)) {
             $row = (object) $row;
         }
         $requiredFields = ['countryCode', 'vatNumber', 'requestDate', 'valid'];
@@ -336,7 +336,7 @@ class CheckVatResponse
         $requestDateTime = $row->requestDate;
         if (!$row->requestDate instanceof DateTime) {
             // prepare request date
-            $requestDateTime = \date_create_from_format(self::VIES_DATETIME_FORMAT, $row->requestDate);
+            $requestDateTime = date_create_from_format(self::VIES_DATETIME_FORMAT, $row->requestDate);
             // Need to set time to zero
             // otherwise datetime would use current system time (which is not the response time)
             $requestDateTime->setTime(0, 0, 0, 0);
@@ -348,7 +348,7 @@ class CheckVatResponse
      *
      * @return array
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return ['countryCode' => $this->getCountryCode(), 'vatNumber' => $this->getVatNumber(), 'requestDate' => $this->getRequestDate()->format('Y-m-d'), 'valid' => $this->isValid(), 'name' => $this->getName(), 'address' => $this->getAddress(), 'identifier' => $this->getIdentifier(), 'nameMatch' => $this->getNameMatch(), 'companyTypeMatch' => $this->getCompanyTypeMatch(), 'streetMatch' => $this->getStreetMatch(), 'postcodeMatch' => $this->getPostcodeMatch(), 'cityMatch' => $this->getCityMatch()];
     }

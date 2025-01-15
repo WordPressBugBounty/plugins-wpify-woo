@@ -41,14 +41,14 @@ final class Api extends WP_REST_Controller
     /**
      * @return string
      */
-    private function get_namespace() : string
+    private function get_namespace(): string
     {
-        return $this->rest_base . '/' . \substr(\md5(__FILE__), 0, 10);
+        return $this->rest_base . '/' . substr(md5(__FILE__), 0, 10);
     }
     /**
      * @return string
      */
-    public function get_rest_url() : string
+    public function get_rest_url(): string
     {
         if (!$this->rest_url) {
             $this->rest_url = rest_url($this->get_namespace());
@@ -58,7 +58,7 @@ final class Api extends WP_REST_Controller
     /**
      * @return string
      */
-    public function get_rest_path() : string
+    public function get_rest_path(): string
     {
         return '/' . $this->get_namespace();
     }
@@ -74,7 +74,7 @@ final class Api extends WP_REST_Controller
      *
      * @return WP_REST_Response
      */
-    public function get_list(WP_REST_Request $request) : WP_REST_Response
+    public function get_list(WP_REST_Request $request): WP_REST_Response
     {
         $params = wp_parse_args($request->get_params(), array('list_type' => 'empty'));
         $response = apply_filters('wcf_list_' . $params['list_type'], array(), $params);
@@ -85,18 +85,18 @@ final class Api extends WP_REST_Controller
      *
      * @return WP_REST_Response
      */
-    public function get_posts(WP_REST_Request $request) : WP_REST_Response
+    public function get_posts(WP_REST_Request $request): WP_REST_Response
     {
         $params = $request->get_params();
-        $query_args = !empty($params['query_args']) && \is_array($params['query_args']) ? array() : $params['query_args'];
+        $query_args = (!empty($params['query_args']) && is_array($params['query_args'])) ? array() : $params['query_args'];
         $query_args = wp_parse_args($query_args, array('post_type' => $params['post_type'], 'posts_per_page' => 20, 's' => $params['search']));
-        $current_posts = !empty($params['current_value']) ? get_posts(array('post_type' => $query_args['post_type'], 'include' => $params['current_value'], 'posts_per_page' => -1, 'post_status' => 'any')) : array();
-        $query_args['exclude'] = \array_map(function (WP_Post $post) {
+        $current_posts = (!empty($params['current_value'])) ? get_posts(array('post_type' => $query_args['post_type'], 'include' => $params['current_value'], 'posts_per_page' => -1, 'post_status' => 'any')) : array();
+        $query_args['exclude'] = array_map(function (WP_Post $post) {
             return $post->ID;
         }, $current_posts);
         $query_args = apply_filters('wcf_get_posts_args', $query_args, $params);
-        $posts = \array_merge($current_posts, get_posts($query_args));
-        $response = \array_map(array($this, 'transform_post_for_select'), $posts);
+        $posts = array_merge($current_posts, get_posts($query_args));
+        $response = array_map(array($this, 'transform_post_for_select'), $posts);
         return new WP_REST_Response($response, 200);
     }
     /**
@@ -104,7 +104,7 @@ final class Api extends WP_REST_Controller
      *
      * @return array
      */
-    private function transform_post_for_select(WP_Post $post) : array
+    private function transform_post_for_select(WP_Post $post): array
     {
         return array('value' => $post->ID, 'label' => get_the_title($post) . ' [ID ' . $post->ID . ']', 'excerpt' => get_the_excerpt($post), 'thumbnail' => get_the_post_thumbnail_url($post));
     }
@@ -115,30 +115,30 @@ final class Api extends WP_REST_Controller
             $registered->fill_selects($data['items'], null, \false);
         }
     }
-    public function get_options(WP_REST_Request $request) : WP_REST_Response
+    public function get_options(WP_REST_Request $request): WP_REST_Response
     {
         $this->register_fields_options();
         $args = $request->get_params();
         $callback = $this->wcf->get_api_callback($args['options']);
         $items = array();
-        if (\is_callable($callback)) {
+        if (is_callable($callback)) {
             $items = $callback($args);
             $items = Helpers::normalize_options($items);
-            if (empty($args['search']) && !empty($args['value']) && (empty($args['type']) || !\in_array($args['type'], array('post', 'multi_post')))) {
+            if (empty($args['search']) && !empty($args['value']) && (empty($args['type']) || !in_array($args['type'], array('post', 'multi_post')))) {
                 $default_args = $args;
                 $default_args['value'] = array();
-                $set_values = \array_map(function ($option) {
+                $set_values = array_map(function ($option) {
                     return $option['value'];
                 }, $items);
                 $default_options = $callback($default_args);
                 $default_options = Helpers::normalize_options($default_options);
                 foreach ($default_options as $default_option) {
-                    if (!\in_array($default_option['value'], $set_values)) {
+                    if (!in_array($default_option['value'], $set_values)) {
                         $items[] = $default_option;
                     }
                 }
             }
         }
-        return rest_ensure_response(\array_values($items));
+        return rest_ensure_response(array_values($items));
     }
 }

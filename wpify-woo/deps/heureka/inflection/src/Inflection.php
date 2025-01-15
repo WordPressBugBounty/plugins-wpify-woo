@@ -343,14 +343,10 @@ class Inflection
             if ($gender === NULL) {
                 if (\in_array($wordLower, $this->forceM)) {
                     $gender = 'm';
-                } else {
-                    if (\in_array($wordLower, $this->forceF)) {
-                        $gender = 'f';
-                    } else {
-                        if (\in_array($wordLower, $this->forceS)) {
-                            $gender = 's';
-                        }
-                    }
+                } else if (\in_array($wordLower, $this->forceF)) {
+                    $gender = 'f';
+                } else if (\in_array($wordLower, $this->forceS)) {
+                    $gender = 's';
                 }
             }
             $exception = NULL;
@@ -421,8 +417,7 @@ class Inflection
     protected function match($pattern, $word)
     {
         if (\substr($pattern, 0, 1) !== '-') {
-            // compare if the first byte is ascii `-`
-            return \strcasecmp($pattern, $word) === 0 ? 0 : -1;
+            return (\strcasecmp($pattern, $word) === 0) ? 0 : -1;
         }
         $matches = [];
         if (\preg_match('/' . \substr($pattern, 1) . '$/iu', $word, $matches)) {

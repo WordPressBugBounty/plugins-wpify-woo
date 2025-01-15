@@ -20,9 +20,9 @@ class TemplateTagValueNode implements PhpDocTagValueNode
         $this->bound = $bound;
         $this->description = $description;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        $bound = $this->bound !== null ? " of {$this->bound}" : '';
-        return \trim("{$this->name}{$bound} {$this->description}");
+        $bound = ($this->bound !== null) ? " of {$this->bound}" : '';
+        return trim("{$this->name}{$bound} {$this->description}");
     }
 }

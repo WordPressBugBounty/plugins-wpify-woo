@@ -10,11 +10,11 @@ final class NotoSans implements FontInterface
     {
         $this->size = $size;
     }
-    public function getPath() : string
+    public function getPath(): string
     {
         return __DIR__ . '/../../../assets/noto_sans.otf';
     }
-    public function getSize() : int
+    public function getSize(): int
     {
         return $this->size;
     }

@@ -38,12 +38,12 @@ class ValidatorLT extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) == 12) {
+        if (strlen($vatNumber) == 12) {
             return $this->validateTemporaryTaxpayer($vatNumber);
         }
-        if (\strlen($vatNumber) == 9) {
+        if (strlen($vatNumber) == 9) {
             return $this->validateLegal($vatNumber);
         }
         return \false;
@@ -55,7 +55,7 @@ class ValidatorLT extends ValidatorAbstract
      *
      * @return bool
      */
-    private function validateTemporaryTaxpayer(string $vatNumber) : bool
+    private function validateTemporaryTaxpayer(string $vatNumber): bool
     {
         if ($vatNumber[10] != 1) {
             return \false;
@@ -66,7 +66,7 @@ class ValidatorLT extends ValidatorAbstract
         if ($checkVal % 11 == 10) {
             $weights = [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4];
             $checkVal = $this->sumWeights($weights, $vatNumber);
-            $checkVal = $checkVal % 11 == 10 ? 0 : $checkVal % 11;
+            $checkVal = ($checkVal % 11 == 10) ? 0 : ($checkVal % 11);
             return $checkVal == $checksum;
         }
         return $checkVal % 11 == $checksum;
@@ -78,7 +78,7 @@ class ValidatorLT extends ValidatorAbstract
      *
      * @return bool
      */
-    private function validateLegal(string $vatNumber) : bool
+    private function validateLegal(string $vatNumber): bool
     {
         if ($vatNumber[7] != 1) {
             return \false;
@@ -89,7 +89,7 @@ class ValidatorLT extends ValidatorAbstract
         if ($checkVal % 11 == 10) {
             $weights = [3, 4, 5, 6, 7, 8, 9, 1];
             $checkVal = $this->sumWeights($weights, $vatNumber);
-            $checkVal = $checkVal % 11 == 10 ? 0 : $checkVal % 11;
+            $checkVal = ($checkVal % 11 == 10) ? 0 : ($checkVal % 11);
             return $checkVal == $checksum;
         }
         return $checkVal % 11 == $checksum;

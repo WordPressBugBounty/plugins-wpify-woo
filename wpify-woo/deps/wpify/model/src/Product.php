@@ -78,7 +78,7 @@ class Product extends AbstractModel
     /**
      * @return string
      */
-    static function meta_type() : string
+    static function meta_type(): string
     {
         return 'product';
     }
@@ -94,7 +94,7 @@ class Product extends AbstractModel
     /**
      * @return ProductRepository
      */
-    public function model_repository() : ProductRepository
+    public function model_repository(): ProductRepository
     {
         return $this->_repository;
     }
@@ -111,14 +111,14 @@ class Product extends AbstractModel
      * @param string $country_code
      * @return float|null
      */
-    public function get_vat_rate(string $country_code) : ?float
+    public function get_vat_rate(string $country_code): ?float
     {
         $vat_rate = null;
         $product = $this->get_wc_product();
         if ($product->is_taxable()) {
             $vat_rates_data = WC_Tax::find_rates(array('country' => $country_code, 'tax_class' => $product->get_tax_class()));
             if (!empty($vat_rates_data)) {
-                $vat_rate = \reset($vat_rates_data)['rate'];
+                $vat_rate = reset($vat_rates_data)['rate'];
             }
             if (!$vat_rate) {
                 $product_vat = (int) wc_get_price_including_tax($product) - (int) wc_get_price_excluding_tax($product);

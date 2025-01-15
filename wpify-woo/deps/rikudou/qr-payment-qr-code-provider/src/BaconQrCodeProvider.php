@@ -12,11 +12,11 @@ use Imagick;
 use XMLWriter;
 final class BaconQrCodeProvider implements QrCodeProvider
 {
-    public function getQrCode(string $data) : QrCode
+    public function getQrCode(string $data): QrCode
     {
-        if (\class_exists(Imagick::class)) {
+        if (class_exists(Imagick::class)) {
             $backend = new ImagickImageBackEnd();
-        } elseif (\class_exists(XMLWriter::class)) {
+        } elseif (class_exists(XMLWriter::class)) {
             $backend = new SvgImageBackEnd();
         } else {
             $backend = new EpsImageBackEnd();
@@ -25,8 +25,8 @@ final class BaconQrCodeProvider implements QrCodeProvider
         $writer = new Writer($renderer);
         return new BaconQrCode($writer, $data, $backend);
     }
-    public static function isInstalled() : bool
+    public static function isInstalled(): bool
     {
-        return \class_exists(Writer::class);
+        return class_exists(Writer::class);
     }
 }

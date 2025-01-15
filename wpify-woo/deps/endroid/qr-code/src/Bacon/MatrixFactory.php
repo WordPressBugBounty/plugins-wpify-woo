@@ -10,10 +10,10 @@ use WpifyWooDeps\Endroid\QrCode\Matrix\MatrixInterface;
 use WpifyWooDeps\Endroid\QrCode\QrCodeInterface;
 final class MatrixFactory implements MatrixFactoryInterface
 {
-    public function create(QrCodeInterface $qrCode) : MatrixInterface
+    public function create(QrCodeInterface $qrCode): MatrixInterface
     {
         $baconErrorCorrectionLevel = ErrorCorrectionLevelConverter::convertToBaconErrorCorrectionLevel($qrCode->getErrorCorrectionLevel());
-        $baconMatrix = Encoder::encode($qrCode->getData(), $baconErrorCorrectionLevel, \strval($qrCode->getEncoding()))->getMatrix();
+        $baconMatrix = Encoder::encode($qrCode->getData(), $baconErrorCorrectionLevel, strval($qrCode->getEncoding()))->getMatrix();
         $blockValues = [];
         $columnCount = $baconMatrix->getWidth();
         $rowCount = $baconMatrix->getHeight();

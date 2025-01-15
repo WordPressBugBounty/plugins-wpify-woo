@@ -27,7 +27,7 @@ class PostTopLevelParentPostRelation implements RelationInterface
         $top_parent = null;
         if (isset($this->model->parent_id)) {
             $ancestors = get_ancestors($this->model->id, $this->repository::post_type());
-            $top_parent = \end($ancestors);
+            $top_parent = end($ancestors);
         }
         return $top_parent ? $this->repository->get($top_parent) : null;
     }

@@ -16,7 +16,7 @@ abstract class AbstractWooProductRepository extends AbstractPostTypeRepository i
      *
      * @return ArrayCollection
      */
-    public function all($args = array()) : ArrayCollection
+    public function all($args = array()): ArrayCollection
     {
         $defaults = array('limit' => -1);
         $args = wp_parse_args($args, $defaults);
@@ -38,7 +38,7 @@ abstract class AbstractWooProductRepository extends AbstractPostTypeRepository i
      * @return AbstractPostTypeModel
      * @throws PluginException
      */
-    public function get($post) : ?PostTypeModelInterface
+    public function get($post): ?PostTypeModelInterface
     {
         $model = $this->plugin->create_component($this->get_post_type()->model, array('product' => $post, 'post_type' => $this->get_post_type()));
         $model->init();

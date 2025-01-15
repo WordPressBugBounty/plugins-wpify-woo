@@ -71,8 +71,8 @@ class MenuItem extends AbstractComponent
      */
     public function import_classes($data)
     {
-        $this->classes = \array_merge($this->classes, $data->classes);
-        $this->classes = \array_unique($this->classes);
+        $this->classes = array_merge($this->classes, $data->classes);
+        $this->classes = array_unique($this->classes);
         $options = new stdClass();
         if ($this->menu->get_options()) {
             // The options need to be an object.
@@ -91,7 +91,7 @@ class MenuItem extends AbstractComponent
          * @param int $depth Depth of menu item.
          */
         $this->classes = apply_filters('nav_menu_css_class', $this->classes, $this, $options, 0);
-        $this->class = \trim(\implode(' ', $this->classes));
+        $this->class = trim(implode(' ', $this->classes));
     }
     /**
      * Add a CSS class the menu item should have.
@@ -116,7 +116,7 @@ class MenuItem extends AbstractComponent
         }
         $this->children[] = $item;
         $item->level = $this->level + 1;
-        if (\count($this->children)) {
+        if (count($this->children)) {
             $this->update_child_levels();
         }
     }
@@ -126,7 +126,7 @@ class MenuItem extends AbstractComponent
      */
     public function update_child_levels()
     {
-        if (\is_array($this->children)) {
+        if (is_array($this->children)) {
             foreach ($this->children as $child) {
                 $child->level = $this->level + 1;
                 $child->update_child_levels();
@@ -178,14 +178,14 @@ class MenuItem extends AbstractComponent
      */
     public function get_meta($key = '')
     {
-        if (\is_object($this->menu_object) && \is_a($this->menu_object, 'WP_Post')) {
+        if (is_object($this->menu_object) && is_a($this->menu_object, '\WP_Post')) {
             if ($key) {
                 return get_post_meta($this->menu_object->ID, $key, \true);
             } else {
                 $meta = get_post_meta($this->menu_object->ID);
                 $result = array();
                 foreach ($meta as $key => $items) {
-                    if (\sizeof($items) > 1) {
+                    if (sizeof($items) > 1) {
                         foreach ($items as $item) {
                             $result[$key] = maybe_unserialize($item);
                         }
@@ -203,28 +203,28 @@ class MenuItem extends AbstractComponent
     /**
      * @return bool
      */
-    public function has_child_class() : bool
+    public function has_child_class(): bool
     {
         return $this->has_child_class;
     }
     /**
      * @return array
      */
-    public function get_classes() : array
+    public function get_classes(): array
     {
         return $this->classes;
     }
     /**
      * @return string
      */
-    public function get_class() : string
+    public function get_class(): string
     {
         return $this->class;
     }
     /**
      * @return int
      */
-    public function get_level() : int
+    public function get_level(): int
     {
         return $this->level;
     }
@@ -245,35 +245,35 @@ class MenuItem extends AbstractComponent
     /**
      * @return bool
      */
-    public function is_current() : bool
+    public function is_current(): bool
     {
         return $this->current;
     }
     /**
      * @return bool
      */
-    public function get_current_item_parent() : bool
+    public function get_current_item_parent(): bool
     {
         return $this->current_item_parent;
     }
     /**
      * @return bool
      */
-    public function is_current_item_ancestor() : bool
+    public function is_current_item_ancestor(): bool
     {
         return $this->current_item_ancestor;
     }
     /**
      * @return Menu
      */
-    public function get_menu() : Menu
+    public function get_menu(): Menu
     {
         return $this->menu;
     }
     /**
      * @return string
      */
-    public function get_name() : string
+    public function get_name(): string
     {
         return $this->name;
     }

@@ -55,7 +55,7 @@ abstract class AbstractPostTypeModel extends AbstractComponent implements PostTy
     /**
      * @param WP_Post $post
      */
-    public function set_post(WP_Post $post) : void
+    public function set_post(WP_Post $post): void
     {
         $this->post = $post;
     }
@@ -110,14 +110,14 @@ abstract class AbstractPostTypeModel extends AbstractComponent implements PostTy
      * Get Post type for the current model
      * @return AbstractPostType
      */
-    public function get_post_type() : AbstractPostType
+    public function get_post_type(): AbstractPostType
     {
         return $this->post_type;
     }
     /**
      * @param AbstractPostType $post_type
      */
-    public function set_post_type(AbstractPostType $post_type) : void
+    public function set_post_type(AbstractPostType $post_type): void
     {
         $this->post_type = $post_type;
     }
@@ -131,7 +131,7 @@ abstract class AbstractPostTypeModel extends AbstractComponent implements PostTy
     /**
      * @param mixed $title
      */
-    public function set_title($title) : void
+    public function set_title($title): void
     {
         $this->title = $title;
     }
@@ -145,7 +145,7 @@ abstract class AbstractPostTypeModel extends AbstractComponent implements PostTy
     /**
      * @param mixed $content
      */
-    public function set_content($content) : void
+    public function set_content($content): void
     {
         $this->content = $content;
     }
@@ -172,7 +172,7 @@ abstract class AbstractPostTypeModel extends AbstractComponent implements PostTy
     /**
      * @param int $id
      */
-    public function set_id(int $id) : void
+    public function set_id(int $id): void
     {
         $this->id = $id;
     }

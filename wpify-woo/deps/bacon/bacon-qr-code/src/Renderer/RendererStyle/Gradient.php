@@ -24,15 +24,15 @@ final class Gradient
         $this->endColor = $endColor;
         $this->type = $type;
     }
-    public function getStartColor() : ColorInterface
+    public function getStartColor(): ColorInterface
     {
         return $this->startColor;
     }
-    public function getEndColor() : ColorInterface
+    public function getEndColor(): ColorInterface
     {
         return $this->endColor;
     }
-    public function getType() : GradientType
+    public function getType(): GradientType
     {
         return $this->type;
     }

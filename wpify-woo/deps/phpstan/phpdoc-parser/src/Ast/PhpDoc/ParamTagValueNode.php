@@ -23,9 +23,9 @@ class ParamTagValueNode implements PhpDocTagValueNode
         $this->parameterName = $parameterName;
         $this->description = $description;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
         $variadic = $this->isVariadic ? '...' : '';
-        return \trim("{$this->type} {$variadic}{$this->parameterName} {$this->description}");
+        return trim("{$this->type} {$variadic}{$this->parameterName} {$this->description}");
     }
 }

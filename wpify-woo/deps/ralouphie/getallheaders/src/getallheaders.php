@@ -2,7 +2,7 @@
 
 namespace WpifyWooDeps;
 
-if (!\function_exists('getallheaders')) {
+if (!\function_exists('getallheaders') && !\function_exists('WpifyWooDeps\getallheaders')) {
     /**
      * Get all HTTP header key/values as an associative array for the current request.
      *

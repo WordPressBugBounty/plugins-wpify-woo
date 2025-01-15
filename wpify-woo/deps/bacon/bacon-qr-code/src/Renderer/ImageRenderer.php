@@ -28,7 +28,7 @@ final class ImageRenderer implements RendererInterface
     /**
      * @throws InvalidArgumentException if matrix width doesn't match height
      */
-    public function render(QrCode $qrCode) : string
+    public function render(QrCode $qrCode): string
     {
         $size = $this->rendererStyle->getSize();
         $margin = $this->rendererStyle->getMargin();
@@ -54,7 +54,7 @@ final class ImageRenderer implements RendererInterface
         }
         return $this->imageBackEnd->done();
     }
-    private function drawEyes(int $matrixSize, Path $modulePath) : Path
+    private function drawEyes(int $matrixSize, Path $modulePath): Path
     {
         $fill = $this->rendererStyle->getFill();
         $eye = $this->rendererStyle->getEye();
@@ -65,7 +65,7 @@ final class ImageRenderer implements RendererInterface
         $modulePath = $this->drawEye($externalPath, $internalPath, $fill->getBottomLeftEyeFill(), 3.5, $matrixSize - 3.5, -90, $modulePath);
         return $modulePath;
     }
-    private function drawEye(Path $externalPath, Path $internalPath, EyeFill $fill, float $xTranslation, float $yTranslation, int $rotation, Path $modulePath) : Path
+    private function drawEye(Path $externalPath, Path $internalPath, EyeFill $fill, float $xTranslation, float $yTranslation, int $rotation, Path $modulePath): Path
     {
         if ($fill->inheritsBothColors()) {
             return $modulePath->append($externalPath->translate($xTranslation, $yTranslation))->append($internalPath->translate($xTranslation, $yTranslation));

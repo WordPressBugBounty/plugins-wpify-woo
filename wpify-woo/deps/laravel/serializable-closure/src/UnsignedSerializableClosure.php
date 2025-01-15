@@ -35,7 +35,7 @@ class UnsignedSerializableClosure
         if (\PHP_VERSION_ID < 70400) {
             throw new PhpVersionNotSupportedException();
         }
-        return \call_user_func_array($this->serializable, \func_get_args());
+        return call_user_func_array($this->serializable, func_get_args());
     }
     /**
      * Gets the closure.

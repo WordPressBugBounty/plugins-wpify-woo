@@ -12,11 +12,11 @@ final class EpsResult extends AbstractResult
     {
         $this->lines = $lines;
     }
-    public function getString() : string
+    public function getString(): string
     {
-        return \implode("\n", $this->lines);
+        return implode("\n", $this->lines);
     }
-    public function getMimeType() : string
+    public function getMimeType(): string
     {
         return 'image/eps';
     }

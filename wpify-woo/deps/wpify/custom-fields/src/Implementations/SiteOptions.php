@@ -45,10 +45,10 @@ final class SiteOptions extends AbstractImplementation
         $this->menu_slug = $args['menu_slug'];
         $this->position = $args['position'];
         $this->items = $args['items'];
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -64,7 +64,7 @@ final class SiteOptions extends AbstractImplementation
     public function register()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         if (empty($this->parent_slug)) {
@@ -107,7 +107,7 @@ final class SiteOptions extends AbstractImplementation
     public function register_settings()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         add_settings_section('general', null, array($this, 'render_section'), $this->menu_slug);
@@ -164,7 +164,7 @@ final class SiteOptions extends AbstractImplementation
         echo wp_kses_post($this->page_title);
         ?></h2>
 			<?php 
-        // phpcs:ignore
+        // phpcs:ignore 
         ?>
 			<form method="post" name="form" action="<?php 
         echo esc_attr($action);
@@ -206,7 +206,7 @@ final class SiteOptions extends AbstractImplementation
     {
         foreach ($this->get_items() as $item) {
             if (!empty($_POST[$item['id']])) {
-                $this->set_field($item['id'], \json_decode(wp_unslash($_POST[$item['id']]), ARRAY_A), $item);
+                $this->set_field($item['id'], json_decode(wp_unslash($_POST[$item['id']]), \ARRAY_A), $item);
             }
         }
         wp_safe_redirect(wp_get_referer());

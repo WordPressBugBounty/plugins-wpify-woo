@@ -322,5 +322,5 @@ abstract class AbstractLazyCollection implements Collection
      *
      * @return void
      */
-    protected abstract function doInitialize();
+    abstract protected function doInitialize();
 }

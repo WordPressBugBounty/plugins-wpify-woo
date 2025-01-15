@@ -22,5 +22,5 @@ interface DefinitionSource
     /**
      * @return Definition[] Definitions indexed by their name.
      */
-    public function getDefinitions() : array;
+    public function getDefinitions(): array;
 }

@@ -20,8 +20,8 @@ class PropertyTagValueNode implements PhpDocTagValueNode
         $this->propertyName = $propertyName;
         $this->description = $description;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return \trim("{$this->type} {$this->propertyName} {$this->description}");
+        return trim("{$this->type} {$this->propertyName} {$this->description}");
     }
 }

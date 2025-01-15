@@ -42,9 +42,9 @@ class ValidatorCZ extends ValidatorAbstract
      * @param string $vatNumber
      * @return bool
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        $vatLength = \strlen($vatNumber);
+        $vatLength = strlen($vatNumber);
         if ($vatLength === 8) {
             return $this->validateLegalEntities($vatNumber);
         } elseif ($vatLength === 10) {
@@ -87,7 +87,7 @@ class ValidatorCZ extends ValidatorAbstract
         $weights = [8, 7, 6, 5, 4, 3, 2];
         $checksum = (int) $vatNumber[7];
         $checkBase = $this->sumWeights($weights, $vatNumber);
-        $checkval = $checkBase % 11 ? \intval(\ceil($checkBase / 11) * 11) : \intval($checkBase + 11);
+        $checkval = ($checkBase % 11) ? intval(ceil($checkBase / 11) * 11) : intval($checkBase + 11);
         $checkval = ($checkval - $checkBase) % 10;
         if ($checksum != $checkval) {
             return \false;
@@ -112,16 +112,16 @@ class ValidatorCZ extends ValidatorAbstract
      */
     protected function validateIndividualsShort($vatNumber)
     {
-        $monthBase = \array_merge(\range(1, 12), \range(51, 62));
-        $yearOfBirth = (int) \substr($vatNumber, 0, 2);
-        $monthOfBirth = (int) \substr($vatNumber, 2, 2);
-        $dayOfBirth = (int) \substr($vatNumber, 4, 2);
+        $monthBase = array_merge(range(1, 12), range(51, 62));
+        $yearOfBirth = (int) substr($vatNumber, 0, 2);
+        $monthOfBirth = (int) substr($vatNumber, 2, 2);
+        $dayOfBirth = (int) substr($vatNumber, 4, 2);
         //validate day
         if ($dayOfBirth < 1 || $dayOfBirth > 31) {
             return \false;
         }
         //validate month
-        if (\in_array($monthOfBirth, $monthBase) === \false) {
+        if (in_array($monthOfBirth, $monthBase) === \false) {
             return \false;
         }
         //validate year
@@ -158,7 +158,7 @@ class ValidatorCZ extends ValidatorAbstract
         $checkval = $this->sumWeights($weights, $vatNumber, 1);
         $checksum = $checkval % 11;
         if ($checksum > 0) {
-            $checksum = \ceil($checkval / 11) * 11;
+            $checksum = ceil($checkval / 11) * 11;
         } else {
             $checksum = $checkval + 11;
         }
@@ -190,25 +190,25 @@ class ValidatorCZ extends ValidatorAbstract
      */
     public function validateIndividualsLong($vatNumber)
     {
-        $monthBase = \array_merge(\range(1, 12), \range(21, 32), \range(51, 62), \range(71, 82));
-        $yearOfBirth = (int) \substr($vatNumber, 0, 2);
-        $monthOfBirth = (int) \substr($vatNumber, 2, 2);
-        $dayOfBirth = (int) \substr($vatNumber, 4, 2);
+        $monthBase = array_merge(range(1, 12), range(21, 32), range(51, 62), range(71, 82));
+        $yearOfBirth = (int) substr($vatNumber, 0, 2);
+        $monthOfBirth = (int) substr($vatNumber, 2, 2);
+        $dayOfBirth = (int) substr($vatNumber, 4, 2);
         //validate day
         if ($dayOfBirth < 1 || $dayOfBirth > 31) {
             return \false;
         }
         //validate month
-        if (\in_array($monthOfBirth, $monthBase) === \false) {
+        if (in_array($monthOfBirth, $monthBase) === \false) {
             return \false;
         }
         //validate year
-        if ($yearOfBirth > (int) \date("y") && $yearOfBirth < 54) {
+        if ($yearOfBirth > (int) date("y") && $yearOfBirth < 54) {
             return \false;
         }
         $checkval = 0;
         for ($i = 0; $i <= 8; $i += 2) {
-            $checkval += (int) \substr($vatNumber, $i, 2);
+            $checkval += (int) substr($vatNumber, $i, 2);
         }
         $checkval = $checkval % 11;
         if ($checkval) {

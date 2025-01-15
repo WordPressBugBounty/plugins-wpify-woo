@@ -31,9 +31,9 @@ class Response
      */
     public function __construct($json)
     {
-        $response = \json_decode($json);
+        $response = json_decode($json);
         if ($response instanceof \stdClass === \false) {
-            throw new JsonException(\sprintf('Unexpected response "%s" returned. JSON error: [%d] %s', $json, \json_last_error(), \function_exists('json_last_error_msg') ? \json_last_error_msg() : 'json_decode see documentation'));
+            throw new JsonException(sprintf('Unexpected response "%s" returned. JSON error: [%d] %s', $json, json_last_error(), function_exists('json_last_error_msg') ? json_last_error_msg() : 'json_decode see documentation'));
         }
         if (!isset($response->code) || !isset($response->message)) {
             throw new InvalidResponseException('Missing code or message in the response: ' . $json);

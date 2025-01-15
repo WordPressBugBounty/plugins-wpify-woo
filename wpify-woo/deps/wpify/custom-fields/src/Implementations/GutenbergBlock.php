@@ -86,18 +86,18 @@ final class GutenbergBlock extends AbstractImplementation
             $args['title'] = $args['name'];
         }
         if (empty($args['icon'])) {
-            $args['icon'] = \file_get_contents(__DIR__ . '/../../images/wpify-logo-bw.svg');
+            $args['icon'] = file_get_contents(__DIR__ . '/../../images/wpify-logo-bw.svg');
         }
         parent::__construct($args, $wcf);
         foreach ($defaults as $key => $value) {
-            if (!\in_array($key, array('init_priority'))) {
+            if (!in_array($key, array('init_priority'))) {
                 $this->{$key} = $args[$key];
             }
         }
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -111,7 +111,7 @@ final class GutenbergBlock extends AbstractImplementation
     public function register_block()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         $args = $this->get_args();
@@ -144,13 +144,13 @@ final class GutenbergBlock extends AbstractImplementation
         $args = array();
         $fields = array('name', 'title', 'category', 'parent', 'icon', 'description', 'keywords', 'textdomain', 'styles', 'supports', 'example', 'render_callback', 'uses_context', 'provides_context', 'editor_script', 'script', 'editor_style', 'style', 'attributes', 'items');
         foreach ($fields as $field) {
-            if (\in_array($field, $exclude)) {
+            if (in_array($field, $exclude)) {
                 continue;
             }
             $method = 'get_' . $field;
-            if (\method_exists($this, $method)) {
+            if (method_exists($this, $method)) {
                 $args[$field] = $this->{$method}();
-            } elseif (\property_exists($this, $field)) {
+            } elseif (property_exists($this, $field)) {
                 $args[$field] = $this->{$field};
             }
         }
@@ -163,7 +163,7 @@ final class GutenbergBlock extends AbstractImplementation
     public function get_attributes()
     {
         $attributes = array();
-        $items = \array_values(\array_filter($this->get_items()));
+        $items = array_values(array_filter($this->get_items()));
         foreach ($items as $item) {
             $attributes[$item['id']] = array('type' => $this->get_item_type($item), 'default' => $item['default'] ?? null);
         }
@@ -174,7 +174,7 @@ final class GutenbergBlock extends AbstractImplementation
      */
     public function get_items()
     {
-        $items = apply_filters('wcf_gutenberg_block_items', $this->items, \array_merge(array('name' => $this->name), $this->get_args(array('attributes', 'items'))));
+        $items = apply_filters('wcf_gutenberg_block_items', $this->items, array_merge(array('name' => $this->name), $this->get_args(array('attributes', 'items'))));
         return $this->prepare_items($items);
     }
     /**
@@ -224,7 +224,7 @@ final class GutenbergBlock extends AbstractImplementation
     }
     public function render_default_item($item, $value)
     {
-        \ob_start();
+        ob_start();
         ?>
 		<div style="border-left:1px solid black;padding-left:10px;margin:10px 0;font-size:12px;">
 			<strong><?php 
@@ -237,7 +237,7 @@ final class GutenbergBlock extends AbstractImplementation
         if (isset($item['items'])) {
             ?>
 				<?php 
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 foreach ($value as $index => $inner_value) {
                     if ($index > 0) {
                         echo '<hr>';
@@ -252,13 +252,13 @@ final class GutenbergBlock extends AbstractImplementation
         } else {
             ?>
 				<?php 
-            echo \print_r($value, \true);
+            echo print_r($value, \true);
             ?>
 			<?php 
         }
         ?>
 		</div>
 		<?php 
-        return \ob_get_clean();
+        return ob_get_clean();
     }
 }

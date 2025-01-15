@@ -113,14 +113,14 @@ abstract class AbstractUserModel extends AbstractModel implements UserModelInter
     /**
      * @return string
      */
-    static function meta_type() : string
+    static function meta_type(): string
     {
         return 'user';
     }
     /**
      * @return UserRepositoryInterface
      */
-    public function model_repository() : UserRepositoryInterface
+    public function model_repository(): UserRepositoryInterface
     {
         return $this->_repository;
     }

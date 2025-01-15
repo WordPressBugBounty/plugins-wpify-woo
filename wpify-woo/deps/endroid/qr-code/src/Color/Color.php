@@ -16,27 +16,27 @@ final class Color implements ColorInterface
         $this->blue = $blue;
         $this->alpha = $alpha;
     }
-    public function getRed() : int
+    public function getRed(): int
     {
         return $this->red;
     }
-    public function getGreen() : int
+    public function getGreen(): int
     {
         return $this->green;
     }
-    public function getBlue() : int
+    public function getBlue(): int
     {
         return $this->blue;
     }
-    public function getAlpha() : int
+    public function getAlpha(): int
     {
         return $this->alpha;
     }
-    public function getOpacity() : float
+    public function getOpacity(): float
     {
         return 1 - $this->alpha / 127;
     }
-    public function toArray() : array
+    public function toArray(): array
     {
         return ['red' => $this->red, 'green' => $this->green, 'blue' => $this->blue, 'alpha' => $this->alpha];
     }

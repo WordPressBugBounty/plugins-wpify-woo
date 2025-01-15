@@ -16,8 +16,8 @@ class PhpDocTagNode implements PhpDocChildNode
         $this->name = $name;
         $this->value = $value;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return \trim("{$this->name} {$this->value}");
+        return trim("{$this->name} {$this->value}");
     }
 }

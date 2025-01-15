@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, WPify, Zásilkovna, Heureka, IČ DIČ
 Requires at least: 6.2
 Tested up to: 6.6
 Requires PHP: 8.0
-Stable tag: 4.1.12
+Stable tag: 4.1.13
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -228,6 +228,12 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+= 4.1.13 =
+* Add shortcode [wpify_woo_lowest_price] to display the lowest price for last 30 days
+* Add option to display the lowest price in 30 days via the Process module
+* Add filter `wpify_woo_delivery_dates_days`
+* Fix html for custom prices in Price module
+
 = 4.1.12 =
 * Add Sklik/zbozi retargeting and conversion log data to console
 * Remove old Delivery dates notice

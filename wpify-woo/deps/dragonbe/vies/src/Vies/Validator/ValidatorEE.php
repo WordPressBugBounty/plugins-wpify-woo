@@ -30,13 +30,13 @@ class ValidatorEE extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 9) {
+        if (strlen($vatNumber) != 9) {
             return \false;
         }
         $checkVal = $this->sumWeights([3, 7, 1, 3, 7, 1, 3, 7], $vatNumber);
-        $checkVal = \ceil($checkVal / 10) * 10 - $checkVal;
+        $checkVal = ceil($checkVal / 10) * 10 - $checkVal;
         return $checkVal == (int) $vatNumber[8];
     }
 }

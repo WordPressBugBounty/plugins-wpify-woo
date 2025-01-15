@@ -36,7 +36,7 @@ class FactoryDefinition implements Definition
         $this->factory = $factory;
         $this->parameters = $parameters;
     }
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -54,13 +54,13 @@ class FactoryDefinition implements Definition
     /**
      * @return array Array containing the parameters to be passed to the callable, indexed by name.
      */
-    public function getParameters() : array
+    public function getParameters(): array
     {
         return $this->parameters;
     }
     public function replaceNestedDefinitions(callable $replacer)
     {
-        $this->parameters = \array_map($replacer, $this->parameters);
+        $this->parameters = array_map($replacer, $this->parameters);
     }
     public function __toString()
     {

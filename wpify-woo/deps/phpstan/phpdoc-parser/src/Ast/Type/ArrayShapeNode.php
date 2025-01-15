@@ -13,8 +13,8 @@ class ArrayShapeNode implements TypeNode
     {
         $this->items = $items;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return 'array{' . \implode(', ', $this->items) . '}';
+        return 'array{' . implode(', ', $this->items) . '}';
     }
 }

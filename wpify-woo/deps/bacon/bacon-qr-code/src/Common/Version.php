@@ -59,7 +59,7 @@ final class Version
     /**
      * Returns the version number.
      */
-    public function getVersionNumber() : int
+    public function getVersionNumber(): int
     {
         return $this->versionNumber;
     }
@@ -68,28 +68,28 @@ final class Version
      *
      * @return int[]
      */
-    public function getAlignmentPatternCenters() : array
+    public function getAlignmentPatternCenters(): array
     {
         return $this->alignmentPatternCenters;
     }
     /**
      * Returns the total number of codewords.
      */
-    public function getTotalCodewords() : int
+    public function getTotalCodewords(): int
     {
         return $this->totalCodewords;
     }
     /**
      * Calculates the dimension for the current version.
      */
-    public function getDimensionForVersion() : int
+    public function getDimensionForVersion(): int
     {
         return 17 + 4 * $this->versionNumber;
     }
     /**
      * Returns the number of EC blocks for a specific EC level.
      */
-    public function getEcBlocksForLevel(ErrorCorrectionLevel $ecLevel) : EcBlocks
+    public function getEcBlocksForLevel(ErrorCorrectionLevel $ecLevel): EcBlocks
     {
         return $this->ecBlocks[$ecLevel->ordinal()];
     }
@@ -98,19 +98,19 @@ final class Version
      *
      * @throws InvalidArgumentException if dimension is not 1 mod 4
      */
-    public static function getProvisionalVersionForDimension(int $dimension) : self
+    public static function getProvisionalVersionForDimension(int $dimension): self
     {
         if (1 !== $dimension % 4) {
             throw new InvalidArgumentException('Dimension is not 1 mod 4');
         }
-        return self::getVersionForNumber(\intdiv($dimension - 17, 4));
+        return self::getVersionForNumber(intdiv($dimension - 17, 4));
     }
     /**
      * Gets a version instance for a specific version number.
      *
      * @throws InvalidArgumentException if version number is out of range
      */
-    public static function getVersionForNumber(int $versionNumber) : self
+    public static function getVersionForNumber(int $versionNumber): self
     {
         if ($versionNumber < 1 || $versionNumber > 40) {
             throw new InvalidArgumentException('Version number must be between 1 and 40');
@@ -120,7 +120,7 @@ final class Version
     /**
      * Decodes version information from an integer and returns the version.
      */
-    public static function decodeVersionInformation(int $versionBits) : ?self
+    public static function decodeVersionInformation(int $versionBits): ?self
     {
         $bestDifference = \PHP_INT_MAX;
         $bestVersion = 0;
@@ -142,7 +142,7 @@ final class Version
     /**
      * Builds the function pattern for the current version.
      */
-    public function buildFunctionPattern() : BitMatrix
+    public function buildFunctionPattern(): BitMatrix
     {
         $dimension = $this->getDimensionForVersion();
         $bitMatrix = new BitMatrix($dimension);
@@ -153,7 +153,7 @@ final class Version
         // Bottom left finder pattern + separator + format
         $bitMatrix->setRegion(0, $dimension - 8, 9, 8);
         // Alignment patterns
-        $max = \count($this->alignmentPatternCenters);
+        $max = count($this->alignmentPatternCenters);
         for ($x = 0; $x < $max; ++$x) {
             $i = $this->alignmentPatternCenters[$x] - 2;
             for ($y = 0; $y < $max; ++$y) {
@@ -179,7 +179,7 @@ final class Version
     /**
      * Returns a string representation for the version.
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return (string) $this->versionNumber;
     }
@@ -190,7 +190,7 @@ final class Version
      *
      * @return array<int, self>
      */
-    private static function versions() : array
+    private static function versions(): array
     {
         if (null !== self::$versions) {
             return self::$versions;

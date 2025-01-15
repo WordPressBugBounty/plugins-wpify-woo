@@ -34,7 +34,7 @@ final class PlainTextRenderer implements RendererInterface
     /**
      * @throws InvalidArgumentException if matrix width doesn't match height
      */
-    public function render(QrCode $qrCode) : string
+    public function render(QrCode $qrCode): string
     {
         $matrix = $qrCode->getMatrix();
         $matrixSize = $matrix->getWidth();
@@ -43,10 +43,10 @@ final class PlainTextRenderer implements RendererInterface
         }
         $rows = $matrix->getArray()->toArray();
         if (0 !== $matrixSize % 2) {
-            $rows[] = \array_fill(0, $matrixSize, 0);
+            $rows[] = array_fill(0, $matrixSize, 0);
         }
-        $horizontalMargin = \str_repeat(self::EMPTY_BLOCK, $this->margin);
-        $result = \str_repeat("\n", (int) \ceil($this->margin / 2));
+        $horizontalMargin = str_repeat(self::EMPTY_BLOCK, $this->margin);
+        $result = str_repeat("\n", (int) ceil($this->margin / 2));
         for ($i = 0; $i < $matrixSize; $i += 2) {
             $result .= $horizontalMargin;
             $upperRow = $rows[$i];
@@ -62,7 +62,7 @@ final class PlainTextRenderer implements RendererInterface
             }
             $result .= $horizontalMargin . "\n";
         }
-        $result .= \str_repeat("\n", (int) \ceil($this->margin / 2));
+        $result .= str_repeat("\n", (int) ceil($this->margin / 2));
         return $result;
     }
 }

@@ -28,23 +28,23 @@ final class BaconQrCode implements QrCode
         $this->data = $data;
         $this->backend = $backend;
     }
-    public function getRawString() : string
+    public function getRawString(): string
     {
         return $this->writer->writeString($this->data);
     }
-    public function writeToFile(string $path) : void
+    public function writeToFile(string $path): void
     {
         $this->writer->writeFile($this->data, $path);
     }
-    public function getDataUri() : string
+    public function getDataUri(): string
     {
-        return 'data:' . $this->getMimeType() . ';base64,' . \base64_encode($this->getRawString());
+        return 'data:' . $this->getMimeType() . ';base64,' . base64_encode($this->getRawString());
     }
-    public function getRawObject() : object
+    public function getRawObject(): object
     {
         return $this->writer;
     }
-    private function getMimeType() : string
+    private function getMimeType(): string
     {
         if ($this->backend instanceof ImagickImageBackEnd) {
             return 'image/png';

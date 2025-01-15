@@ -25,7 +25,7 @@ abstract class AbstractRepository implements RepositoryInterface
      *
      * @return mixed
      */
-    protected abstract function resolve_object($data);
+    abstract protected function resolve_object($data);
     /**
      * @param array $data
      *

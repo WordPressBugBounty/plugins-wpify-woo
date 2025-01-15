@@ -11,7 +11,7 @@ use WpifyWooDeps\Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelMedium;
 use WpifyWooDeps\Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelQuartile;
 final class ErrorCorrectionLevelConverter
 {
-    public static function convertToBaconErrorCorrectionLevel(ErrorCorrectionLevelInterface $errorCorrectionLevel) : ErrorCorrectionLevel
+    public static function convertToBaconErrorCorrectionLevel(ErrorCorrectionLevelInterface $errorCorrectionLevel): ErrorCorrectionLevel
     {
         if ($errorCorrectionLevel instanceof ErrorCorrectionLevelLow) {
             return ErrorCorrectionLevel::valueOf('L');

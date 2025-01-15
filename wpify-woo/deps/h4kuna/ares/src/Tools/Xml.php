@@ -11,10 +11,10 @@ use SimpleXMLElement;
 use stdClass;
 final class Xml
 {
-    public static function toJson(SimpleXMLElement|ResponseInterface $response) : stdClass
+    public static function toJson(SimpleXMLElement|ResponseInterface $response): stdClass
     {
         if ($response instanceof ResponseInterface) {
-            $xml = @\simplexml_load_string($response->getBody()->getContents());
+            $xml = @simplexml_load_string($response->getBody()->getContents());
         } else {
             $xml = $response;
         }
@@ -23,7 +23,7 @@ final class Xml
         }
         try {
             $data = Json::decode(Json::encode($xml));
-            \assert($data instanceof stdClass);
+            assert($data instanceof stdClass);
         } catch (JsonException $e) {
             throw new ServerResponseException($e->getMessage(), $e->getCode(), $e);
         }

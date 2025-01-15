@@ -21,7 +21,7 @@ class PluginUtils
         $this->plugin_file = $plugin_file;
         $this->plugin_info = get_file_data($this->plugin_file, $plugin_file_data);
         $this->plugin_basename = plugin_basename($this->plugin_file);
-        $this->plugin_slug = \dirname($this->plugin_basename);
+        $this->plugin_slug = dirname($this->plugin_basename);
         $this->text_domain = $this->plugin_info['text_domain'];
     }
     /**
@@ -29,7 +29,7 @@ class PluginUtils
      *
      * @return string
      */
-    public function get_plugin_path(string $file = '') : string
+    public function get_plugin_path(string $file = ''): string
     {
         return wp_normalize_path(plugin_dir_path($this->plugin_file) . $file);
     }
@@ -38,7 +38,7 @@ class PluginUtils
      *
      * @return string
      */
-    public function get_plugin_url(string $file = '') : string
+    public function get_plugin_url(string $file = ''): string
     {
         return plugins_url($file, $this->plugin_file);
     }
@@ -47,7 +47,7 @@ class PluginUtils
      *
      * @return string
      */
-    public function get_theme_path(string $file = '') : string
+    public function get_theme_path(string $file = ''): string
     {
         return wp_normalize_path(get_template_directory() . '/' . $file);
     }
@@ -56,49 +56,49 @@ class PluginUtils
      *
      * @return string
      */
-    public function get_theme_url(string $file = '') : string
+    public function get_theme_url(string $file = ''): string
     {
-        return get_template_directory_uri() . '/' . \ltrim($file, '/');
+        return get_template_directory_uri() . '/' . ltrim($file, '/');
     }
     /**
      * @return array
      */
-    public function get_plugin_info() : array
+    public function get_plugin_info(): array
     {
         return $this->plugin_info;
     }
     /**
      * @return string|null
      */
-    public function get_plugin_version() : ?string
+    public function get_plugin_version(): ?string
     {
         return $this->plugin_info['version'] ?? null;
     }
     /**
      * @return string|null
      */
-    public function get_plugin_name() : ?string
+    public function get_plugin_name(): ?string
     {
         return $this->plugin_info['name'] ?? null;
     }
     /**
      * @return string|null
      */
-    public function get_plugin_description() : ?string
+    public function get_plugin_description(): ?string
     {
         return $this->plugin_info['description'] ?? null;
     }
     /**
      * @return string
      */
-    public function get_plugin_basename() : string
+    public function get_plugin_basename(): string
     {
         return $this->plugin_basename;
     }
     /**
      * @return string
      */
-    public function get_plugin_slug() : string
+    public function get_plugin_slug(): string
     {
         return $this->plugin_slug;
     }
@@ -111,12 +111,12 @@ class PluginUtils
     {
         global $wp_filesystem;
         if (empty($wp_filesystem)) {
-            require_once ABSPATH . '/wp-admin/includes/file.php';
+            require_once \ABSPATH . '/wp-admin/includes/file.php';
             WP_Filesystem($args);
         }
         return $wp_filesystem;
     }
-    public function get_text_domain() : string
+    public function get_text_domain(): string
     {
         return $this->text_domain;
     }

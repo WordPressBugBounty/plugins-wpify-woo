@@ -33,18 +33,18 @@ class ArrayResolver implements DefinitionResolver
      *
      * @param ArrayDefinition $definition
      */
-    public function resolve(Definition $definition, array $parameters = []) : array
+    public function resolve(Definition $definition, array $parameters = []): array
     {
         $values = $definition->getValues();
         // Resolve nested definitions
-        \array_walk_recursive($values, function (&$value, $key) use($definition) {
+        array_walk_recursive($values, function (&$value, $key) use ($definition) {
             if ($value instanceof Definition) {
                 $value = $this->resolveDefinition($value, $definition, $key);
             }
         });
         return $values;
     }
-    public function isResolvable(Definition $definition, array $parameters = []) : bool
+    public function isResolvable(Definition $definition, array $parameters = []): bool
     {
         return \true;
     }
@@ -55,7 +55,7 @@ class ArrayResolver implements DefinitionResolver
         } catch (DependencyException $e) {
             throw $e;
         } catch (Exception $e) {
-            throw new DependencyException(\sprintf('Error while resolving %s[%s]. %s', $definition->getName(), $key, $e->getMessage()), 0, $e);
+            throw new DependencyException(sprintf('Error while resolving %s[%s]. %s', $definition->getName(), $key, $e->getMessage()), 0, $e);
         }
     }
 }

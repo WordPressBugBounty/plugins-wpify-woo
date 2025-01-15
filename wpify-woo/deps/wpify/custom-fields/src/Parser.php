@@ -16,10 +16,10 @@ final class Parser
     public function __construct()
     {
         foreach ($this->parsers as $type => $function_name) {
-            add_filter('wcf_parse_' . $type . '_value_callback', function ($callable) use($function_name, $type) {
-                if (\method_exists($this, $function_name)) {
+            add_filter('wcf_parse_' . $type . '_value_callback', function ($callable) use ($function_name, $type) {
+                if (method_exists($this, $function_name)) {
                     return array($this, $function_name);
-                } elseif (\function_exists($function_name)) {
+                } elseif (function_exists($function_name)) {
                     return $function_name;
                 }
                 return $callable;
@@ -44,12 +44,10 @@ final class Parser
     {
         if (is_serialized_string($value)) {
             $value = maybe_unserialize($value);
-        } else {
-            if (\is_string($value)) {
-                $value = \json_decode($value, \true);
-            }
+        } else if (is_string($value)) {
+            $value = json_decode($value, \true);
         }
-        if (\is_array($value)) {
+        if (is_array($value)) {
             return $value;
         }
         return array();
@@ -63,14 +61,12 @@ final class Parser
     {
         if (is_serialized_string($values)) {
             $values = maybe_unserialize($values);
-        } else {
-            if (\is_string($values)) {
-                $values = \json_decode($values, \true);
-            }
+        } else if (is_string($values)) {
+            $values = json_decode($values, \true);
         }
-        if (\is_array($values)) {
-            return \array_values(\array_filter($values, function ($value) {
-                return \is_array($value);
+        if (is_array($values)) {
+            return array_values(array_filter($values, function ($value) {
+                return is_array($value);
             }));
         }
         return array();
@@ -84,24 +80,22 @@ final class Parser
     {
         if (is_serialized_string($values)) {
             $values = maybe_unserialize($values);
-        } else {
-            if (\is_string($values)) {
-                $values = \json_decode($values, \true);
-            }
+        } else if (is_string($values)) {
+            $values = json_decode($values, \true);
         }
-        if (\is_array($values)) {
-            return \array_values(\array_filter($values, function ($value) {
-                return !\is_array($value);
+        if (is_array($values)) {
+            return array_values(array_filter($values, function ($value) {
+                return !is_array($value);
             }));
         }
         return array();
     }
     public function parse_bool_value($value)
     {
-        if (\is_numeric($value)) {
-            $value = \boolval(\intval($value));
+        if (is_numeric($value)) {
+            $value = boolval(intval($value));
         } else {
-            $value = \boolval($value);
+            $value = boolval($value);
         }
         return $value;
     }

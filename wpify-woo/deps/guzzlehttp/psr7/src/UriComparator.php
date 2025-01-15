@@ -15,7 +15,7 @@ final class UriComparator
      * Determines if a modified URL should be considered cross-origin with
      * respect to an original URL.
      */
-    public static function isCrossOrigin(UriInterface $original, UriInterface $modified) : bool
+    public static function isCrossOrigin(UriInterface $original, UriInterface $modified): bool
     {
         if (\strcasecmp($original->getHost(), $modified->getHost()) !== 0) {
             return \true;
@@ -28,13 +28,13 @@ final class UriComparator
         }
         return \false;
     }
-    private static function computePort(UriInterface $uri) : int
+    private static function computePort(UriInterface $uri): int
     {
         $port = $uri->getPort();
         if (null !== $port) {
             return $port;
         }
-        return 'https' === $uri->getScheme() ? 443 : 80;
+        return ('https' === $uri->getScheme()) ? 443 : 80;
     }
     private function __construct()
     {

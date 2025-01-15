@@ -56,28 +56,28 @@ final class QrCode
     /**
      * Gets the mode.
      */
-    public function getMode() : Mode
+    public function getMode(): Mode
     {
         return $this->mode;
     }
     /**
      * Gets the EC level.
      */
-    public function getErrorCorrectionLevel() : ErrorCorrectionLevel
+    public function getErrorCorrectionLevel(): ErrorCorrectionLevel
     {
         return $this->errorCorrectionLevel;
     }
     /**
      * Gets the version.
      */
-    public function getVersion() : Version
+    public function getVersion(): Version
     {
         return $this->version;
     }
     /**
      * Gets the mask pattern.
      */
-    public function getMaskPattern() : int
+    public function getMaskPattern(): int
     {
         return $this->maskPattern;
     }
@@ -93,14 +93,14 @@ final class QrCode
     /**
      * Validates whether a mask pattern is valid.
      */
-    public static function isValidMaskPattern(int $maskPattern) : bool
+    public static function isValidMaskPattern(int $maskPattern): bool
     {
         return $maskPattern > 0 && $maskPattern < self::NUM_MASK_PATTERNS;
     }
     /**
      * Returns a string representation of the QR code.
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         $result = "<<\n" . ' mode: ' . $this->mode . "\n" . ' ecLevel: ' . $this->errorCorrectionLevel . "\n" . ' version: ' . $this->version . "\n" . ' maskPattern: ' . $this->maskPattern . "\n";
         if ($this->matrix === null) {

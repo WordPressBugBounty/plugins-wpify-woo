@@ -237,18 +237,18 @@ abstract class AbstractPostModel extends AbstractModel implements PostModelInter
     /**
      * @return string
      */
-    static function meta_type() : string
+    static function meta_type(): string
     {
         return 'post';
     }
     /**
      * @return PostRepositoryInterface
      */
-    public function model_repository() : PostRepositoryInterface
+    public function model_repository(): PostRepositoryInterface
     {
         return $this->_repository;
     }
-    protected function parent_relation() : PostParentPostRelation
+    protected function parent_relation(): PostParentPostRelation
     {
         return new PostParentPostRelation($this, $this->model_repository());
     }
@@ -260,7 +260,7 @@ abstract class AbstractPostModel extends AbstractModel implements PostModelInter
     {
         unset($this->parent);
     }
-    protected function author_relation() : PostAuthorRelation
+    protected function author_relation(): PostAuthorRelation
     {
         return new PostAuthorRelation($this, $this->model_repository()->get_user_repository());
     }
@@ -272,11 +272,11 @@ abstract class AbstractPostModel extends AbstractModel implements PostModelInter
     {
         unset($this->author);
     }
-    protected function categories_relation() : PostTermsRelation
+    protected function categories_relation(): PostTermsRelation
     {
         return new PostTermsRelation($this, 'categories', $this->model_repository()->get_category_repository(), $this->model_repository());
     }
-    protected function tags_relation() : PostTermsRelation
+    protected function tags_relation(): PostTermsRelation
     {
         return new PostTermsRelation($this, 'tags', $this->model_repository()->get_post_tag_repository(), $this->model_repository());
     }

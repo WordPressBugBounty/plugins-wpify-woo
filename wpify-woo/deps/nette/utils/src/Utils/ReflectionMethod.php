@@ -16,13 +16,13 @@ final class ReflectionMethod extends \ReflectionMethod
     private \ReflectionClass $originalClass;
     public function __construct(object|string $objectOrMethod, ?string $method = null)
     {
-        if (\is_string($objectOrMethod) && \str_contains($objectOrMethod, '::')) {
-            [$objectOrMethod, $method] = \explode('::', $objectOrMethod, 2);
+        if (is_string($objectOrMethod) && str_contains($objectOrMethod, '::')) {
+            [$objectOrMethod, $method] = explode('::', $objectOrMethod, 2);
         }
         parent::__construct($objectOrMethod, $method);
         $this->originalClass = new \ReflectionClass($objectOrMethod);
     }
-    public function getOriginalClass() : \ReflectionClass
+    public function getOriginalClass(): \ReflectionClass
     {
         return $this->originalClass;
     }

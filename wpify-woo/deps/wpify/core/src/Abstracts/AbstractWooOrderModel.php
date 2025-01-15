@@ -40,9 +40,9 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
     public function __construct($order, $post_type)
     {
         $this->post_type = $post_type;
-        if (\is_a($order, WC_Order::class)) {
+        if (is_a($order, WC_Order::class)) {
             $this->wc_order = $order;
-        } elseif (\is_numeric($order)) {
+        } elseif (is_numeric($order)) {
             $this->wc_order = wc_get_order($order);
         }
         if ($this->wc_order) {
@@ -59,20 +59,20 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
      * @throws PluginException
      * @throws ReflectionException
      */
-    public function get_items() : array
+    public function get_items(): array
     {
         $items = array();
         $line_items = $this->get_line_items();
         if (!empty($line_items)) {
-            $items = \array_merge($items, $line_items);
+            $items = array_merge($items, $line_items);
         }
         $shipping = $this->get_shipping_items();
         if (!empty($shipping)) {
-            $items = \array_merge($items, $shipping);
+            $items = array_merge($items, $shipping);
         }
         $fees = $this->get_fee_items();
         if (!empty($fees)) {
-            $items = \array_merge($items, $fees);
+            $items = array_merge($items, $fees);
         }
         return $items;
     }
@@ -82,7 +82,7 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
      * @throws PluginException
      * @throws ReflectionException
      */
-    public function get_line_items() : array
+    public function get_line_items(): array
     {
         $items = array();
         foreach ($this->wc_order->get_items() as $key => $item) {
@@ -100,7 +100,7 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
      * @throws ReflectionException
      * @throws PluginException
      */
-    public function get_shipping_items() : array
+    public function get_shipping_items(): array
     {
         $items = array();
         foreach ($this->get_wc_order()->get_items('shipping') as $key => $item) {
@@ -125,7 +125,7 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
      * @throws PluginException
      * @throws ReflectionException
      */
-    public function get_fee_items() : array
+    public function get_fee_items(): array
     {
         /** @var $item WC_Order_Item_Fee */
         $items = array();
@@ -188,14 +188,14 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
      * Get Post type for the current model
      * @return AbstractPostType
      */
-    public function get_post_type() : AbstractPostType
+    public function get_post_type(): AbstractPostType
     {
         return $this->post_type;
     }
     /**
      * @param AbstractPostType $post_type
      */
-    public function set_post_type(AbstractPostType $post_type) : void
+    public function set_post_type(AbstractPostType $post_type): void
     {
         $this->post_type = $post_type;
     }
@@ -212,7 +212,7 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
         foreach ($this->get_line_items() as $item) {
             /** @var $item WooOrderItemProductModel */
             $prod = $item->get_product();
-            if (!empty($prod) && \method_exists($prod, 'get_weight')) {
+            if (!empty($prod) && method_exists($prod, 'get_weight')) {
                 if ($prod->get_weight()) {
                     $this->weight += $prod->get_weight() * $item->get_quantity();
                 }
@@ -233,18 +233,18 @@ abstract class AbstractWooOrderModel extends AbstractComponent implements PostTy
     {
         $methods = [];
         foreach ($this->get_shipping_items() as $item) {
-            $methods[] = \sprintf('%s:%s', $item->get_method_id(), $item->get_instance_id());
+            $methods[] = sprintf('%s:%s', $item->get_method_id(), $item->get_instance_id());
         }
-        if (\is_array($shipping_method_ids)) {
+        if (is_array($shipping_method_ids)) {
             $found = \false;
             foreach ($methods as $method) {
-                if (\in_array($method, $shipping_method_ids)) {
+                if (in_array($method, $shipping_method_ids)) {
                     $found = \true;
                     break;
                 }
             }
             return $found;
         }
-        return \in_array($shipping_method_ids, $methods);
+        return in_array($shipping_method_ids, $methods);
     }
 }

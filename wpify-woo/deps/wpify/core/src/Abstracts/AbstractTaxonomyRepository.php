@@ -16,7 +16,7 @@ abstract class AbstractTaxonomyRepository extends AbstractComponent implements R
         $this->taxonomy = $this->taxonomy();
         parent::init();
     }
-    public abstract function taxonomy();
+    abstract public function taxonomy();
     /**
      * @return AbstractTaxonomy
      */
@@ -27,7 +27,7 @@ abstract class AbstractTaxonomyRepository extends AbstractComponent implements R
     /**
      * @param AbstractTaxonomy $taxonomy
      */
-    public function set_taxonomy(AbstractTaxonomy $taxonomy) : void
+    public function set_taxonomy(AbstractTaxonomy $taxonomy): void
     {
         $this->taxonomy = $taxonomy;
     }
@@ -41,7 +41,7 @@ abstract class AbstractTaxonomyRepository extends AbstractComponent implements R
     /**
      * @return ArrayCollection&AbstractTermModel[]
      */
-    public function all() : ArrayCollection
+    public function all(): ArrayCollection
     {
         $args = array('hide_empty' => \false);
         return $this->find($args);
@@ -64,7 +64,7 @@ abstract class AbstractTaxonomyRepository extends AbstractComponent implements R
         }
         return $collection;
     }
-    public function get($term) : AbstractTermModel
+    public function get($term): AbstractTermModel
     {
         $model = $this->plugin->create_component($this->taxonomy->model, ['term' => $term, 'taxonomy' => $this->taxonomy]);
         $model->init();

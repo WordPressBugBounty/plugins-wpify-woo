@@ -55,19 +55,19 @@ class ValidatorFR extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 11) {
+        if (strlen($vatNumber) != 11) {
             return \false;
         }
-        if (\strpos($this->alphabet, $vatNumber[0]) === \false) {
+        if (strpos($this->alphabet, $vatNumber[0]) === \false) {
             return \false;
         }
-        if (\strpos($this->alphabet, $vatNumber[1]) === \false) {
+        if (strpos($this->alphabet, $vatNumber[1]) === \false) {
             return \false;
         }
-        $checksum = \substr($vatNumber, 0, 2);
-        if (\ctype_digit($checksum)) {
+        $checksum = substr($vatNumber, 0, 2);
+        if (ctype_digit($checksum)) {
             return $checksum == $this->validateOld($vatNumber);
         }
         return $checksum == $this->validateNew($vatNumber);
@@ -77,39 +77,39 @@ class ValidatorFR extends ValidatorAbstract
      *
      * @return string
      */
-    private function validateOld(string $vatNumber) : string
+    private function validateOld(string $vatNumber): string
     {
-        $checkVal = \substr($vatNumber, 2);
-        if (!\ctype_digit($checkVal)) {
+        $checkVal = substr($vatNumber, 2);
+        if (!ctype_digit($checkVal)) {
             return "";
         }
         $checkVal .= "12";
-        if (\PHP_INT_SIZE === 4 && \extension_loaded('bcmath')) {
-            $checkVal = (int) \bcmod($checkVal, "97");
+        if (\PHP_INT_SIZE === 4 && extension_loaded('bcmath')) {
+            $checkVal = (int) bcmod($checkVal, "97");
         } else {
-            $checkVal = \intval($checkVal) % 97;
+            $checkVal = intval($checkVal) % 97;
         }
-        return $checkVal == 0 ? "00" : (string) $checkVal;
+        return ($checkVal == 0) ? "00" : (string) $checkVal;
     }
     /**
      * @param string $vatNumber
      *
      * @return bool
      */
-    private function validateNew(string $vatNumber) : bool
+    private function validateNew(string $vatNumber): bool
     {
         $multiplier = 34;
         $subStractor = 100;
-        if (\ctype_digit($vatNumber[0])) {
+        if (ctype_digit($vatNumber[0])) {
             $multiplier = 24;
             $subStractor = 10;
         }
-        $checkCharacter = \array_flip(\str_split($this->alphabet));
+        $checkCharacter = array_flip(str_split($this->alphabet));
         $checkVal = $checkCharacter[$vatNumber[0]] * $multiplier + $checkCharacter[$vatNumber[1]] - $subStractor;
-        if (\PHP_INT_SIZE === 4 && \extension_loaded("bcmath")) {
-            return (int) \bcmod(\bcadd(\substr($vatNumber, 2), \strval($checkVal / 11 + 1)), "11") === $checkVal % 11;
+        if (\PHP_INT_SIZE === 4 && extension_loaded("bcmath")) {
+            return (int) bcmod(bcadd(substr($vatNumber, 2), strval($checkVal / 11 + 1)), "11") === $checkVal % 11;
         } else {
-            return (int) (\intval(\substr($vatNumber, 2)) + $checkVal / 11 + 1) % 11 == $checkVal % 11;
+            return (int) (intval(substr($vatNumber, 2)) + $checkVal / 11 + 1) % 11 == $checkVal % 11;
         }
     }
 }

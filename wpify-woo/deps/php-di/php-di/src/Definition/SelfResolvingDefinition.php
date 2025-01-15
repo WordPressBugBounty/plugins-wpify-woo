@@ -20,5 +20,5 @@ interface SelfResolvingDefinition
     /**
      * Check if a definition can be resolved.
      */
-    public function isResolvable(ContainerInterface $container) : bool;
+    public function isResolvable(ContainerInterface $container): bool;
 }

@@ -22,11 +22,11 @@ class Ares
     /**
      * @deprecated use property
      */
-    public function getAdis() : Adis\ContentProvider
+    public function getAdis(): Adis\ContentProvider
     {
         return $this->adisContentProvider;
     }
-    public function getAresClient() : Ares\Client
+    public function getAresClient(): Ares\Client
     {
         return $this->aresContentProvider->getClient();
     }
@@ -35,7 +35,7 @@ class Ares
      * @param array<KeyName, string|int> $identificationNumbers
      * @return Generator<(int&KeyName)|(KeyName&string), Data>
      */
-    public function loadBasicMulti(array $identificationNumbers) : Generator
+    public function loadBasicMulti(array $identificationNumbers): Generator
     {
         return $this->aresContentProvider->loadByIdentificationNumbers($identificationNumbers);
     }
@@ -43,14 +43,14 @@ class Ares
      * @throws IdentificationNumberNotFoundException
      * @throws AdisResponseException
      */
-    public function loadBasic(string $in) : Data
+    public function loadBasic(string $in): Data
     {
         return $this->aresContentProvider->load($in);
     }
     /**
      * @return array<stdClass>
      */
-    public function loadDataBox(string $in) : array
+    public function loadDataBox(string $in): array
     {
         return $this->dataBoxContentProvider->load($in);
     }
@@ -59,7 +59,7 @@ class Ares
      *
      * @throws ServerResponseException
      */
-    public function checkVatVies(string|ViesEntity $viesEntityOrTin) : object
+    public function checkVatVies(string|ViesEntity $viesEntityOrTin): object
     {
         return $this->viesContentProvider->checkVat($viesEntityOrTin);
     }

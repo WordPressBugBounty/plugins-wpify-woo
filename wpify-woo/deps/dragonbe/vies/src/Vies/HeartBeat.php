@@ -68,7 +68,7 @@ class HeartBeat
     /**
      * @return string
      */
-    public function getHost() : string
+    public function getHost(): string
     {
         if (null !== $this->host) {
             return $this->host;
@@ -79,7 +79,7 @@ class HeartBeat
      * @param string $host
      * @return self
      */
-    public function setHost(string $host) : self
+    public function setHost(string $host): self
     {
         $this->host = $host;
         return $this;
@@ -87,7 +87,7 @@ class HeartBeat
     /**
      * @return ?string
      */
-    public function getPath() : ?string
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -95,7 +95,7 @@ class HeartBeat
      * @param ?string $path
      * @return self
      */
-    public function setPath(?string $path = null) : self
+    public function setPath(?string $path = null): self
     {
         $this->path = $path;
         return $this;
@@ -103,7 +103,7 @@ class HeartBeat
     /**
      * @return int
      */
-    public function getPort() : int
+    public function getPort(): int
     {
         return $this->port;
     }
@@ -111,7 +111,7 @@ class HeartBeat
      * @param int $port
      * @return self
      */
-    public function setPort(int $port) : self
+    public function setPort(int $port): self
     {
         $this->port = $port;
         return $this;
@@ -119,7 +119,7 @@ class HeartBeat
     /**
      * @return int
      */
-    public function getTimeout() : int
+    public function getTimeout(): int
     {
         return $this->timeout;
     }
@@ -127,7 +127,7 @@ class HeartBeat
      * @param int $timeout
      * @return HeartBeat
      */
-    public function setTimeout(int $timeout) : HeartBeat
+    public function setTimeout(int $timeout): HeartBeat
     {
         $this->timeout = $timeout;
         return $this;
@@ -137,7 +137,7 @@ class HeartBeat
      *
      * @return bool
      */
-    public function isAlive() : bool
+    public function isAlive(): bool
     {
         if (\false === static::$testingEnabled) {
             return $this->reachOut();
@@ -151,14 +151,14 @@ class HeartBeat
      *
      * @return bool
      */
-    private function reachOut() : bool
+    private function reachOut(): bool
     {
         try {
             $data = $this->getSecuredResponse();
         } catch (\RuntimeException $runtimeException) {
             return \false;
         }
-        return 0 === \strcmp('HTTP/1.1 200 OK', $data[0]) || 0 === \strcmp('HTTP/1.1 307 Temporary Redirect', $data[0]);
+        return 0 === strcmp('HTTP/1.1 200 OK', $data[0]) || 0 === strcmp('HTTP/1.1 307 Temporary Redirect', $data[0]);
     }
     /**
      * This method will make a simple request inside a stream
@@ -168,21 +168,21 @@ class HeartBeat
      * @param resource $handle
      * @return array
      */
-    private function readContents($handle) : array
+    private function readContents($handle): array
     {
-        if (!\is_resource($handle)) {
+        if (!is_resource($handle)) {
             throw new \InvalidArgumentException('Expecting a resource to be provided');
         }
         $response = '';
-        $uri = \sprintf('%s://%s%s', Vies::VIES_PROTO, $this->host, $this->path);
+        $uri = sprintf('%s://%s%s', Vies::VIES_PROTO, $this->host, $this->path);
         $stream = ['GET ' . $uri . ' HTTP/1.0', 'Host: ' . $this->host, 'Connection: close'];
-        \fwrite($handle, \implode("\r\n", $stream) . "\r\n\r\n");
-        while (!\feof($handle)) {
-            $response .= \fgets($handle, 1024);
+        fwrite($handle, implode("\r\n", $stream) . "\r\n\r\n");
+        while (!feof($handle)) {
+            $response .= fgets($handle, 1024);
         }
-        \fclose($handle);
-        $response = \str_replace("\r\n", \PHP_EOL, $response);
-        $data = \explode(\PHP_EOL, $response);
+        fclose($handle);
+        $response = str_replace("\r\n", \PHP_EOL, $response);
+        $data = explode(\PHP_EOL, $response);
         return $data;
     }
     /**
@@ -194,14 +194,14 @@ class HeartBeat
      * @throws \RuntimeException
      * @see https://bytephunk.wordpress.com/2017/11/27/ssl-tls-stream-sockets-in-php-7/
      */
-    private function getSecuredResponse() : array
+    private function getSecuredResponse(): array
     {
         $streamOptions = ['ssl' => ['verify_peer' => \true, 'verify_peer_name' => \true, 'allow_self_signed' => \false]];
-        $streamContext = \stream_context_create($streamOptions);
-        $socketAddress = \sprintf('tls://%s:%d', $this->host, $this->port);
+        $streamContext = stream_context_create($streamOptions);
+        $socketAddress = sprintf('tls://%s:%d', $this->host, $this->port);
         $error = null;
         $errno = null;
-        $stream = \stream_socket_client($socketAddress, $errno, $error, self::DEFAULT_TIMEOUT, \STREAM_CLIENT_CONNECT, $streamContext);
+        $stream = stream_socket_client($socketAddress, $errno, $error, self::DEFAULT_TIMEOUT, \STREAM_CLIENT_CONNECT, $streamContext);
         if (!$stream) {
             throw new \RuntimeException('Can not create socket stream: ' . $error);
         }

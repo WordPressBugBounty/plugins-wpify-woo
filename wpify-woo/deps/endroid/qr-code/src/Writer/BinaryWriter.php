@@ -11,7 +11,7 @@ use WpifyWooDeps\Endroid\QrCode\Writer\Result\BinaryResult;
 use WpifyWooDeps\Endroid\QrCode\Writer\Result\ResultInterface;
 final class BinaryWriter implements WriterInterface
 {
-    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []) : ResultInterface
+    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []): ResultInterface
     {
         $matrixFactory = new MatrixFactory();
         $matrix = $matrixFactory->create($qrCode);

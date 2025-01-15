@@ -16,11 +16,11 @@ use WpifyWooDeps\Wpify\Model\Abstracts\AbstractPostRepository;
  */
 class MenuItemRepository extends AbstractPostRepository
 {
-    static function post_type() : string
+    static function post_type(): string
     {
         return 'nav_menu_item';
     }
-    public function model() : string
+    public function model(): string
     {
         return MenuItem::class;
     }

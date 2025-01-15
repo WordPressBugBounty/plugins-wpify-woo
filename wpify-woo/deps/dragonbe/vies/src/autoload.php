@@ -11,7 +11,7 @@ namespace WpifyWooDeps;
  */
 \spl_autoload_register(function ($class) {
     // project-specific namespace prefix
-    $prefix = 'DragonBe\\Vies\\';
+    $prefix = 'DragonBe\Vies\\';
     // base directory for the namespace prefix
     $baseDir = __DIR__ . \DIRECTORY_SEPARATOR . 'src' . \DIRECTORY_SEPARATOR;
     // does the class use the namespace prefix?

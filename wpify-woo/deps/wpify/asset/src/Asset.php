@@ -35,14 +35,12 @@ class Asset
                     add_action('admin_enqueue_scripts', array($this, 'register'));
                     add_action('admin_enqueue_scripts', array($this, 'enqueue'), 20);
                 }
+            } else if (did_action('wp_enqueue_scripts') || doing_action('wp_enqueue_scripts')) {
+                $this->register();
+                $this->enqueue();
             } else {
-                if (did_action('wp_enqueue_scripts') || doing_action('wp_enqueue_scripts')) {
-                    $this->register();
-                    $this->enqueue();
-                } else {
-                    add_action('wp_enqueue_scripts', array($this, 'register'));
-                    add_action('wp_enqueue_scripts', array($this, 'enqueue'), 20);
-                }
+                add_action('wp_enqueue_scripts', array($this, 'register'));
+                add_action('wp_enqueue_scripts', array($this, 'enqueue'), 20);
             }
         }
     }
@@ -56,15 +54,15 @@ class Asset
             $this->is_registered = wp_register_script($this->config->get_handle(), $this->config->get_src(), $this->config->get_dependencies(), $this->config->get_version(), $args);
             if (!empty($this->config->get_variables())) {
                 $variables = $this->config->get_variables();
-                if (\is_callable($variables)) {
+                if (is_callable($variables)) {
                     $variables = $variables();
                 }
-                if (\is_array($variables)) {
+                if (is_array($variables)) {
                     $script = array();
                     foreach ($variables as $name => $value) {
                         $script[] = 'var ' . $name . '=' . wp_json_encode($value) . ';';
                     }
-                    wp_add_inline_script($this->config->get_handle(), \join('', $script), 'before');
+                    wp_add_inline_script($this->config->get_handle(), join('', $script), 'before');
                 }
             }
             if (!empty($this->config->get_script_before())) {
@@ -92,7 +90,7 @@ class Asset
         if (!$this->is_registered) {
             $this->register();
         }
-        if (\call_user_func($this->config->get_do_enqueue(), $this->config) && !$this->is_done && $this->is_registered) {
+        if (call_user_func($this->config->get_do_enqueue(), $this->config) && !$this->is_done && $this->is_registered) {
             if ($this->config->get_type() === AssetConfigInterface::TYPE_SCRIPT) {
                 wp_enqueue_script($this->config->get_handle());
             } elseif ($this->config->get_type() === AssetConfigInterface::TYPE_STYLE) {
@@ -117,15 +115,15 @@ class Asset
             }
         }
     }
-    public function get_config() : AssetConfigInterface
+    public function get_config(): AssetConfigInterface
     {
         return $this->config;
     }
-    public function set_config(AssetConfigInterface $config) : void
+    public function set_config(AssetConfigInterface $config): void
     {
         $this->config = $config;
     }
-    public function get_is_done() : bool
+    public function get_is_done(): bool
     {
         return $this->is_done;
     }

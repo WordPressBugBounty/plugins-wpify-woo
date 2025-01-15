@@ -31,14 +31,14 @@ final class EcBlock
     /**
      * Returns how many times the block is used.
      */
-    public function getCount() : int
+    public function getCount(): int
     {
         return $this->count;
     }
     /**
      * Returns the number of data codewords.
      */
-    public function getDataCodewords() : int
+    public function getDataCodewords(): int
     {
         return $this->dataCodewords;
     }

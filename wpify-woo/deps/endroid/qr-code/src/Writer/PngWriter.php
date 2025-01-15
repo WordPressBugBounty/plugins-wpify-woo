@@ -17,27 +17,27 @@ use WpifyWooDeps\Endroid\QrCode\Writer\Result\ResultInterface;
 use WpifyWooDeps\Zxing\QrReader;
 final class PngWriter implements WriterInterface, ValidatingWriterInterface
 {
-    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []) : ResultInterface
+    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []): ResultInterface
     {
-        if (!\extension_loaded('gd')) {
+        if (!extension_loaded('gd')) {
             throw new \Exception('Unable to generate image: please check if the GD extension is enabled and configured correctly');
         }
         $matrixFactory = new MatrixFactory();
         $matrix = $matrixFactory->create($qrCode);
-        $baseBlockSize = $qrCode->getRoundBlockSizeMode() instanceof RoundBlockSizeModeNone ? 10 : \intval($matrix->getBlockSize());
-        $baseImage = \imagecreatetruecolor($matrix->getBlockCount() * $baseBlockSize, $matrix->getBlockCount() * $baseBlockSize);
+        $baseBlockSize = ($qrCode->getRoundBlockSizeMode() instanceof RoundBlockSizeModeNone) ? 10 : intval($matrix->getBlockSize());
+        $baseImage = imagecreatetruecolor($matrix->getBlockCount() * $baseBlockSize, $matrix->getBlockCount() * $baseBlockSize);
         if (!$baseImage) {
             throw new \Exception('Unable to generate image: please check if the GD extension is enabled and configured correctly');
         }
         /** @var int $foregroundColor */
-        $foregroundColor = \imagecolorallocatealpha($baseImage, $qrCode->getForegroundColor()->getRed(), $qrCode->getForegroundColor()->getGreen(), $qrCode->getForegroundColor()->getBlue(), $qrCode->getForegroundColor()->getAlpha());
+        $foregroundColor = imagecolorallocatealpha($baseImage, $qrCode->getForegroundColor()->getRed(), $qrCode->getForegroundColor()->getGreen(), $qrCode->getForegroundColor()->getBlue(), $qrCode->getForegroundColor()->getAlpha());
         /** @var int $transparentColor */
-        $transparentColor = \imagecolorallocatealpha($baseImage, 255, 255, 255, 127);
-        \imagefill($baseImage, 0, 0, $transparentColor);
+        $transparentColor = imagecolorallocatealpha($baseImage, 255, 255, 255, 127);
+        imagefill($baseImage, 0, 0, $transparentColor);
         for ($rowIndex = 0; $rowIndex < $matrix->getBlockCount(); ++$rowIndex) {
             for ($columnIndex = 0; $columnIndex < $matrix->getBlockCount(); ++$columnIndex) {
                 if (1 === $matrix->getBlockValue($rowIndex, $columnIndex)) {
-                    \imagefilledrectangle($baseImage, $columnIndex * $baseBlockSize, $rowIndex * $baseBlockSize, ($columnIndex + 1) * $baseBlockSize - 1, ($rowIndex + 1) * $baseBlockSize - 1, $foregroundColor);
+                    imagefilledrectangle($baseImage, $columnIndex * $baseBlockSize, $rowIndex * $baseBlockSize, ($columnIndex + 1) * $baseBlockSize - 1, ($rowIndex + 1) * $baseBlockSize - 1, $foregroundColor);
                 }
             }
         }
@@ -47,19 +47,19 @@ final class PngWriter implements WriterInterface, ValidatingWriterInterface
             $labelImageData = LabelImageData::createForLabel($label);
             $targetHeight += $labelImageData->getHeight() + $label->getMargin()->getTop() + $label->getMargin()->getBottom();
         }
-        $targetImage = \imagecreatetruecolor($targetWidth, $targetHeight);
+        $targetImage = imagecreatetruecolor($targetWidth, $targetHeight);
         if (!$targetImage) {
             throw new \Exception('Unable to generate image: please check if the GD extension is enabled and configured correctly');
         }
         /** @var int $backgroundColor */
-        $backgroundColor = \imagecolorallocatealpha($targetImage, $qrCode->getBackgroundColor()->getRed(), $qrCode->getBackgroundColor()->getGreen(), $qrCode->getBackgroundColor()->getBlue(), $qrCode->getBackgroundColor()->getAlpha());
-        \imagefill($targetImage, 0, 0, $backgroundColor);
-        \imagecopyresampled($targetImage, $baseImage, $matrix->getMarginLeft(), $matrix->getMarginLeft(), 0, 0, $matrix->getInnerSize(), $matrix->getInnerSize(), \imagesx($baseImage), \imagesy($baseImage));
+        $backgroundColor = imagecolorallocatealpha($targetImage, $qrCode->getBackgroundColor()->getRed(), $qrCode->getBackgroundColor()->getGreen(), $qrCode->getBackgroundColor()->getBlue(), $qrCode->getBackgroundColor()->getAlpha());
+        imagefill($targetImage, 0, 0, $backgroundColor);
+        imagecopyresampled($targetImage, $baseImage, $matrix->getMarginLeft(), $matrix->getMarginLeft(), 0, 0, $matrix->getInnerSize(), $matrix->getInnerSize(), imagesx($baseImage), imagesy($baseImage));
         if (\PHP_VERSION_ID < 80000) {
-            \imagedestroy($baseImage);
+            imagedestroy($baseImage);
         }
         if ($qrCode->getBackgroundColor()->getAlpha() > 0) {
-            \imagesavealpha($targetImage, \true);
+            imagesavealpha($targetImage, \true);
         }
         $result = new PngResult($targetImage);
         if ($logo instanceof LogoInterface) {
@@ -70,7 +70,7 @@ final class PngWriter implements WriterInterface, ValidatingWriterInterface
         }
         return $result;
     }
-    private function addLogo(LogoInterface $logo, PngResult $result) : PngResult
+    private function addLogo(LogoInterface $logo, PngResult $result): PngResult
     {
         $logoImageData = LogoImageData::createForLogo($logo);
         if ('image/svg+xml' === $logoImageData->getMimeType()) {
@@ -79,40 +79,40 @@ final class PngWriter implements WriterInterface, ValidatingWriterInterface
         $targetImage = $result->getImage();
         if ($logoImageData->getPunchoutBackground()) {
             /** @var int $transparent */
-            $transparent = \imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
-            \imagealphablending($targetImage, \false);
-            for ($x_offset = \intval(\imagesx($targetImage) / 2 - $logoImageData->getWidth() / 2); $x_offset < \intval(\imagesx($targetImage) / 2 - $logoImageData->getWidth() / 2) + $logoImageData->getWidth(); ++$x_offset) {
-                for ($y_offset = \intval(\imagesy($targetImage) / 2 - $logoImageData->getHeight() / 2); $y_offset < \intval(\imagesy($targetImage) / 2 - $logoImageData->getHeight() / 2) + $logoImageData->getHeight(); ++$y_offset) {
-                    \imagesetpixel($targetImage, $x_offset, $y_offset, $transparent);
+            $transparent = imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
+            imagealphablending($targetImage, \false);
+            for ($x_offset = intval(imagesx($targetImage) / 2 - $logoImageData->getWidth() / 2); $x_offset < intval(imagesx($targetImage) / 2 - $logoImageData->getWidth() / 2) + $logoImageData->getWidth(); ++$x_offset) {
+                for ($y_offset = intval(imagesy($targetImage) / 2 - $logoImageData->getHeight() / 2); $y_offset < intval(imagesy($targetImage) / 2 - $logoImageData->getHeight() / 2) + $logoImageData->getHeight(); ++$y_offset) {
+                    imagesetpixel($targetImage, $x_offset, $y_offset, $transparent);
                 }
             }
         }
-        \imagecopyresampled($targetImage, $logoImageData->getImage(), \intval(\imagesx($targetImage) / 2 - $logoImageData->getWidth() / 2), \intval(\imagesx($targetImage) / 2 - $logoImageData->getHeight() / 2), 0, 0, $logoImageData->getWidth(), $logoImageData->getHeight(), \imagesx($logoImageData->getImage()), \imagesy($logoImageData->getImage()));
+        imagecopyresampled($targetImage, $logoImageData->getImage(), intval(imagesx($targetImage) / 2 - $logoImageData->getWidth() / 2), intval(imagesx($targetImage) / 2 - $logoImageData->getHeight() / 2), 0, 0, $logoImageData->getWidth(), $logoImageData->getHeight(), imagesx($logoImageData->getImage()), imagesy($logoImageData->getImage()));
         if (\PHP_VERSION_ID < 80000) {
-            \imagedestroy($logoImageData->getImage());
+            imagedestroy($logoImageData->getImage());
         }
         return new PngResult($targetImage);
     }
-    private function addLabel(LabelInterface $label, PngResult $result) : PngResult
+    private function addLabel(LabelInterface $label, PngResult $result): PngResult
     {
         $targetImage = $result->getImage();
         $labelImageData = LabelImageData::createForLabel($label);
         /** @var int $textColor */
-        $textColor = \imagecolorallocatealpha($targetImage, $label->getTextColor()->getRed(), $label->getTextColor()->getGreen(), $label->getTextColor()->getBlue(), $label->getTextColor()->getAlpha());
-        $x = \intval(\imagesx($targetImage) / 2 - $labelImageData->getWidth() / 2);
-        $y = \imagesy($targetImage) - $label->getMargin()->getBottom();
+        $textColor = imagecolorallocatealpha($targetImage, $label->getTextColor()->getRed(), $label->getTextColor()->getGreen(), $label->getTextColor()->getBlue(), $label->getTextColor()->getAlpha());
+        $x = intval(imagesx($targetImage) / 2 - $labelImageData->getWidth() / 2);
+        $y = imagesy($targetImage) - $label->getMargin()->getBottom();
         if ($label->getAlignment() instanceof LabelAlignmentLeft) {
             $x = $label->getMargin()->getLeft();
         } elseif ($label->getAlignment() instanceof LabelAlignmentRight) {
-            $x = \imagesx($targetImage) - $labelImageData->getWidth() - $label->getMargin()->getRight();
+            $x = imagesx($targetImage) - $labelImageData->getWidth() - $label->getMargin()->getRight();
         }
-        \imagettftext($targetImage, $label->getFont()->getSize(), 0, $x, $y, $textColor, $label->getFont()->getPath(), $label->getText());
+        imagettftext($targetImage, $label->getFont()->getSize(), 0, $x, $y, $textColor, $label->getFont()->getPath(), $label->getText());
         return new PngResult($targetImage);
     }
-    public function validateResult(ResultInterface $result, string $expectedData) : void
+    public function validateResult(ResultInterface $result, string $expectedData): void
     {
         $string = $result->getString();
-        if (!\class_exists(QrReader::class)) {
+        if (!class_exists(QrReader::class)) {
             throw new \Exception('Please install khanamiryan/qrcode-detector-decoder or disable image validation');
         }
         if (\PHP_VERSION_ID >= 80000) {

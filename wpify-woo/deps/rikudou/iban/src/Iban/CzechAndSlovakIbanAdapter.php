@@ -33,26 +33,26 @@ abstract class CzechAndSlovakIbanAdapter implements IbanInterface
      *
      * @return string
      */
-    public function asString() : string
+    public function asString(): string
     {
-        if (\is_null($this->iban)) {
+        if (is_null($this->iban)) {
             $countryCode = $this->getCountryCode();
-            $part1 = \ord($countryCode[0]) - \ord('A') + 10;
-            $part2 = \ord($countryCode[1]) - \ord('A') + 10;
+            $part1 = ord($countryCode[0]) - ord('A') + 10;
+            $part2 = ord($countryCode[1]) - ord('A') + 10;
             $accountPrefix = 0;
             $accountNumber = $this->accountNumber;
-            if (\strpos($accountNumber, '-') !== \false) {
-                $accountParts = \explode('-', $accountNumber);
+            if (strpos($accountNumber, '-') !== \false) {
+                $accountParts = explode('-', $accountNumber);
                 $accountPrefix = $accountParts[0];
                 $accountNumber = $accountParts[1];
             }
-            $numeric = \sprintf('%04d%06s%010s%d%d00', $this->bankCode, $accountPrefix, $accountNumber, $part1, $part2);
+            $numeric = sprintf('%04d%06s%010s%d%d00', $this->bankCode, $accountPrefix, $accountNumber, $part1, $part2);
             $mod = '';
-            foreach (\str_split($numeric) as $n) {
+            foreach (str_split($numeric) as $n) {
                 $mod = ($mod . $n) % 97;
             }
-            $mod = \intval($mod);
-            $this->iban = \sprintf('%.2s%02d%04s%06s%010s', $countryCode, 98 - $mod, $this->bankCode, $accountPrefix, $accountNumber);
+            $mod = intval($mod);
+            $this->iban = sprintf('%.2s%02d%04s%06s%010s', $countryCode, 98 - $mod, $this->bankCode, $accountPrefix, $accountNumber);
         }
         return $this->iban;
     }
@@ -61,9 +61,9 @@ abstract class CzechAndSlovakIbanAdapter implements IbanInterface
      *
      * @return ValidatorInterface|null
      */
-    public function getValidator() : ?ValidatorInterface
+    public function getValidator(): ?ValidatorInterface
     {
         return new GenericIbanValidator($this);
     }
-    protected abstract function getCountryCode() : string;
+    abstract protected function getCountryCode(): string;
 }

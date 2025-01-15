@@ -11,25 +11,25 @@ abstract class ValidatorAbstract implements ValidatorInterface
     /**
      * {@inheritdoc}
      */
-    public abstract function validate(string $vatNumber) : bool;
+    abstract public function validate(string $vatNumber): bool;
     /**
      * @param int $val
      *
      * @return int
      */
-    protected function crossSum(int $val) : int
+    protected function crossSum(int $val): int
     {
-        $reducer = function (int $sum, string $char) : int {
+        $reducer = function (int $sum, string $char): int {
             return $sum + (int) $char;
         };
-        return \array_reduce(\str_split((string) $val), $reducer, 0);
+        return array_reduce(str_split((string) $val), $reducer, 0);
     }
     /**
      * @param int $val
      *
      * @return bool
      */
-    protected function isEven(int $val) : bool
+    protected function isEven(int $val): bool
     {
         return $val % 2 === 0;
     }
@@ -40,10 +40,10 @@ abstract class ValidatorAbstract implements ValidatorInterface
      *
      * @return int
      */
-    protected function sumWeights(array $weights, string $vatNumber, int $start = self::DEFAULT_WEIGHT_START) : int
+    protected function sumWeights(array $weights, string $vatNumber, int $start = self::DEFAULT_WEIGHT_START): int
     {
         $checkVal = 0;
-        $count = \count($weights);
+        $count = count($weights);
         for ($i = $start; $i < $count; $i++) {
             $checkVal += (int) $vatNumber[$i] * $weights[$i];
         }
@@ -65,7 +65,7 @@ abstract class ValidatorAbstract implements ValidatorInterface
         if ($checkVal % 11 == 10) {
             $weights = [3, 4, 5, 6, 7, 8, 9, 10];
             $checkVal = $this->sumWeights($weights, $vatNumber, $weightStart);
-            $checkVal = $checkVal % 11 == 10 ? 0 : $checkVal % 11;
+            $checkVal = ($checkVal % 11 == 10) ? 0 : ($checkVal % 11);
         } else {
             $checkVal = $checkVal % $restModulo;
         }

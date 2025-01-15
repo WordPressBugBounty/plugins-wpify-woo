@@ -65,7 +65,7 @@ class Order extends AbstractModel
     /**
      * @return string
      */
-    static function meta_type() : string
+    static function meta_type(): string
     {
         return 'order';
     }
@@ -89,7 +89,7 @@ class Order extends AbstractModel
     /**
      * @return OrderRepository
      */
-    public function model_repository() : OrderRepository
+    public function model_repository(): OrderRepository
     {
         return $this->_repository;
     }
@@ -114,7 +114,7 @@ class Order extends AbstractModel
      */
     public function get_items()
     {
-        return \array_merge($this->line_items, $this->shipping_items, $this->fee_items);
+        return array_merge($this->line_items, $this->shipping_items, $this->fee_items);
     }
     /**
      * @return mixed
@@ -152,14 +152,14 @@ class Order extends AbstractModel
         if (\is_array($shipping_method_ids)) {
             $found = \false;
             foreach ($methods as $method) {
-                if (\in_array($method, $shipping_method_ids)) {
+                if (in_array($method, $shipping_method_ids)) {
                     $found = \true;
                     break;
                 }
             }
             return $found;
         }
-        return \in_array($shipping_method_ids, $methods);
+        return in_array($shipping_method_ids, $methods);
     }
     public function get_wc_order()
     {

@@ -24,48 +24,48 @@ final class Matrix implements MatrixInterface
         $this->innerSize = $size;
         $this->outerSize = $size + 2 * $margin;
         if ($roundBlockSizeMode instanceof RoundBlockSizeModeEnlarge) {
-            $this->blockSize = \intval(\ceil($this->blockSize));
-            $this->innerSize = \intval($this->blockSize * $this->getBlockCount());
+            $this->blockSize = intval(ceil($this->blockSize));
+            $this->innerSize = intval($this->blockSize * $this->getBlockCount());
             $this->outerSize = $this->innerSize + 2 * $margin;
         } elseif ($roundBlockSizeMode instanceof RoundBlockSizeModeShrink) {
-            $this->blockSize = \intval(\floor($this->blockSize));
-            $this->innerSize = \intval($this->blockSize * $this->getBlockCount());
+            $this->blockSize = intval(floor($this->blockSize));
+            $this->innerSize = intval($this->blockSize * $this->getBlockCount());
             $this->outerSize = $this->innerSize + 2 * $margin;
         } elseif ($roundBlockSizeMode instanceof RoundBlockSizeModeMargin) {
-            $this->blockSize = \intval(\floor($this->blockSize));
-            $this->innerSize = \intval($this->blockSize * $this->getBlockCount());
+            $this->blockSize = intval(floor($this->blockSize));
+            $this->innerSize = intval($this->blockSize * $this->getBlockCount());
         }
         if ($this->blockSize < 1) {
             throw new \Exception('Too much data: increase image dimensions or lower error correction level');
         }
-        $this->marginLeft = \intval(($this->outerSize - $this->innerSize) / 2);
+        $this->marginLeft = intval(($this->outerSize - $this->innerSize) / 2);
         $this->marginRight = $this->outerSize - $this->innerSize - $this->marginLeft;
     }
-    public function getBlockValue(int $rowIndex, int $columnIndex) : int
+    public function getBlockValue(int $rowIndex, int $columnIndex): int
     {
         return $this->blockValues[$rowIndex][$columnIndex];
     }
-    public function getBlockCount() : int
+    public function getBlockCount(): int
     {
-        return \count($this->blockValues[0]);
+        return count($this->blockValues[0]);
     }
-    public function getBlockSize() : float
+    public function getBlockSize(): float
     {
         return $this->blockSize;
     }
-    public function getInnerSize() : int
+    public function getInnerSize(): int
     {
         return $this->innerSize;
     }
-    public function getOuterSize() : int
+    public function getOuterSize(): int
     {
         return $this->outerSize;
     }
-    public function getMarginLeft() : int
+    public function getMarginLeft(): int
     {
         return $this->marginLeft;
     }
-    public function getMarginRight() : int
+    public function getMarginRight(): int
     {
         return $this->marginRight;
     }

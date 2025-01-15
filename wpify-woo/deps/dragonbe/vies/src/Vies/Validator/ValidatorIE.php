@@ -22,9 +22,9 @@ class ValidatorIE extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 8 && \strlen($vatNumber) != 9) {
+        if (strlen($vatNumber) != 8 && strlen($vatNumber) != 9) {
             return \false;
         }
         return $this->validateIENew($vatNumber) || $this->validateIEOld($vatNumber);
@@ -34,10 +34,10 @@ class ValidatorIE extends ValidatorAbstract
      *
      * @return bool
      */
-    private function validateIEOld(string $vatNumber) : bool
+    private function validateIEOld(string $vatNumber): bool
     {
-        $transform = ['0', \substr($vatNumber, 2, 5), $vatNumber[0], $vatNumber[7]];
-        $vat_id = \join('', $transform);
+        $transform = ['0', substr($vatNumber, 2, 5), $vatNumber[0], $vatNumber[7]];
+        $vat_id = join('', $transform);
         return $this->validateIENew($vat_id);
     }
     /**
@@ -45,16 +45,16 @@ class ValidatorIE extends ValidatorAbstract
      *
      * @return bool
      */
-    private function validateIENew(string $vatNumber) : bool
+    private function validateIENew(string $vatNumber): bool
     {
-        $checksum = \strtoupper(\substr($vatNumber, 7, 1));
-        $checkNumber = \substr($vatNumber, 0, 8);
+        $checksum = strtoupper(substr($vatNumber, 7, 1));
+        $checkNumber = substr($vatNumber, 0, 8);
         $checkVal = 0;
         for ($i = 2; $i <= 8; $i++) {
             $checkVal += (int) $checkNumber[8 - $i] * $i;
         }
-        if (\strlen($vatNumber) == 9) {
-            $checkVal += 9 * \strpos($this->alphabet, $vatNumber[8]);
+        if (strlen($vatNumber) == 9) {
+            $checkVal += 9 * strpos($this->alphabet, $vatNumber[8]);
         }
         $checkVal = $checkVal % 23;
         if ($checkVal == 0) {

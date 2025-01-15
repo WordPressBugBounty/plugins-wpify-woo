@@ -17,8 +17,8 @@ class ExtendsTagValueNode implements PhpDocTagValueNode
         $this->type = $type;
         $this->description = $description;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return \trim("{$this->type} {$this->description}");
+        return trim("{$this->type} {$this->description}");
     }
 }

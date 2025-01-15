@@ -20,21 +20,21 @@ final class Client
      *
      * @throws ServerResponseException
      */
-    public function checkVatNumber(ViesEntity $viesEntity) : object
+    public function checkVatNumber(ViesEntity $viesEntity): object
     {
         $request = $this->transportProvider->createJsonRequest(static::$url . '/check-vat-number', $viesEntity->toParam());
         $response = $this->transportProvider->response($request);
         $data = $this->transportProvider->toJson($response);
         if (isset($data->errorWrappers[0], $data->errorWrappers[0]->error)) {
             if (isset($data->errorWrappers[0]->message)) {
-                throw new ServerResponseException(\sprintf('%s: %s', $data->errorWrappers[0]->error, $data->errorWrappers[0]->message));
+                throw new ServerResponseException(sprintf('%s: %s', $data->errorWrappers[0]->error, $data->errorWrappers[0]->message));
             }
             throw new ServerResponseException($data->errorWrappers[0]->error);
         }
         /** @var ViesResponse $data */
         return $data;
     }
-    public function status() : stdClass
+    public function status(): stdClass
     {
         $request = $this->transportProvider->createRequest(static::$url . '/check-status');
         $response = $this->transportProvider->response($request);

@@ -610,6 +610,14 @@ class DeliveryDatesModule extends AbstractModule {
 					$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_out_of_stock'] ?? null;
 					$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_out_of_stock'];
 				}
+
+				/**
+				 * Filter to change delivery date days
+				 *
+				 * @param string $data current group data
+				 */
+				$days = apply_filters( 'wpify_woo_delivery_dates_days', $days, $product, $days_group );
+
 				if ( empty( $days ) && $days !== '0' || $days === '-' ) {
 					continue;
 				}

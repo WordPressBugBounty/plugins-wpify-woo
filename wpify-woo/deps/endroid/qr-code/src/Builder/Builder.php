@@ -53,116 +53,116 @@ class Builder implements BuilderInterface
     {
         $this->options = ['data' => '', 'writer' => new PngWriter(), 'writerOptions' => [], 'qrCodeClass' => QrCode::class, 'logoClass' => Logo::class, 'labelClass' => Label::class, 'validateResult' => \false];
     }
-    public static function create() : BuilderInterface
+    public static function create(): BuilderInterface
     {
         return new self();
     }
-    public function writer(WriterInterface $writer) : BuilderInterface
+    public function writer(WriterInterface $writer): BuilderInterface
     {
         $this->options['writer'] = $writer;
         return $this;
     }
     /** @param array<mixed> $writerOptions */
-    public function writerOptions(array $writerOptions) : BuilderInterface
+    public function writerOptions(array $writerOptions): BuilderInterface
     {
         $this->options['writerOptions'] = $writerOptions;
         return $this;
     }
-    public function data(string $data) : BuilderInterface
+    public function data(string $data): BuilderInterface
     {
         $this->options['data'] = $data;
         return $this;
     }
-    public function encoding(EncodingInterface $encoding) : BuilderInterface
+    public function encoding(EncodingInterface $encoding): BuilderInterface
     {
         $this->options['encoding'] = $encoding;
         return $this;
     }
-    public function errorCorrectionLevel(ErrorCorrectionLevelInterface $errorCorrectionLevel) : BuilderInterface
+    public function errorCorrectionLevel(ErrorCorrectionLevelInterface $errorCorrectionLevel): BuilderInterface
     {
         $this->options['errorCorrectionLevel'] = $errorCorrectionLevel;
         return $this;
     }
-    public function size(int $size) : BuilderInterface
+    public function size(int $size): BuilderInterface
     {
         $this->options['size'] = $size;
         return $this;
     }
-    public function margin(int $margin) : BuilderInterface
+    public function margin(int $margin): BuilderInterface
     {
         $this->options['margin'] = $margin;
         return $this;
     }
-    public function roundBlockSizeMode(RoundBlockSizeModeInterface $roundBlockSizeMode) : BuilderInterface
+    public function roundBlockSizeMode(RoundBlockSizeModeInterface $roundBlockSizeMode): BuilderInterface
     {
         $this->options['roundBlockSizeMode'] = $roundBlockSizeMode;
         return $this;
     }
-    public function foregroundColor(ColorInterface $foregroundColor) : BuilderInterface
+    public function foregroundColor(ColorInterface $foregroundColor): BuilderInterface
     {
         $this->options['foregroundColor'] = $foregroundColor;
         return $this;
     }
-    public function backgroundColor(ColorInterface $backgroundColor) : BuilderInterface
+    public function backgroundColor(ColorInterface $backgroundColor): BuilderInterface
     {
         $this->options['backgroundColor'] = $backgroundColor;
         return $this;
     }
-    public function logoPath(string $logoPath) : BuilderInterface
+    public function logoPath(string $logoPath): BuilderInterface
     {
         $this->options['logoPath'] = $logoPath;
         return $this;
     }
-    public function logoResizeToWidth(int $logoResizeToWidth) : BuilderInterface
+    public function logoResizeToWidth(int $logoResizeToWidth): BuilderInterface
     {
         $this->options['logoResizeToWidth'] = $logoResizeToWidth;
         return $this;
     }
-    public function logoResizeToHeight(int $logoResizeToHeight) : BuilderInterface
+    public function logoResizeToHeight(int $logoResizeToHeight): BuilderInterface
     {
         $this->options['logoResizeToHeight'] = $logoResizeToHeight;
         return $this;
     }
-    public function logoPunchoutBackground(bool $logoPunchoutBackground) : BuilderInterface
+    public function logoPunchoutBackground(bool $logoPunchoutBackground): BuilderInterface
     {
         $this->options['logoPunchoutBackground'] = $logoPunchoutBackground;
         return $this;
     }
-    public function labelText(string $labelText) : BuilderInterface
+    public function labelText(string $labelText): BuilderInterface
     {
         $this->options['labelText'] = $labelText;
         return $this;
     }
-    public function labelFont(FontInterface $labelFont) : BuilderInterface
+    public function labelFont(FontInterface $labelFont): BuilderInterface
     {
         $this->options['labelFont'] = $labelFont;
         return $this;
     }
-    public function labelAlignment(LabelAlignmentInterface $labelAlignment) : BuilderInterface
+    public function labelAlignment(LabelAlignmentInterface $labelAlignment): BuilderInterface
     {
         $this->options['labelAlignment'] = $labelAlignment;
         return $this;
     }
-    public function labelMargin(MarginInterface $labelMargin) : BuilderInterface
+    public function labelMargin(MarginInterface $labelMargin): BuilderInterface
     {
         $this->options['labelMargin'] = $labelMargin;
         return $this;
     }
-    public function labelTextColor(ColorInterface $labelTextColor) : BuilderInterface
+    public function labelTextColor(ColorInterface $labelTextColor): BuilderInterface
     {
         $this->options['labelTextColor'] = $labelTextColor;
         return $this;
     }
-    public function validateResult(bool $validateResult) : BuilderInterface
+    public function validateResult(bool $validateResult): BuilderInterface
     {
         $this->options['validateResult'] = $validateResult;
         return $this;
     }
-    public function build() : ResultInterface
+    public function build(): ResultInterface
     {
         $writer = $this->options['writer'];
         if ($this->options['validateResult'] && !$writer instanceof ValidatingWriterInterface) {
-            throw new \Exception('Unable to validate result with ' . \get_class($writer));
+            throw new \Exception('Unable to validate result with ' . get_class($writer));
         }
         /** @var QrCode $qrCode */
         $qrCode = $this->buildObject($this->options['qrCodeClass']);
@@ -192,7 +192,7 @@ class Builder implements BuilderInterface
         $constructor = $reflectionClass->getConstructor();
         $constructorParameters = $constructor->getParameters();
         foreach ($constructorParameters as $parameter) {
-            $optionName = null === $optionsPrefix ? $parameter->getName() : $optionsPrefix . \ucfirst($parameter->getName());
+            $optionName = (null === $optionsPrefix) ? $parameter->getName() : ($optionsPrefix . ucfirst($parameter->getName()));
             if (isset($this->options[$optionName])) {
                 $hasBuilderOptions = \true;
                 $arguments[] = $this->options[$optionName];
@@ -205,8 +205,8 @@ class Builder implements BuilderInterface
         if (!$hasBuilderOptions) {
             return null;
         }
-        if (\count($missingRequiredArguments) > 0) {
-            throw new \Exception(\sprintf('Missing required arguments: %s', \implode(', ', $missingRequiredArguments)));
+        if (count($missingRequiredArguments) > 0) {
+            throw new \Exception(sprintf('Missing required arguments: %s', implode(', ', $missingRequiredArguments)));
         }
         return $reflectionClass->newInstanceArgs($arguments);
     }

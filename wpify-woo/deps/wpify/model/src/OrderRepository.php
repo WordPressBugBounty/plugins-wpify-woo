@@ -18,7 +18,7 @@ use WpifyWooDeps\Wpify\Model\Interfaces\TermModelInterface;
 class OrderRepository extends AbstractRepository implements RepositoryInterface
 {
     protected $item_repository;
-    static function post_type() : string
+    static function post_type(): string
     {
         return 'shop_order';
     }
@@ -31,7 +31,7 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface
      */
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
     /**
      * @return AbstractPostModel[]
@@ -105,15 +105,15 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface
      * @return WC_Order
      * @throws NotFoundException
      */
-    protected function resolve_object($data) : WC_Order
+    protected function resolve_object($data): WC_Order
     {
-        if (\is_object($data) && \get_class($data) === $this->model()) {
+        if (is_object($data) && get_class($data) === $this->model()) {
             $object = $data->source_object();
         } elseif ($data instanceof WC_Order) {
             $object = $data;
-        } elseif (\is_null($data)) {
+        } elseif (is_null($data)) {
             $object = new WC_Order();
-        } elseif (\is_numeric($data)) {
+        } elseif (is_numeric($data)) {
             $object = wc_get_order($data);
         } elseif (isset($data->id)) {
             $object = wc_get_order($data->id);
@@ -125,7 +125,7 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface
         }
         return $object;
     }
-    public function model() : string
+    public function model(): string
     {
         return Order::class;
     }
@@ -148,14 +148,14 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface
     {
         $to_assign = [];
         foreach ($terms as $term) {
-            if (isset($to_assign[$term->taxonomy_name]) && \is_array($to_assign[$term->taxonomy_name])) {
+            if (isset($to_assign[$term->taxonomy_name]) && is_array($to_assign[$term->taxonomy_name])) {
                 $to_assign[$term->taxonomy_name][] = $term;
             } else {
                 $to_assign[$term->taxonomy_name] = array($term);
             }
         }
         foreach ($to_assign as $taxonomy => $assigns) {
-            wp_set_post_terms($model->id, \array_values(\array_map(function ($term) {
+            wp_set_post_terms($model->id, array_values(array_map(function ($term) {
                 return $term->id;
             }, $assigns)), $taxonomy);
         }
@@ -169,6 +169,6 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface
     {
         $args = wp_parse_args($args, ['limit' => -1, 'return' => 'ids']);
         $items = wc_get_orders($args);
-        return \count($items);
+        return count($items);
     }
 }

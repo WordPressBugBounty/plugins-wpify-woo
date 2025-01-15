@@ -20,10 +20,10 @@ final class ContentProvider
      *
      * @throws ServerResponseException
      */
-    public function checkVat(string|ViesEntity $vatNumber) : object
+    public function checkVat(string|ViesEntity $vatNumber): object
     {
-        if (\is_string($vatNumber)) {
-            $match = Strings::match($vatNumber, '/(?<country>[A-Z]+)(?<number>\\d+)/');
+        if (is_string($vatNumber)) {
+            $match = Strings::match($vatNumber, '/(?<country>[A-Z]+)(?<number>\d+)/');
             if (isset($match['country'], $match['number'])) {
                 ['country' => $country, 'number' => $number] = $match;
             } else {
@@ -36,7 +36,7 @@ final class ContentProvider
         }
         return $this->client->checkVatNumber($viesEntity);
     }
-    public function status() : stdClass
+    public function status(): stdClass
     {
         return $this->client->status();
     }

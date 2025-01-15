@@ -90,11 +90,11 @@ final class QrPayment implements QrPaymentInterface
      *
      * @return $this
      */
-    public function setOptions(array $options) : self
+    public function setOptions(array $options): self
     {
         foreach ($options as $key => $value) {
-            $method = \sprintf('set%s', \ucfirst($key));
-            if (!\method_exists($this, $method)) {
+            $method = sprintf('set%s', ucfirst($key));
+            if (!method_exists($this, $method)) {
                 throw new InvalidArgumentException("The property '{$key}' is not valid");
             }
             Closure::fromCallable([$this, $method])->call($this, $value);
@@ -105,45 +105,45 @@ final class QrPayment implements QrPaymentInterface
     /**
      * @throws InvalidValueException
      */
-    public function getQrString() : string
+    public function getQrString(): string
     {
         $this->checkProperties();
         if ($this->iban->getValidator() !== null && !$this->iban->getValidator()->isValid()) {
             throw new InvalidValueException('The IBAN is not a valid IBAN');
         }
         $qrString = 'SPD*1.0*';
-        $qrString .= \sprintf('ACC:%s*', $this->iban);
-        $qrString .= \sprintf('AM:%.2F*', $this->amount);
-        $qrString .= \sprintf('CC:%s*', \strtoupper($this->currency));
-        $qrString .= \sprintf('X-PER:%d*', $this->repeat);
+        $qrString .= sprintf('ACC:%s*', $this->iban);
+        $qrString .= sprintf('AM:%.2F*', $this->amount);
+        $qrString .= sprintf('CC:%s*', strtoupper($this->currency));
+        $qrString .= sprintf('X-PER:%d*', $this->repeat);
         if ($this->comment !== null) {
-            $qrString .= \sprintf('MSG:%.60s*', $this->comment);
+            $qrString .= sprintf('MSG:%.60s*', $this->comment);
         }
         if ($this->internalId !== null) {
-            $qrString .= \sprintf('X-ID:%s*', $this->internalId);
+            $qrString .= sprintf('X-ID:%s*', $this->internalId);
         }
         if ($this->variableSymbol !== null) {
-            $qrString .= \sprintf('X-VS:%s*', $this->variableSymbol);
+            $qrString .= sprintf('X-VS:%s*', $this->variableSymbol);
         }
         if ($this->specificSymbol !== null) {
-            $qrString .= \sprintf('X-SS:%s*', $this->specificSymbol);
+            $qrString .= sprintf('X-SS:%s*', $this->specificSymbol);
         }
         if ($this->constantSymbol !== null) {
-            $qrString .= \sprintf('X-KS:%s*', $this->constantSymbol);
+            $qrString .= sprintf('X-KS:%s*', $this->constantSymbol);
         }
         if ($this->payeeName !== null) {
-            $qrString .= \sprintf('RN:%s*', $this->payeeName);
+            $qrString .= sprintf('RN:%s*', $this->payeeName);
         }
         if ($this->dueDate !== null) {
-            $qrString .= \sprintf('DT:%s*', $this->dueDate->format('Ymd'));
+            $qrString .= sprintf('DT:%s*', $this->dueDate->format('Ymd'));
         }
         if ($this->instantPayment) {
             $qrString .= 'PT:IP*';
         }
-        return \substr($qrString, 0, -1);
+        return substr($qrString, 0, -1);
     }
     #[Deprecated('This method has been deprecated, please use getQrCode()', '%class%->getQrCode()->getRawObject()')]
-    public function getQrImage() : QrCode
+    public function getQrImage(): QrCode
     {
         try {
             $code = $this->getQrCode();
@@ -156,10 +156,10 @@ final class QrPayment implements QrPaymentInterface
             // @codeCoverageIgnoreEnd
         }
         $raw = $code->getRawObject();
-        \assert($raw instanceof QrCode);
+        assert($raw instanceof QrCode);
         return $raw;
     }
-    public static function fromAccountAndBankCode(string $accountNumber, string $bankCode) : self
+    public static function fromAccountAndBankCode(string $accountNumber, string $bankCode): self
     {
         return new self(new CzechIbanAdapter($accountNumber, $bankCode));
     }
@@ -175,10 +175,10 @@ final class QrPayment implements QrPaymentInterface
      *
      * @return $this
      */
-    public function setVariableSymbol($variableSymbol) : self
+    public function setVariableSymbol($variableSymbol): self
     {
-        if (!\is_string($variableSymbol) && !\is_int($variableSymbol) && $variableSymbol !== null) {
-            throw new TypeError(\sprintf('Variable symbol must be an integer, string or null, %s given', \gettype($variableSymbol)));
+        if (!is_string($variableSymbol) && !is_int($variableSymbol) && $variableSymbol !== null) {
+            throw new TypeError(sprintf('Variable symbol must be an integer, string or null, %s given', gettype($variableSymbol)));
         }
         $this->variableSymbol = $variableSymbol;
         return $this;
@@ -195,10 +195,10 @@ final class QrPayment implements QrPaymentInterface
      *
      * @return $this
      */
-    public function setSpecificSymbol($specificSymbol) : self
+    public function setSpecificSymbol($specificSymbol): self
     {
-        if (!\is_string($specificSymbol) && !\is_int($specificSymbol) && $specificSymbol !== null) {
-            throw new TypeError(\sprintf('Specific symbol must be an integer, string or null, %s given', \gettype($specificSymbol)));
+        if (!is_string($specificSymbol) && !is_int($specificSymbol) && $specificSymbol !== null) {
+            throw new TypeError(sprintf('Specific symbol must be an integer, string or null, %s given', gettype($specificSymbol)));
         }
         $this->specificSymbol = $specificSymbol;
         return $this;
@@ -215,94 +215,94 @@ final class QrPayment implements QrPaymentInterface
      *
      * @return $this
      */
-    public function setConstantSymbol($constantSymbol) : self
+    public function setConstantSymbol($constantSymbol): self
     {
-        if (!\is_string($constantSymbol) && !\is_int($constantSymbol) && $constantSymbol !== null) {
-            throw new TypeError(\sprintf('Constant symbol must be an integer, string or null, %s given', \gettype($constantSymbol)));
+        if (!is_string($constantSymbol) && !is_int($constantSymbol) && $constantSymbol !== null) {
+            throw new TypeError(sprintf('Constant symbol must be an integer, string or null, %s given', gettype($constantSymbol)));
         }
         $this->constantSymbol = $constantSymbol;
         return $this;
     }
-    public function getCurrency() : string
+    public function getCurrency(): string
     {
         return $this->currency;
     }
-    public function setCurrency(string $currency) : self
+    public function setCurrency(string $currency): self
     {
         $this->currency = $currency;
         return $this;
     }
-    public function getComment() : ?string
+    public function getComment(): ?string
     {
         return $this->comment;
     }
-    public function setComment(?string $comment) : self
+    public function setComment(?string $comment): self
     {
         $this->comment = $comment;
         return $this;
     }
-    public function getRepeat() : int
+    public function getRepeat(): int
     {
         return $this->repeat;
     }
-    public function setRepeat(int $repeat) : self
+    public function setRepeat(int $repeat): self
     {
         $this->repeat = $repeat;
         return $this;
     }
-    public function getInternalId() : ?string
+    public function getInternalId(): ?string
     {
         return $this->internalId;
     }
-    public function setInternalId(?string $internalId) : self
+    public function setInternalId(?string $internalId): self
     {
         $this->internalId = $internalId;
         return $this;
     }
-    public function getDueDate() : DateTimeInterface
+    public function getDueDate(): DateTimeInterface
     {
         if ($this->dueDate === null) {
             return new DateTimeImmutable();
         }
         return $this->dueDate;
     }
-    public function setDueDate(?DateTimeInterface $dueDate) : self
+    public function setDueDate(?DateTimeInterface $dueDate): self
     {
         $this->dueDate = $dueDate;
         return $this;
     }
-    public function getAmount() : float
+    public function getAmount(): float
     {
         return $this->amount;
     }
-    public function setAmount(float $amount) : self
+    public function setAmount(float $amount): self
     {
         $this->amount = $amount;
         return $this;
     }
-    public function getIban() : IbanInterface
+    public function getIban(): IbanInterface
     {
         return $this->iban;
     }
-    public function setIban(IbanInterface $iban) : self
+    public function setIban(IbanInterface $iban): self
     {
         $this->iban = $iban;
         return $this;
     }
-    public function getPayeeName() : ?string
+    public function getPayeeName(): ?string
     {
         return $this->payeeName;
     }
-    public function setPayeeName(?string $payeeName) : self
+    public function setPayeeName(?string $payeeName): self
     {
         $this->payeeName = $payeeName;
         return $this;
     }
-    public function isInstantPayment() : bool
+    public function isInstantPayment(): bool
     {
         return $this->instantPayment;
     }
-    public function setInstantPayment(bool $isInstant) : self
+    public function setInstantPayment(bool $isInstant): self
     {
         $this->instantPayment = $isInstant;
         return $this;
@@ -313,10 +313,10 @@ final class QrPayment implements QrPaymentInterface
      *
      * @throws InvalidValueException
      */
-    private function checkProperties() : void
+    private function checkProperties(): void
     {
-        foreach (\get_object_vars($this) as $property => $value) {
-            if ((\is_string($value) || \is_object($value) && \method_exists($value, '__toString')) && \strpos((string) $value, '*') !== \false) {
+        foreach (get_object_vars($this) as $property => $value) {
+            if ((is_string($value) || is_object($value) && method_exists($value, '__toString')) && strpos((string) $value, '*') !== \false) {
                 throw new InvalidValueException("Error: properties cannot contain asterisk (*). Property {$property} contains it.");
             }
         }

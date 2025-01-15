@@ -16,7 +16,7 @@ use WpifyWooDeps\Wpify\Model\Abstracts\AbstractUserRepository;
  */
 class UserRepository extends AbstractUserRepository
 {
-    public function model() : string
+    public function model(): string
     {
         return User::class;
     }

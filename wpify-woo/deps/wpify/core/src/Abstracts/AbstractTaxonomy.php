@@ -29,15 +29,15 @@ abstract class AbstractTaxonomy extends AbstractComponent implements TaxonomyInt
         $this->model = $this->model();
         $this->post_type = $this->post_type();
     }
-    public abstract function taxonomy_args() : array;
-    public abstract function taxonomy_name() : string;
-    public abstract function model() : string;
+    abstract public function taxonomy_args(): array;
+    abstract public function taxonomy_name(): string;
+    abstract public function model(): string;
     /**
      * Get the post types for taxonomy - can be either string or array of the post type names
      *
      * @return string | array
      */
-    public abstract function post_type();
+    abstract public function post_type();
     public function init()
     {
         add_action('init', array($this, 'register'));
@@ -49,7 +49,7 @@ abstract class AbstractTaxonomy extends AbstractComponent implements TaxonomyInt
      */
     public function register()
     {
-        if (\is_array($this->post_type)) {
+        if (is_array($this->post_type)) {
             foreach ($this->post_type as $post_type) {
                 $this->register_taxonomy_for_post_type($post_type);
             }
@@ -90,28 +90,28 @@ abstract class AbstractTaxonomy extends AbstractComponent implements TaxonomyInt
     /**
      * @return string
      */
-    public function get_name() : string
+    public function get_name(): string
     {
         return $this->name;
     }
     /**
      * @param string $name
      */
-    public function set_name(string $name) : void
+    public function set_name(string $name): void
     {
         $this->name = $name;
     }
     /**
      * @param array $args
      */
-    public function get_args() : array
+    public function get_args(): array
     {
         return $this->args;
     }
     /**
      * @param array $args
      */
-    public function set_args(array $args) : void
+    public function set_args(array $args): void
     {
         $this->args = $args;
     }
@@ -119,9 +119,9 @@ abstract class AbstractTaxonomy extends AbstractComponent implements TaxonomyInt
      * @param string $singular Singular name of the taxonomy
      * @param string $plural Plural name of the taxonomy
      */
-    protected function get_generic_labels(string $singular, string $plural) : array
+    protected function get_generic_labels(string $singular, string $plural): array
     {
-        $labels = array('name' => \sprintf(_x('%s', 'Taxonomy General Name', 'wpify'), $plural), 'singular_name' => \sprintf(_x('%s', 'Taxonomy Singular Name', 'wpify'), $singular), 'menu_name' => \sprintf(__('%s', 'wpify'), $singular), 'all_items' => \sprintf(__('All %s', 'wpify'), $plural), 'parent_item' => \sprintf(__('Parent %s', 'wpify'), $singular), 'parent_item_colon' => \sprintf(__('Parent %s:', 'wpify'), $singular), 'new_item_name' => \sprintf(__('New %s Name', 'wpify'), $singular), 'add_new_item' => \sprintf(__('Add New %s', 'wpify'), $singular), 'edit_item' => \sprintf(__('Edit %s', 'wpify'), $singular), 'update_item' => \sprintf(__('Update %s', 'wpify'), $singular), 'view_item' => \sprintf(__('View %s', 'wpify'), $singular), 'separate_items_with_commas' => \sprintf(__('Separate %s with commas', 'wpify'), $plural), 'add_or_remove_items' => \sprintf(__('Add or remove %s', 'wpify'), $plural), 'choose_from_most_used' => __('Choose from the most used', 'wpify'), 'popular_items' => \sprintf(__('Popular %s', 'wpify'), $plural), 'search_items' => \sprintf(__('Search %s', 'wpify'), $plural), 'not_found' => __('Not Found', 'wpify'), 'no_terms' => \sprintf(__('No %s', 'wpify'), $plural), 'items_list' => \sprintf(__('%s list', 'wpify'), $plural), 'items_list_navigation' => \sprintf(__('%s list navigation', 'wpify'), $plural));
+        $labels = array('name' => sprintf(_x('%s', 'Taxonomy General Name', 'wpify'), $plural), 'singular_name' => sprintf(_x('%s', 'Taxonomy Singular Name', 'wpify'), $singular), 'menu_name' => sprintf(__('%s', 'wpify'), $singular), 'all_items' => sprintf(__('All %s', 'wpify'), $plural), 'parent_item' => sprintf(__('Parent %s', 'wpify'), $singular), 'parent_item_colon' => sprintf(__('Parent %s:', 'wpify'), $singular), 'new_item_name' => sprintf(__('New %s Name', 'wpify'), $singular), 'add_new_item' => sprintf(__('Add New %s', 'wpify'), $singular), 'edit_item' => sprintf(__('Edit %s', 'wpify'), $singular), 'update_item' => sprintf(__('Update %s', 'wpify'), $singular), 'view_item' => sprintf(__('View %s', 'wpify'), $singular), 'separate_items_with_commas' => sprintf(__('Separate %s with commas', 'wpify'), $plural), 'add_or_remove_items' => sprintf(__('Add or remove %s', 'wpify'), $plural), 'choose_from_most_used' => __('Choose from the most used', 'wpify'), 'popular_items' => sprintf(__('Popular %s', 'wpify'), $plural), 'search_items' => sprintf(__('Search %s', 'wpify'), $plural), 'not_found' => __('Not Found', 'wpify'), 'no_terms' => sprintf(__('No %s', 'wpify'), $plural), 'items_list' => sprintf(__('%s list', 'wpify'), $plural), 'items_list_navigation' => sprintf(__('%s list navigation', 'wpify'), $plural));
         return $labels;
     }
 }

@@ -20,23 +20,23 @@ class ParserException extends \Exception
         $this->currentTokenType = $currentTokenType;
         $this->currentOffset = $currentOffset;
         $this->expectedTokenType = $expectedTokenType;
-        $json = \json_encode($currentTokenValue, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
-        \assert($json !== \false);
-        parent::__construct(\sprintf('Unexpected token %s, expected %s at offset %d', $json, Lexer::TOKEN_LABELS[$expectedTokenType], $currentOffset));
+        $json = json_encode($currentTokenValue, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        assert($json !== \false);
+        parent::__construct(sprintf('Unexpected token %s, expected %s at offset %d', $json, Lexer::TOKEN_LABELS[$expectedTokenType], $currentOffset));
     }
-    public function getCurrentTokenValue() : string
+    public function getCurrentTokenValue(): string
     {
         return $this->currentTokenValue;
     }
-    public function getCurrentTokenType() : int
+    public function getCurrentTokenType(): int
     {
         return $this->currentTokenType;
     }
-    public function getCurrentOffset() : int
+    public function getCurrentOffset(): int
     {
         return $this->currentOffset;
     }
-    public function getExpectedTokenType() : int
+    public function getExpectedTokenType(): int
     {
         return $this->expectedTokenType;
     }

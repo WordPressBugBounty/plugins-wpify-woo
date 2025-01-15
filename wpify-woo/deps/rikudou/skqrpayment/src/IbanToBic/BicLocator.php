@@ -17,7 +17,7 @@ final class BicLocator
     {
         $this->dictionaries = [new SlovakBicDictionary(), new CzechBicDictionary()];
     }
-    public function getBic(IbanInterface $iban) : string
+    public function getBic(IbanInterface $iban): string
     {
         $countryCode = $this->getCountryCode($iban);
         foreach ($this->dictionaries as $dictionary) {
@@ -27,8 +27,8 @@ final class BicLocator
         }
         throw new DictionaryNotFoundException("Could not find any dictionary for country code '{$countryCode}'");
     }
-    private function getCountryCode(IbanInterface $iban) : string
+    private function getCountryCode(IbanInterface $iban): string
     {
-        return \strtoupper(\substr($iban, 0, 2));
+        return strtoupper(substr($iban, 0, 2));
     }
 }

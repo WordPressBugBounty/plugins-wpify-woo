@@ -6,5 +6,5 @@ namespace WpifyWooDeps\Endroid\QrCode\Matrix;
 use WpifyWooDeps\Endroid\QrCode\QrCodeInterface;
 interface MatrixFactoryInterface
 {
-    public function create(QrCodeInterface $qrCode) : MatrixInterface;
+    public function create(QrCodeInterface $qrCode): MatrixInterface;
 }

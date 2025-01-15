@@ -20,9 +20,9 @@ class UserModel extends AbstractComponent
             $this->user = $user;
         } else {
             $check_user_by = array();
-            if (\is_numeric($user)) {
+            if (is_numeric($user)) {
                 $check_user_by[] = 'ID';
-            } elseif (\filter_var($user, \FILTER_VALIDATE_EMAIL)) {
+            } elseif (filter_var($user, \FILTER_VALIDATE_EMAIL)) {
                 $check_user_by[] = 'email';
                 $check_user_by[] = 'login';
             } else {
@@ -38,11 +38,11 @@ class UserModel extends AbstractComponent
             }
         }
     }
-    public function get_id() : ?int
+    public function get_id(): ?int
     {
         return $this->user->ID ?? null;
     }
-    public function get_user() : ?WP_User
+    public function get_user(): ?WP_User
     {
         return $this->user;
     }

@@ -9,5 +9,5 @@ interface XzBinaryLocatorInterface
      *
      * @return string
      */
-    public function getXzBinary() : string;
+    public function getXzBinary(): string;
 }

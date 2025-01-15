@@ -94,7 +94,7 @@ final class CharacterSetEci extends AbstractEnum
     /**
      * Returns the primary value.
      */
-    public function getValue() : int
+    public function getValue(): int
     {
         return $this->values[0];
     }
@@ -105,13 +105,13 @@ final class CharacterSetEci extends AbstractEnum
      *
      * @throws InvalidArgumentException if value is not between 0 and 900
      */
-    public static function getCharacterSetEciByValue(int $value) : ?self
+    public static function getCharacterSetEciByValue(int $value): ?self
     {
         if ($value < 0 || $value >= 900) {
             throw new InvalidArgumentException('Value must be between 0 and 900');
         }
         $valueToEci = self::valueToEci();
-        if (!\array_key_exists($value, $valueToEci)) {
+        if (!array_key_exists($value, $valueToEci)) {
             return null;
         }
         return $valueToEci[$value];
@@ -121,16 +121,16 @@ final class CharacterSetEci extends AbstractEnum
      *
      * Returns the representing ECI of a given name, or null if it is legal but unsupported
      */
-    public static function getCharacterSetEciByName(string $name) : ?self
+    public static function getCharacterSetEciByName(string $name): ?self
     {
         $nameToEci = self::nameToEci();
-        $name = \strtolower($name);
-        if (!\array_key_exists($name, $nameToEci)) {
+        $name = strtolower($name);
+        if (!array_key_exists($name, $nameToEci)) {
             return null;
         }
         return $nameToEci[$name];
     }
-    private static function valueToEci() : array
+    private static function valueToEci(): array
     {
         if (null !== self::$valueToEci) {
             return self::$valueToEci;
@@ -143,16 +143,16 @@ final class CharacterSetEci extends AbstractEnum
         }
         return self::$valueToEci;
     }
-    private static function nameToEci() : array
+    private static function nameToEci(): array
     {
         if (null !== self::$nameToEci) {
             return self::$nameToEci;
         }
         self::$nameToEci = [];
         foreach (self::values() as $eci) {
-            self::$nameToEci[\strtolower($eci->name())] = $eci;
+            self::$nameToEci[strtolower($eci->name())] = $eci;
             foreach ($eci->otherEncodingNames as $name) {
-                self::$nameToEci[\strtolower($name)] = $eci;
+                self::$nameToEci[strtolower($name)] = $eci;
             }
         }
         return self::$nameToEci;

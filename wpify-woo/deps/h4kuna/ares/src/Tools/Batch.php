@@ -12,7 +12,7 @@ final class Batch
      * @param array<NAME, string|int> $list
      * @return array<string, array<(int&NAME)|(NAME&string)>>
      */
-    public static function checkDuplicities(array $list, Closure $callback) : array
+    public static function checkDuplicities(array $list, Closure $callback): array
     {
         $duplicity = [];
         foreach ($list as $name => $value) {
@@ -27,8 +27,8 @@ final class Batch
      * @param int<1, max> $batch
      * @return array<array<string>>
      */
-    public static function chunk(array $list, int $batch) : array
+    public static function chunk(array $list, int $batch): array
     {
-        return \array_chunk(\array_keys($list), $batch);
+        return array_chunk(array_keys($list), $batch);
     }
 }

@@ -16,8 +16,8 @@ class GenericTypeNode implements TypeNode
         $this->type = $type;
         $this->genericTypes = $genericTypes;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        return $this->type . '<' . \implode(', ', $this->genericTypes) . '>';
+        return $this->type . '<' . implode(', ', $this->genericTypes) . '>';
     }
 }

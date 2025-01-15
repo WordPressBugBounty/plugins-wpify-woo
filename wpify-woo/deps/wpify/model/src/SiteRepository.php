@@ -13,19 +13,17 @@ class SiteRepository extends AbstractRepository
     /**
      * @inheritDoc
      */
-    public function model() : string
+    public function model(): string
     {
         return Site::class;
     }
     protected function resolve_object($data)
     {
         $object = null;
-        if (\is_numeric($data)) {
+        if (is_numeric($data)) {
             $object = get_site($data);
-        } else {
-            if (\is_a($data, 'WpifyWooDeps\\WP_Site')) {
-                $object = $data;
-            }
+        } else if (is_a($data, '\WP_Site')) {
+            $object = $data;
         }
         if (!$object) {
             throw new NotFoundException('Site not found');
@@ -44,7 +42,7 @@ class SiteRepository extends AbstractRepository
     /**
      * @return Site[]
      */
-    public function all() : array
+    public function all(): array
     {
         return $this->find();
     }
@@ -59,6 +57,6 @@ class SiteRepository extends AbstractRepository
     }
     public function get($object = null)
     {
-        return !empty($object) ? $this->factory($object) : null;
+        return (!empty($object)) ? $this->factory($object) : null;
     }
 }

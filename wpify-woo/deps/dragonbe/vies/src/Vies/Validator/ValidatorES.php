@@ -85,26 +85,26 @@ class ValidatorES extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 9) {
+        if (strlen($vatNumber) != 9) {
             return \false;
         }
-        if (!\is_numeric(\substr($vatNumber, 1, 6))) {
+        if (!is_numeric(substr($vatNumber, 1, 6))) {
             return \false;
         }
         $checksum = $vatNumber[8];
         $fieldC1 = $vatNumber[0];
         // Juridical entities other than national ones
-        if (\ctype_alpha($checksum) && \in_array($fieldC1, $this->allowedC1Alphabetic)) {
+        if (ctype_alpha($checksum) && in_array($fieldC1, $this->allowedC1Alphabetic)) {
             return $checksum === $this->validateJuridical($vatNumber);
         }
         // Physical person
-        if (\ctype_alpha($checksum) && \in_array($fieldC1, $this->allowedC1Physical)) {
+        if (ctype_alpha($checksum) && in_array($fieldC1, $this->allowedC1Physical)) {
             return $checksum === $this->validatePhysical($vatNumber);
         }
         // National juridical entities
-        if (\ctype_digit($checksum) && \in_array($fieldC1, $this->allowedC1Numeric)) {
+        if (ctype_digit($checksum) && in_array($fieldC1, $this->allowedC1Numeric)) {
             return (int) $checksum === $this->validateNational($vatNumber);
         }
         return \false;
@@ -114,7 +114,7 @@ class ValidatorES extends ValidatorAbstract
      *
      * @return string
      */
-    private function validateJuridical(string $vatNumber) : string
+    private function validateJuridical(string $vatNumber): string
     {
         $checkVal = 0;
         for ($i = 2; $i <= 8; $i++) {
@@ -128,7 +128,7 @@ class ValidatorES extends ValidatorAbstract
      *
      * @return int
      */
-    private function validateNational(string $vatNumber) : int
+    private function validateNational(string $vatNumber): int
     {
         $checkVal = 0;
         for ($i = 2; $i <= 8; $i++) {
@@ -142,13 +142,13 @@ class ValidatorES extends ValidatorAbstract
      *
      * @return string
      */
-    private function validatePhysical(string $vatNumber) : string
+    private function validatePhysical(string $vatNumber): string
     {
-        $vatNumber[0] = \str_replace(['Y', 'Z'], [1, 2], $vatNumber[0]);
-        if (\ctype_digit($vatNumber[0])) {
-            $checkVal = (int) \substr($vatNumber, 0, 8) % 23 + 1;
+        $vatNumber[0] = str_replace(['Y', 'Z'], [1, 2], $vatNumber[0]);
+        if (ctype_digit($vatNumber[0])) {
+            $checkVal = (int) substr($vatNumber, 0, 8) % 23 + 1;
         } else {
-            $checkVal = (int) \substr($vatNumber, 1, 7) % 23 + 1;
+            $checkVal = (int) substr($vatNumber, 1, 7) % 23 + 1;
         }
         return $this->checkCharacterPhysical[$checkVal];
     }

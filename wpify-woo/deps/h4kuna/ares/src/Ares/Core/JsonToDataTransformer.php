@@ -9,13 +9,13 @@ use WpifyWooDeps\h4kuna\Ares\Tools\Strings;
 use stdClass;
 class JsonToDataTransformer
 {
-    public function transform(stdClass $json) : Data
+    public function transform(stdClass $json): Data
     {
         $data = new Data();
         $data->original = $json;
         $data->in = (string) $json->ico;
         $tinGroup = Strings::trimNull($json->dicSkDph ?? null);
-        $tinGroup = $tinGroup === 'N/A' ? null : $tinGroup;
+        $tinGroup = ($tinGroup === 'N/A') ? null : $tinGroup;
         $data->tin = Strings::trimNull($tinGroup ?? $json->dic ?? null);
         $data->sources = Helper::services((array) ($json->seznamRegistraci ?? []));
         $data->vat_payer = $data->sources[Sources::SER_NO_DPH] === \true;
@@ -36,7 +36,7 @@ class JsonToDataTransformer
         $data->active = $data->dissolved === null;
         return $data;
     }
-    private static function updateAddress(Data $data, stdClass $sidlo) : bool
+    private static function updateAddress(Data $data, stdClass $sidlo): bool
     {
         $data->zip = Strings::trimNull(Strings::replaceSpace((string) ($sidlo->psc ?? $sidlo->pscTxt ?? '')));
         // input is int
@@ -50,7 +50,7 @@ class JsonToDataTransformer
         $data->house_number = Helper::houseNumber((string) ($sidlo->cisloDomovni ?? $sidlo->cisloDoAdresy ?? ''), (string) ($sidlo->cisloOrientacni ?? ''), $sidlo->cisloOrientacniPismeno ?? '');
         return self::isAddressFilled($data);
     }
-    private static function isAddressFilled(Data $data) : bool
+    private static function isAddressFilled(Data $data): bool
     {
         return $data->zip !== null || $data->street !== null || $data->country !== null || $data->country_code !== null || $data->city !== null || $data->city_post !== null || $data->city_district !== null || $data->district !== null || $data->house_number !== null;
     }

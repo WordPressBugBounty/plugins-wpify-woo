@@ -134,6 +134,12 @@ class PricesModule extends AbstractModule {
 						'label' => __( 'Show label on frontend', 'wpify-woo' ),
 					),
 					array(
+						'id'    => 'lowest_price',
+						'type'  => 'toggle',
+						'label' => __( 'Use lowest price', 'wpify-woo' ),
+						'desc'  => __( 'Use the lowest price for the last 30 days from the Price Log module (must be active).', 'wpify-woo' ),
+					),
+					array(
 						'id'    => 'price_info',
 						'type'  => 'textarea',
 						'label' => __( 'Price more info', 'wpify-woo' ),
@@ -360,12 +366,13 @@ class PricesModule extends AbstractModule {
 		<?php
 		$custom_prices_vales = get_post_meta( get_the_ID(), '_custom_prices', true );
 
-		if ( empty( $custom_prices_vales ) ) {
-			return '';
-		}
-
 		foreach ( $custom_prices as $price ) {
-			$price_value = $custom_prices_vales[ $price['uuid'] ] ?? '';
+			if ( isset( $price['lowest_price'] ) && $price['lowest_price'] ) {
+				$module      = wpify_woo_container()->get( \WpifyWoo\Modules\PricesLog\PricesLogModule::class );
+				$price_value = $module->get_lowest_price( get_the_ID() );
+			} else {
+				$price_value = $custom_prices_vales[ $price['uuid'] ] ?? 0;
+			}
 
 			if ( empty( $price_value ) ) {
 				continue;
@@ -412,6 +419,10 @@ class PricesModule extends AbstractModule {
 
 		$items = [];
 		foreach ( $custom_prices as $price ) {
+			if ( $price['lowest_price'] ) {
+				continue;
+			}
+
 			$items[] = array(
 				'id'    => $price['uuid'],
 				'label' => sprintf( '%s (%s)', $price['label'] ?: __( 'Custom price', 'wpify-woo' ), get_woocommerce_currency_symbol() ),

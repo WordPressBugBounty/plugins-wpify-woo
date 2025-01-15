@@ -31,10 +31,10 @@ final class User extends AbstractImplementation
         }));
         $this->items = $args['items'];
         $this->user_id = $args['user_id'];
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -83,7 +83,7 @@ final class User extends AbstractImplementation
     public function render_edit_form($user)
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         $this->set_user($user->ID);
@@ -104,7 +104,7 @@ final class User extends AbstractImplementation
     public function get_field(string $name, array $item)
     {
         if (!empty($item['callback_get'])) {
-            return \call_user_func($item['callback_get'], $item, $this->user_id);
+            return call_user_func($item['callback_get'], $item, $this->user_id);
         } else {
             return get_user_meta($this->user_id, $name, \true);
         }
@@ -134,7 +134,7 @@ final class User extends AbstractImplementation
     public function set_field($name, $value, $item)
     {
         if (!empty($item['callback_set'])) {
-            return \call_user_func($item['callback_set'], $item, $this->user_id, $value);
+            return call_user_func($item['callback_set'], $item, $this->user_id, $value);
         } else {
             return update_user_meta($this->user_id, $name, wp_slash($value));
         }

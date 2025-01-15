@@ -5,13 +5,13 @@ namespace WpifyWooDeps\PHPStan\PhpDocParser\Ast;
 
 interface Node
 {
-    public function __toString() : string;
+    public function __toString(): string;
     /**
      * @param string $key
      * @param mixed $value
      */
-    public function setAttribute(string $key, $value) : void;
-    public function hasAttribute(string $key) : bool;
+    public function setAttribute(string $key, $value): void;
+    public function hasAttribute(string $key): bool;
     /**
      * @param string $key
      * @return mixed

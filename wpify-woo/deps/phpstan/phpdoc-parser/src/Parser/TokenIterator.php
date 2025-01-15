@@ -21,31 +21,31 @@ class TokenIterator
         }
         $this->index++;
     }
-    public function currentTokenValue() : string
+    public function currentTokenValue(): string
     {
         return $this->tokens[$this->index][Lexer::VALUE_OFFSET];
     }
-    public function currentTokenType() : int
+    public function currentTokenType(): int
     {
         return $this->tokens[$this->index][Lexer::TYPE_OFFSET];
     }
-    public function currentTokenOffset() : int
+    public function currentTokenOffset(): int
     {
         $offset = 0;
         for ($i = 0; $i < $this->index; $i++) {
-            $offset += \strlen($this->tokens[$i][Lexer::VALUE_OFFSET]);
+            $offset += strlen($this->tokens[$i][Lexer::VALUE_OFFSET]);
         }
         return $offset;
     }
-    public function isCurrentTokenValue(string $tokenValue) : bool
+    public function isCurrentTokenValue(string $tokenValue): bool
     {
         return $this->tokens[$this->index][Lexer::VALUE_OFFSET] === $tokenValue;
     }
-    public function isCurrentTokenType(int $tokenType) : bool
+    public function isCurrentTokenType(int $tokenType): bool
     {
         return $this->tokens[$this->index][Lexer::TYPE_OFFSET] === $tokenType;
     }
-    public function isPrecededByHorizontalWhitespace() : bool
+    public function isPrecededByHorizontalWhitespace(): bool
     {
         return ($this->tokens[$this->index - 1][Lexer::TYPE_OFFSET] ?? -1) === Lexer::TOKEN_HORIZONTAL_WS;
     }
@@ -53,7 +53,7 @@ class TokenIterator
      * @param  int $tokenType
      * @throws \PHPStan\PhpDocParser\Parser\ParserException
      */
-    public function consumeTokenType(int $tokenType) : void
+    public function consumeTokenType(int $tokenType): void
     {
         if ($this->tokens[$this->index][Lexer::TYPE_OFFSET] !== $tokenType) {
             $this->throwError($tokenType);
@@ -65,7 +65,7 @@ class TokenIterator
         $this->index++;
     }
     /** @phpstan-impure */
-    public function tryConsumeTokenValue(string $tokenValue) : bool
+    public function tryConsumeTokenValue(string $tokenValue): bool
     {
         if ($this->tokens[$this->index][Lexer::VALUE_OFFSET] !== $tokenValue) {
             return \false;
@@ -77,7 +77,7 @@ class TokenIterator
         return \true;
     }
     /** @phpstan-impure */
-    public function tryConsumeTokenType(int $tokenType) : bool
+    public function tryConsumeTokenType(int $tokenType): bool
     {
         if ($this->tokens[$this->index][Lexer::TYPE_OFFSET] !== $tokenType) {
             return \false;
@@ -88,7 +88,7 @@ class TokenIterator
         }
         return \true;
     }
-    public function getSkippedHorizontalWhiteSpaceIfAny() : string
+    public function getSkippedHorizontalWhiteSpaceIfAny(): string
     {
         if ($this->index > 0 && $this->tokens[$this->index - 1][Lexer::TYPE_OFFSET] === Lexer::TOKEN_HORIZONTAL_WS) {
             return $this->tokens[$this->index - 1][Lexer::VALUE_OFFSET];
@@ -96,15 +96,15 @@ class TokenIterator
         return '';
     }
     /** @phpstan-impure */
-    public function joinUntil(int ...$tokenType) : string
+    public function joinUntil(int ...$tokenType): string
     {
         $s = '';
-        while (!\in_array($this->tokens[$this->index][Lexer::TYPE_OFFSET], $tokenType, \true)) {
+        while (!in_array($this->tokens[$this->index][Lexer::TYPE_OFFSET], $tokenType, \true)) {
             $s .= $this->tokens[$this->index++][Lexer::VALUE_OFFSET];
         }
         return $s;
     }
-    public function next() : void
+    public function next(): void
     {
         $this->index++;
         if ($this->tokens[$this->index][Lexer::TYPE_OFFSET] !== Lexer::TOKEN_HORIZONTAL_WS) {
@@ -113,30 +113,30 @@ class TokenIterator
         $this->index++;
     }
     /** @phpstan-impure */
-    public function forwardToTheEnd() : void
+    public function forwardToTheEnd(): void
     {
-        $lastToken = \count($this->tokens) - 1;
+        $lastToken = count($this->tokens) - 1;
         $this->index = $lastToken;
     }
-    public function pushSavePoint() : void
+    public function pushSavePoint(): void
     {
         $this->savePoints[] = $this->index;
     }
-    public function dropSavePoint() : void
+    public function dropSavePoint(): void
     {
-        \array_pop($this->savePoints);
+        array_pop($this->savePoints);
     }
-    public function rollback() : void
+    public function rollback(): void
     {
-        $index = \array_pop($this->savePoints);
-        \assert($index !== null);
+        $index = array_pop($this->savePoints);
+        assert($index !== null);
         $this->index = $index;
     }
     /**
      * @param  int $expectedTokenType
      * @throws \PHPStan\PhpDocParser\Parser\ParserException
      */
-    private function throwError(int $expectedTokenType) : void
+    private function throwError(int $expectedTokenType): void
     {
         throw new \WpifyWooDeps\PHPStan\PhpDocParser\Parser\ParserException($this->currentTokenValue(), $this->currentTokenType(), $this->currentTokenOffset(), $expectedTokenType);
     }

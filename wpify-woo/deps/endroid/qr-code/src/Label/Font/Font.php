@@ -13,17 +13,17 @@ final class Font implements FontInterface
         $this->path = $path;
         $this->size = $size;
     }
-    private function validatePath(string $path) : void
+    private function validatePath(string $path): void
     {
-        if (!\file_exists($path)) {
-            throw new \Exception(\sprintf('Invalid font path "%s"', $path));
+        if (!file_exists($path)) {
+            throw new \Exception(sprintf('Invalid font path "%s"', $path));
         }
     }
-    public function getPath() : string
+    public function getPath(): string
     {
         return $this->path;
     }
-    public function getSize() : int
+    public function getSize(): int
     {
         return $this->size;
     }

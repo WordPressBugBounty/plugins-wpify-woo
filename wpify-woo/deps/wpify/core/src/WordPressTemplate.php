@@ -26,7 +26,7 @@ class WordPressTemplate extends AbstractComponent implements TemplateInterface
      * @param string|null $name The name of the specialised template.
      * @param array       $args Additional arguments passed to the template.
      */
-    public function print(string $slug, string $name = null, array $args = array()) : void
+    public function print(string $slug, string $name = null, array $args = array()): void
     {
         echo $this->render($slug, $name, $args);
         // phpcs:ignore
@@ -40,7 +40,7 @@ class WordPressTemplate extends AbstractComponent implements TemplateInterface
      *
      * @return string
      */
-    public function render(string $slug, string $name = null, array $args = array()) : string
+    public function render(string $slug, string $name = null, array $args = array()): string
     {
         $templates_folder = $this->get_templates_folder();
         $templates = array();
@@ -49,15 +49,15 @@ class WordPressTemplate extends AbstractComponent implements TemplateInterface
         }
         $templates[] = $templates_folder . $slug . '.php';
         foreach ($templates as $template) {
-            if (\file_exists($template)) {
-                \ob_start();
+            if (file_exists($template)) {
+                ob_start();
                 load_template($template, \false, $args);
-                return \ob_get_clean();
+                return ob_get_clean();
             }
         }
-        \ob_start();
+        ob_start();
         get_template_part($slug, $name, $args);
-        return \ob_get_clean();
+        return ob_get_clean();
     }
     public function get_templates_folder()
     {

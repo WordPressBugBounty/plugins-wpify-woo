@@ -14,10 +14,10 @@ class ViesEntity
     /**
      * @return viesParam
      */
-    public function toParam() : array
+    public function toParam(): array
     {
         /** @var viesParam $data */
-        $data = \array_filter(\get_object_vars($this));
+        $data = array_filter(get_object_vars($this));
         return $data;
     }
 }

@@ -35,7 +35,7 @@ class TermChildTermsRelation implements RelationInterface
     }
     public function assign()
     {
-        if (isset($this->model->children) && \is_array($this->model->children)) {
+        if (isset($this->model->children) && is_array($this->model->children)) {
             foreach ($this->model->children as $child) {
                 $child->parent_id = $this->model->id;
                 $this->repository->save($child);

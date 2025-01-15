@@ -11,54 +11,54 @@ use WpifyWooDeps\DI\Definition\Helper\FactoryDefinitionHelper;
 use WpifyWooDeps\DI\Definition\Reference;
 use WpifyWooDeps\DI\Definition\StringDefinition;
 use WpifyWooDeps\DI\Definition\ValueDefinition;
-if (!\function_exists('WpifyWooDeps\\DI\\value')) {
+if (!function_exists('WpifyWooDeps\DI\value')) {
     /**
      * Helper for defining a value.
      *
      * @param mixed $value
      */
-    function value($value) : ValueDefinition
+    function value($value): ValueDefinition
     {
         return new ValueDefinition($value);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\create')) {
+if (!function_exists('WpifyWooDeps\DI\create')) {
     /**
      * Helper for defining an object.
      *
      * @param string|null $className Class name of the object.
      *                               If null, the name of the entry (in the container) will be used as class name.
      */
-    function create(string $className = null) : CreateDefinitionHelper
+    function create(string $className = null): CreateDefinitionHelper
     {
         return new CreateDefinitionHelper($className);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\autowire')) {
+if (!function_exists('WpifyWooDeps\DI\autowire')) {
     /**
      * Helper for autowiring an object.
      *
      * @param string|null $className Class name of the object.
      *                               If null, the name of the entry (in the container) will be used as class name.
      */
-    function autowire(string $className = null) : AutowireDefinitionHelper
+    function autowire(string $className = null): AutowireDefinitionHelper
     {
         return new AutowireDefinitionHelper($className);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\factory')) {
+if (!function_exists('WpifyWooDeps\DI\factory')) {
     /**
      * Helper for defining a container entry using a factory function/callable.
      *
      * @param callable $factory The factory is a callable that takes the container as parameter
      *                          and returns the value to register in the container.
      */
-    function factory($factory) : FactoryDefinitionHelper
+    function factory($factory): FactoryDefinitionHelper
     {
         return new FactoryDefinitionHelper($factory);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\decorate')) {
+if (!function_exists('WpifyWooDeps\DI\decorate')) {
     /**
      * Decorate the previous definition using a callable.
      *
@@ -71,35 +71,35 @@ if (!\function_exists('WpifyWooDeps\\DI\\decorate')) {
      * @param callable $callable The callable takes the decorated object as first parameter and
      *                           the container as second.
      */
-    function decorate($callable) : FactoryDefinitionHelper
+    function decorate($callable): FactoryDefinitionHelper
     {
         return new FactoryDefinitionHelper($callable, \true);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\get')) {
+if (!function_exists('WpifyWooDeps\DI\get')) {
     /**
      * Helper for referencing another container entry in an object definition.
      */
-    function get(string $entryName) : Reference
+    function get(string $entryName): Reference
     {
         return new Reference($entryName);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\env')) {
+if (!function_exists('WpifyWooDeps\DI\env')) {
     /**
      * Helper for referencing environment variables.
      *
      * @param string $variableName The name of the environment variable.
      * @param mixed $defaultValue The default value to be used if the environment variable is not defined.
      */
-    function env(string $variableName, $defaultValue = null) : EnvironmentVariableDefinition
+    function env(string $variableName, $defaultValue = null): EnvironmentVariableDefinition
     {
         // Only mark as optional if the default value was *explicitly* provided.
-        $isOptional = 2 === \func_num_args();
+        $isOptional = 2 === func_num_args();
         return new EnvironmentVariableDefinition($variableName, $isOptional, $defaultValue);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\add')) {
+if (!function_exists('WpifyWooDeps\DI\add')) {
     /**
      * Helper for extending another definition.
      *
@@ -117,15 +117,15 @@ if (!\function_exists('WpifyWooDeps\\DI\\add')) {
      *
      * @since 5.0
      */
-    function add($values) : ArrayDefinitionExtension
+    function add($values): ArrayDefinitionExtension
     {
-        if (!\is_array($values)) {
+        if (!is_array($values)) {
             $values = [$values];
         }
         return new ArrayDefinitionExtension($values);
     }
 }
-if (!\function_exists('WpifyWooDeps\\DI\\string')) {
+if (!function_exists('WpifyWooDeps\DI\string')) {
     /**
      * Helper for concatenating strings.
      *
@@ -137,7 +137,7 @@ if (!\function_exists('WpifyWooDeps\\DI\\string')) {
      *
      * @since 5.0
      */
-    function string(string $expression) : StringDefinition
+    function string(string $expression): StringDefinition
     {
         return new StringDefinition($expression);
     }

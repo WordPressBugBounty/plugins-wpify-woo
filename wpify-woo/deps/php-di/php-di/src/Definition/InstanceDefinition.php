@@ -29,7 +29,7 @@ class InstanceDefinition implements Definition
         $this->instance = $instance;
         $this->objectDefinition = $objectDefinition;
     }
-    public function getName() : string
+    public function getName(): string
     {
         // Name are superfluous for instance definitions
         return '';
@@ -45,7 +45,7 @@ class InstanceDefinition implements Definition
     {
         return $this->instance;
     }
-    public function getObjectDefinition() : ObjectDefinition
+    public function getObjectDefinition(): ObjectDefinition
     {
         return $this->objectDefinition;
     }

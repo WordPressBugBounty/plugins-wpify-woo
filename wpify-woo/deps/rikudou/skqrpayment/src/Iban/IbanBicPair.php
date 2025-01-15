@@ -26,10 +26,10 @@ final class IbanBicPair implements IbanInterface
      */
     public function __construct($iban, ?string $bic = null)
     {
-        if (\is_string($iban)) {
+        if (is_string($iban)) {
             $iban = new IBAN($iban);
         } elseif (!$iban instanceof IbanInterface) {
-            throw new QrPaymentException(\sprintf('The IBAN must be a string or instance of %s', IbanInterface::class));
+            throw new QrPaymentException(sprintf('The IBAN must be a string or instance of %s', IbanInterface::class));
         }
         if ($bic === null) {
             $bic = (new BicLocator())->getBic($iban);
@@ -41,25 +41,25 @@ final class IbanBicPair implements IbanInterface
         $this->iban = $iban;
         $this->bic = $bic;
     }
-    public function getIban() : IbanInterface
+    public function getIban(): IbanInterface
     {
         return $this->iban;
     }
-    public function getBic() : string
+    public function getBic(): string
     {
         return $this->bic;
     }
     /**
      * Returns the resulting IBAN.
      */
-    public function asString() : string
+    public function asString(): string
     {
         return $this->getIban()->asString();
     }
     /**
      * Returns the validator that checks whether the IBAN is valid.
      */
-    public function getValidator() : ?ValidatorInterface
+    public function getValidator(): ?ValidatorInterface
     {
         return $this->getIban()->getValidator();
     }

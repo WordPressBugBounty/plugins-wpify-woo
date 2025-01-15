@@ -16,11 +16,11 @@ interface IbanInterface
      *
      * @return string
      */
-    public function asString() : string;
+    public function asString(): string;
     /**
      * Returns the validator that checks whether the IBAN is valid.
      *
      * @return ValidatorInterface|null
      */
-    public function getValidator() : ?ValidatorInterface;
+    public function getValidator(): ?ValidatorInterface;
 }

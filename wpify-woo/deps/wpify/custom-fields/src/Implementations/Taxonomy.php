@@ -34,10 +34,10 @@ final class Taxonomy extends AbstractPostImplementation
         $this->taxonomy = $args['taxonomy'];
         $this->items = $args['items'];
         $this->term_id = $args['term_id'];
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -72,7 +72,7 @@ final class Taxonomy extends AbstractPostImplementation
     public function render_add_form()
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         $this->render_fields('add_taxonomy');
@@ -90,7 +90,7 @@ final class Taxonomy extends AbstractPostImplementation
     public function render_edit_form(WP_Term $term)
     {
         $display_callback = $this->display;
-        if (!\boolval($display_callback())) {
+        if (!boolval($display_callback())) {
             return;
         }
         $this->set_post($term->term_id);
@@ -112,17 +112,13 @@ final class Taxonomy extends AbstractPostImplementation
     public function get_field(string $name, array $item)
     {
         if (!empty($item['callback_get'])) {
-            return \call_user_func($item['callback_get'], $item, $this->term_id);
+            return call_user_func($item['callback_get'], $item, $this->term_id);
+        } else if ($this->term_id) {
+            return get_term_meta($this->term_id, $name, \true);
+        } else if ($item['default']) {
+            return $item['default'];
         } else {
-            if ($this->term_id) {
-                return get_term_meta($this->term_id, $name, \true);
-            } else {
-                if ($item['default']) {
-                    return $item['default'];
-                } else {
-                    return '';
-                }
-            }
+            return '';
         }
     }
     /**
@@ -150,7 +146,7 @@ final class Taxonomy extends AbstractPostImplementation
     public function set_field($name, $value, $item)
     {
         if (!empty($item['callback_set'])) {
-            return \call_user_func($item['callback_set'], $item, $this->term_id, $value);
+            return call_user_func($item['callback_set'], $item, $this->term_id, $value);
         } else {
             return update_term_meta($this->term_id, $name, wp_slash($value));
         }

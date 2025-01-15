@@ -34,20 +34,20 @@ final class ByteMatrix
         $this->width = $width;
         $this->bytes = new SplFixedArray($height);
         for ($y = 0; $y < $height; ++$y) {
-            $this->bytes[$y] = SplFixedArray::fromArray(\array_fill(0, $width, 0));
+            $this->bytes[$y] = SplFixedArray::fromArray(array_fill(0, $width, 0));
         }
     }
     /**
      * Gets the width of the matrix.
      */
-    public function getWidth() : int
+    public function getWidth(): int
     {
         return $this->width;
     }
     /**
      * Gets the height of the matrix.
      */
-    public function getHeight() : int
+    public function getHeight(): int
     {
         return $this->height;
     }
@@ -56,39 +56,39 @@ final class ByteMatrix
      *
      * @return SplFixedArray<SplFixedArray<int>>
      */
-    public function getArray() : SplFixedArray
+    public function getArray(): SplFixedArray
     {
         return $this->bytes;
     }
     /**
      * @return Traversable<int>
      */
-    public function getBytes() : Traversable
+    public function getBytes(): Traversable
     {
         foreach ($this->bytes as $row) {
             foreach ($row as $byte) {
-                (yield $byte);
+                yield $byte;
             }
         }
     }
     /**
      * Gets the byte for a specific position.
      */
-    public function get(int $x, int $y) : int
+    public function get(int $x, int $y): int
     {
         return $this->bytes[$y][$x];
     }
     /**
      * Sets the byte for a specific position.
      */
-    public function set(int $x, int $y, int $value) : void
+    public function set(int $x, int $y, int $value): void
     {
         $this->bytes[$y][$x] = $value;
     }
     /**
      * Clears the matrix with a specific value.
      */
-    public function clear(int $value) : void
+    public function clear(int $value): void
     {
         for ($y = 0; $y < $this->height; ++$y) {
             for ($x = 0; $x < $this->width; ++$x) {
@@ -106,7 +106,7 @@ final class ByteMatrix
     /**
      * Returns a string representation of the matrix.
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         $result = '';
         for ($y = 0; $y < $this->height; $y++) {

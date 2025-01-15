@@ -20,9 +20,9 @@ class PhpDocNode implements Node
     /**
      * @return PhpDocTagNode[]
      */
-    public function getTags() : array
+    public function getTags(): array
     {
-        return \array_filter($this->children, static function (PhpDocChildNode $child) : bool {
+        return array_filter($this->children, static function (PhpDocChildNode $child): bool {
             return $child instanceof PhpDocTagNode;
         });
     }
@@ -30,162 +30,162 @@ class PhpDocNode implements Node
      * @param  string $tagName
      * @return PhpDocTagNode[]
      */
-    public function getTagsByName(string $tagName) : array
+    public function getTagsByName(string $tagName): array
     {
-        return \array_filter($this->getTags(), static function (PhpDocTagNode $tag) use($tagName) : bool {
+        return array_filter($this->getTags(), static function (PhpDocTagNode $tag) use ($tagName): bool {
             return $tag->name === $tagName;
         });
     }
     /**
      * @return VarTagValueNode[]
      */
-    public function getVarTagValues(string $tagName = '@var') : array
+    public function getVarTagValues(string $tagName = '@var'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof VarTagValueNode;
         }), 'value');
     }
     /**
      * @return ParamTagValueNode[]
      */
-    public function getParamTagValues(string $tagName = '@param') : array
+    public function getParamTagValues(string $tagName = '@param'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof ParamTagValueNode;
         }), 'value');
     }
     /**
      * @return TemplateTagValueNode[]
      */
-    public function getTemplateTagValues(string $tagName = '@template') : array
+    public function getTemplateTagValues(string $tagName = '@template'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof TemplateTagValueNode;
         }), 'value');
     }
     /**
      * @return ExtendsTagValueNode[]
      */
-    public function getExtendsTagValues(string $tagName = '@extends') : array
+    public function getExtendsTagValues(string $tagName = '@extends'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof ExtendsTagValueNode;
         }), 'value');
     }
     /**
      * @return ImplementsTagValueNode[]
      */
-    public function getImplementsTagValues(string $tagName = '@implements') : array
+    public function getImplementsTagValues(string $tagName = '@implements'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof ImplementsTagValueNode;
         }), 'value');
     }
     /**
      * @return UsesTagValueNode[]
      */
-    public function getUsesTagValues(string $tagName = '@use') : array
+    public function getUsesTagValues(string $tagName = '@use'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof UsesTagValueNode;
         }), 'value');
     }
     /**
      * @return ReturnTagValueNode[]
      */
-    public function getReturnTagValues(string $tagName = '@return') : array
+    public function getReturnTagValues(string $tagName = '@return'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof ReturnTagValueNode;
         }), 'value');
     }
     /**
      * @return ThrowsTagValueNode[]
      */
-    public function getThrowsTagValues(string $tagName = '@throws') : array
+    public function getThrowsTagValues(string $tagName = '@throws'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof ThrowsTagValueNode;
         }), 'value');
     }
     /**
      * @return MixinTagValueNode[]
      */
-    public function getMixinTagValues(string $tagName = '@mixin') : array
+    public function getMixinTagValues(string $tagName = '@mixin'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof MixinTagValueNode;
         }), 'value');
     }
     /**
      * @return \PHPStan\PhpDocParser\Ast\PhpDoc\DeprecatedTagValueNode[]
      */
-    public function getDeprecatedTagValues() : array
+    public function getDeprecatedTagValues(): array
     {
-        return \array_column(\array_filter($this->getTagsByName('@deprecated'), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName('@deprecated'), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof DeprecatedTagValueNode;
         }), 'value');
     }
     /**
      * @return PropertyTagValueNode[]
      */
-    public function getPropertyTagValues(string $tagName = '@property') : array
+    public function getPropertyTagValues(string $tagName = '@property'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof PropertyTagValueNode;
         }), 'value');
     }
     /**
      * @return PropertyTagValueNode[]
      */
-    public function getPropertyReadTagValues(string $tagName = '@property-read') : array
+    public function getPropertyReadTagValues(string $tagName = '@property-read'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof PropertyTagValueNode;
         }), 'value');
     }
     /**
      * @return PropertyTagValueNode[]
      */
-    public function getPropertyWriteTagValues(string $tagName = '@property-write') : array
+    public function getPropertyWriteTagValues(string $tagName = '@property-write'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof PropertyTagValueNode;
         }), 'value');
     }
     /**
      * @return MethodTagValueNode[]
      */
-    public function getMethodTagValues(string $tagName = '@method') : array
+    public function getMethodTagValues(string $tagName = '@method'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof MethodTagValueNode;
         }), 'value');
     }
     /**
      * @return TypeAliasTagValueNode[]
      */
-    public function getTypeAliasTagValues(string $tagName = '@phpstan-type') : array
+    public function getTypeAliasTagValues(string $tagName = '@phpstan-type'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof TypeAliasTagValueNode;
         }), 'value');
     }
     /**
      * @return TypeAliasImportTagValueNode[]
      */
-    public function getTypeAliasImportTagValues(string $tagName = '@phpstan-import-type') : array
+    public function getTypeAliasImportTagValues(string $tagName = '@phpstan-import-type'): array
     {
-        return \array_column(\array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag) : bool {
+        return array_column(array_filter($this->getTagsByName($tagName), static function (PhpDocTagNode $tag): bool {
             return $tag->value instanceof TypeAliasImportTagValueNode;
         }), 'value');
     }
-    public function __toString() : string
+    public function __toString(): string
     {
-        $children = \array_map(static function (PhpDocChildNode $child) : string {
+        $children = array_map(static function (PhpDocChildNode $child): string {
             $s = (string) $child;
-            return $s === '' ? '' : ' ' . $s;
+            return ($s === '') ? '' : (' ' . $s);
         }, $this->children);
-        return "/**\n *" . \implode("\n *", $children) . "\n */";
+        return "/**\n *" . implode("\n *", $children) . "\n */";
     }
 }

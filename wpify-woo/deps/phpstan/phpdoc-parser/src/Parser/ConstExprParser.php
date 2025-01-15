@@ -7,7 +7,7 @@ use WpifyWooDeps\PHPStan\PhpDocParser\Ast;
 use WpifyWooDeps\PHPStan\PhpDocParser\Lexer\Lexer;
 class ConstExprParser
 {
-    public function parse(TokenIterator $tokens, bool $trimStrings = \false) : Ast\ConstExpr\ConstExprNode
+    public function parse(TokenIterator $tokens, bool $trimStrings = \false): Ast\ConstExpr\ConstExprNode
     {
         if ($tokens->isCurrentTokenType(Lexer::TOKEN_FLOAT)) {
             $value = $tokens->currentTokenValue();
@@ -22,21 +22,21 @@ class ConstExprParser
         if ($tokens->isCurrentTokenType(Lexer::TOKEN_SINGLE_QUOTED_STRING)) {
             $value = $tokens->currentTokenValue();
             if ($trimStrings) {
-                $value = \trim($tokens->currentTokenValue(), "'");
+                $value = trim($tokens->currentTokenValue(), "'");
             }
             $tokens->next();
             return new Ast\ConstExpr\ConstExprStringNode($value);
         } elseif ($tokens->isCurrentTokenType(Lexer::TOKEN_DOUBLE_QUOTED_STRING)) {
             $value = $tokens->currentTokenValue();
             if ($trimStrings) {
-                $value = \trim($tokens->currentTokenValue(), '"');
+                $value = trim($tokens->currentTokenValue(), '"');
             }
             $tokens->next();
             return new Ast\ConstExpr\ConstExprStringNode($value);
         } elseif ($tokens->isCurrentTokenType(Lexer::TOKEN_IDENTIFIER)) {
             $identifier = $tokens->currentTokenValue();
             $tokens->next();
-            switch (\strtolower($identifier)) {
+            switch (strtolower($identifier)) {
                 case 'true':
                     return new Ast\ConstExpr\ConstExprTrueNode();
                 case 'false':
@@ -76,7 +76,7 @@ class ConstExprParser
         }
         throw new \LogicException($tokens->currentTokenValue());
     }
-    private function parseArray(TokenIterator $tokens, int $endToken) : Ast\ConstExpr\ConstExprArrayNode
+    private function parseArray(TokenIterator $tokens, int $endToken): Ast\ConstExpr\ConstExprArrayNode
     {
         $items = [];
         if (!$tokens->tryConsumeTokenType($endToken)) {
@@ -87,7 +87,7 @@ class ConstExprParser
         }
         return new Ast\ConstExpr\ConstExprArrayNode($items);
     }
-    private function parseArrayItem(TokenIterator $tokens) : Ast\ConstExpr\ConstExprArrayItemNode
+    private function parseArrayItem(TokenIterator $tokens): Ast\ConstExpr\ConstExprArrayItemNode
     {
         $expr = $this->parse($tokens);
         if ($tokens->tryConsumeTokenType(Lexer::TOKEN_DOUBLE_ARROW)) {

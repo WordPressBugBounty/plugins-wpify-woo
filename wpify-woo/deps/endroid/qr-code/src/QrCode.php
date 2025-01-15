@@ -32,78 +32,78 @@ final class QrCode implements QrCodeInterface
         $this->foregroundColor = $foregroundColor ?? new Color(0, 0, 0);
         $this->backgroundColor = $backgroundColor ?? new Color(255, 255, 255);
     }
-    public static function create(string $data) : self
+    public static function create(string $data): self
     {
         return new self($data);
     }
-    public function getData() : string
+    public function getData(): string
     {
         return $this->data;
     }
-    public function setData(string $data) : self
+    public function setData(string $data): self
     {
         $this->data = $data;
         return $this;
     }
-    public function getEncoding() : EncodingInterface
+    public function getEncoding(): EncodingInterface
     {
         return $this->encoding;
     }
-    public function setEncoding(Encoding $encoding) : self
+    public function setEncoding(Encoding $encoding): self
     {
         $this->encoding = $encoding;
         return $this;
     }
-    public function getErrorCorrectionLevel() : ErrorCorrectionLevelInterface
+    public function getErrorCorrectionLevel(): ErrorCorrectionLevelInterface
     {
         return $this->errorCorrectionLevel;
     }
-    public function setErrorCorrectionLevel(ErrorCorrectionLevelInterface $errorCorrectionLevel) : self
+    public function setErrorCorrectionLevel(ErrorCorrectionLevelInterface $errorCorrectionLevel): self
     {
         $this->errorCorrectionLevel = $errorCorrectionLevel;
         return $this;
     }
-    public function getSize() : int
+    public function getSize(): int
     {
         return $this->size;
     }
-    public function setSize(int $size) : self
+    public function setSize(int $size): self
     {
         $this->size = $size;
         return $this;
     }
-    public function getMargin() : int
+    public function getMargin(): int
     {
         return $this->margin;
     }
-    public function setMargin(int $margin) : self
+    public function setMargin(int $margin): self
     {
         $this->margin = $margin;
         return $this;
     }
-    public function getRoundBlockSizeMode() : RoundBlockSizeModeInterface
+    public function getRoundBlockSizeMode(): RoundBlockSizeModeInterface
     {
         return $this->roundBlockSizeMode;
     }
-    public function setRoundBlockSizeMode(RoundBlockSizeModeInterface $roundBlockSizeMode) : self
+    public function setRoundBlockSizeMode(RoundBlockSizeModeInterface $roundBlockSizeMode): self
     {
         $this->roundBlockSizeMode = $roundBlockSizeMode;
         return $this;
     }
-    public function getForegroundColor() : ColorInterface
+    public function getForegroundColor(): ColorInterface
     {
         return $this->foregroundColor;
     }
-    public function setForegroundColor(ColorInterface $foregroundColor) : self
+    public function setForegroundColor(ColorInterface $foregroundColor): self
     {
         $this->foregroundColor = $foregroundColor;
         return $this;
     }
-    public function getBackgroundColor() : ColorInterface
+    public function getBackgroundColor(): ColorInterface
     {
         return $this->backgroundColor;
     }
-    public function setBackgroundColor(ColorInterface $backgroundColor) : self
+    public function setBackgroundColor(ColorInterface $backgroundColor): self
     {
         $this->backgroundColor = $backgroundColor;
         return $this;

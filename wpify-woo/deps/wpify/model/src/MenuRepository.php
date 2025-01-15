@@ -11,7 +11,7 @@ use WpifyWooDeps\Wpify\Model\Abstracts\AbstractTermRepository;
  */
 class MenuRepository extends AbstractTermRepository
 {
-    public function model() : string
+    public function model(): string
     {
         return Menu::class;
     }
@@ -20,13 +20,13 @@ class MenuRepository extends AbstractTermRepository
         $class = $this->model();
         return new $class($this->resolve_object($object), $this);
     }
-    protected function resolve_object($data = null) : ?\WP_Term
+    protected function resolve_object($data = null): ?\WP_Term
     {
         $menu_id = null;
         $locations = get_nav_menu_locations();
-        if ($data != 0 && \is_numeric($data)) {
+        if ($data != 0 && is_numeric($data)) {
             $menu_id = $data;
-        } elseif (\is_array($locations) && !empty($locations)) {
+        } elseif (is_array($locations) && !empty($locations)) {
             $menu_id = $this->get_menu_id_from_locations($data, $locations);
         } elseif ($data === \false) {
             $menu_id = \false;
@@ -48,12 +48,12 @@ class MenuRepository extends AbstractTermRepository
         if ($slug === 0) {
             $slug = $this->get_menu_id_from_terms($slug);
         }
-        if (\is_numeric($slug)) {
-            $slug = \array_search($slug, $locations);
+        if (is_numeric($slug)) {
+            $slug = array_search($slug, $locations);
         }
         if (isset($locations[$slug])) {
             $menu_id = $locations[$slug];
-            if (\function_exists('WpifyWooDeps\\wpml_object_id_filter')) {
+            if (function_exists('WpifyWooDeps\wpml_object_id_filter')) {
                 $menu_id = wpml_object_id_filter($locations[$slug], 'nav_menu');
             }
             return $menu_id;
@@ -67,7 +67,7 @@ class MenuRepository extends AbstractTermRepository
      */
     protected function get_menu_id_from_terms($slug = 0)
     {
-        if (!\is_numeric($slug) && \is_string($slug)) {
+        if (!is_numeric($slug) && is_string($slug)) {
             // we have a string so lets search for that
             $menu = get_term_by('slug', $slug, 'nav_menu');
             if ($menu) {
@@ -79,7 +79,7 @@ class MenuRepository extends AbstractTermRepository
             }
         }
         $menus = get_terms('nav_menu', array('hide_empty' => \true));
-        if (\is_array($menus) && \count($menus)) {
+        if (is_array($menus) && count($menus)) {
             if (isset($menus[0]->term_id)) {
                 return $menus[0]->term_id;
             }
@@ -91,7 +91,7 @@ class MenuRepository extends AbstractTermRepository
         // TODO: cache this
         return new MenuItemRepository();
     }
-    public function taxonomy() : string
+    public function taxonomy(): string
     {
         return 'nav_menu';
     }

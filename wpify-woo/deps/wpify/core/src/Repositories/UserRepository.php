@@ -8,7 +8,7 @@ use WpifyWooDeps\Wpify\Core\Interfaces\RepositoryInterface;
 use WpifyWooDeps\Wpify\Core\Models\UserModel;
 class UserRepository extends AbstractComponent implements RepositoryInterface
 {
-    public function all() : ArrayCollection
+    public function all(): ArrayCollection
     {
         $collection = new ArrayCollection();
         $users = get_users();
@@ -17,7 +17,7 @@ class UserRepository extends AbstractComponent implements RepositoryInterface
         }
         return $collection;
     }
-    public function get($user) : UserModel
+    public function get($user): UserModel
     {
         $model = $this->plugin->create_component(UserModel::class, ['user' => $user]);
         $model->init();

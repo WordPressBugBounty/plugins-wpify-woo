@@ -29,9 +29,9 @@ class ValidatorDK extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
-        if (\strlen($vatNumber) != 8) {
+        if (strlen($vatNumber) != 8) {
             return \false;
         }
         $checksum = $this->sumWeights([2, 7, 6, 5, 4, 3, 2, 1], $vatNumber);

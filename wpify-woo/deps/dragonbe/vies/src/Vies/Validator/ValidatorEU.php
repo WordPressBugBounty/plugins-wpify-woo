@@ -18,7 +18,7 @@ class ValidatorEU extends ValidatorAbstract
     /**
      * {@inheritdoc}
      */
-    public function validate(string $vatNumber) : bool
+    public function validate(string $vatNumber): bool
     {
         return \false;
     }

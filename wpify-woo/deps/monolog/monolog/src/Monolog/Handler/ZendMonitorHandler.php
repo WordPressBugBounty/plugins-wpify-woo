@@ -35,7 +35,7 @@ class ZendMonitorHandler extends AbstractProcessingHandler
      */
     public function __construct($level = Logger::DEBUG, bool $bubble = \true)
     {
-        if (!\function_exists('WpifyWooDeps\\zend_monitor_custom_event')) {
+        if (!function_exists('WpifyWooDeps\zend_monitor_custom_event')) {
             throw new MissingExtensionException('You must have Zend Server installed with Zend Monitor enabled in order to use this handler');
         }
         //zend monitor constants are not defined if zend monitor is not enabled.
@@ -45,7 +45,7 @@ class ZendMonitorHandler extends AbstractProcessingHandler
     /**
      * {@inheritDoc}
      */
-    protected function write(array $record) : void
+    protected function write(array $record): void
     {
         $this->writeZendMonitorCustomEvent(Logger::getLevelName($record['level']), $record['message'], $record['formatted'], $this->levelMap[$record['level']]);
     }
@@ -58,21 +58,21 @@ class ZendMonitorHandler extends AbstractProcessingHandler
      *
      * @phpstan-param FormattedRecord $formatted
      */
-    protected function writeZendMonitorCustomEvent(string $type, string $message, array $formatted, int $severity) : void
+    protected function writeZendMonitorCustomEvent(string $type, string $message, array $formatted, int $severity): void
     {
         zend_monitor_custom_event($type, $message, $formatted, $severity);
     }
     /**
      * {@inheritDoc}
      */
-    public function getDefaultFormatter() : FormatterInterface
+    public function getDefaultFormatter(): FormatterInterface
     {
         return new NormalizerFormatter();
     }
     /**
      * @return array<int, int>
      */
-    public function getLevelMap() : array
+    public function getLevelMap(): array
     {
         return $this->levelMap;
     }

@@ -30,10 +30,10 @@ final class ProductVariationOptions extends AbstractPostImplementation
         $args = wp_parse_args($args, array('after' => 'pricing', 'items' => array(), 'init_priority' => 10, 'display' => function () {
             return \true;
         }));
-        if (\is_callable($args['display'])) {
+        if (is_callable($args['display'])) {
             $this->display = $args['display'];
         } else {
-            $this->display = function () use($args) {
+            $this->display = function () use ($args) {
                 return $args['display'];
             };
         }
@@ -41,7 +41,7 @@ final class ProductVariationOptions extends AbstractPostImplementation
         if (empty($this->after)) {
             $this->after = 'pricing';
         }
-        if (\in_array($this->after, array('pricing', 'inventory', 'dimensions', 'download'))) {
+        if (in_array($this->after, array('pricing', 'inventory', 'dimensions', 'download'))) {
             add_action('woocommerce_variation_options_' . $this->after, array($this, 'render_custom_fields'), 10, 3);
         } else {
             add_action('woocommerce_product_after_variable_attributes', array($this, 'render_custom_fields'), 10, 3);
@@ -66,7 +66,7 @@ final class ProductVariationOptions extends AbstractPostImplementation
     public function set_wcf_shown(WP_Screen $current_screen)
     {
         global $pagenow;
-        $this->wcf_shown = $current_screen->base === 'post' && $current_screen->post_type === 'product' && \in_array($pagenow, array('post-new.php', 'post.php'));
+        $this->wcf_shown = $current_screen->base === 'post' && $current_screen->post_type === 'product' && in_array($pagenow, array('post-new.php', 'post.php'));
     }
     /**
      * @return void
@@ -103,7 +103,7 @@ final class ProductVariationOptions extends AbstractPostImplementation
     public function get_field(string $name, array $item)
     {
         if (!empty($item['callback_get'])) {
-            return \call_user_func($item['callback_get'], $item, $this->product_variation_id);
+            return call_user_func($item['callback_get'], $item, $this->product_variation_id);
         } else {
             return get_post_meta($this->product_variation_id, $name, \true);
         }
@@ -134,7 +134,7 @@ final class ProductVariationOptions extends AbstractPostImplementation
     public function set_field($name, $value, $item)
     {
         if (!empty($item['callback_set'])) {
-            return \call_user_func($item['callback_set'], $item, $this->product_variation_id, $value);
+            return call_user_func($item['callback_set'], $item, $this->product_variation_id, $value);
         } else {
             return update_post_meta($this->product_variation_id, $name, wp_slash($value));
         }

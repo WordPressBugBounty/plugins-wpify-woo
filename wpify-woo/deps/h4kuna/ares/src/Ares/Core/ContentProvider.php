@@ -19,7 +19,7 @@ final class ContentProvider
     public function __construct(private JsonToDataTransformer $jsonTransformer, private Client $client, private Adis\ContentProvider $adisContentProvider)
     {
     }
-    public function getClient() : Client
+    public function getClient(): Client
     {
         return $this->client;
     }
@@ -28,7 +28,7 @@ final class ContentProvider
      * @param array<KeyName, string|int> $identificationNumbers
      * @return Generator<(int&KeyName)|(KeyName&string), Data>
      */
-    public function loadByIdentificationNumbers(array $identificationNumbers) : Generator
+    public function loadByIdentificationNumbers(array $identificationNumbers): Generator
     {
         $duplicity = Batch::checkDuplicities($identificationNumbers, fn(string $in) => Helper::normalizeIN($in));
         $chunks = Batch::chunk($duplicity, self::BATCH);
@@ -43,7 +43,7 @@ final class ContentProvider
                 }
             }
             try {
-                $subjects = \iterator_to_array($this->adisContentProvider->statusBusinessSubjects($map));
+                $subjects = iterator_to_array($this->adisContentProvider->statusBusinessSubjects($map));
             } catch (ServerResponseException) {
                 $subjects = [];
             }
@@ -52,7 +52,7 @@ final class ContentProvider
                     if (isset($subjects[$data->in])) {
                         $data->setAdis($subjects[$data->in]);
                     }
-                    (yield $name => $data);
+                    yield $name => $data;
                 }
             }
         }
@@ -61,7 +61,7 @@ final class ContentProvider
      * @throws IdentificationNumberNotFoundException
      * @throws AdisResponseException
      */
-    public function load(string $in) : Data
+    public function load(string $in): Data
     {
         $json = $this->client->useEndpoint(Sources::CORE, $in);
         $data = $this->jsonTransformer->transform($json);

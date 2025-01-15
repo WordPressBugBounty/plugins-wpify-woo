@@ -37,7 +37,7 @@ abstract class AbstractOrderItemModel extends AbstractModel
     /**
      * @return string
      */
-    static function meta_type() : string
+    static function meta_type(): string
     {
         return 'order_item';
     }
@@ -53,7 +53,7 @@ abstract class AbstractOrderItemModel extends AbstractModel
     /**
      * @return OrderItemRepository
      */
-    public function model_repository() : OrderItemRepository
+    public function model_repository(): OrderItemRepository
     {
         return $this->_repository;
     }
@@ -86,7 +86,7 @@ abstract class AbstractOrderItemModel extends AbstractModel
      * Get VAT rate
      * @return float
      */
-    public function get_vat_rate() : float
+    public function get_vat_rate(): float
     {
         $rate = 0;
         if ($this->source_object()->get_tax_status() == 'taxable') {
@@ -106,6 +106,6 @@ abstract class AbstractOrderItemModel extends AbstractModel
                 }
             }
         }
-        return \floatval($rate);
+        return floatval($rate);
     }
 }

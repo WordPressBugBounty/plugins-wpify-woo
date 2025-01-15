@@ -22,7 +22,7 @@ class ApiEndpoint
      */
     public function __construct($service)
     {
-        if (!\in_array($service, self::$knownServices)) {
+        if (!in_array($service, self::$knownServices)) {
             throw new UnknownServiceException();
         }
         $this->service = $service;

@@ -13,7 +13,7 @@ interface TemplateInterface
      *
      * @return string
      */
-    public function render(string $slug, string $name = null, array $args = array()) : string;
+    public function render(string $slug, string $name = null, array $args = array()): string;
     /**
      * Renders the template and prints the result.
      *
@@ -21,5 +21,5 @@ interface TemplateInterface
      * @param string|null $name The name of the specialised template.
      * @param array       $args Additional arguments passed to the template.
      */
-    public function print(string $slug, string $name = null, array $args = array()) : void;
+    public function print(string $slug, string $name = null, array $args = array()): void;
 }

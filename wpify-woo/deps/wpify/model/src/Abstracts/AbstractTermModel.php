@@ -116,21 +116,21 @@ abstract class AbstractTermModel extends AbstractModel implements TermModelInter
     /**
      * @return string
      */
-    static function meta_type() : string
+    static function meta_type(): string
     {
         return 'term';
     }
     /**
      * @return TermRepositoryInterface
      */
-    public function model_repository() : TermRepositoryInterface
+    public function model_repository(): TermRepositoryInterface
     {
         return $this->_repository;
     }
     /**
      * @return TermParentTermRelation
      */
-    public function parent_relation() : TermParentTermRelation
+    public function parent_relation(): TermParentTermRelation
     {
         return new TermParentTermRelation($this, $this->model_repository());
     }
@@ -145,14 +145,14 @@ abstract class AbstractTermModel extends AbstractModel implements TermModelInter
     /**
      * @return TermChildTermsRelation
      */
-    public function children_relation() : TermChildTermsRelation
+    public function children_relation(): TermChildTermsRelation
     {
         return new TermChildTermsRelation($this, $this->model_repository());
     }
     /**
      * @return TermTopLevelParentTermRelation
      */
-    public function top_level_parent_relation() : TermTopLevelParentTermRelation
+    public function top_level_parent_relation(): TermTopLevelParentTermRelation
     {
         return new TermTopLevelParentTermRelation($this, $this->model_repository());
     }
