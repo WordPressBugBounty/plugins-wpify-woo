@@ -3,9 +3,7 @@
 namespace WpifyWoo\Managers;
 
 use WpifyWoo\Plugin;
-use WpifyWoo\PostTypes\PacketaOrderPostType;
 use WpifyWoo\PostTypes\WooOrderPostType;
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractManager;
 
 /**
  * Class CptManager
@@ -13,9 +11,9 @@ use WpifyWooDeps\Wpify\Core\Abstracts\AbstractManager;
  * @package Wpify\Managers
  * @property Plugin $plugin
  */
-class PostTypesManager extends AbstractManager {
-	protected $modules = array(
-		WooOrderPostType::class,
-		PacketaOrderPostType::class
-	);
+class PostTypesManager  {
+	public function __construct(
+		WooOrderPostType $order_post_type,
+	) {
+	}
 }

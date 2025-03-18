@@ -4,15 +4,15 @@ namespace WpifyWoo\Modules\DeliveryDates\Api;
 
 use WP_REST_Response;
 use WP_REST_Server;
+use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\Core\Abstracts\AbstractRest;
 
 /**
  * @property Plugin $plugin
  */
-class DeliveryDatesApi extends AbstractRest {
-
-	public function setup() {
+class DeliveryDatesApi extends \WP_REST_Controller {
+	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -21,7 +21,7 @@ class DeliveryDatesApi extends AbstractRest {
 	 */
 	public function register_routes() {
 		register_rest_route(
-			$this->plugin->get_api_manager()->get_rest_namespace(),
+			ApiManager::REST_NAMESPACE,
 			'delivery-dates-country',
 			array(
 				array(

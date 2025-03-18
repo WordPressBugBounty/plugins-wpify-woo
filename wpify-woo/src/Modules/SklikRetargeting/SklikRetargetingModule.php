@@ -3,15 +3,15 @@
 namespace WpifyWoo\Modules\SklikRetargeting;
 
 use WC_Product;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooFeeds\Feeds\Zbozi\Settings as ZboziFeedSettings;
 
 class SklikRetargetingModule extends AbstractModule {
-	/**
-	 * @return void
-	 */
-	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
+
+	public function __construct() {
+		parent::__construct();
+
 		add_filter( 'wp_footer', array( $this, 'render_code' ), 20, 2 );
 	}
 
@@ -21,6 +21,10 @@ class SklikRetargetingModule extends AbstractModule {
 	 */
 	public function id(): string {
 		return 'sklik_retargeting';
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	/**
@@ -45,7 +49,7 @@ class SklikRetargetingModule extends AbstractModule {
 			),
 			array(
 				'type'  => 'title',
-				'label' => __( 'Marketing cookie', 'wpify-woo' ),
+				'title' => __( 'Marketing cookie', 'wpify-woo' ),
 				'desc'  => __( 'You need consent from the visitor for marketing cookies. If you don`t enter the name and value of the marketing cookie the Seznam will process the data as if consent had been given.', 'wpify-woo' ),
 			),
 			array(
@@ -62,7 +66,7 @@ class SklikRetargetingModule extends AbstractModule {
 			),
 			array(
 				'type'  => 'title',
-				'label' => __( 'Advanced data', 'wpify-woo' ),
+				'title' => __( 'Advanced data', 'wpify-woo' ),
 				'desc'  => __( 'Advanced data are optional parameters that help to better target advertising.' ),
 			),
 			array(

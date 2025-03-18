@@ -4,27 +4,27 @@ namespace WpifyWoo\Modules\PricesLog;
 
 use WP_Error;
 use WP_Post;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 
 class PricesLogModule extends AbstractModule {
 	private PricesLogRepository $prices_log_repository;
 
 	public function __construct(
-		PricesLogRepository $prices_log_repository
+		PricesLogRepository $prices_log_repository,
 	) {
 		parent::__construct();
-
 		$this->prices_log_repository = $prices_log_repository;
+
+		$this->setup();
 	}
 
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'woocommerce_update_product', [ $this, 'handle_save_log' ] );
 		add_action( 'woocommerce_new_product', [ $this, 'handle_save_log' ] );
-		add_action( 'admin_init', array( $this, 'create_table' ) );
 		add_filter( 'woocommerce_product_data_tabs', [ $this, 'product_tabs' ], 10, 1 );
 		add_action( 'woocommerce_product_data_panels', [ $this, 'product_tab_content' ] );
 		add_action( 'woocommerce_product_options_pricing', [ $this, 'display_lowest_price' ] );
@@ -39,6 +39,10 @@ class PricesLogModule extends AbstractModule {
 
 	public function name() {
 		return __( 'Prices Log', 'wpify-woo' );
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	/**
@@ -57,9 +61,6 @@ class PricesLogModule extends AbstractModule {
 		return $settings;
 	}
 
-	public function create_table() {
-		$this->prices_log_repository->create_table();
-	}
 
 	/**
 	 * Handle saving prices
@@ -69,14 +70,6 @@ class PricesLogModule extends AbstractModule {
 	 * @throws \Exception
 	 */
 	public function handle_save_log( $product_id ) {
-		if ( ! $this->is_module_enabled() ) {
-			return;
-		}
-
-		if ( ! $this->prices_log_repository->table_exist() ) {
-			$this->create_table();
-		}
-
 		$product = wc_get_product( $product_id );
 
 		if ( $product->is_type( 'variable' ) ) {

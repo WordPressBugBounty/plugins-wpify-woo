@@ -3,12 +3,15 @@
 namespace WpifyWoo\Modules\HeurekaOverenoZakazniky;
 
 use ReflectionException;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\Model\OrderItemLine;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWoo\Models\WooOrderModel;
 use WpifyWoo\Repositories\WooOrderRepository;
 use WpifyWooDeps\Heureka\ShopCertification;
 use WpifyWooDeps\Heureka\ShopCertification\Exception;
-use WpifyWooDeps\Wpify\Core\Exceptions\PluginException;
+use WpifyWooDeps\Wpify\Log\RotatingFileLog;
+use WpifyWooDeps\Wpify\Model\Exceptions\RepositoryNotInitialized;
 
 /**
  * Class HeurekaOverenoZakaznikyModule
@@ -16,6 +19,13 @@ use WpifyWooDeps\Wpify\Core\Exceptions\PluginException;
  * @package WpifyWoo\Modules\HeurekaOverenoZakazniky
  */
 class HeurekaOverenoZakaznikyModule extends AbstractModule {
+	public function __construct(
+		private RotatingFileLog $log,
+		private WooOrderRepository $woo_order_repository
+	) {
+		parent::__construct(  );
+		$this->setup();
+	}
 
 	/**
 	 * Setup
@@ -23,8 +33,6 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
-		//add_action( 'woocommerce_checkout_order_processed', array( $this, 'schedule_event' ) );
 		add_action( 'woocommerce_checkout_order_created', array( $this, 'send_order_to_heureka_now' ) );
 		add_action( 'wpify_woo_heureka_overeno_zakazniky', array( $this, 'send_order_to_heureka' ) );
 		add_action( 'woocommerce_checkout_after_terms_and_conditions', array( $this, 'add_optout' ) );
@@ -40,6 +48,10 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 		return 'heureka_overeno_zakazniky';
 	}
 
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
+	}
+
 	/**
 	 *  Get the settings
 	 *
@@ -47,59 +59,60 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 	 */
 	public function settings(): array {
 		return array(
-				array(
-						'id'      => 'country',
-						'type'    => 'select',
-						'label'   => __( 'Country', 'wpify-woo' ),
-						'desc'    => __( 'Select country', 'wpify-woo' ),
-						'options' => array(
-								array(
-										'label' => __( 'Heureka CZ', 'wpify-woo' ),
-										'value' => 'CZ',
-								),
-								array(
-										'label' => __( 'Heureka SK', 'wpify-woo' ),
-										'value' => 'SK',
-								),
-						),
+			array(
+				'id'      => 'country',
+				'type'    => 'select',
+				'label'   => __( 'Country', 'wpify-woo' ),
+				'desc'    => __( 'Select country', 'wpify-woo' ),
+				'options' => array(
+					array(
+						'label' => __( 'Heureka CZ', 'wpify-woo' ),
+						'value' => 'CZ',
+					),
+					array(
+						'label' => __( 'Heureka SK', 'wpify-woo' ),
+						'value' => 'SK',
+					),
 				),
-				array(
-						'id'    => 'api_key',
-						'type'  => 'text',
-						'label' => __( 'Api Key', 'wpify-woo' ),
-						'desc'  => __( 'Enter the API Key', 'wpify-woo' ),
-				),
-				array(
-						'id'    => 'enable_optout',
-						'type'  => 'switch',
-						'label' => __( 'Enable Opt-Out', 'wpify-woo' ),
-						'desc'  => __( 'Check if you want to enable opt out on the checkout', 'wpify-woo' ),
-				),
-				array(
-						'id'      => 'enable_optout_text',
-						'type'    => 'text',
-						'label'   => __( 'Enable Opt-Out Text', 'wpify-woo' ),
-						'desc'    => __( 'Enter the Opt-out text', 'wpify-woo' ),
-						'default' => __( "I don't want to receive survey from Heureka ověřeno zákazníky", 'wpify-woo' ),
-				),
-				array(
-						'id'    => 'widget_enabled',
-						'type'  => 'switch',
-						'label' => __( 'Enable Certification Widget', 'wpify-woo' ),
-						'desc'  => __( 'Enable certification widget.', 'wpify-woo' ),
-				),
-				array(
-						'id'    => 'widget_code',
-						'type'  => 'textarea',
-						'label' => __( 'Certification widget code', 'wpify-woo' ),
-						'desc'  => __( 'Copy the code from your Heureka account.', 'wpify-woo' ),
-				),
-				array(
-						'id'    => 'send_async',
-						'type'  => 'toggle',
-						'label' => __( 'Send asynchronously', 'wpify-woo' ),
-						'desc'  => __( 'By default the order is sent to Heureka synchronously, which is required by Heureka. Under some circumstances this can cause issues - toggle on if you want to schedule the event and send it asynchronously.', 'wpify-woo' ),
-				),
+			),
+			array(
+				'id'    => 'api_key',
+				'type'  => 'text',
+				'label' => __( 'Api Key', 'wpify-woo' ),
+				'desc'  => __( 'Enter the API Key', 'wpify-woo' ),
+			),
+			array(
+				'id'    => 'enable_optout',
+				'type'  => 'toggle',
+				'label' => __( 'Enable Opt-Out', 'wpify-woo' ),
+				'title'  => __( 'Check if you want to enable opt out on the checkout', 'wpify-woo' ),
+			),
+			array(
+				'id'      => 'enable_optout_text',
+				'type'    => 'text',
+				'label'   => __( 'Enable Opt-Out Text', 'wpify-woo' ),
+				'desc'    => __( 'Enter the Opt-out text', 'wpify-woo' ),
+				'default' => __( "I don't want to receive survey from Heureka ověřeno zákazníky", 'wpify-woo' ),
+			),
+			array(
+				'id'    => 'widget_enabled',
+				'type'  => 'toggle',
+				'label' => __( 'Enable Certification Widget', 'wpify-woo' ),
+				'title'  => __( 'Enable certification widget.', 'wpify-woo' ),
+			),
+			array(
+				'id'    => 'widget_code',
+				'type'  => 'textarea',
+				'label' => __( 'Certification widget code', 'wpify-woo' ),
+				'desc'  => __( 'Copy the code from your Heureka account.', 'wpify-woo' ),
+			),
+			array(
+				'id'    => 'send_async',
+				'type'  => 'toggle',
+				'label' => __( 'Send asynchronously', 'wpify-woo' ),
+				'title' => __( 'Send asynchronously', 'wpify-woo' ),
+				'desc'  => __( 'By default the order is sent to Heureka synchronously, which is required by Heureka. Under some circumstances this can cause issues - toggle on if you want to schedule the event and send it asynchronously.', 'wpify-woo' ),
+			),
 		);
 	}
 
@@ -161,12 +174,11 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 	 *
 	 * @param int|string $order_id Order ID.
 	 *
-	 * @throws ReflectionException Exception.
-	 * @throws PluginException Exception.
+	 * @throws RepositoryNotInitialized
 	 */
 	public function send_order_to_heureka( $order_id ) {
 		/** Order Model. @var WooOrderModel $order */
-		$order = $this->plugin->get_repository( WooOrderRepository::class )->get( $order_id );
+		$order = $this->woo_order_repository->get( $order_id );
 
 		try {
 			$options = array();
@@ -176,40 +188,38 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				$options['service'] = ShopCertification::HEUREKA_SK;
 			}
 
-			$api_key = apply_filters('wpify_woo_heureka_overeno_zakazniky_api_key', $this->get_setting( 'api_key' ));
-			$options = apply_filters('wpify_woo_heureka_overeno_zakazniky_options', $options);
-
-			$shop_certification = new ShopCertification( $api_key, $options, ( new WpRequester() ) );
+			$shop_certification = new ShopCertification( $this->get_setting( 'api_key' ), $options, ( new WpRequester() ) );
 			$shop_certification->setEmail( $order->get_wc_order()->get_billing_email() );
-			$shop_certification->setOrderId( $order->get_id() );
+			$shop_certification->setOrderId( $order->id );
 
-			foreach ( $order->get_line_items() as $item ) {
-				$shop_certification->addProductItemId( $item->get_product_id() );
+			/** @var OrderItemLine $item */
+			foreach ( $order->line_items as $item ) {
+				$shop_certification->addProductItemId( $item->id );
 			}
 
 			$shop_certification->logOrder();
 			$order->get_wc_order()->add_order_note( sprintf( __( 'Heureka: Agree with the satisfaction questionnaire: %s', 'wpify-woo' ), __( 'Yes. The order has been sent.', 'wpify-woo' ) ) );
 			$order->get_wc_order()->update_meta_data( '_wpify_woo_heureka_optout_agreement', 'yes' );
 			$order->get_wc_order()->save();
-			$this->plugin->get_logger()->info(
-					sprintf( 'Heureka Overeno: sent order to Heureka.' ),
-					array(
-							'data' => array(
-									'order_id' => $order->get_id(),
-							),
-					)
+			$this->log->info(
+				sprintf( 'Heureka Overeno: sent order to Heureka.' ),
+				array(
+					'data' => array(
+						'order_id' => $order->id,
+					),
+				)
 			);
 		} catch ( Exception $e ) {
-			$this->plugin->get_logger()->error(
-					sprintf( 'Heureka Overeno: error sending to Heureka.' ),
-					array(
-							'data' => array(
-									'message'  => $e->getMessage(),
-									'settings' => $this->get_settings(),
-									'options'  => $options,
-									'order_id' => $order->get_id(),
-							),
-					)
+			$this->log->error(
+				sprintf( 'Heureka Overeno: error sending to Heureka.' ),
+				array(
+					'data' => array(
+						'message'  => $e->getMessage(),
+						'settings' => $this->get_settings(),
+						'options'  => $options,
+						'order_id' => $order->id,
+					),
+				)
 			);
 		}
 	}
@@ -226,9 +236,9 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 			<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
 				<input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox"
 					   name="wpify_woo_heureka_optout" style="width: auto;"
-						<?php
-						checked( isset( $_POST['wpify_woo_heureka_optout'] ), true ); // WPCS: input var ok, csrf ok.
-						?>
+					<?php
+					checked( isset( $_POST['wpify_woo_heureka_optout'] ), true ); // WPCS: input var ok, csrf ok.
+					?>
 				/>
 				<span class="wpify-woo-heureka-optout-checkbox-text"><?php echo sanitize_text_field( $this->get_setting( 'enable_optout_text' ) ); ?></span>&nbsp;
 			</label>

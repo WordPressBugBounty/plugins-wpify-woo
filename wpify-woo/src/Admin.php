@@ -2,42 +2,19 @@
 
 namespace WpifyWoo;
 
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractComponent;
+use WpifyWooDeps\Wpify\Log\RotatingFileLog;
 
 /**
  * Class Admin
+ *
  * @package WpifyWoo
  * @property Plugin $plugin
  */
-class Admin extends AbstractComponent {
-	public function setup() {
-		add_filter( 'plugin_action_links_wpify-woo/wpify-woo.php', [ $this, 'add_action_links' ] );
-		add_filter( 'plugin_row_meta', [ $this, 'add_row_meta_links' ], 10, 4 );
+class Admin {
+	public function __construct(
+		private RotatingFileLog $log
+	) {
 		add_action( 'admin_init', [ $this, 'maybe_download_log' ] );
-	}
-
-	public function add_action_links( $links ) {
-		$before = [
-			'settings' => sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=wc-settings&tab=wpify-woo-settings' ), __( 'Settings', 'wpify-woo' ) ),
-		];
-
-		$after = [
-			'wpify' => sprintf( '<a href="%s" target="_blank">%s</a>', 'https://wpify.io', __( 'Get more plugins and support', 'wpify-woo' ) ),
-		];
-
-		return array_merge( $before, $links, $after );
-	}
-
-	public function add_row_meta_links( $plugin_meta, $plugin_file, $plugin_data, $status ) {
-		$new_links = [];
-
-		if ( strpos( $plugin_file, 'wpify-woo.php' ) ) {
-			$new_links = [
-				'wpify-doc' => sprintf( '<a href="%s" target="_blank">%s</a>', 'https://wpify.io/dokumentace/wpify-woo/', __( 'Documentation', 'wpify-woo' ) ),
-			];
-		}
-
-		return array_merge( $plugin_meta, $new_links );
 	}
 
 	public function maybe_download_log() {
@@ -54,10 +31,6 @@ class Admin extends AbstractComponent {
 			wp_die( __( 'Only user with administrator role can export logs.', 'wpify-woo' ) );
 		}
 
-
-		$table = $wpdb->prefix . $this->plugin->get_logger()->table();
-		$data  = $wpdb->get_results( "SELECT * from {$table} ORDER BY id DESC LIMIT 500", ARRAY_A );
-		$this->array_to_csv_download( $data );
 		exit();
 	}
 

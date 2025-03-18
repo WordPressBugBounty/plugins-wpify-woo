@@ -2,16 +2,16 @@
 
 namespace WpifyWoo\Repositories;
 
+use WpifyWoo\Models\WooOrderModel;
 use WpifyWoo\Plugin;
 use WpifyWoo\PostTypes\WooOrderPostType;
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractWooOrderRepository;
+use WpifyWooDeps\Wpify\Model\OrderRepository;
 
 /**
  * @property Plugin $plugin
  */
-class WooOrderRepository extends AbstractWooOrderRepository {
-
-	public function post_type(): WooOrderPostType {
-		return $this->plugin->get_post_type( WooOrderPostType::class );
+class WooOrderRepository extends OrderRepository {
+	public function model(): string {
+		return WooOrderModel::class;
 	}
 }

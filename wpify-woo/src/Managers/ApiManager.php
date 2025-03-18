@@ -3,28 +3,25 @@
 namespace WpifyWoo\Managers;
 
 use WpifyWoo\Api\FeedApi;
-use WpifyWoo\Api\LicenseApi;
-use WpifyWoo\Api\PacketaApi;
 use WpifyWoo\Api\SettingsApi;
 use WpifyWoo\Plugin;
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractManager;
 
 /**
  * Class ApiManager
  * @package WpifyWoo\Managers
  * @property Plugin $plugin
  */
-class ApiManager extends AbstractManager {
+class ApiManager {
 
 	public const REST_NAMESPACE = 'wpify-woo/v1';
 	public const NONCE_ACTION = 'wp_rest';
 
-	protected $modules = array(
-		SettingsApi::class,
-		LicenseApi::class,
-		FeedApi::class,
-		PacketaApi::class
-	);
+	public function __construct(
+		SettingsApi $settings_api,
+		FeedApi $feed_api
+	) {
+
+	}
 
 	public function get_rest_url() {
 		return rest_url( $this->get_rest_namespace() );

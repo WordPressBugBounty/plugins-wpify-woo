@@ -2,7 +2,9 @@
 
 namespace WpifyWoo\Modules\XmlFeedHeureka;
 
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
+use WpifyWoo\Managers\ApiManager;
 
 class XmlFeedHeurekaModule extends AbstractModule {
 	/**
@@ -12,13 +14,16 @@ class XmlFeedHeurekaModule extends AbstractModule {
 
 	private $temp_categories = [];
 
-	public function __construct( Feed $feed ) {
+	public function __construct(
+		Feed $feed,
+		private ApiManager $api_manager,
+	) {
 		parent::__construct();
 		$this->feed = $feed;
+		$this->setup();
 	}
 
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'admin_init', [ $this, 'handle_actions' ] );
 		add_filter( 'woocommerce_product_data_tabs', [ $this, 'add_product_tabs' ] );
 		add_action( 'woocommerce_product_data_panels', [ $this, 'add_product_tabs_content' ] );
@@ -33,6 +38,10 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	 */
 	public function id(): string {
 		return 'xml_feed_heureka';
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	function add_product_tabs( $tabs ) {
@@ -113,6 +122,14 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		return __( 'XML Feed Heureka', 'wpify-woo' );
 	}
 
+	public function settings_tabs(): array {
+		return array(
+			'general'    => __( 'General', 'wpify-woo' ),
+			'shipping'   => __( 'Delivery methods', 'wpify-woo' ),
+			'categories' => __( 'Map categories', 'wpify-woo' ),
+		);
+	}
+
 	/**
 	 * Add settings
 	 * @return array[] Settings.
@@ -125,6 +142,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 				'label'   => __( 'Delivery time', 'wpify-woo' ),
 				'desc'    => __( 'Enter 0 for instock, 1-3 for 3 days, 4-7 for one week, 8-14 for two weeks, 15-30 for one month, 31 and more for month and more.', 'wpify-woo' ),
 				'default' => '0',
+				'tab'     => 'general',
 			),
 			array(
 				'id'      => 'delivery_out_of_stock',
@@ -132,51 +150,61 @@ class XmlFeedHeurekaModule extends AbstractModule {
 				'label'   => __( 'Delivery time for out of stock items', 'wpify-woo' ),
 				'desc'    => __( 'Enter 0 for instock, 1-3 for 3 days, 4-7 for one week, 8-14 for two weeks, 15-30 for one month, 31 and more for month and more.', 'wpify-woo' ),
 				'default' => '0',
+				'tab'     => 'general',
 			),
 			array(
 				'id'    => 'exclude_outofstock',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Exclude out of stock items', 'wpify-woo' ),
 				'desc'  => __( 'Check to exclude out of stock items.', 'wpify-woo' ),
+				'tab'   => 'general',
 			),
 			array(
 				'id'    => 'item_id_custom_field',
 				'type'  => 'text',
 				'label' => __( 'ITEM_ID custom field', 'wpify-woo' ),
 				'desc'  => __( 'Product ID is used as default value for ITEM_ID. Enter custom field key if you want to use custom field value instead.', 'wpify-woo' ),
+				'tab'   => 'general',
 			),
 			array(
 				'id'    => 'ean_custom_field',
 				'type'  => 'text',
 				'label' => __( 'EAN custom field', 'wpify-woo' ),
 				'desc'  => __( 'SKU is used as default value for EAN. Enter custom field key if you want to use custom field value instead.', 'wpify-woo' ),
+				'tab'   => 'general',
 			),
 		);
 
 		$settings[] = array(
 			'id'    => 'delivery_methods_title',
 			'type'  => 'title',
-			'label' => __( 'Delivery methods', 'wpify-woo' ),
+			'title' => __( 'Delivery methods', 'wpify-woo' ),
 			'desc'  => __( 'Select the delivery methods and prices', 'wpify-woo' ),
+			'tab'   => 'shipping',
 		);
 
 		$settings[] = array(
 			'id'      => 'delivery_methods',
-			'type'    => 'group',
+			'type'    => 'multi_group',
 			'label'   => __( 'Delivery methods', 'wpify-woo' ),
-			'multi'   => true,
 			'min'     => 0,
 			'buttons' => array(
-				'add'    => __( 'Add method', 'wpify-woo' ),
-				'remove' => __( 'Remove method', 'wpify-woo' ),
+				'add' => __( 'Add method', 'wpify-woo' ),
 			),
+			'tab'     => 'shipping',
 			'items'   => array(
 				array(
-					'id'      => 'method',
-					'type'    => 'select',
-					'label'   => __( 'Delivery method', 'wpify-woo' ),
-					'desc'    => __( 'Select delivery method', 'wpify-woo' ),
-					'options' => array( $this, 'get_heureka_delivery_methods_select' ),
+					'id'           => 'method',
+					'type'         => 'select',
+					'label'        => __( 'Delivery method', 'wpify-woo' ),
+					'desc'         => __( 'Select delivery method', 'wpify-woo' ),
+					'options'      => array( $this, 'get_heureka_delivery_methods_select' ),
+					'async'        => true,
+					'async_params' => array(
+						'tab'       => 'wpify-woo-settings',
+						'section'   => $this->id(),
+						'module_id' => $this->id(),
+					),
 				),
 				array(
 					'id'    => 'price',
@@ -212,13 +240,14 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		$settings[] = array(
 			'id'    => 'map_categories_title',
 			'type'  => 'title',
-			'label' => __( 'Map categories', 'wpify-woo' ),
+			'title' => __( 'Map categories', 'wpify-woo' ),
 			'desc'  => __( 'Map WooCommerce categories to Heureka categories', 'wpify-woo' ),
+			'tab'   => 'categories',
 		);
 
 		$settings[] = array(
 			'id'      => 'categories_languages',
-			'type'    => 'multiselect',
+			'type'    => 'multi_select',
 			'multi'   => true,
 			'desc'    => __( 'Select languages to show in the select bellow. Please make sure to save settings to show all the selected languages.', 'wpify-woo' ),
 			'label'   => __( 'Categories languages', 'wpify-woo' ),
@@ -233,6 +262,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 				),
 			),
 			'default' => array(),
+			'tab'     => 'categories',
 		);
 
 
@@ -241,7 +271,9 @@ class XmlFeedHeurekaModule extends AbstractModule {
 			'type'  => 'button',
 			'desc'  => __( 'Click to update the Heureka categories.', 'wpify-woo' ),
 			'label' => __( 'Update Heureka categories', 'wpify-woo' ),
+			'title' => __( 'Update categories', 'wpify-woo' ),
 			'url'   => add_query_arg( array( 'wpify-woo-action' => 'update-heureka-categories' ), $this->get_settings_url() ),
+			'tab'   => 'categories',
 		);
 
 		$categories = get_terms( apply_filters( 'wpify_heureka_categories_assignment', array(
@@ -252,12 +284,18 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		if ( ! is_wp_error( $categories ) ) {
 			foreach ( $categories as $category ) {
 				$settings[] = array(
-					'id'      => 'heureka_category_' . $category->term_id,
-					'label'   => sprintf( __( 'Heureka category for %s', 'wpify-woo' ), $category->name ),
-					'type'    => 'select',
-					'options' => array( $this, 'get_heureka_categories_list' ),
-					'list_id' => 'wpify_woo_heureka_category',
-					'async'   => true,
+					'id'           => 'heureka_category_' . $category->term_id,
+					'label'        => sprintf( __( 'Heureka category for %s', 'wpify-woo' ), $category->name ),
+					'type'         => 'select',
+					'options'      => array( $this, 'get_heureka_categories_list' ),
+					'list_id'      => 'wpify_woo_heureka_category',
+					'tab'          => 'categories',
+					'async'        => true,
+					'async_params' => array(
+						'tab'       => 'wpify-woo-settings',
+						'section'   => $this->id(),
+						'module_id' => $this->id(),
+					),
 				);
 			}
 		}
@@ -268,10 +306,12 @@ class XmlFeedHeurekaModule extends AbstractModule {
 			'desc'           => sprintf(
 				__( 'Click to regenerate feed. Make sure to save the settings before generating the feed.<br/>The feed will be available at <a href="%1$s" target="_blank"><code style="-webkit-user-select: all;user-select: all;">%1$s</code></a>.<br/>You can also setup cron job to <code style="-webkit-user-select: all;user-select: all;">%2$s</code> to regenerate the feed automatically.', 'wpify-woo' ),
 				$this->feed->get_xml_url(),
-				$this->plugin->get_api_manager()->get_rest_url() . '/feed/generate/heureka'
+				$this->api_manager->get_rest_url() . '/feed/generate/heureka'
 			),
 			'label'          => __( 'Generate feed', 'wpify-woo' ),
-			'feed_chunk_url' => $this->plugin->get_api_manager()->get_rest_url() . '/feed/chunk-generate/heureka',
+			'title'          => __( 'Generate feed', 'wpify-woo' ),
+			'feed_chunk_url' => $this->api_manager->get_rest_url() . '/feed/chunk-generate/heureka',
+			'tab'            => 'general',
 		);
 
 		return $settings;
@@ -484,6 +524,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		$search_ids = is_array( $params['value'] )
 			? array_map( 'strval', $params['value'] )
 			: array( strval( $params['value'] ) );
+		$list       = array();
 
 		if ( ! empty( $search_ids ) ) {
 			foreach ( $categories as $category ) {

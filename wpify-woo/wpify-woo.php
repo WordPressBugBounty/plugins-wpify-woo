@@ -3,8 +3,8 @@
 /*
  * Plugin Name:          WPify Woo
  * Description:          Custom functionality for WooCommerce
- * Version:              4.1.13
- * Requires PHP:         8.0.0
+ * Version:              5.0.0
+ * Requires PHP:         8.1.0
  * Requires at least:    6.2
  * Author:               WPify s.r.o.
  * Author URI:           https://www.wpify.io/
@@ -13,23 +13,17 @@
  * Text Domain:          wpify-woo
  * Domain Path:          /languages
  * WC requires at least: 7.0
- * WC tested up to:      9.1
+ * WC tested up to:      9.7
  * Requires Plugins:     woocommerce
 */
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\DI;
-use WpifyWooDeps\DI\Definition\Helper\AutowireDefinitionHelper;
-use WpifyWooDeps\Wpify\Core\Container;
-use WpifyWooDeps\Wpify\CustomFields\CustomFields;
 
 if ( ! defined( 'WPIFY_WOO_MIN_PHP_VERSION' ) ) {
-	define( 'WPIFY_WOO_MIN_PHP_VERSION', '8.0.0' );
+	define( 'WPIFY_WOO_MIN_PHP_VERSION', '8.1.0' );
 }
-
-// Compatibility with plugins using woo-core
-add_filter( 'wpify_woo_core_settings_initialized', '__return_true' );
 
 /**
  * Singleton instance function. We will not use a global at all as that defeats the purpose of a singleton
@@ -54,19 +48,10 @@ function wpify_woo_container(): DI\Container {
 	static $container;
 
 	if ( empty( $container ) ) {
-		$wpify_container = Container::getInstance();
-		$container       = $wpify_container->get_container( 'wpify_woo' );
-
-		if ( ! $container ) {
-			$container = $wpify_container->add_container(
-				'wpify_woo',
-				array(
-					Plugin::class          => new AutowireDefinitionHelper( Plugin::class ),
-					CustomFields::class    => ( new AutowireDefinitionHelper() )
-						->constructor( plugins_url( dirname( plugin_basename( __FILE__ ) ) . '/deps/wpify/custom-fields' ) ),
-				)
-			);
-		}
+		$definition       = require_once __DIR__ . '/config.php';
+		$containerBuilder = new DI\ContainerBuilder();
+		$containerBuilder->addDefinitions( $definition );
+		$container = $containerBuilder->build();
 	}
 
 	return $container;
@@ -76,7 +61,7 @@ function wpify_woo_container(): DI\Container {
  * Init function shortcut
  */
 function wpify_woo_init() {
-	wpify_woo()->init();
+	wpify_woo();
 }
 
 /**
@@ -84,7 +69,6 @@ function wpify_woo_init() {
  */
 function wpify_woo_activate( $network_wide ) {
 	register_uninstall_hook( __FILE__, 'wpify_woo_uninstall' );
-	wpify_woo()->init();
 	wpify_woo()->activate( $network_wide );
 }
 
@@ -109,7 +93,10 @@ function wpify_woo_php_upgrade_notice() {
 	$info = get_plugin_data( __FILE__ ); ?>
 	<div class="error notice">
 		<p>
-			<?php printf( _e( 'Opps! %1$s requires a minimum PHP version of %2$s. Your current version is: %3$s. Please contact your host to upgrade.', 'dogsie' ), $info['Name'], WPIFY_WOO_MIN_PHP_VERSION, PHP_VERSION ); ?>
+			<?php
+			/* translators: 1: Plugin name, 2: Minimal required PHP version, 3: current PHP version. */
+			printf( _e( 'Opps! %1$s requires a minimum PHP version of %2$s. Your current version is: %3$s. Please contact your host to upgrade.', 'wpify-woo' ), $info['Name'], WPIFY_WOO_MIN_PHP_VERSION, PHP_VERSION );
+			?>
 		</p>
 	</div>
 	<?php
@@ -122,7 +109,10 @@ function wpify_woo_php_vendor_missing() {
 	$info = get_plugin_data( __FILE__ );
 	?>
 	<div class="error notice">
-		<p><?php printf( __( 'Opps! %s is corrupted it seems, please re-install the plugin.', 'wpify-woo' ), $info['Name'] ); ?></p>
+		<p><?php
+			/* translators: 1: Plugin name */
+			printf( __( 'Opps! %s is corrupted it seems, please re-install the plugin.', 'wpify-woo' ), $info['Name'] );
+			?></p>
 	</div>
 	<?php
 }
@@ -134,7 +124,10 @@ function wpify_woo_woocommerce_not_active() {
 	$info = get_plugin_data( __FILE__ );
 	?>
 	<div class="error notice">
-		<p><?php printf( __( 'Plugin %s requires WooCommerce. Please install and activate it first.', 'wpify-woo' ), $info['Name'] ); ?></p>
+		<p><?php
+			/* translators: 1: Plugin name */
+			printf( __( 'Plugin %s requires WooCommerce. Please install and activate it first.', 'wpify-woo' ), $info['Name'] );
+			?></p>
 	</div>
 	<?php
 }
@@ -173,9 +166,8 @@ if ( version_compare( PHP_VERSION, WPIFY_WOO_MIN_PHP_VERSION ) < 0 ) {
 } elseif ( ! wpify_woo_plugin_is_active( 'woocommerce/woocommerce.php' ) ) {
 	add_action( 'admin_notices', 'wpify_woo_woocommerce_not_active' );
 } else {
-	if ( file_exists( __DIR__ . '/deps/scoper-autoload.php' ) ) {
-		include_once __DIR__ . '/deps/scoper-autoload.php';
-		include_once __DIR__ . '/lib/PacketeraSDK/vendor/autoload.php';
+	if ( file_exists( __DIR__ . '/vendor/wpify-woo/scoper-autoload.php' ) ) {
+		include_once __DIR__ . '/vendor/wpify-woo/scoper-autoload.php';
 		include_once __DIR__ . '/vendor/autoload.php';
 
 		add_action( 'plugins_loaded', 'wpify_woo_init', 11 );

@@ -3,21 +3,59 @@
 namespace WpifyWoo\Modules\AsyncEmails;
 
 use WP_Error;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
+
 
 class AsyncEmailsModule extends AbstractModule {
+	const MODULE_ID = 'async_emails';
 
+	public function __construct() {
+		parent::__construct();
+		$this->setup();
+	}
 	/**
 	 * @return void
 	 */
 	public function setup() {
 		add_filter( 'woocommerce_mail_callback', array( $this, 'change_mail_callback' ) );
 		add_action( 'wpify_send_email', array( $this, 'send_email' ) );
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 	}
 
+	/**
+	 * Module ID
+	 *
+	 * @return string
+	 */
 	function id() {
-		return 'async_emails';
+		return self::MODULE_ID;
+	}
+
+	/**
+	 * Module name
+	 *
+	 * @return mixed
+	 */
+	public function name() {
+		return __( 'Async emails', 'wpify-woo' );
+	}
+
+	/**
+	 * Plugin slug
+	 *
+	 * @return string
+	 */
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation url
+	 *
+	 * @return string
+	 */
+	public function get_documentation_url() {
+		return 'https://wpify.io/dokumentace/wpify-woo/asynchronni-odesilani-e-mailu/';
 	}
 
 	/**
@@ -93,9 +131,5 @@ class AsyncEmailsModule extends AbstractModule {
 		}
 
 		return $settings;
-	}
-
-	public function name() {
-		return __( 'Async emails', 'wpify-woo' );
 	}
 }

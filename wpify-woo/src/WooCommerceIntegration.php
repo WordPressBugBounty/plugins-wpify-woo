@@ -3,7 +3,6 @@
 namespace WpifyWoo;
 
 use WpifyWoo\Admin\Settings;
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractComponent;
 
 /**
  * Class WooCommerceIntegration
@@ -11,7 +10,7 @@ use WpifyWooDeps\Wpify\Core\Abstracts\AbstractComponent;
  * @package WpifyWoo
  * @property Plugin $plugin
  */
-class WooCommerceIntegration extends AbstractComponent {
+class WooCommerceIntegration {
 
 	const OPTION_NAME = 'wpify-woo-settings';
 
@@ -20,14 +19,12 @@ class WooCommerceIntegration extends AbstractComponent {
 	 *
 	 * @return bool|void
 	 */
-	public function setup() {
-		add_action( 'woocommerce_init', array( $this, 'register_settings' ) );
+	public function __construct( ) {
 	}
 
 	public function register_settings() {
 		/** @var Settings $admin_settings */
-		$admin_settings = $this->plugin->create_component( Settings::class );
-		$admin_settings->init();
+		wpify_woo_container()->get( Settings::class )->setup();
 	}
 
 	/**
@@ -65,99 +62,6 @@ class WooCommerceIntegration extends AbstractComponent {
 		return sprintf( '%s-%s', $this::OPTION_NAME, $module );
 	}
 
-	/**
-	 * Get available modules
-	 */
-	public function get_modules(): array {
-		$modules = array(
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Async emails', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/asynchronni-odesilani-e-mailu/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'async_emails',
-			),
-			array(
-				'label' => sprintf( '%1$s | <strong style="color:red">%2$s</strong>', __( 'Packeta shipping', 'wpify-woo' ), __( 'Deprecated', 'wpify-woo' ) ),
-				'value' => 'packeta_shipping',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Checkout IČ and DIČ', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/ic-dic/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'ic_dic',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Heureka ověřeno zákazníky', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/heureka-overeno-zakazniky/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'heureka_overeno_zakazniky',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Heureka měření konverzí', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/heureka-mereni-konverzi/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'heureka_mereni_konverzi',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'XML Feed Heureka', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/xml-feed-heureka/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'xml_feed_heureka',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Free shipping notice', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/notifikace-pro-dopravu-zdarma/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'free_shipping_notice',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Emails Vocative', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/paty-pad-v-e-mailech/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'vocative',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'QR Payment', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/qr-platba/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'qr_payment',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Sklik retargeting', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/sklik-retargeting/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'sklik_retargeting',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Zbozi.cz/Sklik Conversions Limited', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/zbozi-sklik-konverze/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'zbozi_conversions_lite',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Template', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/sablona/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'template',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Email attachments', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/prilohy-emailu/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'email_attachments',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Prices', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/ceny/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'prices',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Prices log', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/historie-cen/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'prices_log',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Comments', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/komentare/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'comments',
-			),
-			array(
-				'label' => sprintf( '%1$s | <a href="%2$s" target="_blank">%3$s</a>', __( 'Delivery dates', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/terminy-doruceni/', __( 'Documentation', 'wpify-woo' ) ),
-				'value' => 'delivery_dates',
-			),
-		);
-
-		$modules = apply_filters( 'wpify_woo_modules', $modules );
-
-		foreach ( $this->plugin->get_premium()->get_extensions() as $extension ) {
-			$exists = array_filter( $modules, function ( $module ) use ( $extension ) {
-				return $extension['id'] === $module['value'];
-			} );
-			if ( empty( $exists ) ) {
-				$modules[] = [
-					'label'    => sprintf( '<a href="%1$s"><strong>%2$s</strong></a> - %3$s <span class="wpify-woo-settings__premium"><a href="%1$s">%4$s</a></span>', $extension['url'], $extension['title'], $extension['short_description'], __( 'Get the addon', 'wpify-woo' ) ),
-					'value'    => $extension['id'],
-					'disabled' => true,
-				];
-			}
-		}
-
-
-		return $modules;
-	}
 
 	public function get_avaliable_shipping_methods() {
 		$shipping_methods = array();
@@ -199,5 +103,41 @@ class WooCommerceIntegration extends AbstractComponent {
 		}
 
 		return $result;
+	}
+
+	public function get_emails_select() {
+		$emails = [];
+		foreach ( WC()->mailer()->get_emails() as $wc_email ) {
+			$emails[] = [
+				'label' => $wc_email->title . ' - ' . esc_html( $wc_email->is_customer_email() ? __( 'Customer', 'wpify-woo' ) : $wc_email->get_recipient() ),
+				'value' => $wc_email->id,
+			];
+		}
+
+		return $emails;
+	}
+
+	public function get_countries_select() {
+		$countries = [];
+		foreach ( WC()->countries->get_allowed_countries() as $key => $val ) {
+			$countries[] = [
+				'label' => $val,
+				'value' => $key,
+			];
+		}
+
+		return $countries;
+	}
+
+	public function get_currencies_select() {
+		$currencies = [];
+		foreach ( get_woocommerce_currencies() as $key => $val ) {
+			$currencies[] = [
+				'label' => $val,
+				'value' => $key,
+			];
+		}
+
+		return $currencies;
 	}
 }

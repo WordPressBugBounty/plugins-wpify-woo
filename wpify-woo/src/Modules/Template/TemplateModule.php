@@ -3,16 +3,21 @@
 namespace WpifyWoo\Modules\Template;
 
 use WP_Error;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 
 class TemplateModule extends AbstractModule {
 	private $rendered = [];
+
+	public function __construct() {
+		parent::__construct();
+		$this->setup();
+	}
 
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_filter( 'woocommerce_order_button_text', [ $this, 'order_button_text' ] );
 		add_filter( 'woocommerce_order_button_html', [ $this, 'order_button_html' ] );
 		add_action( 'woocommerce_review_order_before_submit', [ $this, 'render_text' ] );
@@ -21,6 +26,10 @@ class TemplateModule extends AbstractModule {
 
 	function id() {
 		return 'template';
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	/**

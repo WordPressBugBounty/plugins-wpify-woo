@@ -2,9 +2,9 @@
 Contributors: wpify, vasikgreif, mejta, martinsvoboda
 Tags: WooCommerce, Czech, WPify, Zásilkovna, Heureka, IČ DIČ
 Requires at least: 6.2
-Tested up to: 6.6
-Requires PHP: 8.0
-Stable tag: 4.1.13
+Tested up to: 6.8
+Requires PHP: 8.1
+Stable tag: 5.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,6 @@ A free plugin that adds (mainly) Czech and Slovak specific features to WooCommer
 
 A free plugin that adds (mainly) Czech and Slovak specific features to WooCommerce. The free plugin includes:
 
-* Packeta Shipping (deprecated)
 * Heureka XML Feed
 * Heureka Ověřeno Zákazníky
 * Extra CRN and VAT fields on checkout
@@ -33,26 +32,24 @@ A free plugin that adds (mainly) Czech and Slovak specific features to WooCommer
 
 There are also premium modules available:
 
-* [Gopay](https://wpify.io/cs/produkt/wpify-woo-gopay/) - Add Gopay payment gateway to your store, with payment method selection and specific gateways for every Gopay payment methof
-* [Comgate](https://wpify.io/cs/produkt/wpify-woo-comgate/) - Add Comgate payment gateway to your store, with support for automatic recurring payments using WooCommerce Subscriptions
-* [ThePay](https://wpify.io/cs/produkt/wpify-woo-thepay/) - Add ThePay payment gateway to your store. Works with ThePay 2.0!
-* [Fakturoid](https://wpify.io/cs/produkt/wpify-woo-fakturoid/) - Automatically generate Fakturoid proforma invoices and invoices
-* [Conditional shipping](https://wpify.io/cs/produkt/wpify-woo-conditional-shipping/) - Adjust shipping rates prices and visibility with rules like cart amount, products in cart, currency, user role etc.
-* [DPD](https://wpify.io/cs/produkt/wpify-woo-dpd/) - Complete DPD and WooCommerce integration - create packages, print labels and add tracking links directly from admin.
-* [GLS](https://wpify.io/cs/produkt/wpify-woo-gls/) - Add GLS ParcelShops selection to checkout.
-* [Balíkovna](https://wpify.io/cs/produkt/wpify-woo-balikovna/) - Add Balíkovna shipping method to your store
-* [Na poštu](https://wpify.io/cs/produkt/wpify-woo-balikovna/) - Add Na poštu shipping method to your store
-* [Podání Online](https://wpify.io/cs/produkt/wpify-woo-podani-online/) - Batch export orders to Podání online directly from the Orders dashboard
-* [Feeds](https://wpify.io/cs/produkt/wpify-woo-feeds/) - Feed generation for Google, Heureka and Zboží.cz
-* [Phone validation](https://wpify.io/cs/produkt/wpify-woo-validace-telefonu/) - Display prefix selector and validate entered phone on checkout
-* [Benefit Plus](https://wpify.io/cs/produkt/wpify-woo-benefit-plus/) - Add Benefit plus payment gateway to your store
-* [Benefity CZ](https://wpify.io/cs/produkt/wpify-woo-benefity-cz/) - Add Benefity CZ payment gateway to your store!
-* [Gallery Beta](https://wpify.io/cs/produkt/wpify-woo-gallery-beta/) - Add Gallery Beta payment gateway to your store!
-* [Sodexo](https://wpify.io/cs/produkt/wpify-woo-sodexo/) - Add Sodexo payment gateway to your store
-* [Smartform](https://wpify.io/cs/produkt/wpify-woo-smartform-cz/) - It whispers and auto-completes the postal address.
-* [Zbozi.cz conversion tracking](https://wpify.io/cs/produkt/wpify-woo-konverze-zbozi-cz/) - Track Zbozi.cz conversions
-* [Vivnetworks affiliate tracking](https://wpify.io/cs/produkt/wpify-woo-vivnetworks-affiliate/) - Tracking for Vivnetworks Affiliate
-* [SmartEmailing](https://wpify.io/cs/produkt/wpify-woo-smartemailing/) - Connection to the newletter service with the possibility of subscribe and tracing
+* [Gopay](https://wpify.io/produkt/wpify-woo-gopay/) - Add Gopay payment gateway to your store, with payment method selection and specific gateways for every Gopay payment methof
+* [Comgate](https://wpify.io/produkt/wpify-woo-comgate/) - Add Comgate payment gateway to your store, with support for automatic recurring payments using WooCommerce Subscriptions
+* [ThePay](https://wpify.io/produkt/wpify-woo-thepay/) - Add ThePay payment gateway to your store. Works with ThePay 2.0!
+* [Fakturoid](https://wpify.io/produkt/wpify-woo-fakturoid/) - Automatically generate Fakturoid proforma invoices and invoices
+* [Conditional shipping](https://wpify.io/produkt/wpify-woo-conditional-shipping/) - Adjust shipping rates prices and visibility with rules like cart amount, products in cart, currency, user role etc.
+* [DPD](https://wpify.io/produkt/wpify-woo-dpd/) - Complete DPD and WooCommerce integration - create packages, print labels and add tracking links directly from admin.
+* [GLS](https://wpify.io/produkt/wpify-woo-gls/) - Add GLS ParcelShops selection to checkout.
+* [WPify Woo Česká pošta](https://wpify.io/produkt/wpify-woo-balikovna/) - Add Balíkovna, Na poštu shipping method to your store and batch export orders to Podání online from the Orders dashboard.
+* [Feeds](https://wpify.io/produkt/wpify-woo-feeds/) - Feed generation for Google, Heureka and Zboží.cz
+* [Phone validation](https://wpify.io/produkt/wpify-woo-validace-telefonu/) - Display prefix selector and validate entered phone on checkout
+* [Benefit Plus](https://wpify.io/produkt/wpify-woo-benefit-plus/) - Add Benefit plus payment gateway to your store
+* [Benefity CZ](https://wpify.io/produkt/wpify-woo-benefity-cz/) - Add Benefity CZ payment gateway to your store!
+* [Gallery Beta](https://wpify.io/produkt/wpify-woo-gallery-beta/) - Add Gallery Beta payment gateway to your store!
+* [Sodexo](https://wpify.io/produkt/wpify-woo-sodexo/) - Add Sodexo payment gateway to your store
+* [Smartform](https://wpify.io/produkt/wpify-woo-smartform-cz/) - It whispers and auto-completes the postal address.
+* [Zbozi.cz conversion tracking](https://wpify.io/produkt/wpify-woo-konverze-zbozi-cz/) - Track Zbozi.cz conversions
+* [Vivnetworks affiliate tracking](https://wpify.io/produkt/wpify-woo-vivnetworks-affiliate/) - Tracking for Vivnetworks Affiliate
+* [SmartEmailing](https://wpify.io/produkt/wpify-woo-smartemailing/) - Connection to the newletter service with the possibility of subscribe and tracing
 
 The plugin is built for speed. Only the enabled modules are loaded, scripts are lazy-loaded only on the needed pages, and the number of database queries is limited to the bare minimum.
 
@@ -61,16 +58,6 @@ The plugin is brought to you by Václav Greif and Daniel Mejta, the WordPress an
 ## Features
 
 The plugin includes the following modules:
-
-### Packeta Shipping (deprecated)
-
-* A new shipping method Packeta shipping.
-* Select the Packeta branch on checkout.
-* Automatically display branches by the selected country on checkout.
-* Send orders to Packeta directly from the order admin.
-* Batch generate Packeta labels.
-* Replace the shipping address with Packeta branch address.
-* Select the payment gateways that you want to charge COD payment for.
 
 ### Heureka XML Feed
 
@@ -89,11 +76,12 @@ The plugin includes the following modules:
 
 ### Heureka Měření konverzí
 
-* Ad Heureka Měření konverzí to thank you page.
+* Ad Heureka Měření konverzí to thank you page and product pages.
 
 ### Extra CRN and VAT fields on checkout
 
 * Add CRN and VAT number fields to the checkout, WooCommerce admin and emails.
+* Supported block checkout.
 * Validate the entered CRN using ARES database.
 * Validate the entered VAT no using VIES database.
 * Autofill the company details by the entered CRN number from ARES.
@@ -138,7 +126,7 @@ The plugin includes the following modules:
 
 * Option to sending data on the basis of allowing marketing cookies.
 * Option to add an e-shop offer identifier also from a custom field.
-* Option to add a category identifier from a custom field or automatically loaded from the premium [WPify Woo Feeds](https://wpify.io/cs/produkt/wpify-woo-feeds/) plug-in.
+* Option to add a category identifier from a custom field or automatically loaded from the premium [WPify Woo Feeds](https://wpify.io/produkt/wpify-woo-feeds/) plug-in.
 
 ### Zbozi.cz/Sklik Conversions Limited
 
@@ -160,6 +148,8 @@ The plugin includes the following modules:
 
 * Add info to default prices with the possibility of conditions according to stock status.
 * Add custom prices with label, more info, label for default price and product badge.
+* Add Option to display the lowest price recorded in the last 30 days.
+* Add option to display the price by unit.
 * Multicurrency from plugin WooCommerce Multilingual & Multicurrency supported.
 
 ### Prices log
@@ -186,16 +176,16 @@ The plugin includes the following modules:
 
 1. Upload `wpify-woo` folder to the `/wp-content/plugins/` directory or install the plugin from the WordPress plugin repository.
 1. Activate the plugin through the "Plugins" menu in WordPress.
-1. Go to the administration area > WooCommerce > Settings > WPify Woo.
+1. Go to the administration area > WPify > WPify Woo.
 1. Enable and configure modules.
 
-If you have problems installing, activating or setting up modules, please refer to our [documentation](https://wpify.io/cs/knowledge-base/wpify-woo/).
+If you have problems installing, activating or setting up modules, please refer to our [documentation](https://wpify.io/documentation/wpify-woo/).
 
 == Frequently Asked Questions ==
 
 = Do you have documentation for the plugin? =
 
-Yes, the full documentation for the WPify Woo plugin is available on the website [wpify.io](https://wpify.io/cs/knowledge-base/wpify-woo/)
+Yes, the full documentation for the WPify Woo plugin is available on the website [wpify.io](https://wpify.io/documentation/wpify-woo/)
 
 = Why did you create this plugin? =
 
@@ -228,6 +218,15 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+= 5.0.0 =
+* Add new conversion code for Heureka Měření konverzí
+* Add validation of variable symbol to numbers only for QR payment
+* Add price by unit quantity in Price module
+* Add block checkout support for VAT fields in IČ DIČ module
+* New plugin core
+* New settings
+* Remove Packeta module
+
 = 4.1.13 =
 * Add shortcode [wpify_woo_lowest_price] to display the lowest price for last 30 days
 * Add option to display the lowest price in 30 days via the Process module

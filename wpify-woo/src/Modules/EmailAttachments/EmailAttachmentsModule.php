@@ -5,15 +5,25 @@ namespace WpifyWoo\Modules\EmailAttachments;
 use WC_Order;
 use WC_Order_Item_Product;
 use WC_Product;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWoo\WooCommerceIntegration;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
+use WpifyWooDeps\Wpify\CustomFields\CustomFields;
 
 class EmailAttachmentsModule extends AbstractModule {
+
+	public function __construct(
+		private CustomFields $custom_fields,
+		private WooCommerceIntegration $woocommerce_integration,
+	) {
+		parent::__construct();
+		$this->setup();
+	}
 
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_filter( 'woocommerce_email_attachments', array( $this, 'add_attachments_to_emails' ), 10, 3 );
 		add_action( 'init', [ $this, 'product_attachments_metabox' ] );
 	}
@@ -22,8 +32,12 @@ class EmailAttachmentsModule extends AbstractModule {
 		return 'email_attachments';
 	}
 
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
+	}
+
 	public function product_attachments_metabox() {
-		$this->plugin->get_wcf()->create_product_options(
+		$this->custom_fields->create_product_options(
 			[
 				'tab'           => array(
 					'id'       => 'email_attachments',
@@ -31,8 +45,7 @@ class EmailAttachmentsModule extends AbstractModule {
 					'priority' => 100,
 				),
 				'init_priority' => 10,
-				'items'         => [ $this->attachments_settings() ],
-
+				'items'         => $this->settings(),
 			]
 		);
 	}
@@ -41,64 +54,62 @@ class EmailAttachmentsModule extends AbstractModule {
 	 * @return array[]
 	 */
 	public function settings(): array {
-		return [ $this->attachments_settings() ];
-	}
-
-	public function attachments_settings() {
 		return array(
-			'id'    => 'email_attachments',
-			'type'  => 'multi_group',
-			'label' => __( 'Email attachments', 'wpify-woo' ),
-			'items' => [
-				[
-					'id'    => 'attachments',
-					'label' => __( 'Attachments', 'wpify-woo' ),
-					'type'  => 'multi_attachment',
-				],
-				[
-					'id'    => 'custom_fields',
-					'label' => __( 'Custom fields', 'wpify-woo' ),
-					'type'  => 'multi_group',
-					'items' => [
-						[
-							'id'    => 'custom_field',
-							'label' => __( 'Custom field', 'wpify-woo' ),
-							'desc'  => __( 'Enter order custom field, where the path the file is stored.', 'wpify-woo' ),
-							'type'  => 'text',
+			array(
+				'id'    => 'email_attachments',
+				'type'  => 'multi_group',
+				'title' => __( 'Email attachments', 'wpify-woo' ),
+				'label' => __( 'Email attachments', 'wpify-woo' ),
+				'items' => [
+					[
+						'id'           => 'email',
+						'label'        => __( 'Attach to emails', 'wpify-woo' ),
+						'type'         => 'multi_select',
+						'options'      => function () {
+							return $this->woocommerce_integration->get_emails_select();
+						},
+						'async'        => true,
+						'async_params' => array(
+							'tab'       => 'wpify-woo-settings',
+							'section'   => $this->id(),
+							'module_id' => $this->id(),
+						),
+					],
+					[
+						'id'           => 'enabled_countries',
+						'label'        => __( 'Enabled countries', 'wpify-woo' ),
+						'desc'         => __( 'Select the countries for which the attachment should be added. Leave empty for all.', 'wpify-woo' ),
+						'type'         => 'multi_select',
+						'options'      => function () {
+							return $this->woocommerce_integration->get_countries_select();
+						},
+						'async'        => true,
+						'async_params' => array(
+							'tab'       => 'wpify-woo-settings',
+							'section'   => $this->id(),
+							'module_id' => $this->id(),
+						),
+					],
+					[
+						'id'    => 'attachments',
+						'label' => __( 'Attachments', 'wpify-woo' ),
+						'type'  => 'multi_attachment',
+					],
+					[
+						'id'    => 'custom_fields',
+						'label' => __( 'Custom fields', 'wpify-woo' ),
+						'type'  => 'multi_group',
+						'items' => [
+							[
+								'id'    => 'custom_field',
+								'label' => __( 'Custom field', 'wpify-woo' ),
+								'desc'  => __( 'Enter order custom field, where the path the file is stored.', 'wpify-woo' ),
+								'type'  => 'text',
+							],
 						],
 					],
 				],
-				[
-					'id'      => 'email',
-					'label'   => __( 'Attach to emails', 'wpify-woo' ),
-					'type'    => 'multi_select',
-					'options' => function () {
-						return array_values( array_map( function ( $item ) {
-							return [
-								'value' => $item->id,
-								'label' => $item->title . ' - ' . esc_html( $item->is_customer_email() ? __( 'Customer', 'woocommerce' ) : $item->get_recipient() ),
-							];
-						}, WC()->mailer()->get_emails() ) );
-					},
-				],
-				[
-					'id'      => 'enabled_countries',
-					'label'   => __( 'Enabled countries', 'wpify-woo' ),
-					'desc'    => __( 'Select the countries for which the attachment should be added. Leave empty for all.', 'wpify-woo' ),
-					'type'    => 'multi_select',
-					'options' => function () {
-						$countries = [];
-						foreach ( WC()->countries->get_allowed_countries() as $key => $val ) {
-							$countries[] = [
-								'label' => $val,
-								'value' => $key,
-							];
-						}
-
-						return $countries;
-					},
-				],
-			],
+			)
 		);
 	}
 

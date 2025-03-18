@@ -5,17 +5,17 @@ namespace WpifyWoo\Modules\IcDic\Api;
 use Exception;
 use WP_REST_Response;
 use WP_REST_Server;
+use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Modules\IcDic\IcDicModule;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\DragonBe\Vies\Vies;
 use WpifyWooDeps\h4kuna\Ares;
 use WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException;
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractRest;
 
 /**
  * @property Plugin $plugin
  */
-class IcDicApi extends AbstractRest {
+class IcDicApi extends \WP_REST_Controller {
 
 	/** @var IcDicModule $module */
 	private $module;
@@ -25,9 +25,6 @@ class IcDicApi extends AbstractRest {
 	 */
 	public function __construct( IcDicModule $module ) {
 		$this->module = $module;
-	}
-
-	public function setup() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -36,7 +33,7 @@ class IcDicApi extends AbstractRest {
 	 */
 	public function register_routes() {
 		register_rest_route(
-			$this->plugin->get_api_manager()->get_rest_namespace(),
+			ApiManager::REST_NAMESPACE,
 			'icdic',
 			array(
 				array(
@@ -53,7 +50,7 @@ class IcDicApi extends AbstractRest {
 		);
 
 		register_rest_route(
-			$this->plugin->get_api_manager()->get_rest_namespace(),
+			ApiManager::REST_NAMESPACE,
 			'icdic-vies',
 			array(
 				array(

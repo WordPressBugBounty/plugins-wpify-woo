@@ -2,34 +2,36 @@
 
 namespace WpifyWoo\Modules\Prices;
 
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
+use WpifyWooDeps\Wpify\Asset\AssetFactory;
 use WpifyWooDeps\Wpify\CustomFields\CustomFields;
+use WpifyWooDeps\Wpify\PluginUtils\PluginUtils;
 
 class PricesModule extends AbstractModule {
-	private CustomFields $custom_fields;
-
-	public function __construct( CustomFields $custom_fields ) {
+	public function __construct(
+		private CustomFields $custom_fields,
+		private AssetFactory $asset_factory,
+		private PluginUtils $plugin_utils,
+	) {
 		parent::__construct();
-		$this->custom_fields = $custom_fields;
+		$this->setup();
 	}
 
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'init', array( $this, 'custom_price_fields' ), 12 );
 		add_filter( 'woocommerce_get_price_html', array( $this, 'edit_price_html' ), 999, 2 );
 		add_filter( 'woocommerce_locate_template', array( $this, 'get_edited_template' ), 1, 3 );
 
 		if ( ! empty( $this->get_setting( 'custom_prices_custom_location' ) ) ) {
-
 			add_action( $this->get_setting( 'custom_prices_custom_location' ), array(
 				$this,
-				'display_custom_prices'
+				'display_custom_prices',
 			) );
-
 		} elseif ( ! empty( $this->get_setting( 'custom_prices_location' ) ) ) {
 			if ( 'after_price' === $this->get_setting( 'custom_prices_location' ) ) {
 				$priority = 12;
@@ -49,6 +51,10 @@ class PricesModule extends AbstractModule {
 
 	public function name() {
 		return __( 'Prices', 'wpify-woo' );
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	/**
@@ -134,10 +140,25 @@ class PricesModule extends AbstractModule {
 						'label' => __( 'Show label on frontend', 'wpify-woo' ),
 					),
 					array(
-						'id'    => 'lowest_price',
-						'type'  => 'toggle',
-						'label' => __( 'Use lowest price', 'wpify-woo' ),
-						'desc'  => __( 'Use the lowest price for the last 30 days from the Price Log module (must be active).', 'wpify-woo' ),
+						'id'      => 'type',
+						'type'    => 'select',
+						'label'   => __( 'Price type', 'wpify-woo' ),
+						'desc'    => __( 'Choose price type. For the lowest price for the last 30 days from the Price Log module - module must be active.', 'wpify-woo' ),
+						'options' => array(
+							array(
+								'label' => __( 'Custom price', 'wpify-woo' ),
+								'value' => 'custom',
+							),
+							array(
+								'label' => __( 'Lowest price in 30 days', 'wpify-woo' ),
+								'value' => 'lowest',
+							),
+							array(
+								'label' => __( 'Price by unit', 'wpify-woo' ),
+								'value' => 'by_unit',
+							),
+						),
+						'default' => 'custom',
 					),
 					array(
 						'id'    => 'price_info',
@@ -221,7 +242,7 @@ class PricesModule extends AbstractModule {
 		$template = locate_template(
 			array(
 				$template_path . $template_name,
-				$template_name
+				$template_name,
 			)
 		);
 
@@ -240,7 +261,7 @@ class PricesModule extends AbstractModule {
 	 * Enqueue frontend scripts
 	 */
 	public function enqueue_scripts() {
-		$this->plugin->get_asset_factory()->wp_script( $this->plugin->get_asset_path( 'build/prices.css' ) );
+		$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/prices.css' ) );
 	}
 
 	/**
@@ -356,7 +377,6 @@ class PricesModule extends AbstractModule {
 	 * @return false|string
 	 */
 	function get_custom_prices_html( $custom_prices, $in_html = false ) {
-
 		$wrapper = $in_html ? 'span' : 'div';
 		$line    = $in_html ? 'span' : 'p';
 
@@ -367,23 +387,54 @@ class PricesModule extends AbstractModule {
 		$custom_prices_vales = get_post_meta( get_the_ID(), '_custom_prices', true );
 
 		foreach ( $custom_prices as $price ) {
-			if ( isset( $price['lowest_price'] ) && $price['lowest_price'] ) {
-				$module      = wpify_woo_container()->get( \WpifyWoo\Modules\PricesLog\PricesLogModule::class );
-				$price_value = $module->get_lowest_price( get_the_ID() );
+			$price['suffix'] = '';
+			if ( ! isset( $price['type'] ) ) {
+				if ( isset( $price['lowest_price'] ) && $price['lowest_price'] ) {
+					$price['type'] = 'lowest';
+				} else {
+					$price['type'] = 'custom';
+				}
+			}
+			if ( 'lowest' === $price['type'] ) {
+				$module         = wpify_woo_container()->get( \WpifyWoo\Modules\PricesLog\PricesLogModule::class );
+				$price['value'] = $module->get_lowest_price( get_the_ID() );
+			} elseif ( 'by_unit' === $price['type'] ) {
+				if ( ! $custom_prices_vales || ! isset( $custom_prices_vales[ $price['uuid'] ] ) ) {
+					continue;
+				}
+				global $product;
+				$unit_data = $custom_prices_vales[ $price['uuid'] ];
+				if ( empty( $unit_data['quantity'] ) ) {
+					continue;
+				}
+				$price['value']  = floatval( $product->get_price() ) / floatval( $unit_data['quantity'] );
+				$price['suffix'] = '/' . $unit_data['unit'];
 			} else {
-				$price_value = $custom_prices_vales[ $price['uuid'] ] ?? 0;
+				if ( ! $custom_prices_vales ) {
+					continue;
+				}
+
+				$price['value'] = $custom_prices_vales[ $price['uuid'] ] ?? 0;
 			}
 
-			if ( empty( $price_value ) ) {
+			/**
+			 * Filter to edit price data
+			 *
+			 * @var array $price Price data
+			 */
+			$price = apply_filters( 'wpify_woo_prices_data', $price );
+
+			if ( empty( $price['value'] ) ) {
 				continue;
 			}
 
 			// Get price with multi currency support
-			$price_value = apply_filters( 'wcml_raw_price_amount', floatval( $price_value ) );
+			$price['value'] = apply_filters( 'wcml_raw_price_amount', floatval( $price['value'] ) );
+
 			?>
 			<<?= $line ?> class="wpify-woo-prices__price">
 			<?php
-			echo ( $price['label'] ?: '' ) . ' ' . wc_price( $price_value );
+			echo ( $price['label'] ?: '' ) . ' ' . wc_price( $price['value'] ) . $price['suffix'];
 
 			if ( ! empty( $price['price_info'] ) ) {
 				?>
@@ -419,7 +470,34 @@ class PricesModule extends AbstractModule {
 
 		$items = [];
 		foreach ( $custom_prices as $price ) {
-			if ( $price['lowest_price'] ) {
+			if ( ! isset( $price['type'] ) && ! $price['type'] ) {
+				if ( isset( $price['lowest_price'] ) && $price['lowest_price'] ) {
+					$price['type'] = 'lowest';
+				} else {
+					$price['type'] = 'custom';
+				}
+			}
+
+			if ( 'lowest' === $price['type'] ) {
+				continue;
+			} elseif ( 'by_unit' === $price['type'] ) {
+				$items[] = array(
+					'id'    => $price['uuid'],
+					'type'  => 'group',
+					'label' => __( 'Price by unit', 'wpify-woo' ),
+					'items' => array(
+						array(
+							'id'    => 'unit',
+							'label' => __( 'Package unit', 'wpify-woo' ),
+							'type'  => 'text',
+						),
+						array(
+							'id'    => 'quantity',
+							'label' => __( 'Number of units', 'wpify-woo' ),
+							'type'  => 'number',
+						),
+					),
+				);
 				continue;
 			}
 
@@ -435,15 +513,36 @@ class PricesModule extends AbstractModule {
 				'tab'   => array(
 					'id'       => 'general',
 					'priority' => 10,
+					'label'    => __( 'General', 'woocommerce' ),
+					'target'   => 'general_product_data'
 				),
 				'items' => array(
 					array(
 						'id'    => '_custom_prices',
 						'type'  => 'group',
 						'items' => $items,
-					)
+					),
 				),
 			),
 		);
+
+
+		// TODO support for variations
+//		$this->custom_fields->create_product_variation_options(
+//			array(
+//				'after' => 'pricing',
+//				'tab'   => array(
+//					'id'    => 'general',
+//					'label' => __( 'General', 'woocommerce' ),
+//				),
+//				'items' => array(
+//					array(
+//						'id'    => '_custom_prices',
+//						'type'  => 'group',
+//						'items' => $items,
+//					)
+//				),
+//			)
+//		);
 	}
 }

@@ -52,7 +52,7 @@ class CLI extends WP_CLI_Command {
 	 * @when after_wp_load
 	 */
 	public function generate_feed( $args ) {
-		$module = $this->plugin->get_api(FeedApi::class)->get_module($args[0]);
+		$module = wpify_woo_container()->get(FeedApi::class)->get_module($args[0]);
 
 		if ( ! $module ) {
 			return new \WP_Error( 'module-not-found', __( 'Module not found', 'wpify-woo' ) );

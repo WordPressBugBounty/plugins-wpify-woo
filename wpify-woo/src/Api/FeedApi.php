@@ -4,6 +4,7 @@ namespace WpifyWoo\Api;
 
 use WP_REST_Response;
 use WP_REST_Server;
+use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Modules\XmlFeedHeureka\XmlFeedHeurekaModule;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\Core\Abstracts\AbstractRest;
@@ -11,15 +12,12 @@ use WpifyWooDeps\Wpify\Core\Abstracts\AbstractRest;
 /**
  * @property Plugin $plugin
  */
-class FeedApi extends AbstractRest {
+class FeedApi extends \WP_REST_Controller {
 
 	/**
 	 * ExampleApi constructor.
 	 */
 	public function __construct() {
-	}
-
-	public function setup() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -28,7 +26,7 @@ class FeedApi extends AbstractRest {
 	 */
 	public function register_routes() {
 		register_rest_route(
-			$this->plugin->get_api_manager()->get_rest_namespace(),
+			ApiManager::REST_NAMESPACE,
 			'feed/generate/(?P<id>[\w].+)',
 			array(
 				array(
@@ -39,7 +37,7 @@ class FeedApi extends AbstractRest {
 			)
 		);
 		register_rest_route(
-			$this->plugin->get_api_manager()->get_rest_namespace(),
+			ApiManager::REST_NAMESPACE,
 			'feed/chunk-generate/(?P<id>[\w].+)',
 			array(
 				array(
@@ -54,10 +52,11 @@ class FeedApi extends AbstractRest {
 	public function get_module( $id ) {
 		if ( 'heureka' === $id ) {
 			/** @var XmlFeedHeurekaModule $module */
-			$module = $this->plugin->get_module( XmlFeedHeurekaModule::class );
+			$module = wpify_woo_container()->get( XmlFeedHeurekaModule::class );
 		} else {
 			$module = apply_filters( 'wpify_woo_feeds_api_module', null, $id );
 		}
+
 		return $module;
 	}
 
@@ -68,8 +67,8 @@ class FeedApi extends AbstractRest {
 	 * @throws \ComposePress\Core\Exception\Plugin
 	 */
 	public function generate_feed( $request ) {
-		$id    = $request->get_param( 'id' );
-		$module = $this->get_module($id);
+		$id     = $request->get_param( 'id' );
+		$module = $this->get_module( $id );
 		if ( ! $module ) {
 			return new \WP_Error( 'module-not-found', __( 'Module not found', 'wpify-woo' ) );
 		}
@@ -87,14 +86,14 @@ class FeedApi extends AbstractRest {
 	 * @throws \ComposePress\Core\Exception\Plugin
 	 */
 	public function chunk_generate_feed( $request ) {
-		$id    = $request->get_param( 'id' );
-		$module = $this->get_module($id);
+		$id     = $request->get_param( 'id' );
+		$module = $this->get_module( $id );
 		if ( ! $module ) {
 			return new \WP_Error( 'module-not-found', __( 'Module not found', 'wpify-woo' ) );
 		}
 
-		$feed   = $module->get_feed();
-		$page   = $request->get_param( 'page' ) ?: 1;
+		$feed = $module->get_feed();
+		$page = $request->get_param( 'page' ) ?: 1;
 		if ( (int) $page === 1 ) {
 			$feed->delete_tmp_file();
 		}
@@ -132,7 +131,7 @@ class FeedApi extends AbstractRest {
 	/**
 	 * Prepare the item for the REST response
 	 *
-	 * @param mixed            $item WordPress representation of the item.
+	 * @param mixed            $item    WordPress representation of the item.
 	 * @param \WP_REST_Request $request Request object.
 	 *
 	 * @return mixed

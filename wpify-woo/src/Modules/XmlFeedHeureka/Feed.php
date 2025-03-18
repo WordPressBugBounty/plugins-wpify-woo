@@ -17,7 +17,7 @@ class Feed extends AbstractFeed {
 	 * @return array
 	 */
 	public function data( array $products ): array {
-		$this->module                 = $this->plugin->get_module( XmlFeedHeurekaModule::class );
+		$this->module                 = wpify_woo_container()->get( XmlFeedHeurekaModule::class );
 		$heureka_categories_languages = $this->module->get_setting( 'categories_languages', true );
 		if ( is_array( $heureka_categories_languages ) && ! empty( $heureka_categories_languages[0] ) ) {
 			$lang = $heureka_categories_languages[0];
@@ -142,10 +142,13 @@ class Feed extends AbstractFeed {
 
 		if ( ! empty( $this->delivery_methods ) && is_array( $this->delivery_methods ) ) {
 			foreach ( $this->delivery_methods as $key => $method ) {
-				if ( ! empty( $method['product_type'] ) && (
-						$product->is_virtual() && $method['product_type'] !== 'virtual' ||
-						! $product->is_virtual() && $method['product_type'] !== 'non-virtual'
-					) ) {
+				if ( ! empty( $method['product_type'] )
+				     && (
+					     $product->is_virtual() && $method['product_type'] !== 'virtual'
+					     ||
+					     ! $product->is_virtual() && $method['product_type'] !== 'non-virtual'
+				     )
+				) {
 					continue;
 				}
 

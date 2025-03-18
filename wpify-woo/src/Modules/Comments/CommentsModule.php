@@ -3,30 +3,54 @@
 namespace WpifyWoo\Modules\Comments;
 
 use WP_Error;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooDeps\Wpify\CustomFields\CustomFields;
 
 class CommentsModule extends AbstractModule {
-	private CustomFields $custom_fields;
+	const MODULE_ID = 'comments';
 
-	public function __construct( CustomFields $custom_fields ) {
-		parent::__construct();
-		$this->custom_fields = $custom_fields;
+	public function __construct(
+		private CustomFields $custom_fields
+	) {
+		parent::__construct( );
+		$this->setup();
 	}
 
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'woocommerce_review_meta', [ $this, 'display_type' ] );
 		$this->register_metabox();
 	}
 
+	/**
+	 * Module ID
+	 *
+	 * @return string
+	 */
 	function id() {
-		return 'comments';
+		return self::MODULE_ID;
 	}
 
+	/**
+	 * Plugin slug
+	 *
+	 * @return string
+	 */
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation url
+	 *
+	 * @return string
+	 */
+	public function get_documentation_url() {
+		return 'https://wpify.io/dokumentace/wpify-woo/asynchronni-odesilani-e-mailu/';
+	}
 
 	public function register_metabox() {
 		$this->custom_fields->create_comment_metabox(
@@ -48,7 +72,7 @@ class CommentsModule extends AbstractModule {
 											'label' => $item['label'],
 											'value' => $item['id'],
 										];
-									}, $this->get_setting( 'comment_types' ) );
+									}, $this->get_setting( 'comment_types' ) ?: [] );
 								},
 							],
 						],

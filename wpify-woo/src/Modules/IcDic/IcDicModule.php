@@ -5,13 +5,17 @@ namespace WpifyWoo\Modules\IcDic;
 use Exception;
 use WC_Data;
 use WC_Order;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
+use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Modules\IcDic\Api\IcDicApi;
 use WpifyWooDeps\DragonBe\Vies\Vies;
 use WpifyWooDeps\DragonBe\Vies\ViesException;
 use WpifyWooDeps\DragonBe\Vies\ViesServiceException;
 use WpifyWooDeps\h4kuna\Ares;
 use WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException;
+use WpifyWooDeps\Wpify\Asset\AssetFactory;
+use WpifyWooDeps\Wpify\PluginUtils\PluginUtils;
 
 /**
  * Class IcDicModule
@@ -19,6 +23,16 @@ use WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException;
  * @package WpifyWoo\Modules\IcDic
  */
 class IcDicModule extends AbstractModule {
+	const MODULE_ID = 'ic_dic';
+
+	public function __construct(
+		private AssetFactory $asset_factory,
+		private PluginUtils $plugin_utils,
+		private ApiManager $api_manager,
+	) {
+		parent::__construct();
+		$this->setup();
+	}
 
 	/**
 	 * Setup
@@ -26,13 +40,16 @@ class IcDicModule extends AbstractModule {
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_filter( 'woocommerce_checkout_fields', array( $this, 'adjust_checkout_fields' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'woocommerce_default_address_fields', array( $this, 'adjust_fields_priority' ) );
 		add_filter( 'woocommerce_order_formatted_billing_address', array( $this, 'add_fields_to_address' ), 10, 2 );
 		add_filter( 'woocommerce_formatted_address_replacements', array( $this, 'replace_tags_in_emails' ), 10, 2 );
 		add_filter( 'woocommerce_localisation_address_formats', array( $this, 'localisation_address_formats' ) );
+		add_filter( 'woocommerce_admin_order_data_after_billing_address', array(
+			$this,
+			'display_block_fields_in_admin'
+		) );
 		add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkout_validation' ), 10, 2 );
 		add_action( 'init', array( $this, 'add_rest_api' ) );
 
@@ -62,6 +79,7 @@ class IcDicModule extends AbstractModule {
 		add_action( 'woocommerce_checkout_update_order_review', array( $this, 'set_vat_extempt_on_order_review' ) );
 		add_filter( 'post_class', array( $this, 'add_post_class' ), 10, 3 );
 		add_filter( 'woocommerce_ajax_get_customer_details', array( $this, 'autofill_vat_fields_in_admin' ), 10, 3 );
+		new BlockSupport( $this );
 	}
 
 	/**
@@ -70,11 +88,35 @@ class IcDicModule extends AbstractModule {
 	 * @return string
 	 */
 	public function id(): string {
-		return 'ic_dic';
+		return self::MODULE_ID;
 	}
 
+	/**
+	 * Module name
+	 *
+	 * @return mixed
+	 */
 	public function name() {
 		return __( 'Checkout IČ and DIČ', 'wpify-woo' );
+	}
+
+	/**
+	 * Plugin slug
+	 *
+	 * @return string
+	 */
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation url
+	 *
+	 * @return string
+	 */
+	public function get_documentation_url() {
+		return 'https://wpify.io/dokumentace/wpify-woo/ic-dic/';
 	}
 
 	/**
@@ -85,13 +127,13 @@ class IcDicModule extends AbstractModule {
 			return;
 		}
 
-		$this->plugin->get_asset_factory()->wp_script( $this->plugin->get_asset_path( 'build/icdic.css' ) );
-		$this->plugin->get_asset_factory()->wp_script( $this->plugin->get_asset_path( 'build/icdic.js' ), array(
+		$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/icdic.css' ) );
+		$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/icdic.js' ), array(
 			'handle'    => 'wpify-woo-ic-dic',
 			'in_footer' => true,
 			'variables' => array(
 				'wpifyWooIcDic' => array(
-					'restUrl'           => $this->plugin->get_api_manager()->get_rest_url(),
+					'restUrl'           => $this->api_manager->get_rest_url(),
 					'position'          => $this->get_setting( 'autofill_ares_position' ),
 					'requireCompany'    => 'hidden' !== get_option( 'woocommerce_checkout_company_field', 'optional' ) ? $this->get_setting( 'required_company' ) : false,
 					'moveCompany'       => $this->get_setting( 'move_company_field' ),
@@ -102,6 +144,27 @@ class IcDicModule extends AbstractModule {
 				),
 			),
 		) );
+		add_action( 'wp_enqueue_scripts', function () {
+			$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/icdic-blocks.js' ), array(
+				'handle'       => 'wpify-woo-ic-dic-blocks',
+				'in_footer'    => true,
+				'variables'    => array(
+					'wpifyWooIcDic' => array(
+						'restUrl'           => $this->api_manager->get_rest_url(),
+						'position'          => $this->get_setting( 'autofill_ares_position' ),
+						'requireCompany'    => 'hidden' !== get_option( 'woocommerce_checkout_company_field', 'optional' ) ? $this->get_setting( 'required_company' ) : false,
+						'moveCompany'       => $this->get_setting( 'move_company_field' ),
+						'requireVatFields'  => $this->get_setting( 'required_ic' ),
+						'optionalText'      => '(' . esc_html__( 'optional', 'woocommerce' ) . ')',
+						'changePlaceholder' => $this->get_setting( 'change_placeholder' ),
+						'checkingText'      => __( 'Checking in', 'wpify-woo' ),
+						'autofillAresText'  => $this->get_setting( 'autofill_ares_text' ) ?: __( 'Autofill from Ares', 'wpify-woo' ),
+						'searchAresText'    => $this->get_setting( 'submit_ares_text' ) ?: __( 'Search in Ares', 'wpify-woo' ),
+					),
+				),
+				'dependencies' => array( 'wc-blocks-data-store', 'wc-blocks-checkout' ),
+			) );
+		}, 1000 );
 	}
 
 
@@ -114,51 +177,58 @@ class IcDicModule extends AbstractModule {
 		return array(
 			array(
 				'id'    => 'move_company_field',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Move company field', 'wpify-woo' ),
-				'desc'  => __( 'Check if you want to move the company field to the extra VAT fields or under the checkbox "I\'m shopping for a company" if enabled.', 'wpify-woo' ),
+				'title' => __( 'Check if you want to move the company field to the extra VAT fields or under the checkbox "I\'m shopping for a company" if enabled.', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'move_vat_fields',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Move VAT fields', 'wpify-woo' ),
-				'desc'  => __( 'Check if you want to move the VAT fields to the top of the checkout form to the "Company" field', 'wpify-woo' ),
+				'title' => __( 'Check if you want to move the VAT fields to the top of the checkout form to the "Company" field', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'show_checkbox',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Show "I\'m shopping for a company" checkbox', 'wpify-woo' ),
-				'desc'  => __( 'Check if want to show the checkbox "I\'m shopping for a company" - the extra fields will show only if the checkbox is checked.', 'wpify-woo' ),
+				'title' => __( 'Check if want to show the checkbox "I\'m shopping for a company" - the extra fields will show only if the checkbox is checked.', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'narrow_vat_fields',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Half width VAT fields', 'wpify-woo' ),
-				'desc'  => __( 'Check if you want to display VAT fields in half width side by side in the checkout.', 'wpify-woo' ),
+				'title' => __( 'Check if you want to display VAT fields in half width side by side in the checkout.', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'change_placeholder',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Placeholder as number', 'wpify-woo' ),
-				'desc'  => __( 'Check if you want the placeholder of VAT fields to be an example of how to fill the field.', 'wpify-woo' ),
+				'title' => __( 'Check if you want the placeholder of VAT fields to be an example of how to fill the field.', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'validate_format',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Validate number format', 'wpify-woo' ),
-				'desc'  => __( 'Check if you want to check if the numbers entered are in a valid format when sending order. Checks for States CZ, SK, PL, HU, DE', 'wpify-woo' ),
+				'title' => __( 'Check if you want to check if the numbers entered are in a valid format when sending order. Checks for States CZ, SK, PL, HU, DE', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'required_company',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Required "Company" field for companies', 'wpify-woo' ),
-				'desc'  => __( 'Check if you want to set "Company" field as required if the checkbox "I\'m shopping for a company" is checked.', 'wpify-woo' ),
+				'title' => __( 'Check if you want to set "Company" field as required if the checkbox "I\'m shopping for a company" is checked.', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'      => 'required_ic',
 				'type'    => 'select',
 				'label'   => __( 'Required identification number field for companies', 'wpify-woo' ),
-				'desc'    => __( 'Choose when the identification number field to be required.', 'wpify-woo' ),
+				'desc'    => sprintf( '%s %s', __( 'Choose when the identification number field to be required.', 'wpify-woo' ), __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ) ),
 				'options' => array(
 					array(
 						'label' => __( 'If the "I\'m shopping for a company" is checked', 'wpify-woo' ),
@@ -172,7 +242,7 @@ class IcDicModule extends AbstractModule {
 			),
 			array(
 				'id'      => 'validate_ares',
-				'type'    => 'multiswitch',
+				'type'    => 'multi_toggle',
 				'label'   => __( 'Validate entered identification number from ARES', 'wpify-woo' ),
 				'desc'    => __( 'Check if want to validate the entered identification number with ARES.', 'wpify-woo' ),
 				'options' => array(
@@ -188,9 +258,10 @@ class IcDicModule extends AbstractModule {
 			),
 			array(
 				'id'    => 'autofill_ares',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Autofill from ARES', 'wpify-woo' ),
-				'desc'  => __( 'Enable if you want to display "Fill automatically from ARES" at the top of checkout form.', 'wpify-woo' ),
+				'title' => __( 'Enable if you want to display "Fill automatically from ARES" at the top of checkout form.', 'wpify-woo' ),
+				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'            => 'autofill_ares_text',
@@ -210,7 +281,7 @@ class IcDicModule extends AbstractModule {
 				'id'            => 'autofill_ares_position',
 				'type'          => 'select',
 				'label'         => __( 'Autofill ARES position', 'wpify-woo' ),
-				'desc'          => __( 'Select the position for the autofill.', 'wpify-woo' ),
+				'desc'          => sprintf( '%s %s', __( 'Select the position for the autofill.', 'wpify-woo' ), __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ) ),
 				'default_value' => 'before_customer_details',
 				'options'       => [
 					[
@@ -229,27 +300,30 @@ class IcDicModule extends AbstractModule {
 			),
 			array(
 				'id'    => 'validate_vies',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Validate VAT number in VIES', 'wpify-woo' ),
-				'desc'  => __( 'Check if want to validate the entered VAT with VIES (IN VAT for SK).', 'wpify-woo' ),
+				'title' => __( 'Check if want to validate the entered VAT with VIES (IN VAT for SK).', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'vies_fails',
-				'type'  => 'switch',
+				'type'  => 'toggle',
 				'label' => __( 'Send an order even if it fails validation in VIES', 'wpify-woo' ),
-				'desc'  => __( 'Check if you want to validate the Tax Identification Number immediately after entering and allow the order to be sent even if the validation in VIES fails. If the Tax ID falls under the set countries for zero VAT, then zero VAT will not be applied.',
+				'title' => __( 'Check if you want to validate the Tax Identification Number immediately after entering and allow the order to be sent even if the validation in VIES fails. If the Tax ID falls under the set countries for zero VAT, then zero VAT will not be applied.',
 					'wpify-woo' ),
 			),
 			array(
-				'id'      => 'zero_tax_for_vat_countries',
-				'type'    => 'multiselect',
-				'label'   => __( 'Zero tax for VAT numbers in', 'wpify-woo' ),
-				'desc'    => __( 'Select countries where you want to apply zero VAT.', 'wpify-woo' ),
-				'options' => function () {
+				'id'           => 'zero_tax_for_vat_countries',
+				'type'         => 'multi_select',
+				'label'        => __( 'Zero tax for VAT numbers in', 'wpify-woo' ),
+				'desc'         => __( 'Select countries where you want to apply zero VAT.', 'wpify-woo' ),
+				'async_params' => [
+					'module_id' => $this->id(),
+				],
+				'options'      => function () {
 					return $this->get_eu_countries();
 				},
-				'multi'   => true,
-				'default' => array(),
+				'multi'        => true,
+				'default'      => array(),
 			),
 		);
 	}
@@ -403,6 +477,22 @@ class IcDicModule extends AbstractModule {
 	 * @return array
 	 */
 	public function in_vat_woocommerce_billing_admin( array $fields ): array {
+		if ( isset( $fields['wpify/company'] ) ) {
+			unset( $fields['wpify/company'] );
+		}
+		if ( isset( $fields['wpify/ic_dic_toggle'] ) ) {
+			unset( $fields['wpify/ic_dic_toggle'] );
+		}
+		if ( isset( $fields['wpify/ic'] ) ) {
+			unset( $fields['wpify/ic'] );
+		}
+		if ( isset( $fields['wpify/dic'] ) ) {
+			unset( $fields['wpify/dic'] );
+		}
+		if ( isset( $fields['wpify/dic-dph'] ) ) {
+			unset( $fields['wpify/dic-dph'] );
+		}
+
 		$fields['ic'] = array(
 			'label'         => __( 'Identification no.', 'wpify-woo' ),
 			'show'          => false,
@@ -485,6 +575,24 @@ class IcDicModule extends AbstractModule {
 		}
 
 		return $address_formats;
+	}
+
+	public function display_block_fields_in_admin( $order ) {
+		$billing_ic      = $order->get_meta( '_billing_ic', true );
+		$billing_dic     = $order->get_meta( '_billing_dic', true );
+		$billing_dic_dph = $order->get_meta( '_billing_dic_dph', true );
+
+		echo '<div class="address"><p>';
+		if ( $billing_ic ) {
+			echo '<span>' . __( 'Identification no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_ic );
+		}
+		if ( $billing_dic ) {
+			echo '<br><span>' . __( 'VAT no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_dic );
+		}
+		if ( $billing_dic_dph ) {
+			echo '<br><span>' . __( 'IN VAT no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_dic_dph );
+		}
+		echo '</p></div>';
 	}
 
 	/**
@@ -590,8 +698,10 @@ class IcDicModule extends AbstractModule {
 					$errors->add( 'validation', __( 'The entered IN VAT Number is not in the required format (prefix SK + 10 digits without spaces).', 'wpify-woo' ) );
 				}
 			} elseif (
-				in_array( $country, [ 'CZ', 'PL', 'HU', 'DE' ] ) &&
-				! empty( $_POST['billing_dic'] ) && ! preg_match( '~^' . $country . '\d{8,10}$~', $_POST['billing_dic'] )
+				in_array( $country, [ 'CZ', 'PL', 'HU', 'DE' ] )
+				&&
+				! empty( $_POST['billing_dic'] )
+				&& ! preg_match( '~^' . $country . '\d{8,10}$~', $_POST['billing_dic'] )
 			) {
 				$errors->add( 'validation', sprintf( __( 'The entered VAT Number is not in the required format (prefix %s + 8–10 digits without spaces).', 'wpify-woo' ), $country ) );
 			}
@@ -673,9 +783,7 @@ class IcDicModule extends AbstractModule {
 	}
 
 	public function add_rest_api() {
-		$api = $this->get_plugin()->create_component( IcDicApi::class );
-		$api->init();
-		$this->get_plugin()->get_api_manager()->add_module( $api );
+		wpify_woo_container()->get( IcDicApi::class );
 	}
 
 	public function add_in_vat_to_address( $address, $customer_id, $name ) {
@@ -740,6 +848,10 @@ class IcDicModule extends AbstractModule {
 	 * @return bool
 	 */
 	public function is_vat_extempt( $dic, $shipping_country = '' ): bool {
+		if ( ! $dic ) {
+			return false;
+		}
+
 		$current_country = substr( $dic, 0, 2 );
 		$current_vat_no  = substr( $dic, 2 );
 		$vies            = new Vies();

@@ -2,15 +2,20 @@
 
 namespace WpifyWoo\Modules\ZboziConversions;
 
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWoo\WooCommerceIntegration;
 
 class ZboziConversionsModule extends AbstractModule {
+	public function __construct() {
+		parent::__construct();
+		$this->setup();
+	}
+
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'woocommerce_thankyou', [ $this, 'tracking_code' ] );
 
 		if (
@@ -35,6 +40,10 @@ class ZboziConversionsModule extends AbstractModule {
 	 */
 	public function name(): string {
 		return __( 'Zbozi.cz/Sklik Conversions Limited', 'wpify-woo' );
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	/**
@@ -63,7 +72,7 @@ class ZboziConversionsModule extends AbstractModule {
 				),
 				array(
 						'type'  => 'title',
-						'label' => __( 'Marketing cookie', 'wpify-woo' ),
+						'title' => __( 'Marketing cookie', 'wpify-woo' ),
 						'desc'  => __( 'You need consent from the visitor for marketing cookies. If you don`t enter the name and value of the marketing cookie the Seznam will process the data as if consent had been given.', 'wpify-woo' ),
 				),
 				array(

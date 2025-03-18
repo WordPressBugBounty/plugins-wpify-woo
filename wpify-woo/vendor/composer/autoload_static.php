@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27
+class ComposerStaticInit287dda269e6caa15a780c244d3eff6a5
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -23,24 +23,17 @@ class ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'WpifyWoo\\Abstracts\\AbstractFeed' => __DIR__ . '/../..' . '/src/Abstracts/AbstractFeed.php',
-        'WpifyWoo\\Abstracts\\AbstractModule' => __DIR__ . '/../..' . '/src/Abstracts/AbstractModule.php',
         'WpifyWoo\\Admin' => __DIR__ . '/../..' . '/src/Admin.php',
         'WpifyWoo\\Admin\\Settings' => __DIR__ . '/../..' . '/src/Admin/Settings.php',
         'WpifyWoo\\Api\\FeedApi' => __DIR__ . '/../..' . '/src/Api/FeedApi.php',
-        'WpifyWoo\\Api\\LicenseApi' => __DIR__ . '/../..' . '/src/Api/LicenseApi.php',
-        'WpifyWoo\\Api\\PacketaApi' => __DIR__ . '/../..' . '/src/Api/PacketaApi.php',
         'WpifyWoo\\Api\\SettingsApi' => __DIR__ . '/../..' . '/src/Api/SettingsApi.php',
-        'WpifyWoo\\Assets' => __DIR__ . '/../..' . '/src/Assets.php',
         'WpifyWoo\\CLI' => __DIR__ . '/../..' . '/src/CLI.php',
         'WpifyWoo\\Factories\\WooOrderFieldsFactory' => __DIR__ . '/../..' . '/src/Factories/WooOrderFieldsFactory.php',
-        'WpifyWoo\\License' => __DIR__ . '/../..' . '/src/License.php',
-        'WpifyWoo\\Logger' => __DIR__ . '/../..' . '/src/Logger.php',
         'WpifyWoo\\Managers\\ApiManager' => __DIR__ . '/../..' . '/src/Managers/ApiManager.php',
         'WpifyWoo\\Managers\\ModulesManager' => __DIR__ . '/../..' . '/src/Managers/ModulesManager.php',
         'WpifyWoo\\Managers\\PostTypesManager' => __DIR__ . '/../..' . '/src/Managers/PostTypesManager.php',
         'WpifyWoo\\Managers\\RepositoriesManager' => __DIR__ . '/../..' . '/src/Managers/RepositoriesManager.php',
         'WpifyWoo\\Managers\\TaxonomiesManager' => __DIR__ . '/../..' . '/src/Managers/TaxonomiesManager.php',
-        'WpifyWoo\\Models\\PacketaOrderModel' => __DIR__ . '/../..' . '/src/Models/PacketaOrderModel.php',
         'WpifyWoo\\Models\\WooOrderModel' => __DIR__ . '/../..' . '/src/Models/WooOrderModel.php',
         'WpifyWoo\\Modules\\AsyncEmails\\AsyncEmailsModule' => __DIR__ . '/../..' . '/src/Modules/AsyncEmails/AsyncEmailsModule.php',
         'WpifyWoo\\Modules\\Comments\\CommentsModule' => __DIR__ . '/../..' . '/src/Modules/Comments/CommentsModule.php',
@@ -52,75 +45,8 @@ class ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27
         'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\HeurekaOverenoZakaznikyModule' => __DIR__ . '/../..' . '/src/Modules/HeurekaOverenoZakazniky/HeurekaOverenoZakaznikyModule.php',
         'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\WpRequester' => __DIR__ . '/../..' . '/src/Modules/HeurekaOverenoZakazniky/WpRequester.php',
         'WpifyWoo\\Modules\\IcDic\\Api\\IcDicApi' => __DIR__ . '/../..' . '/src/Modules/IcDic/Api/IcDicApi.php',
+        'WpifyWoo\\Modules\\IcDic\\BlockSupport' => __DIR__ . '/../..' . '/src/Modules/IcDic/BlockSupport.php',
         'WpifyWoo\\Modules\\IcDic\\IcDicModule' => __DIR__ . '/../..' . '/src/Modules/IcDic/IcDicModule.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\PacketaApi' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/PacketaApi.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\PacketaShippingMethod' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/PacketaShippingMethod.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\PacketaShippingModule' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/PacketaShippingModule.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethodsGenerator' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethodsGenerator.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\AEAramexHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/AEAramexHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ATDPDHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ATDPDHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ATRakouskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ATRakouskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\BEBelgickapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/BEBelgickapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\BENizozemskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/BENizozemskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\BGEcontHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/BGEcontHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\BGSpeedyHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/BGSpeedyHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\CHLIsvycarskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/CHLIsvycarskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\CHLIsvycarskapostaprioritniHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/CHLIsvycarskapostaprioritniHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\CZZasilkovnadomuHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/CZZasilkovnadomuHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\CZZasilkovnavecernidoruceniBrnoHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/CZZasilkovnavecernidoruceniBrnoHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\CZZasilkovnavecernidoruceniOstravaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/CZZasilkovnavecernidoruceniOstravaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\CZZasilkovnavecernidoruceniPrahaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/CZZasilkovnavecernidoruceniPrahaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\DEHomeDeliveryHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/DEHomeDeliveryHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\DKDAOHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/DKDAOHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\DKPostNordHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/DKPostNordHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\EEOmnivaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/EEOmnivaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ESCorreosHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ESCorreosHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ESMRWHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ESMRWHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\FIPostNordHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/FIPostNordHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\FRColisPriveHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/FRColisPriveHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\FRColissimoHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/FRColissimoHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\GBRoyalMail24HD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/GBRoyalMail24HD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\GBRoyalMail48HD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/GBRoyalMail48HD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\GRACSHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/GRACSHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\GRSpeedexHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/GRSpeedexHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\GRTaxydromikiHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/GRTaxydromikiHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\HRChorvatskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/HRChorvatskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\HRDPDHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/HRDPDHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\HROverseasHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/HROverseasHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\HUDoruceninaadresuHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/HUDoruceninaadresuHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\HUMadarskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/HUMadarskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\IEFastwayHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/IEFastwayHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ILFedExHDEconomy' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ILFedExHDEconomy.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ILFedExHDPriority' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ILFedExHDPriority.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ITBartoliniHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ITBartoliniHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ITGLSHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ITGLSHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ITHRParcelHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ITHRParcelHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\LTOmnivaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/LTOmnivaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\LUDPDHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/LUDPDHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\LULucemburskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/LULucemburskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\LVOmnivaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/LVOmnivaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\NLDHLHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/NLDHLHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\NLNizozemskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/NLNizozemskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\PLDoruceninaadresuHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/PLDoruceninaadresuHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\PTMRWHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/PTMRWHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ROCargusHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ROCargusHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\RODoruceninaadresuHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/RODoruceninaadresuHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ROFANCourierHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ROFANCourierHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\ROSamedayHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/ROSamedayHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\RURuskapostaEMSHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/RURuskapostaEMSHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\RURuskapostaPP' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/RURuskapostaPP.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\RURuskapostadoporucenybalikPP' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/RURuskapostadoporucenybalikPP.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\SEPostNordHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/SEPostNordHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\SIDPDHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/SIDPDHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\SIPostHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/SIPostHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\SKPacketaHomeHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/SKPacketaHomeHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\SKPacketavecernidoruceniBratislavaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/SKPacketavecernidoruceniBratislavaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\SKSlovenskapostaHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/SKSlovenskapostaHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\TRFedExHDEconomy' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/TRFedExHDEconomy.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\TRFedExHDPriority' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/TRFedExHDPriority.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\UAMeestHD' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/UAMeestHD.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\USFedExHDEconomy' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/USFedExHDEconomy.php',
-        'WpifyWoo\\Modules\\PacketaShipping\\ShippingMethods\\USFedExHDPriority' => __DIR__ . '/../..' . '/src/Modules/PacketaShipping/ShippingMethods/USFedExHDPriority.php',
         'WpifyWoo\\Modules\\PricesLog\\PricesLogModel' => __DIR__ . '/../..' . '/src/Modules/PricesLog/PricesLogModel.php',
         'WpifyWoo\\Modules\\PricesLog\\PricesLogModule' => __DIR__ . '/../..' . '/src/Modules/PricesLog/PricesLogModule.php',
         'WpifyWoo\\Modules\\PricesLog\\PricesLogRepository' => __DIR__ . '/../..' . '/src/Modules/PricesLog/PricesLogRepository.php',
@@ -133,10 +59,7 @@ class ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27
         'WpifyWoo\\Modules\\XmlFeedHeureka\\XmlFeedHeurekaModule' => __DIR__ . '/../..' . '/src/Modules/XmlFeedHeureka/XmlFeedHeurekaModule.php',
         'WpifyWoo\\Modules\\ZboziConversions\\ZboziConversionsModule' => __DIR__ . '/../..' . '/src/Modules/ZboziConversions/ZboziConversionsModule.php',
         'WpifyWoo\\Plugin' => __DIR__ . '/../..' . '/src/Plugin.php',
-        'WpifyWoo\\PostTypes\\PacketaOrderPostType' => __DIR__ . '/../..' . '/src/PostTypes/PacketaOrderPostType.php',
         'WpifyWoo\\PostTypes\\WooOrderPostType' => __DIR__ . '/../..' . '/src/PostTypes/WooOrderPostType.php',
-        'WpifyWoo\\Premium' => __DIR__ . '/../..' . '/src/Premium.php',
-        'WpifyWoo\\Repositories\\PacketaOrderRepository' => __DIR__ . '/../..' . '/src/Repositories/PacketaOrderRepository.php',
         'WpifyWoo\\Repositories\\WooOrderRepository' => __DIR__ . '/../..' . '/src/Repositories/WooOrderRepository.php',
         'WpifyWoo\\WooCommerceIntegration' => __DIR__ . '/../..' . '/src/WooCommerceIntegration.php',
     );
@@ -144,9 +67,9 @@ class ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit47766c28d5dc23bf82d749158d0c2c27::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit287dda269e6caa15a780c244d3eff6a5::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit287dda269e6caa15a780c244d3eff6a5::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit287dda269e6caa15a780c244d3eff6a5::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -13,11 +13,13 @@ use WpifyWooDeps\Wpify\Core\Abstracts\AbstractPostType;
  * @package WpifyPlugin\Cpt
  * @property Plugin $plugin
  */
-class WooOrderPostType extends AbstractPostType {
-
+class WooOrderPostType {
 	public const NAME = 'shop_order';
 	protected $register_cpt = false;
 
+	public function __construct(  ) {
+
+	}
 	public function post_type_args(): array {
 		return array();
 	}
@@ -28,15 +30,5 @@ class WooOrderPostType extends AbstractPostType {
 
 	public function model(): string {
 		return WooOrderModel::class;
-	}
-
-	public function custom_fields() {
-		return array(
-			''
-		);
-	}
-
-	public function custom_fields_factory(): ?string {
-		return WooOrderFieldsFactory::class;
 	}
 }

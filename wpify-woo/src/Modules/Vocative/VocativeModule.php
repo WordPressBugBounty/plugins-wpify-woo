@@ -2,15 +2,15 @@
 
 namespace WpifyWoo\Modules\Vocative;
 
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooDeps\Inflection;
 
 class VocativeModule extends AbstractModule {
-	/**
-	 * @return void
-	 */
-	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
+
+	public function __construct() {
+		parent::__construct();
+
 		add_filter( 'woocommerce_mail_callback_params', array( $this, 'change_name_to_vocative' ), 20, 2 );
 	}
 
@@ -20,6 +20,10 @@ class VocativeModule extends AbstractModule {
 	 */
 	public function id(): string {
 		return 'vocative';
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	/**

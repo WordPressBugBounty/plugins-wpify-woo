@@ -2,10 +2,10 @@
 
 namespace WpifyWoo\Managers;
 
+use WpifyWoo\Modules\PricesLog\PricesLogRepository;
 use WpifyWoo\Plugin;
-use WpifyWoo\Repositories\PacketaOrderRepository;
 use WpifyWoo\Repositories\WooOrderRepository;
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractManager;
+use WpifyWooDeps\Wpify\Model\Manager;
 
 /**
  * Class RepositoriesManager
@@ -13,9 +13,13 @@ use WpifyWooDeps\Wpify\Core\Abstracts\AbstractManager;
  * @package Wpify\Managers
  * @property Plugin $plugin
  */
-class RepositoriesManager extends AbstractManager {
-	protected $modules = array(
-		WooOrderRepository::class,
-		PacketaOrderRepository::class,
-	);
+class RepositoriesManager {
+	public function __construct(
+		Manager $manager,
+		WooOrderRepository $woo_order_repository,
+		PricesLogRepository $prices_log_repository
+	) {
+		$manager->register_repository( $woo_order_repository );
+		$manager->register_repository( $prices_log_repository );
+	}
 }

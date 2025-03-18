@@ -3,23 +3,29 @@
 namespace WpifyWoo\Modules\DeliveryDates;
 
 use WC_Shipping_Zones;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
+use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Modules\DeliveryDates\Api\DeliveryDatesApi;
+use WpifyWooDeps\Wpify\Asset\AssetFactory;
 use WpifyWooDeps\Wpify\CustomFields\CustomFields;
+use WpifyWooDeps\Wpify\PluginUtils\PluginUtils;
 
 class DeliveryDatesModule extends AbstractModule {
-	private CustomFields $custom_fields;
 
-	public function __construct( CustomFields $custom_fields ) {
+	public function __construct(
+		private CustomFields $custom_fields,
+		private AssetFactory $asset_factory,
+		private PluginUtils $plugin_utils,
+	) {
 		parent::__construct();
-		$this->custom_fields = $custom_fields;
+		$this->setup();
 	}
 
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'init', array( $this, 'product_metabox' ) );
 		add_action( 'init', array( $this, 'add_rest_api' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -31,9 +37,10 @@ class DeliveryDatesModule extends AbstractModule {
 		}
 
 		add_action( 'admin_init', array( $this, 'convert_old_product_data' ) );
+		add_action( 'admin_init', array( $this, 'convert_old_settings' ) );
 		add_action( 'wp_ajax_wpify_delivery_dates_dismiss_notice', array(
 			$this,
-			'wpify_delivery_dates_dismiss_admin_notice'
+			'wpify_delivery_dates_dismiss_admin_notice',
 		) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'make_delivery_dates_admin_notice_dismissable' ) );
 		add_action( 'admin_notices', array( $this, 'maybe_show_notice' ) );
@@ -46,6 +53,10 @@ class DeliveryDatesModule extends AbstractModule {
 
 	public function name() {
 		return __( 'Delivery dates', 'wpify-woo' );
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 	/**
@@ -113,14 +124,14 @@ class DeliveryDatesModule extends AbstractModule {
 						'id'      => 'delivery_date_message',
 						'type'    => 'text',
 						'label'   => __( 'Delivery date message', 'wpify-woo' ),
-						'desc'    => __( 'Use <code>%date%</code> code to render calculated date in messsage.', 'wpify-woo' ),
-						'default' => __( 'Delivered on %date%', 'wpify-woo' ),
+						'desc'    => __( 'Use <code>{date}</code> code to render calculated date in messsage.', 'wpify-woo' ),
+						'default' => __( 'Delivered on {date}', 'wpify-woo' ),
 					),
 					array(
 						'id'    => 'delivery_date_info',
 						'type'  => 'wysiwyg',
 						'label' => __( 'Delivery date more info', 'wpify-woo' ),
-						'desc'  => __( 'Use <code>%date%</code> code to render calculated date in messsage.', 'wpify-woo' ),
+						'desc'  => __( 'Use <code>{date}</code> code to render calculated date in messsage.', 'wpify-woo' ),
 					),
 					array(
 						'id'      => 'shipping_methods',
@@ -136,7 +147,7 @@ class DeliveryDatesModule extends AbstractModule {
 						'generator' => 'uuid',
 					),
 
-				)
+				),
 			),
 			array(
 				'id'      => 'delivery_date_format',
@@ -285,13 +296,13 @@ class DeliveryDatesModule extends AbstractModule {
 	 * Enqueue frontend scripts
 	 */
 	public function enqueue_scripts() {
-		$this->plugin->get_asset_factory()->wp_script( $this->plugin->get_asset_path( 'build/delivery-dates.css' ) );
-		$this->plugin->get_asset_factory()->wp_script( $this->plugin->get_asset_path( 'build/delivery-dates.js' ), array(
+		$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/delivery-dates.css' ) );
+		$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/delivery-dates.js' ), array(
 			'handle'    => 'wpify-woo-delivery-dates',
 			'in_footer' => true,
 			'variables' => array(
 				'wpifyDeliveryDates' => array(
-					'namespace' => $this->plugin->get_api_manager()->get_rest_namespace()
+					'namespace' => ApiManager::REST_NAMESPACE,
 				),
 			),
 		) );
@@ -304,9 +315,7 @@ class DeliveryDatesModule extends AbstractModule {
 	 * @throws \WpifyWooDeps\Wpify\Core\Exceptions\PluginException
 	 */
 	public function add_rest_api() {
-		$api = $this->get_plugin()->create_component( DeliveryDatesApi::class );
-		$api->init();
-		$this->get_plugin()->get_api_manager()->add_module( $api );
+		wpify_woo_container()->get( DeliveryDatesApi::class );
 	}
 
 	/**
@@ -345,7 +354,8 @@ class DeliveryDatesModule extends AbstractModule {
 		$days       = (int) $days;
 
 		if (
-			( strtotime( current_time( 'H:i' ) ) > strtotime( $order_time ) ) || // překlenutí času na další den
+			( strtotime( current_time( 'H:i' ) ) > strtotime( $order_time ) )
+			|| // překlenutí času na další den
 			( date( 'N', strtotime( $today ) ) >= 6 && $days_group['skip_weekends'] ) // překlenutí wíkendu o další den
 		) {
 			$days += 1;
@@ -565,7 +575,6 @@ class DeliveryDatesModule extends AbstractModule {
 		foreach ( $shipping_zones as $key => $zone ) {
 			$enabled_count = 0;
 			if ( isset( $zone['shipping_methods'] ) ) {
-
 				foreach ( $zone['shipping_methods'] as $method ) {
 					if ( $method->enabled !== 'yes' ) {
 						continue;
@@ -657,8 +666,8 @@ class DeliveryDatesModule extends AbstractModule {
 				}
 
 				$more_info      = $data['more_info_label'] && ( $data['more_info_text'] || $data['shipping_methods'] );
-				$message        = str_replace( '%date%', '<span class="date">' . $data['date'] . '</span>', $data['message'] );
-				$more_info_text = str_replace( '%date%', '<span class="date">' . $data['date'] . '</span>', $data['more_info_text'] );
+				$message        = str_replace( '{date}', '<span class="date">' . $data['date'] . '</span>', $data['message'] );
+				$more_info_text = str_replace( '{date}', '<span class="date">' . $data['date'] . '</span>', $data['more_info_text'] );
 
 				// save all shipping zones
 				$all_shipping_zones = $shipping_zones;
@@ -666,10 +675,8 @@ class DeliveryDatesModule extends AbstractModule {
 				// Get array of zones in current day group
 				$allowed_zones = [];
 				foreach ( $shipping_zones as $zone_key => $zone ) {
-
 					// Skip methods only if is set
 					if ( ! empty( $data['shipping_methods'] ) ) {
-
 						// Remove unassigned shipping methods
 						foreach ( $zone['shipping_methods'] as $shipping_key => $method ) {
 							if ( ! in_array( $method->get_rate_id(), $data['shipping_methods'] ) ) {
@@ -744,7 +751,6 @@ class DeliveryDatesModule extends AbstractModule {
 			?>
 		</div>
 		<?php
-
 	}
 
 	/**
@@ -783,9 +789,9 @@ class DeliveryDatesModule extends AbstractModule {
 			'meta_query'     => array(
 				array(
 					'key' => '_wpify_woo_delivery_dates',
-				)
+				),
 			),
-			'posts_per_page' => - 1
+			'posts_per_page' => - 1,
 
 		);
 
@@ -801,7 +807,6 @@ class DeliveryDatesModule extends AbstractModule {
 
 			$new_meta = [];
 			foreach ( $delivery_days as $key => $day ) {
-
 				if ( isset( $post_meta[ 'delivery_dates_' . $day['uuid'] ] ) ) {
 					continue;
 				};
@@ -822,6 +827,31 @@ class DeliveryDatesModule extends AbstractModule {
 
 		wp_safe_redirect( $return_url, 302, 'WPifyWooDeliveryDates' );
 		exit();
+	}
+
+	/**
+	 * Convert old settings to new one
+	 */
+	public function convert_old_settings() {
+		if ( get_option( 'wpify-woo-delivery-days-option-update' ) ) {
+			return;
+		}
+
+		$options = get_option( $this->get_option_key() );
+		if ( ! isset( $options['delivery_days'] ) || empty( $options['delivery_days'] ) ) {
+			return;
+		}
+
+		foreach ( $options['delivery_days'] as $key => $delivery_day ) {
+			$message        = $delivery_day['delivery_date_message'] ?? '';
+			$more_info_text = $delivery_day['delivery_date_info'] ?? null;
+
+			$options['delivery_days'][ $key ]['delivery_date_message'] = str_replace( '%date%', '{date}', $message );
+			$options['delivery_days'][ $key ]['delivery_date_info']    = str_replace( '%date%', '{date}', $more_info_text );
+		}
+
+		update_option( $this->get_option_key(), $options );
+		update_option( 'wpify-woo-delivery-days-option-update', true );
 	}
 
 	/**

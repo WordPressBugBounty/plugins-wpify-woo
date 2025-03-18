@@ -69,6 +69,7 @@ const GenerateFeedControl = (props) => {
 						})}
 						onClick={handleGenerate}
 						disabled={isProcessing}
+						style={{flex:'none'}}
 					>
 						{button}
 					</Button>

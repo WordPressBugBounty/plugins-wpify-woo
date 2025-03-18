@@ -7,18 +7,28 @@ use Exception;
 use WC_Email;
 use WC_Order;
 use WP_Error;
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWoo\WooCommerceIntegration;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooDeps\Rikudou\CzQrPayment\Options\QrPaymentOptions;
 use WpifyWooDeps\Rikudou\CzQrPayment\QrPayment;
 use WpifyWooDeps\Rikudou\Iban\Iban\CzechIbanAdapter;
 use WpifyWooDeps\Rikudou\Iban\Iban\IBAN;
+use WpifyWooDeps\Wpify\Log\RotatingFileLog;
 
 class QRPaymentModule extends AbstractModule {
+	public function __construct(
+		private WooCommerceIntegration $woocommerce_integration,
+		private RotatingFileLog $log
+	) {
+		parent::__construct();
+		$this->setup();
+	}
+
 	/**
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'template_redirect', [ $this, 'display_qr_code_on_thankyou' ] );
 		add_action( 'wpify_woo_render_qr_code', [ $this, 'display_qr_code' ] );
 		add_shortcode( 'wpify_woo_render_qr_code', array( $this, 'display_qr_code_shortcode' ) );
@@ -63,6 +73,10 @@ class QRPaymentModule extends AbstractModule {
 		return __( 'QR Payment', 'wpify-woo' );
 	}
 
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
+	}
+
 	/**
 	 * Module settings
 	 *
@@ -75,33 +89,43 @@ class QRPaymentModule extends AbstractModule {
 				'type'    => 'multi_group',
 				'label'   => __( 'Enabled payment methods', 'wpify-woo' ),
 				'buttons' => array(
-					'add'    => __( 'Add payment method', 'wpify-woo-conditional-payment' ),
-					'remove' => __( 'Remove payment method', 'wpify-woo-conditional-payment' ),
+					'add'    => __( 'Add payment method', 'wpify-woo' ),
 				),
 				'items'   => [
 					[
-						'id'      => 'payment_method',
-						'type'    => 'select',
-						'label'   => __( 'Payment method', 'wpify-woo' ),
-						'options' => function () {
-							return $this->plugin->get_woocommerce_integration()->get_gateways();
+						'id'           => 'payment_method',
+						'type'         => 'select',
+						'label'        => __( 'Payment method', 'wpify-woo' ),
+						'options'      => function () {
+							return $this->woocommerce_integration->get_gateways();
 						},
+						'async'        => true,
+						'async_params' => array(
+							'tab'       => 'wpify-woo-settings',
+							'section'   => $this->id(),
+							'module_id' => $this->id(),
+						),
 					],
 					[
-						'id'      => 'enabled_emails',
-						'type'    => 'multi_select',
-						'label'   => __( 'Show in emails', 'wpify-woo' ),
-						'options' => function () {
-							return $this->get_emails_select();
+						'id'           => 'enabled_emails',
+						'type'         => 'multi_select',
+						'label'        => __( 'Show in emails', 'wpify-woo' ),
+						'options'      => function () {
+							return $this->woocommerce_integration->get_emails_select();
 						},
+						'async'        => true,
+						'async_params' => array(
+							'tab'       => 'wpify-woo-settings',
+							'section'   => $this->id(),
+							'module_id' => $this->id(),
+						),
 					],
 					[
 						'id'      => 'accounts',
 						'type'    => 'multi_group',
 						'label'   => __( 'Accounts', 'wpify-woo' ),
 						'buttons' => array(
-							'add'    => __( 'Add account', 'wpify-woo-conditional-payment' ),
-							'remove' => __( 'Remove account', 'wpify-woo-conditional-payment' ),
+							'add'    => __( 'Add account', 'wpify-woo' ),
 						),
 						'items'   => [
 							[
@@ -135,20 +159,32 @@ class QRPaymentModule extends AbstractModule {
 								],
 							],
 							[
-								'id'      => 'enabled_currencies',
-								'type'    => 'multi_select',
-								'label'   => __( 'Enabled currencies', 'wpify-woo' ),
-								'options' => function () {
-									return $this->get_currencies_select();
+								'id'           => 'enabled_currencies',
+								'type'         => 'multi_select',
+								'label'        => __( 'Enabled currencies', 'wpify-woo' ),
+								'options'      => function () {
+									return $this->woocommerce_integration->get_currencies_select();
 								},
+								'async'        => true,
+								'async_params' => array(
+									'tab'       => 'wpify-woo-settings',
+									'section'   => $this->id(),
+									'module_id' => $this->id(),
+								),
 							],
 							[
-								'id'      => 'enabled_countries',
-								'type'    => 'multi_select',
-								'label'   => __( 'Enabled countries', 'wpify-woo' ),
-								'options' => function () {
-									return $this->get_countries_select();
+								'id'           => 'enabled_countries',
+								'type'         => 'multi_select',
+								'label'        => __( 'Enabled countries', 'wpify-woo' ),
+								'options'      => function () {
+									return $this->woocommerce_integration->get_countries_select();
 								},
+								'async'        => true,
+								'async_params' => array(
+									'tab'       => 'wpify-woo-settings',
+									'section'   => $this->id(),
+									'module_id' => $this->id(),
+								),
 							],
 							[
 								'id'    => 'label',
@@ -242,42 +278,6 @@ class QRPaymentModule extends AbstractModule {
 		return $settings;
 	}
 
-	public function get_currencies_select() {
-		$currencies = [];
-		foreach ( get_woocommerce_currencies() as $key => $val ) {
-			$currencies[] = [
-				'label' => $val,
-				'value' => $key,
-			];
-		}
-
-		return $currencies;
-	}
-
-	public function get_emails_select() {
-		$emails = [];
-		foreach ( WC()->mailer()->get_emails() as $wc_email ) {
-			$emails[] = [
-				'label' => $wc_email->title . ' - ' . esc_html( $wc_email->is_customer_email() ? __( 'Customer', 'woocommerce' ) : $wc_email->get_recipient() ),
-				'value' => $wc_email->id,
-			];
-		}
-
-		return $emails;
-	}
-
-	public function get_countries_select() {
-		$countries = [];
-		foreach ( WC()->countries->get_allowed_countries() as $key => $val ) {
-			$countries[] = [
-				'label' => $val,
-				'value' => $key,
-			];
-		}
-
-		return $countries;
-	}
-
 	/**
 	 * Render QR code
 	 *
@@ -306,7 +306,7 @@ class QRPaymentModule extends AbstractModule {
 
 		$payment_details = [
 			'total'          => $order->get_total(),
-			'vs'             => $order->get_order_number(),
+			'vs'             => preg_replace( '/[^0-9]/', '', $order->get_order_number() ),
 			'currency'       => $order->get_currency(),
 			'due_date'       => date( 'Y-m-d' ),
 			'account_number' => $account['number'] ?? '',
@@ -328,7 +328,7 @@ class QRPaymentModule extends AbstractModule {
 				try {
 					$qrCode = $payment->getQrCode()->getDataUri();
 				} catch ( Exception $e ) {
-					$this->plugin->get_logger()->error( sprintf( 'QR payment: error create QR code.' ),
+					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
 						array(
 							'data' => array(
 								'order_id'        => $order->get_id(),
@@ -355,7 +355,7 @@ class QRPaymentModule extends AbstractModule {
 				try {
 					$qrCode = $payment->getQrCode()->getDataUri();
 				} catch ( Exception $e ) {
-					$this->plugin->get_logger()->error( sprintf( 'QR payment: error create QR code.' ),
+					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
 						array(
 							'data' => array(
 								'order_id'        => $order->get_id(),

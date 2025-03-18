@@ -1,0 +1,109 @@
+<?php
+
+namespace WpifyWooDeps\Wpify\License;
+
+use WpifyWooDeps\Wpify\Asset\AssetFactory;
+use WpifyWooDeps\Wpify\License\Api\LicenseApi;
+/**
+ * Class License
+ *
+ * @package WpifyWoo
+ */
+class License
+{
+    const PATH = __DIR__;
+    private string $option_key;
+    /**
+     * @param string $plugin
+     * @param bool $enqueue_script
+     * @param int $network_id
+     */
+    public function __construct(private string $plugin, private $enqueue_script = \false, private $network_id = 0)
+    {
+        $this->option_key = sprintf('%s_license', $plugin);
+        add_action('admin_init', array($this, 'save_activation_token'));
+        add_action('admin_init', array($this, 'delete_activation_token'));
+        if ($this->enqueue_script) {
+            add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'), 1000);
+        }
+    }
+    public function get_full_url()
+    {
+        $query_string = $_SERVER['QUERY_STRING'];
+        parse_str($query_string, $query_params);
+        $url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+        return add_query_arg($query_params, $url);
+    }
+    public function enqueue_scripts()
+    {
+        wp_dequeue_script('wpify-settings');
+        $asset_factory = new AssetFactory();
+        $asset_factory->wp_script(dirname(__DIR__) . '/build/settings.css', array('is_admin' => \true));
+        $asset_factory->wp_script(dirname(__DIR__) . '/build/settings.js', array('is_admin' => \true, 'variables' => array('wpifyWooLicenseSettings' => array('publicPath' => dirname($this::PATH) . '/build/', 'activateUrl' => add_query_arg(array('license-action' => 'add', 'slug' => $this->plugin, 'domain' => get_site_url(), 'return_url' => urlencode(urlencode($this->get_full_url()))), $this->get_base_url()), 'deactivateUrl' => add_query_arg(array('license-action' => 'deactivate', 'slug' => $this->plugin, 'domain' => get_site_url(), 'return_url' => urlencode(urlencode($this->get_full_url()))), $this->get_base_url()), 'activated' => $this->is_activated())), 'dependencies' => array('react', 'wp-components', 'wp-element', 'wp-hooks', 'wp-i18n', 'wp-polyfill')));
+        wp_set_script_translations('wpify-woo-settings.js', 'wpify-woo', '/languages');
+    }
+    public function get_option_key()
+    {
+        return $this->option_key;
+    }
+    public function save_option_license($license)
+    {
+        $data = array('license' => $license, 'slug' => $this->plugin);
+        if ($this->network_id) {
+            update_network_option($this->network_id, $this->get_option_key(), $data);
+        } else {
+            update_option($this->get_option_key(), $data);
+        }
+    }
+    /**
+     * Get Base URL
+     *
+     * @return string
+     */
+    public function get_base_url(): string
+    {
+        return 'https://wpify.io/';
+    }
+    public function save_activation_token()
+    {
+        if (empty($_GET['slug']) || empty($_GET['activation-token'] || empty($_GET['wpify-license-action']))) {
+            return;
+        }
+        if ($_GET['slug'] !== $this->plugin) {
+            return;
+        }
+        if ($_GET['wpify-license-action'] !== 'add') {
+            return;
+        }
+        $this->save_option_license($_GET['activation-token']);
+        wp_redirect(remove_query_arg(array('slug', 'activation-token', 'license-action'), $this->get_full_url()));
+        exit;
+    }
+    public function delete_activation_token()
+    {
+        if (empty($_GET['slug']) || empty($_GET['activation-token'] || empty($_GET['license-action']))) {
+            return;
+        }
+        if ($_GET['slug'] !== $this->plugin) {
+            return;
+        }
+        if ($_GET['wpify-license-action'] !== 'deactivate') {
+            return;
+        }
+        if ($this->network_id) {
+            delete_network_option($this->network_id, $this->get_option_key());
+        } else {
+            delete_option($this->get_option_key());
+        }
+        wp_redirect(remove_query_arg(array('slug', 'activation-token', 'license-action'), $this->get_full_url()));
+        exit;
+    }
+    public function is_activated()
+    {
+        if ($this->network_id) {
+            return get_network_option($this->network_id, $this->get_option_key());
+        } else {
+            return get_option($this->get_option_key());
+        }
+    }
+}

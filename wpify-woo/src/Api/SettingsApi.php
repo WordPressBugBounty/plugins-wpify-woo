@@ -2,23 +2,24 @@
 
 namespace WpifyWoo\Api;
 
+use Exception;
 use WP_REST_Response;
 use WP_REST_Server;
+use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Plugin;
-use WpifyWooDeps\Wpify\Core\Abstracts\AbstractRest;
+use WpifyWoo\WooCommerceIntegration;
 
 /**
  * @property Plugin $plugin
  */
-class SettingsApi extends AbstractRest {
+class SettingsApi extends \WP_REST_Controller {
 
 	/**
 	 * ExampleApi constructor.
 	 */
-	public function __construct() {
-	}
-
-	public function setup() {
+	public function __construct(
+		private WooCommerceIntegration $woocommerce_integration,
+	) {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -27,7 +28,7 @@ class SettingsApi extends AbstractRest {
 	 */
 	public function register_routes() {
 		register_rest_route(
-			$this->plugin->get_api_manager()->get_rest_namespace(),
+			ApiManager::REST_NAMESPACE,
 			'option',
 			array(
 				array(
@@ -41,7 +42,7 @@ class SettingsApi extends AbstractRest {
 		);
 
 		register_rest_route(
-			$this->plugin->get_api_manager()->get_rest_namespace(),
+			ApiManager::REST_NAMESPACE,
 			'list',
 			array(
 				array(
@@ -61,7 +62,7 @@ class SettingsApi extends AbstractRest {
 	 * @return \WP_Error|\WP_REST_Request|\WP_REST_Response | bool
 	 */
 	public function save_option( $request ) {
-		update_option( $request->get_param( 'option' ), $request->get_param( 'data' ), isset($request->get_params()['autoload']) ? $request->get_param( 'autoload' ) : true );
+		update_option( $request->get_param( 'option' ), $request->get_param( 'data' ), isset( $request->get_params()['autoload'] ) ? $request->get_param( 'autoload' ) : true );
 
 		return new WP_REST_Response( array(), 201 );
 	}

@@ -2,17 +2,21 @@
 
 namespace WpifyWoo\Modules\FreeShippingNotice;
 
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 
 class FreeShippingNoticeModule extends AbstractModule {
+
+	public function __construct() {
+		parent::__construct();
+		$this->setup();
+	}
 
 	/**
 	 * Setup
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
-
 		if ( ! empty( $this->get_setting( 'positions' ) ) ) {
 			foreach ( $this->get_setting( 'positions' ) as $position ) {
 				add_action( $position, array( $this, 'render_free_shipping_notice' ) );
@@ -41,6 +45,10 @@ class FreeShippingNoticeModule extends AbstractModule {
 	 */
 	public function id(): string {
 		return 'free_shipping_notice';
+	}
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
 	}
 
 

@@ -33,7 +33,7 @@ window.jQuery(document).ready(function ($) {
 	 */
 	const blankDom = {
 		addEventListener: () => null,
-		style: { display: 'none' },
+		style: {display: 'none'},
 		value: '',
 		placeholder: '',
 		classList: {
@@ -82,20 +82,20 @@ window.jQuery(document).ready(function ($) {
 			viesLoading: false,
 			disableSubmit: false,
 		},
-		get (key) {
+		get(key) {
 			return this.data[key];
 		},
-		set (nextState) {
+		set(nextState) {
 			Object.keys(nextState).forEach(key => {
 				this.data[key] = nextState[key];
 			});
 
 			this.subscribers.forEach(callback => callback(this.data));
 		},
-		subscribe (callback) {
+		subscribe(callback) {
 			this.subscribers.push(callback);
 		},
-		sync () {
+		sync() {
 			const data = {
 				companyDetails: dom.companyDetails().checked,
 				ic: dom.ic().value,
@@ -130,7 +130,7 @@ window.jQuery(document).ready(function ($) {
 	 *
 	 * @param state
 	 */
-	function render (state) {
+	function render(state) {
 		if (typeof state.companyDetails !== 'undefined') {
 			if (state.companyDetails) {
 				dom.companyField().style.display = 'block';
@@ -198,31 +198,31 @@ window.jQuery(document).ready(function ($) {
 		document.querySelectorAll('.wpify-woo__ic-error').forEach(el => el.remove());
 
 		if (state.aresLoading) {
-			dom.ic().parentNode.classList.add('loading');
+			dom.ic()?.parentNode?.classList.add('loading');
 		} else {
-			dom.ic().parentNode.classList.remove('loading');
+			dom.ic()?.parentNode?.classList.remove('loading');
 		}
 
 		if (state.aresResult && state.aresLoading === false) {
 			const el = document.createElement('div');
 			el.innerHTML = state.aresResult;
 			el.classList.add('wpify-woo__ic-error');
-			dom.ic().parentNode.insertBefore(el, dom.ic().nextSibling);
+			dom.ic()?.parentNode?.insertBefore(el, dom.ic().nextSibling);
 		}
 
 		const viesInput = state.country === 'SK' ? dom.icDph() : dom.dic();
 
 		if (state.viesLoading) {
-			viesInput.parentNode.classList.add('loading');
+			viesInput?.parentNode?.classList.add('loading');
 		} else {
-			viesInput.parentNode.classList.remove('loading');
+			viesInput?.parentNode?.classList.remove('loading');
 		}
 
 		if (state.viesResult && state.viesLoading === false) {
 			const el = document.createElement('div');
 			el.innerHTML = state.viesResult;
 			el.classList.add('wpify-woo__ic-error');
-			viesInput.parentNode.insertBefore(el, viesInput.nextSibling);
+			viesInput?.parentNode?.insertBefore(el, viesInput.nextSibling);
 		}
 
 		dom.submit().disabled = !!state.disableSubmit;
@@ -233,7 +233,11 @@ window.jQuery(document).ready(function ($) {
 	 *
 	 * @param field
 	 */
-	function setAsRequired (field) {
+	function setAsRequired(field) {
+		if (typeof field.querySelector == "undefined") {
+			return;
+		}
+
 		const span = field.querySelector('label span');
 
 		field.classList.add('validate-required');
@@ -249,7 +253,11 @@ window.jQuery(document).ready(function ($) {
 	 *
 	 * @param field
 	 */
-	function setAsOptional (field) {
+	function setAsOptional(field) {
+		if (typeof field.querySelector == "undefined") {
+			return;
+		}
+
 		const span = field.querySelector('label span');
 
 		field.classList.remove('validate-required');
@@ -260,7 +268,7 @@ window.jQuery(document).ready(function ($) {
 		}
 	}
 
-	function fetchJson (url, options) {
+	function fetchJson(url, options) {
 		return new Promise((resolve, reject) => {
 			fetch(url, options)
 				.then(response => {
@@ -274,14 +282,14 @@ window.jQuery(document).ready(function ($) {
 		});
 	}
 
-	function autofillAres () {
+	function autofillAres() {
 		if (window.wpifyWooIcDic.restUrl && !state.get('aresLoading')) {
 			const ino = normalizeIc(dom.ic().value || dom.aresIn().value);
 
-			state.set({ aresLoading: true });
+			state.set({aresLoading: true});
 
 			fetchJson(window.wpifyWooIcDic.restUrl + '/icdic?in=' + ino)
-				.then(({ details = {} }) => {
+				.then(({details = {}}) => {
 					Object.keys(details).forEach(function (key) {
 						const element = document.getElementById(key);
 						element.value = details[key];
@@ -291,7 +299,7 @@ window.jQuery(document).ready(function ($) {
 						}
 					});
 
-					state.set({ aresResult: '' });
+					state.set({aresResult: ''});
 					const evt = new CustomEvent("wpify_woo_ic_dic_ares_autofilled", {
 						detail: {
 							details: details,
@@ -300,15 +308,15 @@ window.jQuery(document).ready(function ($) {
 					window.dispatchEvent(evt);
 				})
 				.catch(error => {
-					state.set({ aresResult: error });
+					state.set({aresResult: error});
 				})
 				.finally(() => {
-					state.set({ aresLoading: false, companyDetails: true });
+					state.set({aresLoading: false, companyDetails: true});
 				});
 		}
 	}
 
-	function normalizeDic (dic) {
+	function normalizeDic(dic) {
 		dic = dic.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 
 		if (!dic.match(/^[A-Z]{2}/)) {
@@ -318,20 +326,20 @@ window.jQuery(document).ready(function ($) {
 		return dic;
 	}
 
-	function normalizeIc (ic) {
+	function normalizeIc(ic) {
 		return ic.replace(/\D/g, '');
 	}
 
 	let dicTimeout = null;
 
-	function validateDic () {
+	function validateDic() {
 		if (window.wpifyWooIcDic.restUrl && !state.get('viesLoading')) {
 			window.clearTimeout(dicTimeout);
 
 			const dic = state.get('country') === 'SK' ? normalizeDic(state.get('icDph')) : normalizeDic(state.get('dic'));
 
 			if (state.get('viesLastChecked') !== dic) {
-				state.set({ viesResult: '', viesLoading: true, disableSubmit: true });
+				state.set({viesResult: '', viesLoading: true, disableSubmit: true});
 
 				fetchJson(window.wpifyWooIcDic.restUrl + '/icdic-vies?in=' + dic)
 					.then(() => {
@@ -342,25 +350,25 @@ window.jQuery(document).ready(function ($) {
 						}
 					})
 					.catch(error => {
-						state.set({ viesResult: error });
+						state.set({viesResult: error});
 					})
 					.finally(() => {
 						$(document.body).trigger('update_checkout');
-						state.set({ viesLoading: false, disableSubmit: false, viesLastChecked: dic });
+						state.set({viesLoading: false, disableSubmit: false, viesLastChecked: dic});
 					});
 			} else {
-				state.set({ viesLoading: false, disableSubmit: false });
+				state.set({viesLoading: false, disableSubmit: false});
 			}
 		}
 	}
 
-	function preventSubmitOnEnter (event) {
+	function preventSubmitOnEnter(event) {
 		if (event.key === 'Enter' && state.get('disableSubmit') === true) {
 			event.preventDefault();
 		}
 	}
 
-	function preventSubmitOnClick (event) {
+	function preventSubmitOnClick(event) {
 		if (state.get('disableSubmit') === true) {
 			event.preventDefault();
 		}
@@ -375,7 +383,7 @@ window.jQuery(document).ready(function ($) {
 	 * Listen to changes in checkout form.
 	 */
 	$(document.body).on('change', 'input[name=company_details]', e => {
-		const nextData = { companyDetails: e.target.checked };
+		const nextData = {companyDetails: e.target.checked};
 
 		if (!nextData.companyDetails) {
 			nextData.ic = '';
@@ -395,21 +403,21 @@ window.jQuery(document).ready(function ($) {
 	});
 
 	$(document.body).on('change', 'input[name=billing_company]', e => {
-		state.set({ company: e.target.value });
+		state.set({company: e.target.value});
 	});
 
 	$(document.body).on('change', 'select[name=billing_country]', e => {
-		state.set({ country: e.target.value });
+		state.set({country: e.target.value});
 	});
 
 	$(document.body).on('change', 'input[name=billing_ic]', e => {
-		state.set({ ic: e.target.value });
+		state.set({ic: e.target.value});
 
 		if (dom.icField().classList.contains('wpify-woo-ic--validate')) {
 			if (state.get('country') === 'CZ' && e.target.value.length > 0) {
 				autofillAres();
 			} else {
-				state.set({ aresResult: '' });
+				state.set({aresResult: ''});
 			}
 		}
 	});
@@ -425,7 +433,7 @@ window.jQuery(document).ready(function ($) {
 	$(document.body).on('click', '#wpify-woo-icdic__ares-submit', autofillAres);
 
 	$(document.body).on('change', 'input[name=billing_dic]', e => {
-		state.set({ dic: e.target.value });
+		state.set({dic: e.target.value});
 
 		if (dom.dicField().classList.contains('wpify-woo-vies--validate') && state.get('country') !== 'SK' && e.target.value.length > 0) {
 			validateDic();
@@ -433,7 +441,7 @@ window.jQuery(document).ready(function ($) {
 	});
 
 	$(document.body).on('change', 'input[name=billing_dic_dph]', e => {
-		state.set({ icDph: e.target.value });
+		state.set({icDph: e.target.value});
 
 		if (dom.icDph().classList.contains('wpify-woo-vies--validate') && state.get('country') === 'SK' && e.target.value.length > 0) {
 			validateDic();
@@ -443,7 +451,7 @@ window.jQuery(document).ready(function ($) {
 	$(document.body).on('keyup', 'input[name=billing_dic]', e => {
 		if (dom.dicField().classList.contains('wpify-woo-vies--validate') && state.get('country') !== 'SK' && e.target.value.length > 0) {
 			window.clearTimeout(dicTimeout);
-			state.set({ disableSubmit: true, dic: e.target.value });
+			state.set({disableSubmit: true, dic: e.target.value});
 			window.setTimeout(validateDic, 2000);
 		}
 	});
@@ -451,7 +459,7 @@ window.jQuery(document).ready(function ($) {
 	$(document.body).on('keyup', 'input[name=billing_dic_dph]', e => {
 		if (dom.dicField().classList.contains('wpify-woo-vies--validate') && state.get('country') === 'SK' && e.target.value.length > 0) {
 			window.clearTimeout(dicTimeout);
-			state.set({ disableSubmit: true, icDph: e.target.value });
+			state.set({disableSubmit: true, icDph: e.target.value});
 			window.setTimeout(validateDic, 2000);
 		}
 	});

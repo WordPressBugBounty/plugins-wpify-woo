@@ -2,24 +2,36 @@
 
 namespace WpifyWoo\Modules\HeurekaMereniKonverzi;
 
-use WpifyWoo\Abstracts\AbstractModule;
+use WpifyWoo\Plugin;
+use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWoo\Models\WooOrderModel;
 use WpifyWoo\Repositories\WooOrderRepository;
-use WpifyWooDeps\Wpify\Core\Models\WooOrderItemProductModel;
+use WpifyWooDeps\Wpify\Model\OrderItem;
+
 
 /**
  * Class HeurekaOverenoZakaznikyModule
+ *
  * @package WpifyWoo\Modules\HeurekaOverenoZakazniky
  */
 class HeurekaMereniKonverziModule extends AbstractModule {
+
+	const MODULE_ID = 'heureka_mereni_konverzi';
+
+	public function __construct(
+		private WooOrderRepository $woo_order_repository,
+	) {
+		parent::__construct();
+		$this->setup();
+	}
 
 	/**
 	 * Setup
 	 * @return void
 	 */
 	public function setup() {
-		add_filter( 'wpify_woo_settings_' . $this->id(), array( $this, 'settings' ) );
 		add_action( 'woocommerce_thankyou', array( $this, 'render_tracking_code' ) );
+		add_action( 'wp_footer', array( $this, 'render_product_tracking_code' ) );
 	}
 
 	/**
@@ -27,7 +39,7 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 	 * @return string
 	 */
 	public function id(): string {
-		return 'heureka_mereni_konverzi';
+		return self::MODULE_ID;
 	}
 
 	/**
@@ -39,33 +51,44 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 	}
 
 	/**
+	 * Plugin slug
+	 *
+	 * @return string
+	 */
+
+	public function plugin_slug(): string {
+		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
 	 *  Get the settings
 	 * @return array[]
 	 */
 	public function settings(): array {
 		return array(
-				array(
-						'id'    => 'api_key',
-						'type'  => 'text',
-						'label' => __( 'Public key for conversions', 'wpify-woo' ),
-						'desc'  => __( 'Enter the public key for the conversion measurement code.' ),
-				),
-				array(
-						'id'      => 'country',
-						'type'    => 'select',
-						'options' => [
-								[
-										'label' => 'CZ',
-										'value' => 'cs',
-								],
-								[
-										'label' => 'SK',
-										'value' => 'sk',
-								],
-						],
-						'label'   => __( 'Country', 'wpify-woo' ),
-						'desc'    => __( 'Select country for tracking' ),
-				),
+			array(
+				'id'    => 'api_key',
+				'type'  => 'text',
+				'label' => __( 'Public key for conversions', 'wpify-woo' ),
+				'desc'  => __( 'Enter the public key for the conversion measurement code.' ),
+			),
+			array(
+				'id'      => 'country',
+				'type'    => 'select',
+				'options' => [
+					[
+						'label' => 'CZ',
+						'value' => 'cz',
+					],
+					[
+						'label' => 'SK',
+						'value' => 'sk',
+					],
+				],
+				'label'   => __( 'Country', 'wpify-woo' ),
+				'desc'    => __( 'Select country for tracking' ),
+				'default' => 'cz'
+			),
 		);
 	}
 
@@ -79,44 +102,83 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 		}
 
 		/** @var WooOrderModel $order */
-		$order    = $this->plugin->get_repository( WooOrderRepository::class )->get( $order_id );
+		$order    = $this->woo_order_repository->get( $order_id );
 		$products = [];
-		foreach ( $order->get_line_items() as $item ) {
-			/** @var WooOrderItemProductModel $item */
+		foreach ( $order->line_items as $item ) {
+			/** @var OrderItem $item */
 			$products[] = [
-					'addProduct',
-					$item->get_name(),
-					(string) $item->get_unit_price(),
-					(string) $item->get_quantity(),
-					(string) $item->get_product_id(),
+				'add_product',
+				(string) $item->product_id,
+				$item->name,
+				(string) $item->unit_price_tax_included,
+				(string) $item->quantity,
 			];
 		}
-		$url = 'https://im9.cz/js/ext/1-roi-async.js';
-		if ( 'sk' === $this->get_setting( 'country' ) ) {
-			$url = 'https://im9.cz/sk/js/ext/2-roi-async.js';
+		$country = $this->get_setting( 'country' ) ?: 'cz';
+		$url     = '//www.heureka.cz/ocm/sdk.js?version=2&page=thank_you';
+		if ( 'sk' === $country ) {
+			$url = '//www.heureka.sk/ocm/sdk.js?version=2&page=thank_you';
 		}
 		$url = apply_filters( 'wpify_woo_heureka_mereni_konverzi_url', $url );
 		?>
-		<script type="text/javascript">
-			var _hrq = _hrq || [];
-			_hrq.push(['setKey', '<?php echo esc_attr( $api_key ); ?>']);
-			_hrq.push(['setOrderId', '<?php echo esc_attr( $order->get_id() ); ?>']);
+		<!-- Heureka.cz THANK YOU PAGE script -->
+		<script>
+			(function (t, r, a, c, k, i, n, g) {
+				t['ROIDataObject'] = k;
+				t[k] = t[k] || function () {
+					(t[k].q = t[k].q || []).push(arguments)
+				}, t[k].c = i;
+				n = r.createElement(a),
+					g = r.getElementsByTagName(a)[0];
+				n.async = 1;
+				n.src = c;
+				g.parentNode.insertBefore(n, g)
+			})(window, document, 'script', '<?php echo $url;?>', 'heureka', '<?php echo $country ?>');
 
+			heureka('authenticate', '<?php echo esc_attr( $api_key ); ?>');
+
+			heureka('set_order_id', '<?php echo esc_attr( $order->id ); ?>');
 			<?php foreach ( $products as $item ) { ?>
-			_hrq.push(<?php echo json_encode( $item );?>);
+			heureka(<?php echo json_encode( $item );?>);
 			<?php }?>
-			_hrq.push(['trackOrder']);
-
-			(function () {
-				var ho = document.createElement('script');
-				ho.type = 'text/javascript';
-				ho.async = true;
-				ho.src = '<?php echo $url;?>';
-				var s = document.getElementsByTagName('script')[0];
-				s.parentNode.insertBefore(ho, s);
-			})();
+			heureka('set_total_vat', '<?php echo esc_attr( $order->get_wc_order()->get_total() ); ?>');
+			heureka('set_currency', '<?php echo esc_attr( $order->get_wc_order()->get_currency() ); ?>');
+			heureka('send', 'Order');
 		</script>
+		<!-- End Heureka.cz THANK YOU PAGE script -->
+		<?php
+	}
 
+	/**
+	 *
+	 */
+	public function render_product_tracking_code() {
+		$api_key = $this->get_setting( 'api_key' );
+		if ( ! $api_key || ! is_product() ) {
+			return;
+		}
+		$country = $this->get_setting( 'country' ) ?: 'cz';
+		$url     = '//www.heureka.cz/ocm/sdk.js?version=2&page=product_detail';
+		if ( 'sk' === $country ) {
+			$url = '//www.heureka.sk/ocm/sdk.js?version=2&page=product_detail';
+		}
+		$url = apply_filters( 'wpify_woo_heureka_mereni_konverzi_url', $url );
+		?>
+		<!-- Heureka.cz PRODUCT DETAIL script -->
+		<script>
+			(function (t, r, a, c, k, i, n, g) {
+				t['ROIDataObject'] = k;
+				t[k] = t[k] || function () {
+					(t[k].q = t[k].q || []).push(arguments)
+				}, t[k].c = i;
+				n = r.createElement(a),
+					g = r.getElementsByTagName(a)[0];
+				n.async = 1;
+				n.src = c;
+				g.parentNode.insertBefore(n, g)
+			})(window, document, 'script', '<?php echo $url;?>', 'heureka', '<?php echo $country ?>');
+		</script>
+		<!-- End Heureka.cz PRODUCT DETAIL script -->
 		<?php
 	}
 }
