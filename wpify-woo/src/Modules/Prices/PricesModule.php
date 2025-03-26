@@ -470,7 +470,7 @@ class PricesModule extends AbstractModule {
 
 		$items = [];
 		foreach ( $custom_prices as $price ) {
-			if ( ! isset( $price['type'] ) && ! $price['type'] ) {
+			if ( ! isset( $price['type'] ) || ! $price['type'] ) {
 				if ( isset( $price['lowest_price'] ) && $price['lowest_price'] ) {
 					$price['type'] = 'lowest';
 				} else {

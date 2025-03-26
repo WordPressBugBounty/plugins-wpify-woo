@@ -205,7 +205,7 @@ class Feed extends AbstractFeed {
 				$cat_id       = $this->module->get_setting( 'heureka_category_' . apply_filters( 'wpml_object_id', $id, 'product_cat', true, $default_lang ) );
 			}
 			if ( $cat_id ) {
-				$category = $this->heureka_categories[ $cat_id ]['category_fullname'] ?: $this->heureka_categories[ $cat_id ]['name'];
+				$category = $this->heureka_categories[ $cat_id ]['category_fullname'] ?: $this->heureka_categories[ $cat_id ]['category_name'];
 				break;
 			}
 		}

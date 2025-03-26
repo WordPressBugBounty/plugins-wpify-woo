@@ -6,6 +6,7 @@ use Exception;
 use WC_Data;
 use WC_Order;
 use WpifyWoo\Plugin;
+use WpifyWoo\WooCommerceIntegration;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Modules\IcDic\Api\IcDicApi;
@@ -29,6 +30,7 @@ class IcDicModule extends AbstractModule {
 		private AssetFactory $asset_factory,
 		private PluginUtils $plugin_utils,
 		private ApiManager $api_manager,
+		private WooCommerceIntegration $woo_integration,
 	) {
 		parent::__construct();
 		$this->setup();
@@ -46,10 +48,10 @@ class IcDicModule extends AbstractModule {
 		add_filter( 'woocommerce_order_formatted_billing_address', array( $this, 'add_fields_to_address' ), 10, 2 );
 		add_filter( 'woocommerce_formatted_address_replacements', array( $this, 'replace_tags_in_emails' ), 10, 2 );
 		add_filter( 'woocommerce_localisation_address_formats', array( $this, 'localisation_address_formats' ) );
-		add_filter( 'woocommerce_admin_order_data_after_billing_address', array(
-			$this,
-			'display_block_fields_in_admin'
-		) );
+//		add_filter( 'woocommerce_admin_order_data_after_billing_address', array(
+//			$this,
+//			'display_block_fields_in_admin'
+//		) );
 		add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkout_validation' ), 10, 2 );
 		add_action( 'init', array( $this, 'add_rest_api' ) );
 
@@ -566,34 +568,33 @@ class IcDicModule extends AbstractModule {
 	 * @return mixed
 	 */
 	public function localisation_address_formats( array $address_formats ): array {
-		if ( apply_filters( 'wpify_woo_add_ic_dic_to_address', true ) === false ) {
+		if ( $this->woo_integration->is_block_checkout() || apply_filters( 'wpify_woo_add_ic_dic_to_address', true ) === false ) {
 			return $address_formats;
 		}
 
 		foreach ( $address_formats as $key => $format ) {
 			$address_formats[ $key ] = $format . "\n{billing_ic}\n{billing_dic}\n{billing_dic_dph}";
 		}
-
 		return $address_formats;
 	}
 
-	public function display_block_fields_in_admin( $order ) {
-		$billing_ic      = $order->get_meta( '_billing_ic', true );
-		$billing_dic     = $order->get_meta( '_billing_dic', true );
-		$billing_dic_dph = $order->get_meta( '_billing_dic_dph', true );
-
-		echo '<div class="address"><p>';
-		if ( $billing_ic ) {
-			echo '<span>' . __( 'Identification no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_ic );
-		}
-		if ( $billing_dic ) {
-			echo '<br><span>' . __( 'VAT no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_dic );
-		}
-		if ( $billing_dic_dph ) {
-			echo '<br><span>' . __( 'IN VAT no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_dic_dph );
-		}
-		echo '</p></div>';
-	}
+//	public function display_block_fields_in_admin( $order ) {
+//		$billing_ic      = $order->get_meta( '_billing_ic', true );
+//		$billing_dic     = $order->get_meta( '_billing_dic', true );
+//		$billing_dic_dph = $order->get_meta( '_billing_dic_dph', true );
+//
+//		echo '<div class="address"><p>';
+//		if ( $billing_ic ) {
+//			echo '<span>' . __( 'Identification no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_ic );
+//		}
+//		if ( $billing_dic ) {
+//			echo '<br><span>' . __( 'VAT no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_dic );
+//		}
+//		if ( $billing_dic_dph ) {
+//			echo '<br><span>' . __( 'IN VAT no.', 'wpify-woo' ) . ':</span> ' . esc_html( $billing_dic_dph );
+//		}
+//		echo '</p></div>';
+//	}
 
 	/**
 	 * Add the fields values to the address

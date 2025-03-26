@@ -19,7 +19,7 @@ class WooCommerceIntegration {
 	 *
 	 * @return bool|void
 	 */
-	public function __construct( ) {
+	public function __construct() {
 	}
 
 	public function register_settings() {
@@ -139,5 +139,13 @@ class WooCommerceIntegration {
 		}
 
 		return $currencies;
+	}
+
+	public function is_block_checkout(): bool {
+		return \WC_Blocks_Utils::has_block_in_page( wc_get_page_id( 'checkout' ), 'woocommerce/checkout' );
+	}
+
+	public function is_block_cart(): bool {
+		return \WC_Blocks_Utils::has_block_in_page( wc_get_page_id( 'cart' ), 'woocommerce/cart' );
 	}
 }

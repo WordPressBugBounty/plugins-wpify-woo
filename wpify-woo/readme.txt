@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, WPify, Zásilkovna, Heureka, IČ DIČ
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 5.0.0
+Stable tag: 5.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -218,6 +218,12 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+= 5.0.1 =
+* Fix display IČ DIČ in addresses
+* Fix setting for Heureka certification widget code
+* Fix Heureka parent category name
+* Fix Custom price type warning
+
 = 5.0.0 =
 * Add new conversion code for Heureka Měření konverzí
 * Add validation of variable symbol to numbers only for QR payment

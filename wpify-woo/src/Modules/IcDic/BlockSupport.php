@@ -19,7 +19,6 @@ class BlockSupport {
 		//add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'save_metadata' ] );
 		add_filter( 'woocommerce_set_additional_field_value', [ $this, 'save_metadata_back_compatibility' ], 10, 4 );
 		add_action( 'woocommerce_sanitize_additional_field', [ $this, 'sanitize_ic_dic_fields' ] );
-		add_filter( 'woocommerce_localisation_address_formats', [ $this, 'add_address_format' ] );
 		add_filter( 'woocommerce_store_api_cart_errors', [ $this, 'validate_cart' ], 10, 2 );
 		// Default values from meta (Backward compatibility)
 		add_filter( 'woocommerce_get_default_value_for_wpify/company', function ( $value, $group, $wc_object ) {
@@ -209,20 +208,6 @@ class BlockSupport {
 		if ( $meta_key ) {
 			$wc_object->update_meta_data( $meta_key, $value, true );
 		}
-	}
-
-	function add_address_format( $address ) {
-		$replaces = [
-			'{billing_ic}',
-			'{billing_dic}',
-			'{billing_dic_dph}',
-		];
-
-		foreach ( $address as $key => $item ) {
-			$address[ $key ] = str_replace( $replaces, '', $item );
-		}
-
-		return $address;
 	}
 
 	public function set_customer_vat_extempt( $data ) {

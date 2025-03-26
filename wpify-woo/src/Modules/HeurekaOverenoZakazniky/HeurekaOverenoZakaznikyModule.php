@@ -102,7 +102,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 			),
 			array(
 				'id'    => 'widget_code',
-				'type'  => 'textarea',
+				'type'  => 'code',
 				'label' => __( 'Certification widget code', 'wpify-woo' ),
 				'desc'  => __( 'Copy the code from your Heureka account.', 'wpify-woo' ),
 			),
