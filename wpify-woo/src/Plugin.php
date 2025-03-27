@@ -21,7 +21,7 @@ use WpifyWooDeps\Wpify\WooCore\WpifyWooCore;
 class Plugin extends AbstractPlugin {
 
 	/** Plugin version */
-	public const VERSION = '5.0.1';
+	public const VERSION = '5.0.2';
 
 	/** Plugin slug name */
 	public const PLUGIN_SLUG = 'wpify-woo';

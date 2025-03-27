@@ -23,7 +23,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 		private RotatingFileLog $log,
 		private WooOrderRepository $woo_order_repository
 	) {
-		parent::__construct(  );
+		parent::__construct();
 		$this->setup();
 	}
 
@@ -85,7 +85,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				'id'    => 'enable_optout',
 				'type'  => 'toggle',
 				'label' => __( 'Enable Opt-Out', 'wpify-woo' ),
-				'title'  => __( 'Check if you want to enable opt out on the checkout', 'wpify-woo' ),
+				'title' => __( 'Check if you want to enable opt out on the checkout', 'wpify-woo' ),
 			),
 			array(
 				'id'      => 'enable_optout_text',
@@ -98,7 +98,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				'id'    => 'widget_enabled',
 				'type'  => 'toggle',
 				'label' => __( 'Enable Certification Widget', 'wpify-woo' ),
-				'title'  => __( 'Enable certification widget.', 'wpify-woo' ),
+				'title' => __( 'Enable certification widget.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'widget_code',
@@ -194,10 +194,11 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 
 			/** @var OrderItemLine $item */
 			foreach ( $order->line_items as $item ) {
-				$shop_certification->addProductItemId( $item->id );
+				$item_id = apply_filters( 'wpify_woo_heureka_overeno_item_id', $item->id, $item );
+				$shop_certification->addProductItemId( $item_id );
 			}
 
-			$shop_certification->logOrder();
+			$result = $shop_certification->logOrder();
 			$order->get_wc_order()->add_order_note( sprintf( __( 'Heureka: Agree with the satisfaction questionnaire: %s', 'wpify-woo' ), __( 'Yes. The order has been sent.', 'wpify-woo' ) ) );
 			$order->get_wc_order()->update_meta_data( '_wpify_woo_heureka_optout_agreement', 'yes' );
 			$order->get_wc_order()->save();
@@ -206,6 +207,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				array(
 					'data' => array(
 						'order_id' => $order->id,
+						'result'   => $result,
 					),
 				)
 			);
@@ -240,7 +242,8 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 					checked( isset( $_POST['wpify_woo_heureka_optout'] ), true ); // WPCS: input var ok, csrf ok.
 					?>
 				/>
-				<span class="wpify-woo-heureka-optout-checkbox-text"><?php echo sanitize_text_field( $this->get_setting( 'enable_optout_text' ) ); ?></span>&nbsp;
+				<span
+					class="wpify-woo-heureka-optout-checkbox-text"><?php echo sanitize_text_field( $this->get_setting( 'enable_optout_text' ) ); ?></span>&nbsp;
 			</label>
 		</p>        <?php
 	}
