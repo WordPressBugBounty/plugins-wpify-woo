@@ -121,11 +121,12 @@ class DeliveryDatesModule extends AbstractModule {
 						'label' => __( 'Skip weekends', 'wpify-woo' ),
 					),
 					array(
-						'id'      => 'delivery_date_message',
-						'type'    => 'text',
-						'label'   => __( 'Delivery date message', 'wpify-woo' ),
-						'desc'    => __( 'Use <code>{date}</code> code to render calculated date in messsage.', 'wpify-woo' ),
-						'default' => __( 'Delivered on {date}', 'wpify-woo' ),
+						'id'         => 'delivery_date_message',
+						'type'       => 'text',
+						'label'      => __( 'Delivery date message', 'wpify-woo' ),
+						'desc'       => __( 'Use <code>{date}</code> code to render calculated date in messsage.', 'wpify-woo' ),
+						'default'    => __( 'Delivered on {date}', 'wpify-woo' ),
+						'unfiltered' => true
 					),
 					array(
 						'id'    => 'delivery_date_info',
@@ -177,10 +178,11 @@ class DeliveryDatesModule extends AbstractModule {
 				'default' => __( 'more info', 'wpify-woo' ),
 			),
 			array(
-				'id'    => 'payments_message',
-				'type'  => 'text',
-				'label' => __( 'Payment methods message', 'wpify-woo' ),
-				'desc'  => __( 'Insert payment methods message. Leave empty to not show.', 'wpify-woo' ),
+				'id'         => 'payments_message',
+				'type'       => 'text',
+				'label'      => __( 'Payment methods message', 'wpify-woo' ),
+				'desc'       => __( 'Insert payment methods message. Leave empty to not show.', 'wpify-woo' ),
+				'unfiltered' => true
 			),
 			array(
 				'id'    => 'payments_info',

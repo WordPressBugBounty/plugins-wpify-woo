@@ -10,6 +10,7 @@ namespace WpifyWooDeps\Nette\Utils;
 use WpifyWooDeps\Nette;
 class Helpers
 {
+    public const IsWindows = \PHP_OS_FAMILY === 'Windows';
     /**
      * Executes a callback and returns the captured output as a string.
      */

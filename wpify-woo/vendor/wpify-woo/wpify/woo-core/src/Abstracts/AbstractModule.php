@@ -22,7 +22,7 @@ abstract class AbstractModule
     public function __construct()
     {
         $this->id = $this->id();
-        add_filter('wpify_get_sections_' . $this->parent_settings_id(), array($this, 'add_settings_section'));
+        add_filter('wpify_get_sections_' . $this->plugin_slug(), array($this, 'add_settings_section'));
         add_filter('wpify_admin_menu_bar_data', array($this, 'add_admin_menu_bar_data'));
         if (is_admin() && defined('WpifyWooDeps\ICL_LANGUAGE_CODE') && \false === get_option($this->get_option_key())) {
             $default_lang = apply_filters('wpml_default_language', null);

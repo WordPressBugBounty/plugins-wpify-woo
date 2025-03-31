@@ -20,7 +20,6 @@ class Options extends OptionsIntegration
     const TYPE_USER = 'user';
     const TYPE_OPTIONS = 'options';
     const ALLOWED_TYPES = array(self::TYPE_OPTIONS, self::TYPE_NETWORK, self::TYPE_USER_SUBMENU, self::TYPE_USER);
-    const NETWORK_SAVE_ACTION = 'wpifycf-save-network-options';
     /**
      * ID of the custom fields options instance.
      *
@@ -178,18 +177,12 @@ class Options extends OptionsIntegration
     public function __construct(array $args, CustomFields $custom_fields)
     {
         parent::__construct($custom_fields);
-        $required = array('page_title', 'menu_title', 'menu_slug');
-        $missing = array();
-        foreach ($required as $arg) {
-            if (empty($args[$arg])) {
-                $missing[] = $arg;
-            }
-        }
-        if (count($missing) > 0) {
+        $missing_page_args = empty($args['page_title']) || empty($args['menu_title']) || empty($args['menu_slug']);
+        $missing_hook_suffix = empty($args['hook_suffix']);
+        if ($missing_page_args && $missing_hook_suffix) {
             throw new MissingArgumentException(sprintf(
-                /* translators: %1$s is a list of missing arguments, %2$s is the class name. */
-                esc_html(__('Missing arguments %1$s in class %2$s.', 'wpify-custom-fields')),
-                esc_html(implode(', ', $missing)),
+                /* translators: %1$s is the class name. */
+                esc_html(__('Missing arguments ((page_title AND menu_title AND menu_slug) OR (hook_suffix)) in class %1$s.', 'wpify-custom-fields')),
                 __CLASS__
             ));
         }
@@ -203,10 +196,10 @@ class Options extends OptionsIntegration
             ));
         }
         $this->type = $args['type'] ?? $this::TYPE_OPTIONS;
-        $this->page_title = $args['page_title'];
-        $this->menu_title = $args['menu_title'];
+        $this->page_title = $args['page_title'] ?? '';
+        $this->menu_title = $args['menu_title'] ?? '';
         $this->capability = $args['capability'] ?? 'manage_options';
-        $this->menu_slug = $args['menu_slug'];
+        $this->menu_slug = $args['menu_slug'] ?? '';
         $this->parent_slug = $args['parent_slug'] ?? null;
         $this->callback = $args['callback'] ?? null;
         $this->icon_url = $args['icon_url'] ?? null;
@@ -244,15 +237,21 @@ class Options extends OptionsIntegration
             if (!empty($this->option_name)) {
                 add_filter("wpifycf_{$this->type}_{$this->option_name}_items", array($this, 'get_items_for_option_name'));
             }
-            add_action('admin_init', array($this, 'register_settings'));
             if ($this->type === $this::TYPE_USER) {
                 add_action('user_admin_menu', array($this, 'register'), $this->hook_priority);
             } elseif ($this->type === $this::TYPE_NETWORK) {
                 add_action('network_admin_menu', array($this, 'register'), $this->hook_priority);
-                add_action('network_admin_edit_' . $this::NETWORK_SAVE_ACTION, array($this, 'save_network_options'));
+                add_action('network_admin_edit_' . $this->get_network_save_action(), array($this, 'save_network_options'));
                 add_action('network_admin_notices', array($this, 'show_network_admin_notices'));
             } else {
                 add_action('admin_menu', array($this, 'register'), $this->hook_priority);
+            }
+            if (empty($args['hook_suffix'])) {
+                add_action('admin_init', array($this, 'register_settings'));
+            } else {
+                $this->hook_suffix = $args['hook_suffix'];
+                add_action($this->hook_suffix, array($this, 'register_settings'));
+                add_action($this->hook_suffix, array($this, 'render'));
             }
         }
     }
@@ -269,17 +268,19 @@ class Options extends OptionsIntegration
         if ($this->display && is_callable($this->display) && !call_user_func($this->display) || !is_null($this->display) && !$this->display) {
             return;
         }
-        if ($this->type === $this::TYPE_USER_SUBMENU) {
-            $hook_suffix = add_users_page($this->page_title, $this->menu_title, $this->capability, $this->menu_slug, array($this, 'render'), $this->position);
-        } elseif ($this->parent_slug) {
-            $hook_suffix = add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->menu_slug, array($this, 'render'), $this->position);
-        } else {
-            $hook_suffix = add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->menu_slug, array($this, 'render'), $this->icon_url, $this->position);
+        if (empty($this->hook_suffix)) {
+            if ($this->type === $this::TYPE_USER_SUBMENU) {
+                $hook_suffix = add_users_page($this->page_title, $this->menu_title, $this->capability, $this->menu_slug, array($this, 'render'), $this->position);
+            } elseif ($this->parent_slug) {
+                $hook_suffix = add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->menu_slug, array($this, 'render'), $this->position);
+            } else {
+                $hook_suffix = add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->menu_slug, array($this, 'render'), $this->icon_url, $this->position);
+            }
+            if ($this->type === $this::TYPE_NETWORK) {
+                $hook_suffix = $hook_suffix . '-network';
+            }
+            $this->hook_suffix = $hook_suffix;
         }
-        if ($this->type === $this::TYPE_NETWORK) {
-            $hook_suffix = $hook_suffix . '-network';
-        }
-        $this->hook_suffix = $hook_suffix;
         add_action('load-' . $this->hook_suffix, array($this, 'render_help'));
     }
     /**
@@ -314,7 +315,7 @@ class Options extends OptionsIntegration
         }
         $action = admin_url('options.php');
         if ($this->type === $this::TYPE_NETWORK) {
-            $action = add_query_arg('action', $this::NETWORK_SAVE_ACTION, 'edit.php');
+            $action = add_query_arg('action', $this->get_network_save_action(), 'edit.php');
         }
         ?>
 			<form action="<?php 
@@ -322,7 +323,7 @@ class Options extends OptionsIntegration
         ?>" method="POST">
 				<?php 
         if ($this->type === $this::TYPE_NETWORK) {
-            wp_nonce_field($this::NETWORK_SAVE_ACTION);
+            wp_nonce_field($this->get_network_save_action());
         }
         $this->print_app('options', $this->tabs);
         if ($this->type !== $this::TYPE_NETWORK) {
@@ -372,6 +373,15 @@ class Options extends OptionsIntegration
         }
     }
     /**
+     * Retrieves the action name for saving network options.
+     *
+     * @return string
+     */
+    private function get_network_save_action()
+    {
+        return sprintf('wpifycf-save-network-options-%s', $this->id);
+    }
+    /**
      * Saves network options by sanitizing and setting the appropriate fields.
      *
      * Ensures data integrity and security by performing necessary checks and sanitizations on the input fields. Redirects the user upon completion.
@@ -380,7 +390,7 @@ class Options extends OptionsIntegration
      */
     public function save_network_options(): void
     {
-        check_admin_referer($this::NETWORK_SAVE_ACTION);
+        check_admin_referer($this->get_network_save_action());
         $this->set_fields_from_post_request($this->normalize_items($this->items));
         wp_safe_redirect(add_query_arg(array('updated' => \true), wp_get_referer()));
         exit;

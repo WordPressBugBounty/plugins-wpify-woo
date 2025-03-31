@@ -33,7 +33,7 @@ abstract class OptionsIntegration extends BaseIntegration
         echo esc_attr($integration_id);
         ?>"
 			data-tabs="<?php 
-        echo esc_attr(htmlentities(wp_json_encode($tabs)));
+        echo esc_attr($this->custom_fields->helpers->json_encode($tabs));
         ?>"
 			data-context="<?php 
         echo esc_attr($context);
@@ -75,8 +75,9 @@ abstract class OptionsIntegration extends BaseIntegration
         ?>
 		<<?php 
         echo esc_attr($tag);
-        ?> data-item="<?php 
-        echo esc_attr(htmlentities(wp_json_encode($item)));
+        ?>
+		data-item="<?php 
+        echo esc_attr($this->custom_fields->helpers->json_encode($item));
         ?>"
 		data-integration-id="<?php 
         echo esc_attr($integration_id);

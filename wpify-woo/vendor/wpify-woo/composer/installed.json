@@ -254,17 +254,17 @@
         },
         {
             "name": "guzzlehttp\/guzzle",
-            "version": "7.9.2",
-            "version_normalized": "7.9.2.0",
+            "version": "7.9.3",
+            "version_normalized": "7.9.3.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/guzzle.git",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b"
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/guzzle\/zipball\/d281ed313b989f213357e3be1a179f02196ac99b",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/guzzle\/zipball\/7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
                 "shasum": ""
             },
             "require": {
@@ -291,7 +291,7 @@
                 "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr\/log": "Required for using the Log middleware"
             },
-            "time": "2024-07-24T11:22:20+00:00",
+            "time": "2025-03-27T13:37:11+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -363,7 +363,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/guzzle\/issues",
-                "source": "https:\/\/github.com\/guzzle\/guzzle\/tree\/7.9.2"
+                "source": "https:\/\/github.com\/guzzle\/guzzle\/tree\/7.9.3"
             },
             "funding": [
                 {
@@ -383,17 +383,17 @@
         },
         {
             "name": "guzzlehttp\/promises",
-            "version": "2.0.4",
-            "version_normalized": "2.0.4.0",
+            "version": "2.2.0",
+            "version_normalized": "2.2.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/promises.git",
-                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455"
+                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/promises\/zipball\/f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
-                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/promises\/zipball\/7c69f28996b0a6920945dd20b3857e499d9ca96c",
+                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c",
                 "shasum": ""
             },
             "require": {
@@ -403,7 +403,7 @@
                 "bamarni\/composer-bin-plugin": "^1.8.2",
                 "phpunit\/phpunit": "^8.5.39 || ^9.6.20"
             },
-            "time": "2024-10-17T10:06:22+00:00",
+            "time": "2025-03-27T13:27:01+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -449,7 +449,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/promises\/issues",
-                "source": "https:\/\/github.com\/guzzle\/promises\/tree\/2.0.4"
+                "source": "https:\/\/github.com\/guzzle\/promises\/tree\/2.2.0"
             },
             "funding": [
                 {
@@ -469,17 +469,17 @@
         },
         {
             "name": "guzzlehttp\/psr7",
-            "version": "2.7.0",
-            "version_normalized": "2.7.0.0",
+            "version": "2.7.1",
+            "version_normalized": "2.7.1.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/psr7.git",
-                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201"
+                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
-                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/c2270caaabe631b3b44c85f99e5a04bbb8060d16",
+                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16",
                 "shasum": ""
             },
             "require": {
@@ -500,7 +500,7 @@
             "suggest": {
                 "laminas\/laminas-httphandlerrunner": "Emit PSR-7 responses"
             },
-            "time": "2024-07-18T11:15:46+00:00",
+            "time": "2025-03-27T12:30:47+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -568,7 +568,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/psr7\/issues",
-                "source": "https:\/\/github.com\/guzzle\/psr7\/tree\/2.7.0"
+                "source": "https:\/\/github.com\/guzzle\/psr7\/tree\/2.7.1"
             },
             "funding": [
                 {
@@ -946,17 +946,17 @@
         },
         {
             "name": "nette\/utils",
-            "version": "v4.0.5",
-            "version_normalized": "4.0.5.0",
+            "version": "v4.0.6",
+            "version_normalized": "4.0.6.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/nette\/utils.git",
-                "reference": "736c567e257dbe0fcf6ce81b4d6dbe05c6899f96"
+                "reference": "ce708655043c7050eb050df361c5e313cf708309"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/nette\/utils\/zipball\/736c567e257dbe0fcf6ce81b4d6dbe05c6899f96",
-                "reference": "736c567e257dbe0fcf6ce81b4d6dbe05c6899f96",
+                "url": "https:\/\/api.github.com\/repos\/nette\/utils\/zipball\/ce708655043c7050eb050df361c5e313cf708309",
+                "reference": "ce708655043c7050eb050df361c5e313cf708309",
                 "shasum": ""
             },
             "require": {
@@ -980,7 +980,7 @@
                 "ext-mbstring": "to use Strings::lower() etc...",
                 "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()"
             },
-            "time": "2024-08-07T15:39:19+00:00",
+            "time": "2025-03-30T21:06:30+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1029,7 +1029,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/nette\/utils\/issues",
-                "source": "https:\/\/github.com\/nette\/utils\/tree\/v4.0.5"
+                "source": "https:\/\/github.com\/nette\/utils\/tree\/v4.0.6"
             },
             "install-path": "..\/nette\/utils"
         },
@@ -2061,17 +2061,17 @@
         },
         {
             "name": "wpify\/custom-fields",
-            "version": "4.0.31",
-            "version_normalized": "4.0.31.0",
+            "version": "4.0.44",
+            "version_normalized": "4.0.44.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/custom-fields.git",
-                "reference": "f77175210a1caf51e068377365c75e643cae4cbe"
+                "reference": "07090e9d39117db3126618f24b7b5c96f274d6e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/f77175210a1caf51e068377365c75e643cae4cbe",
-                "reference": "f77175210a1caf51e068377365c75e643cae4cbe",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/07090e9d39117db3126618f24b7b5c96f274d6e4",
+                "reference": "07090e9d39117db3126618f24b7b5c96f274d6e4",
                 "shasum": ""
             },
             "require": {
@@ -2084,7 +2084,7 @@
                 "squizlabs\/php_codesniffer": "^3.10",
                 "wp-coding-standards\/wpcs": "^3.0"
             },
-            "time": "2025-02-21T09:23:08+00:00",
+            "time": "2025-03-26T20:33:02+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2102,7 +2102,7 @@
             "description": "WPify Custom Fields",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/custom-fields\/issues",
-                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.31"
+                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.44"
             },
             "install-path": "..\/wpify\/custom-fields"
         },
@@ -2281,17 +2281,17 @@
         },
         {
             "name": "wpify\/woo-core",
-            "version": "5.0.6",
-            "version_normalized": "5.0.6.0",
+            "version": "5.0.10",
+            "version_normalized": "5.0.10.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/woo-core.git",
-                "reference": "1b7932cb9b9f67c57f17e1641eb7b07662c19b8a"
+                "reference": "a2e369d22a3442863d0a3ccf3e87eb907bd73b47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/1b7932cb9b9f67c57f17e1641eb7b07662c19b8a",
-                "reference": "1b7932cb9b9f67c57f17e1641eb7b07662c19b8a",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/a2e369d22a3442863d0a3ccf3e87eb907bd73b47",
+                "reference": "a2e369d22a3442863d0a3ccf3e87eb907bd73b47",
                 "shasum": ""
             },
             "require": {
@@ -2299,7 +2299,7 @@
                 "wpify\/custom-fields": "^4.0",
                 "wpify\/license": "^2"
             },
-            "time": "2025-03-14T14:42:17+00:00",
+            "time": "2025-03-26T11:37:04+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2319,7 +2319,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/woo-core\/issues",
-                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.0.6"
+                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.0.10"
             },
             "install-path": "..\/wpify\/woo-core"
         }

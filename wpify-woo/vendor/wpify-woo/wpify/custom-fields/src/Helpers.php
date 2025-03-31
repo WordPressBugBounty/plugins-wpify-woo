@@ -115,4 +115,23 @@ class Helpers
         unset($term);
         return $tree;
     }
+    /**
+     * Encodes data as JSON, ensuring that all characters are properly escaped.
+     *
+     * This function is a wrapper around wp_json_encode with additional flags. The following flags are used:
+     * - JSON_HEX_TAG
+     * - JSON_HEX_APOS
+     * - JSON_HEX_QUOT
+     * - JSON_HEX_AMP
+     * - JSON_UNESCAPED_UNICODE
+     *
+     * @param mixed $data The data to encode as JSON.
+     *
+     * @return string
+     */
+    public function json_encode($data): string
+    {
+        $json = wp_json_encode($data, \JSON_HEX_TAG | \JSON_HEX_APOS | \JSON_HEX_QUOT | \JSON_HEX_AMP | \JSON_UNESCAPED_UNICODE);
+        return $json ? $json : '';
+    }
 }

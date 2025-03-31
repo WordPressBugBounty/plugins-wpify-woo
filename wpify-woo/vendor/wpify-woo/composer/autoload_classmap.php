@@ -488,6 +488,7 @@ return array(
     'WpifyWooDeps\\Nette\\NotImplementedException' => $vendorDir . '/nette/utils/src/exceptions.php',
     'WpifyWooDeps\\Nette\\NotSupportedException' => $vendorDir . '/nette/utils/src/exceptions.php',
     'WpifyWooDeps\\Nette\\OutOfRangeException' => $vendorDir . '/nette/utils/src/exceptions.php',
+    'WpifyWooDeps\\Nette\\ShouldNotHappenException' => $vendorDir . '/nette/utils/src/exceptions.php',
     'WpifyWooDeps\\Nette\\SmartObject' => $vendorDir . '/nette/utils/src/SmartObject.php',
     'WpifyWooDeps\\Nette\\StaticClass' => $vendorDir . '/nette/utils/src/StaticClass.php',
     'WpifyWooDeps\\Nette\\UnexpectedValueException' => $vendorDir . '/nette/utils/src/exceptions.php',

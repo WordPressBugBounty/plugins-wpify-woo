@@ -118,7 +118,7 @@ class Settings
         $this->pages = array();
         foreach ($plugins as $plugin_id => $plugin) {
             $this->pages[$plugin_id] = array('page_title' => $plugin['title'], 'menu_title' => $plugin['title'], 'menu_slug' => $plugin['menu_slug'], 'id' => $plugin_id, 'parent_slug' => $this::DASHBOARD_SLUG, 'class' => 'wpify-woo-settings', 'option_name' => $this->get_settings_name($plugin['option_id']), 'tabs' => $this->is_current('', $plugin_id) ? $plugin['tabs'] : array(), 'items' => $this->is_current('', $plugin_id) ? $plugin['settings'] : array());
-            $sections = $this->get_sections($plugin['option_id']);
+            $sections = $this->get_sections($plugin_id);
             foreach ($sections as $section_id => $section) {
                 if (empty($section_id)) {
                     continue;
@@ -135,6 +135,7 @@ class Settings
             }
         }
         foreach ($this->pages as $page) {
+            $page['position'] = 1;
             $this->custom_fields->create_options_page($page);
         }
     }
@@ -331,7 +332,7 @@ class Settings
             $response = wp_remote_get('https://wpify.io/wp-json/wpify/v1/plugins-list');
             if (!is_wp_error($response)) {
                 $extensions = json_decode($response['body'], \true)['plugins'];
-                set_transient('wpify_core_all_plugins', $extensions, DAY_IN_SECONDS);
+                set_transient('wpify_core_all_plugins', $extensions, 6 * HOUR_IN_SECONDS);
             }
         }
         $extensions_map = array();
@@ -406,7 +407,7 @@ class Settings
                 $version = $plugin['version'];
                 if (isset($plugin['plugin_info'])) {
                     $available_v = $plugin['plugin_info']['version'] ?? 0;
-                    if ($available_v && $available_v != $version) {
+                    if ($available_v && version_compare($available_v, $version, '>')) {
                         $notices[] = array('type' => 'warning', 'content' => '<p>⚠️ ' . sprintf(__('New version <a href="%s">%s</a> available.', 'wpify-core'), admin_url('update-core.php'), $available_v) . '</p>');
                     }
                 }
@@ -676,7 +677,7 @@ class Settings
         global $title;
         $data = array('title' => $title, 'icon' => '', 'parent' => '', 'plugin' => '', 'menu' => array(array('icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 6.75c0-1.768 0-2.652.55-3.2C4.097 3 4.981 3 6.75 3s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55C3 9.403 3 8.519 3 6.75m0 10.507c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55C3 19.91 3 19.026 3 17.258M13.5 6.75c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55c-.55-.548-.55-1.432-.55-3.2m0 10.507c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55c-.55-.548-.55-1.432-.55-3.2"/></svg>', 'label' => __('Dashboard', 'wpify-core'), 'link' => add_query_arg(['page' => $this::DASHBOARD_SLUG], admin_url('admin.php')))), 'support_url' => add_query_arg(['page' => $this::SUPPORT_MENU_SLUG], admin_url('admin.php')), 'doc_link' => 'https://wpify.io/dokumentace/');
         $data = apply_filters('wpify_admin_menu_bar_data', $data);
-        $sections = $this->get_sections($data['parent']);
+        $sections = $this->get_sections($data['plugin']);
         foreach ($sections as $section_id => $section) {
             if (isset($section['in_menubar']) && !$section['in_menubar']) {
                 unset($sections[$section_id]);
