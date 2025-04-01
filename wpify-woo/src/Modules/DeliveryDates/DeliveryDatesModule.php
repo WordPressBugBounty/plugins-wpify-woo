@@ -201,6 +201,9 @@ class DeliveryDatesModule extends AbstractModule {
 						];
 					}, $locations );
 				},
+				'async_params' => [
+					'module_id' => $this->id(),
+				],
 			),
 
 		);
