@@ -190,10 +190,10 @@ class DeliveryDatesModule extends AbstractModule {
 				'label' => __( 'Payment methods more info', 'wpify-woo' ),
 			),
 			array(
-				'id'      => 'display_locations',
-				'type'    => 'multi_select',
-				'label'   => __( 'Display locations', 'wpify-woo' ),
-				'options' => function () use ( $locations ) {
+				'id'           => 'display_locations',
+				'type'         => 'multi_select',
+				'label'        => __( 'Display locations', 'wpify-woo' ),
+				'options'      => function () use ( $locations ) {
 					return array_map( function ( $item ) {
 						return [
 							'label' => $item,
@@ -344,6 +344,47 @@ class DeliveryDatesModule extends AbstractModule {
 	}
 
 	/**
+	 * Get zone ID for a given country code.
+	 *
+	 * Supports zone locations by country, continent, or world.
+	 *
+	 * @param string $country_code Two-letter ISO country code (e.g. 'CZ')
+	 * @param array  $zones        All shipping zones with locations
+	 *
+	 * @return int|null
+	 */
+	public function get_zone_id_for_country( string $country_code, array $zones ): ?int {
+		// First, get full info about country (from WC)
+		$wc_countries     = new \WC_Countries();
+		$continent_code    = $wc_countries->get_continent_code_for_country( $country_code );
+
+		foreach ( $zones as $zone ) {
+			if ( ! isset( $zone['zone_locations'] ) || ! is_array( $zone['zone_locations'] ) ) {
+				continue;
+			}
+
+			foreach ( $zone['zone_locations'] as $location ) {
+				// Match by exact country
+				if ( $location->type === 'country' && $location->code === $country_code ) {
+					return $zone['id'];
+				}
+
+				// Match by continent
+				if ( $location->type === 'continent' && $location->code === $continent_code ) {
+					return $zone['id'];
+				}
+
+				// Match "worldwide"
+				if ( $location->type === 'world' ) {
+					return $zone['id'];
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get formatted date or date name
 	 *
 	 * @param string|float $days       number of days or string
@@ -390,7 +431,7 @@ class DeliveryDatesModule extends AbstractModule {
 	 *
 	 * @throws \Exception
 	 */
-	public function display_delivery_methods( $methods_ids, $shipping_countries, $shipping_zones, $actual_country ) {
+	public function display_delivery_methods( $methods_ids, $shipping_zones, $actual_zone_id ) {
 		// Get array of allowed countries names
 		$zone_countries = [];
 		foreach ( $shipping_zones as $key => $zone ) {
@@ -412,7 +453,7 @@ class DeliveryDatesModule extends AbstractModule {
 			}
 
 			// Get selected country
-			$selected = in_array( $shipping_countries[ $actual_country ], $zone_countries ) ? array_search( $shipping_countries[ $actual_country ], $zone_countries ) : '0';
+			$selected = $actual_zone_id;
 			$show     = $selected == $zone['id'];
 
 			// Show all methods if selector is disabled
@@ -511,7 +552,7 @@ class DeliveryDatesModule extends AbstractModule {
 	 * @param array  $zone_countries     country names from zones
 	 * @param string $actual_country     code of actual country
 	 */
-	public function display_country_select( $shipping_countries, $shipping_zones, $zone_countries, $actual_country ) {
+	public function display_country_select( $shipping_countries, $shipping_zones, $actual_zone_id ) {
 		/**
 		 * Filter to disable country selector
 		 */
@@ -548,9 +589,9 @@ class DeliveryDatesModule extends AbstractModule {
 						continue;
 					}
 
-					$selected     = in_array( $shipping_countries[ $actual_country ], $zone_countries ) ? array_search( $shipping_countries[ $actual_country ], $zone_countries ) : '0';
+					$selected = $actual_zone_id === $zone['id'];
 					$country_code = array_search( $zone['formatted_zone_location'], $shipping_countries );
-					echo '<option value="zone-' . esc_attr( $zone['id'] ) . '" data-country="' . esc_attr( $country_code ) . '" ' . selected( $selected, $zone['id'], false ) . '>' . esc_html( $zone['formatted_zone_location'] ) . '</option>';
+					echo '<option value="zone-' . esc_attr( $zone['id'] ) . '" data-country="' . esc_attr( $country_code ) . '" ' . selected( $selected, true, false ) . '>' . esc_html( $zone['formatted_zone_location'] ) . '</option>';
 				}
 				?>
 			</select>
@@ -574,34 +615,11 @@ class DeliveryDatesModule extends AbstractModule {
 		$shipping_countries = WC()->countries->get_shipping_countries();
 		$actual_country     = ! empty( WC()->customer ) && WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->countries->get_base_country();
 		$shipping_zones     = $this->get_all_zones();
-		$zone_countries     = [];
+		$actual_zone_id     = $this->get_zone_id_for_country( $actual_country, $shipping_zones );
 
-		// Get array of allowed and enabled countries names and unset zones without enabled methods
-		foreach ( $shipping_zones as $key => $zone ) {
-			$enabled_count = 0;
-			if ( isset( $zone['shipping_methods'] ) ) {
-				foreach ( $zone['shipping_methods'] as $method ) {
-					if ( $method->enabled !== 'yes' ) {
-						continue;
-					}
-
-					$enabled_count += 1;
-				}
-			}
-
-			if ( $enabled_count < 1 ) {
-				unset( $shipping_zones[ $key ] );
-				continue;
-			}
-
-			$zone_countries[ $key ] = $zone['formatted_zone_location'];
+		if ( ! $actual_zone_id ) {
+			$actual_zone_id = array_key_first( $shipping_zones );
 		}
-
-		// Set first country from zones as actual country if default country isn't exist or not in zones
-		if ( ! isset( $shipping_countries[ $actual_country ] ) || ! in_array( $shipping_countries[ $actual_country ], $zone_countries ) ) {
-			$actual_country = array_search( reset( $zone_countries ), $shipping_countries );
-		}
-
 		?>
 		<div class="wpify-woo-delivery-date">
 			<?php
@@ -610,7 +628,7 @@ class DeliveryDatesModule extends AbstractModule {
 				echo '<h3 class="wpify-woo-delivery-date__title">' . esc_html( $title ) . '</h3>';
 			}
 
-			$this->display_country_select( $shipping_countries, $shipping_zones, $zone_countries, $actual_country );
+			$this->display_country_select( $shipping_countries, $shipping_zones, $actual_zone_id );
 
 			$custom_dates = $product->get_meta( '_wpify_woo_delivery_dates' );
 			foreach ( $delivery_days as $key => $days_group ) {
@@ -699,8 +717,7 @@ class DeliveryDatesModule extends AbstractModule {
 				}
 
 				// get selected zone
-				$selected = isset( $shipping_countries[ $actual_country ] ) && in_array( $shipping_countries[ $actual_country ], $zone_countries ) ? array_search( $shipping_countries[ $actual_country ], $zone_countries ) : '0';
-
+				$selected = $actual_zone_id;
 				?>
 				<div class="wpify-woo-delivery-date__line"
 					 data-zones='[<?= implode( ',', $allowed_zones ) ?>]'
@@ -717,7 +734,7 @@ class DeliveryDatesModule extends AbstractModule {
 							<?php echo apply_filters( 'the_content', $more_info_text ); ?>
 							<?php
 							if ( $data['shipping_methods'] ) {
-								$this->display_delivery_methods( $data['shipping_methods'], $shipping_countries, $shipping_zones, $actual_country );
+								$this->display_delivery_methods( $data['shipping_methods'], $shipping_zones, $actual_zone_id );
 							} ?>
 						</div>
 					<?php } ?>

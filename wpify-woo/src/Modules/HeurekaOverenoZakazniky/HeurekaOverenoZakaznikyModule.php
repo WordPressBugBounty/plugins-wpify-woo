@@ -95,6 +95,12 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				'default' => __( "I don't want to receive survey from Heureka ověřeno zákazníky", 'wpify-woo' ),
 			),
 			array(
+				'id'    => 'optin_mode',
+				'type'  => 'toggle',
+				'label' => __( 'Use Opt-In instead of Opt-Out', 'wpify-woo' ),
+				'title' => __( 'Switch the logic to require explicit customer consent (opt-in)', 'wpify-woo' ),
+			),
+			array(
 				'id'    => 'widget_enabled',
 				'type'  => 'toggle',
 				'label' => __( 'Enable Certification Widget', 'wpify-woo' ),
@@ -152,8 +158,19 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 			return false;
 		}
 
-		// If customer don't agree with questionnaire
-		if ( isset( $_POST['wpify_woo_heureka_optout'] ) && ! empty( $_POST['wpify_woo_heureka_optout'] ) ) {
+		$use_optin = $this->get_setting( 'optin_mode' );
+
+		// In OPT-IN mode: if checkbox is not checked → do not send
+		if ( $use_optin && empty( $_POST['wpify_woo_heureka_optout'] ) ) {
+			$order->add_order_note( sprintf( __( 'Heureka: Agree with the satisfaction questionnaire: %s', 'wpify-woo' ), __( 'No', 'wpify-woo' ) ) );
+			$order->update_meta_data( '_wpify_woo_heureka_optout_agreement', 'no' );
+			$order->save();
+
+			return false;
+		}
+
+		// In OPT-OUT mode: if checkbox is checked → do not send
+		if ( ! $use_optin && ! empty( $_POST['wpify_woo_heureka_optout'] ) ) {
 			$order->add_order_note( sprintf( __( 'Heureka: Agree with the satisfaction questionnaire: %s', 'wpify-woo' ), __( 'No', 'wpify-woo' ) ) );
 			$order->update_meta_data( '_wpify_woo_heureka_optout_agreement', 'no' );
 			$order->save();

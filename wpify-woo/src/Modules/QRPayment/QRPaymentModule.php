@@ -89,7 +89,7 @@ class QRPaymentModule extends AbstractModule {
 				'type'    => 'multi_group',
 				'label'   => __( 'Enabled payment methods', 'wpify-woo' ),
 				'buttons' => array(
-					'add'    => __( 'Add payment method', 'wpify-woo' ),
+					'add' => __( 'Add payment method', 'wpify-woo' ),
 				),
 				'items'   => [
 					[
@@ -125,7 +125,7 @@ class QRPaymentModule extends AbstractModule {
 						'type'    => 'multi_group',
 						'label'   => __( 'Accounts', 'wpify-woo' ),
 						'buttons' => array(
-							'add'    => __( 'Add account', 'wpify-woo' ),
+							'add' => __( 'Add account', 'wpify-woo' ),
 						),
 						'items'   => [
 							[
@@ -579,16 +579,51 @@ class QRPaymentModule extends AbstractModule {
 	}
 
 	/**
-	 * Render the [wpify_woo_render_qr_code] shortcode.
+	 * Render the [wpify_woo_render_qr_code] or [wpify_woo_render_qr_code order_id="123"] shortcode.
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
-	public function display_qr_code_shortcode() {
-		if ( ! isset( $_GET['key'] ) ) {
-			return;
+	public function display_qr_code_shortcode( $atts = [] ) {
+		$atts = shortcode_atts( [
+			'order_id' => null,
+		], $atts );
+
+		$order_id = null;
+
+		// 1. If order_id is in the shortcode
+		if ( ! empty( $atts['order_id'] ) ) {
+			$order_id = absint( $atts['order_id'] );
+
+			// 2. If there is a key in the URL
+		} elseif ( isset( $_GET['key'] ) ) {
+			$order_id = wc_get_order_id_by_order_key( sanitize_text_field( $_GET['key'] ) );
+
+			// 3. If we run in an email context
+		} elseif ( did_action( 'woocommerce_email_header' ) ) {
+			global $email;
+			if ( isset( $email ) && is_object( $email ) && method_exists( $email, 'get_order' ) ) {
+				$order = $email->get_order();
+				if ( $order instanceof WC_Order ) {
+					$order_id = $order->get_id();
+				}
+			}
+
+			// 4. If global $order is available
+		} elseif ( isset( $GLOBALS['order'] ) && $GLOBALS['order'] instanceof WC_Order ) {
+			$order_id = $GLOBALS['order']->get_id();
+
+			// 5. If the current order page is in "My Account"
+		} elseif ( function_exists( 'get_query_var' ) ) {
+			$order_id = absint( get_query_var( 'order-pay' ) ); // thankyou/order-pay
+			if ( ! $order_id ) {
+				$order_id = absint( get_query_var( 'view-order' ) ); // my-account/view-order
+			}
 		}
 
-		$order_id = wc_get_order_id_by_order_key( $_GET['key'] );
+		if ( empty( $order_id ) ) {
+			return '';
+		}
 
 		ob_start();
 		$this->display_qr_code( $order_id );
