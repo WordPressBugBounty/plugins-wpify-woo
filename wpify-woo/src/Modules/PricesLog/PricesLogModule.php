@@ -133,7 +133,7 @@ class PricesLogModule extends AbstractModule {
 	public function product_tab_content() {
 		global $product;
 
-		if ( ! $product ) {
+		if ( ! $product && isset( $_GET['post'] ) ) {
 			$product = wc_get_product( (int) $_GET['post'] ?? 0 );
 		}
 
@@ -226,8 +226,12 @@ class PricesLogModule extends AbstractModule {
 	 * @param $id
 	 */
 	public function display_lowest_price( $id ) {
-		if ( ! $id ) {
+		if ( ! $id && isset( $_GET['post'] ) ) {
 			$id = (int) $_GET['post'] ?? 0;
+		}
+
+		if ( ! $id ) {
+			return;
 		}
 
 		$price = $this->get_lowest_price( $id );

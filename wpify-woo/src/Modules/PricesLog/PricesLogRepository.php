@@ -40,6 +40,9 @@ class PricesLogRepository extends CustomTableRepository {
 	}
 
 	public function find_lowest_price( $product_id ) {
+		if ( ! $product_id ) {
+			return null;
+		}
 		$prices = [];
 		foreach ( $this->find_by_product_id( $product_id ) as $item ) {
 			if ( strtotime( $item->created_at ) < strtotime( '-30 days' ) ) {
