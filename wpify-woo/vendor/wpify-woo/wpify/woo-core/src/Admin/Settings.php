@@ -214,7 +214,7 @@ class Settings
     {
         $key = sprintf('%s-%s', $this::OPTION_NAME, $module);
         if ('general' !== $module) {
-            if (\defined('WpifyWooDeps\ICL_LANGUAGE_CODE')) {
+            if (\defined('ICL_LANGUAGE_CODE')) {
                 $default_lang = apply_filters('wpml_default_language', null);
                 if ($default_lang !== ICL_LANGUAGE_CODE) {
                     $key = sprintf('%s_%s', $key, ICL_LANGUAGE_CODE);
@@ -691,7 +691,9 @@ class Settings
             $data['support_url'] = $plugins[$data['plugin']]['support_url'] ?: $data['support_url'];
             $data['doc_link'] = $data['doc_link'] ?: $plugins[$data['plugin']]['doc_link'];
         }
-        $data['doc_link'] = add_query_arg(array('utm_source' => $data['plugin'] ?: 'plugin-dashboard', 'utm_medium' => 'plugin-link', 'utm_campaign' => 'documentation-link'), $data['doc_link']);
+        if (isset($data['doc_link']) && $data['doc_link']) {
+            $data['doc_link'] = add_query_arg(array('utm_source' => $data['plugin'] ?: 'plugin-dashboard', 'utm_medium' => 'plugin-link', 'utm_campaign' => 'documentation-link'), $data['doc_link']);
+        }
         ?>
         <style type="text/css">
             .wpify-admin-page #wpcontent {

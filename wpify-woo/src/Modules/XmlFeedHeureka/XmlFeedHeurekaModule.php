@@ -521,10 +521,14 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	public function get_heureka_categories_list( $params ) {
 		$categories = $this->get_heureka_categories();
 		$search     = sanitize_title( $params['search'] );
-		$search_ids = is_array( $params['value'] )
-			? array_map( 'strval', $params['value'] )
-			: array( strval( $params['value'] ) );
+		$search_ids = array();
 		$list       = array();
+
+		if ( ! empty( $params['value'] ) ) {
+			$search_ids = is_array( $params['value'] )
+				? array_map( 'strval', $params['value'] )
+				: array( strval( $params['value'] ) );
+		}
 
 		if ( ! empty( $search_ids ) ) {
 			foreach ( $categories as $category ) {

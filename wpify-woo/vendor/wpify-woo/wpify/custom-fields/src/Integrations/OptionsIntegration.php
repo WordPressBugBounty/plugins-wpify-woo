@@ -29,6 +29,9 @@ abstract class OptionsIntegration extends BaseIntegration
         ?>
 		<div class="wpifycf-app"
 			data-loaded="false"
+			data-instance="<?php 
+        echo esc_attr($this->custom_fields->get_script_handle());
+        ?>"
 			data-integration-id="<?php 
         echo esc_attr($integration_id);
         ?>"

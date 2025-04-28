@@ -24,7 +24,7 @@ abstract class AbstractModule
         $this->id = $this->id();
         add_filter('wpify_get_sections_' . $this->plugin_slug(), array($this, 'add_settings_section'));
         add_filter('wpify_admin_menu_bar_data', array($this, 'add_admin_menu_bar_data'));
-        if (is_admin() && defined('WpifyWooDeps\ICL_LANGUAGE_CODE') && \false === get_option($this->get_option_key())) {
+        if (is_admin() && defined('ICL_LANGUAGE_CODE') && \false === get_option($this->get_option_key())) {
             $default_lang = apply_filters('wpml_default_language', null);
             if (ICL_LANGUAGE_CODE !== $default_lang) {
                 add_filter('default_option_' . $this->get_option_key(), function () {
@@ -139,14 +139,16 @@ abstract class AbstractModule
      */
     public function get_settings(): array
     {
-        if (defined('WpifyWooDeps\ICL_LANGUAGE_CODE')) {
+        if (defined('ICL_LANGUAGE_CODE')) {
             $default_lang = apply_filters('wpml_default_language', null);
             if ($default_lang !== ICL_LANGUAGE_CODE && get_option($this->get_option_key()) === \false) {
                 // Fallback to default language settings if the translated option does not exist at all.
-                return get_option($this->get_option_key(\true), array());
+                $default = get_option($this->get_option_key(\true));
+                return is_array($default) ? $default : array();
             }
         }
-        return get_option($this->get_option_key(), array());
+        $settings = get_option($this->get_option_key());
+        return is_array($settings) ? $settings : array();
     }
     public function get_option_key($raw = \false)
     {
@@ -154,7 +156,7 @@ abstract class AbstractModule
         if ($raw) {
             return $key;
         }
-        if (defined('WpifyWooDeps\ICL_LANGUAGE_CODE')) {
+        if (defined('ICL_LANGUAGE_CODE')) {
             $default_lang = apply_filters('wpml_default_language', null);
             if ($default_lang !== ICL_LANGUAGE_CODE) {
                 $key = sprintf('%s_%s', $key, ICL_LANGUAGE_CODE);
@@ -195,7 +197,7 @@ abstract class AbstractModule
         ?>
         <div class="error notice">
             <p><?php 
-        printf(__('Your %1$s plugin licence is not activated yet. Please <a href="%2$s">activate the domain</a> by connecting it with your WPify account!', 'wpify-core'), $this->name(), admin_url('admin.php?page=wc-settings&tab=wpify-woo-settings&section=' . $this->get_id()));
+        printf(__('Your %1$s plugin licence is not activated yet. Please <a href="%2$s">activate the domain</a> by connecting it with your WPify account!', 'wpify-core'), $this->name(), $this->get_settings_url());
         ?></p>
         </div>
 		<?php 

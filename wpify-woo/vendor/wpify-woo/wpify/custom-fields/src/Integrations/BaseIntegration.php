@@ -148,9 +148,9 @@ abstract class BaseIntegration
         if (!is_admin()) {
             return;
         }
-        $handle = 'wpifycf';
+        $handle = $this->custom_fields->get_script_handle();
         $js = $this->custom_fields->get_js_asset('wpify-custom-fields');
-        $data = array('stylesheet' => $this->custom_fields->get_css_asset('wpify-custom-fields'), 'api_path' => $this->custom_fields->api->get_rest_namespace());
+        $data = array('instance' => $this->custom_fields->get_script_handle(), 'stylesheet' => $this->custom_fields->get_css_asset('wpify-custom-fields'), 'api_path' => $this->custom_fields->api->get_rest_namespace());
         // Dependencies for WYSIWYG field.
         wp_enqueue_editor();
         wp_tinymce_inline_scripts();
@@ -164,7 +164,7 @@ abstract class BaseIntegration
             wp_enqueue_style('wp-components');
         }
         wp_enqueue_script($handle, $js['src'], $js['dependencies'], $js['version'], array('in_footer' => \false));
-        wp_add_inline_script($handle, 'window.' . $handle . '=' . wp_json_encode($data) . ';', 'before');
+        wp_add_inline_script($handle, 'window.wpifycf=' . wp_json_encode($data) . ';', 'before');
     }
     /**
      * Registers REST API for options recursively.
