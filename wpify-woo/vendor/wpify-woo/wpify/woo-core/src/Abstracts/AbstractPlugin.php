@@ -21,6 +21,15 @@ abstract class AbstractPlugin
         add_filter('plugin_row_meta', array($this, 'add_row_meta_links'), 10, 2);
     }
     /**
+     * Plugin data
+     *
+     * @return array
+     */
+    public function plugin_data(): array
+    {
+        return get_plugin_data($this->plugin_utils->get_plugin_file());
+    }
+    /**
      * Plugin id
      *
      * @return string
@@ -36,7 +45,7 @@ abstract class AbstractPlugin
      */
     public function name(): ?string
     {
-        return $this->plugin_utils->get_plugin_name();
+        return $this->plugin_data()['Name'] ?? $this->plugin_utils->get_plugin_name();
     }
     /**
      * Plugin base option id
@@ -53,7 +62,7 @@ abstract class AbstractPlugin
      */
     public function get_menu_slug(): string
     {
-        return sprintf('wpify/%s', $this->id());
+        return sprintf('wpify/%s', $this->base_option_id());
     }
     /**
      * Plugin settings url
@@ -119,7 +128,7 @@ abstract class AbstractPlugin
      */
     public function add_plugin($plugins)
     {
-        $plugins[$this->id()] = array('title' => $this->plugin_utils->get_plugin_name(), 'desc' => $this->plugin_utils->get_plugin_description(), 'icon' => $this->icon_file(), 'version' => $this->plugin_utils->get_plugin_version(), 'doc_link' => $this->documentation_url(), 'support_url' => $this->support_url(), 'menu_slug' => $this->get_menu_slug(), 'option_id' => $this->base_option_id(), 'settings_url' => $this->settings_url(), 'tabs' => $this->settings_tabs(), 'settings' => $this->settings());
+        $plugins[$this->id()] = array('title' => $this->name(), 'desc' => $this->plugin_data()['Description'], 'icon' => $this->icon_file(), 'version' => $this->plugin_utils->get_plugin_version(), 'doc_link' => $this->documentation_url(), 'support_url' => $this->support_url(), 'menu_slug' => $this->get_menu_slug(), 'option_id' => $this->base_option_id(), 'settings_url' => $this->settings_url(), 'tabs' => $this->settings_tabs(), 'settings' => $this->settings());
         return $plugins;
     }
     /**
