@@ -80,3 +80,7 @@ class ActionScheduler_SystemInformation
         return \method_exists($versions, 'get_sources') ? $versions->get_sources() : array();
     }
 }
+/**
+ * Provides information about active and registered instances of Action Scheduler.
+ */
+\class_alias('WpifyWooDeps\ActionScheduler_SystemInformation', 'ActionScheduler_SystemInformation', \false);

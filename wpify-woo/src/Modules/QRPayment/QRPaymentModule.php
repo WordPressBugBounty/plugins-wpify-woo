@@ -287,9 +287,6 @@ class QRPaymentModule extends AbstractModule {
 	 * @throws Exception
 	 */
 	public function render_qr_code( $order, $account ) {
-		if ( apply_filters( 'wpify_woo_skip_qr_payment', false, $order, $account ) ) {
-			return null;
-		}
 		$note      = $this->get_setting( 'note' );
 		$note_text = '';
 		$qrCode    = '';
@@ -314,7 +311,14 @@ class QRPaymentModule extends AbstractModule {
 			'iban'           => isset( $account['iban'] ) ? str_replace( ' ', '', $account['iban'] ) : '',
 			'note'           => $note_text,
 		];
-		$payment_details = apply_filters( 'wpify_woo_qr_payment_details', $payment_details );
+
+		/**
+		 * Filter to edit payment details in QR
+		 *
+		 * @param array    $payment_details payment details
+		 * @param WC_Order $order           Order object
+		 */
+		$payment_details = apply_filters( 'wpify_woo_qr_payment_details', $payment_details, $order );
 
 		if ( ! $this->get_setting( 'compatibility_mode' ) ) {
 			if ( 'cz' === $account['type'] ) {
@@ -472,6 +476,13 @@ class QRPaymentModule extends AbstractModule {
 		$qrInfo  = [];
 
 		foreach ( $accounts as $key => $account ) {
+			/**
+			 * Filter to skip rendering QR
+			 *
+			 * @param bool     $skip    skip render
+			 * @param WC_Order $order   WC order object
+			 * @param array    $account bank account data
+			 */
 			if ( apply_filters( 'wpify_woo_skip_qr_payment', false, $order, $account ) ) {
 				continue;
 			}

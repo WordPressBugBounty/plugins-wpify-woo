@@ -194,8 +194,8 @@ class ActionScheduler_AdminView extends \ActionScheduler_AdminView_Deprecated
             return;
         }
         $as_version = \ActionScheduler_Versions::instance()->latest_version();
-        $as_source = ActionScheduler_SystemInformation::active_source();
-        $as_source_path = ActionScheduler_SystemInformation::active_source_path();
+        $as_source = \ActionScheduler_SystemInformation::active_source();
+        $as_source_path = \ActionScheduler_SystemInformation::active_source_path();
         $as_source_markup = \sprintf('<code>%s</code>', \esc_html($as_source_path));
         if (!empty($as_source)) {
             $as_source_markup = \sprintf('%s: <abbr title="%s">%s</abbr>', \ucfirst($as_source['type']), \esc_attr($as_source_path), \esc_html($as_source['name']));

@@ -29,93 +29,97 @@ if (!function_exists('humbug_phpscoper_expose_class')) {
         }
     }
 }
-// humbug_phpscoper_expose_class('ActionScheduler_OptionLock', 'WpifyWooDeps\ActionScheduler_OptionLock');
-// humbug_phpscoper_expose_class('ActionScheduler_InvalidActionException', 'WpifyWooDeps\ActionScheduler_InvalidActionException');
-// humbug_phpscoper_expose_class('ActionScheduler_Compatibility', 'WpifyWooDeps\ActionScheduler_Compatibility');
-// humbug_phpscoper_expose_class('ActionScheduler_ListTable', 'WpifyWooDeps\ActionScheduler_ListTable');
-// humbug_phpscoper_expose_class('ActionScheduler_AdminView', 'WpifyWooDeps\ActionScheduler_AdminView');
-// humbug_phpscoper_expose_class('ActionScheduler_DBLogger', 'WpifyWooDeps\ActionScheduler_DBLogger');
-// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore_PostStatusRegistrar', 'WpifyWooDeps\ActionScheduler_wpPostStore_PostStatusRegistrar');
-// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore', 'WpifyWooDeps\ActionScheduler_wpPostStore');
-// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore_PostTypeRegistrar', 'WpifyWooDeps\ActionScheduler_wpPostStore_PostTypeRegistrar');
-// humbug_phpscoper_expose_class('ActionScheduler_DBStore', 'WpifyWooDeps\ActionScheduler_DBStore');
-// humbug_phpscoper_expose_class('ActionScheduler_wpCommentLogger', 'WpifyWooDeps\ActionScheduler_wpCommentLogger');
-// humbug_phpscoper_expose_class('ActionScheduler_HybridStore', 'WpifyWooDeps\ActionScheduler_HybridStore');
-// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore_TaxonomyRegistrar', 'WpifyWooDeps\ActionScheduler_wpPostStore_TaxonomyRegistrar');
-// humbug_phpscoper_expose_class('ActionScheduler_WPCLI_QueueRunner', 'WpifyWooDeps\ActionScheduler_WPCLI_QueueRunner');
-// humbug_phpscoper_expose_class('ActionScheduler_WPCLI_Clean_Command', 'WpifyWooDeps\ActionScheduler_WPCLI_Clean_Command');
-// humbug_phpscoper_expose_class('ActionScheduler_WPCLI_Scheduler_command', 'WpifyWooDeps\ActionScheduler_WPCLI_Scheduler_command');
-// humbug_phpscoper_expose_class('ActionScheduler_LogEntry', 'WpifyWooDeps\ActionScheduler_LogEntry');
-// humbug_phpscoper_expose_class('ActionScheduler_NullAction', 'WpifyWooDeps\ActionScheduler_NullAction');
-// humbug_phpscoper_expose_class('ActionScheduler_FinishedAction', 'WpifyWooDeps\ActionScheduler_FinishedAction');
-// humbug_phpscoper_expose_class('ActionScheduler_Action', 'WpifyWooDeps\ActionScheduler_Action');
-// humbug_phpscoper_expose_class('ActionScheduler_CanceledAction', 'WpifyWooDeps\ActionScheduler_CanceledAction');
-// humbug_phpscoper_expose_class('ActionScheduler_QueueCleaner', 'WpifyWooDeps\ActionScheduler_QueueCleaner');
-// humbug_phpscoper_expose_class('ActionScheduler_wcSystemStatus', 'WpifyWooDeps\ActionScheduler_wcSystemStatus');
-// humbug_phpscoper_expose_class('ActionScheduler_NullLogEntry', 'WpifyWooDeps\ActionScheduler_NullLogEntry');
-// humbug_phpscoper_expose_class('ActionScheduler_DataController', 'WpifyWooDeps\ActionScheduler_DataController');
-// humbug_phpscoper_expose_class('ActionScheduler_DBStoreMigrator', 'WpifyWooDeps\ActionScheduler_DBStoreMigrator');
-// humbug_phpscoper_expose_class('ActionScheduler_AsyncRequest_QueueRunner', 'WpifyWooDeps\ActionScheduler_AsyncRequest_QueueRunner');
-// humbug_phpscoper_expose_class('ActionScheduler_Exception', 'WpifyWooDeps\ActionScheduler_Exception');
-// humbug_phpscoper_expose_class('ActionScheduler_Versions', 'WpifyWooDeps\ActionScheduler_Versions');
-// humbug_phpscoper_expose_class('ActionScheduler_QueueRunner', 'WpifyWooDeps\ActionScheduler_QueueRunner');
-// humbug_phpscoper_expose_class('ActionScheduler_CronSchedule', 'WpifyWooDeps\ActionScheduler_CronSchedule');
-// humbug_phpscoper_expose_class('ActionScheduler_SimpleSchedule', 'WpifyWooDeps\ActionScheduler_SimpleSchedule');
-// humbug_phpscoper_expose_class('ActionScheduler_IntervalSchedule', 'WpifyWooDeps\ActionScheduler_IntervalSchedule');
-// humbug_phpscoper_expose_class('ActionScheduler_Schedule', 'WpifyWooDeps\ActionScheduler_Schedule');
-// humbug_phpscoper_expose_class('ActionScheduler_CanceledSchedule', 'WpifyWooDeps\ActionScheduler_CanceledSchedule');
-// humbug_phpscoper_expose_class('ActionScheduler_NullSchedule', 'WpifyWooDeps\ActionScheduler_NullSchedule');
-// humbug_phpscoper_expose_class('ActionScheduler_ActionFactory', 'WpifyWooDeps\ActionScheduler_ActionFactory');
-// humbug_phpscoper_expose_class('ActionScheduler_LoggerSchema', 'WpifyWooDeps\ActionScheduler_LoggerSchema');
-// humbug_phpscoper_expose_class('ActionScheduler_StoreSchema', 'WpifyWooDeps\ActionScheduler_StoreSchema');
-// humbug_phpscoper_expose_class('ActionScheduler_FatalErrorMonitor', 'WpifyWooDeps\ActionScheduler_FatalErrorMonitor');
-// humbug_phpscoper_expose_class('ActionScheduler_Abstract_Schema', 'WpifyWooDeps\ActionScheduler_Abstract_Schema');
-// humbug_phpscoper_expose_class('ActionScheduler_Abstract_RecurringSchedule', 'WpifyWooDeps\ActionScheduler_Abstract_RecurringSchedule');
-// humbug_phpscoper_expose_class('ActionScheduler_Abstract_ListTable', 'WpifyWooDeps\ActionScheduler_Abstract_ListTable');
-// humbug_phpscoper_expose_class('ActionScheduler_Logger', 'WpifyWooDeps\ActionScheduler_Logger');
-// humbug_phpscoper_expose_class('ActionScheduler_Store', 'WpifyWooDeps\ActionScheduler_Store');
-// humbug_phpscoper_expose_class('ActionScheduler_Abstract_QueueRunner', 'WpifyWooDeps\ActionScheduler_Abstract_QueueRunner');
-// humbug_phpscoper_expose_class('ActionScheduler_Lock', 'WpifyWooDeps\ActionScheduler_Lock');
-// humbug_phpscoper_expose_class('ActionScheduler', 'WpifyWooDeps\ActionScheduler');
-// humbug_phpscoper_expose_class('ActionScheduler_Abstract_Schedule', 'WpifyWooDeps\ActionScheduler_Abstract_Schedule');
-// humbug_phpscoper_expose_class('ActionScheduler_TimezoneHelper', 'WpifyWooDeps\ActionScheduler_TimezoneHelper');
-// humbug_phpscoper_expose_class('ActionScheduler_ActionClaim', 'WpifyWooDeps\ActionScheduler_ActionClaim');
-// humbug_phpscoper_expose_class('ActionScheduler_DateTime', 'WpifyWooDeps\ActionScheduler_DateTime');
-// humbug_phpscoper_expose_class('ActionScheduler_WPCommentCleaner', 'WpifyWooDeps\ActionScheduler_WPCommentCleaner');
-// humbug_phpscoper_expose_class('CronExpression_DayOfWeekField', 'WpifyWooDeps\CronExpression_DayOfWeekField');
-// humbug_phpscoper_expose_class('CronExpression_AbstractField', 'WpifyWooDeps\CronExpression_AbstractField');
-// humbug_phpscoper_expose_class('CronExpression_MinutesField', 'WpifyWooDeps\CronExpression_MinutesField');
-// humbug_phpscoper_expose_class('CronExpression_FieldInterface', 'WpifyWooDeps\CronExpression_FieldInterface');
-// humbug_phpscoper_expose_class('CronExpression_HoursField', 'WpifyWooDeps\CronExpression_HoursField');
-// humbug_phpscoper_expose_class('CronExpression_FieldFactory', 'WpifyWooDeps\CronExpression_FieldFactory');
-// humbug_phpscoper_expose_class('CronExpression_MonthField', 'WpifyWooDeps\CronExpression_MonthField');
-// humbug_phpscoper_expose_class('CronExpression_DayOfMonthField', 'WpifyWooDeps\CronExpression_DayOfMonthField');
-// humbug_phpscoper_expose_class('CronExpression_YearField', 'WpifyWooDeps\CronExpression_YearField');
-// humbug_phpscoper_expose_class('CronExpression', 'WpifyWooDeps\CronExpression');
-// humbug_phpscoper_expose_class('WP_Async_Request', 'WpifyWooDeps\WP_Async_Request');
-// humbug_phpscoper_expose_class('ActionScheduler_Schedule_Deprecated', 'WpifyWooDeps\ActionScheduler_Schedule_Deprecated');
-// humbug_phpscoper_expose_class('ActionScheduler_AdminView_Deprecated', 'WpifyWooDeps\ActionScheduler_AdminView_Deprecated');
-// humbug_phpscoper_expose_class('ActionScheduler_Store_Deprecated', 'WpifyWooDeps\ActionScheduler_Store_Deprecated');
-// humbug_phpscoper_expose_class('ActionScheduler_Abstract_QueueRunner_Deprecated', 'WpifyWooDeps\ActionScheduler_Abstract_QueueRunner_Deprecated');
+// humbug_phpscoper_expose_class('ActionScheduler_OptionLock', 'WpifyWooDeps\ActionScheduler_OptionLock'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_InvalidActionException', 'WpifyWooDeps\ActionScheduler_InvalidActionException'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Compatibility', 'WpifyWooDeps\ActionScheduler_Compatibility'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_ListTable', 'WpifyWooDeps\ActionScheduler_ListTable'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_AdminView', 'WpifyWooDeps\ActionScheduler_AdminView'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_DBLogger', 'WpifyWooDeps\ActionScheduler_DBLogger'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore_PostStatusRegistrar', 'WpifyWooDeps\ActionScheduler_wpPostStore_PostStatusRegistrar'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore', 'WpifyWooDeps\ActionScheduler_wpPostStore'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore_PostTypeRegistrar', 'WpifyWooDeps\ActionScheduler_wpPostStore_PostTypeRegistrar'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_DBStore', 'WpifyWooDeps\ActionScheduler_DBStore'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_wpCommentLogger', 'WpifyWooDeps\ActionScheduler_wpCommentLogger'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_HybridStore', 'WpifyWooDeps\ActionScheduler_HybridStore'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_wpPostStore_TaxonomyRegistrar', 'WpifyWooDeps\ActionScheduler_wpPostStore_TaxonomyRegistrar'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_WPCLI_QueueRunner', 'WpifyWooDeps\ActionScheduler_WPCLI_QueueRunner'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_WPCLI_Clean_Command', 'WpifyWooDeps\ActionScheduler_WPCLI_Clean_Command'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_WPCLI_Scheduler_command', 'WpifyWooDeps\ActionScheduler_WPCLI_Scheduler_command'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_LogEntry', 'WpifyWooDeps\ActionScheduler_LogEntry'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_NullAction', 'WpifyWooDeps\ActionScheduler_NullAction'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_FinishedAction', 'WpifyWooDeps\ActionScheduler_FinishedAction'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Action', 'WpifyWooDeps\ActionScheduler_Action'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_CanceledAction', 'WpifyWooDeps\ActionScheduler_CanceledAction'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_QueueCleaner', 'WpifyWooDeps\ActionScheduler_QueueCleaner'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_wcSystemStatus', 'WpifyWooDeps\ActionScheduler_wcSystemStatus'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_NullLogEntry', 'WpifyWooDeps\ActionScheduler_NullLogEntry'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_DataController', 'WpifyWooDeps\ActionScheduler_DataController'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_DBStoreMigrator', 'WpifyWooDeps\ActionScheduler_DBStoreMigrator'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_AsyncRequest_QueueRunner', 'WpifyWooDeps\ActionScheduler_AsyncRequest_QueueRunner'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Exception', 'WpifyWooDeps\ActionScheduler_Exception'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Versions', 'WpifyWooDeps\ActionScheduler_Versions'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_QueueRunner', 'WpifyWooDeps\ActionScheduler_QueueRunner'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_SystemInformation', 'WpifyWooDeps\ActionScheduler_SystemInformation'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_CronSchedule', 'WpifyWooDeps\ActionScheduler_CronSchedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_SimpleSchedule', 'WpifyWooDeps\ActionScheduler_SimpleSchedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_IntervalSchedule', 'WpifyWooDeps\ActionScheduler_IntervalSchedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Schedule', 'WpifyWooDeps\ActionScheduler_Schedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_CanceledSchedule', 'WpifyWooDeps\ActionScheduler_CanceledSchedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_NullSchedule', 'WpifyWooDeps\ActionScheduler_NullSchedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_ActionFactory', 'WpifyWooDeps\ActionScheduler_ActionFactory'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_LoggerSchema', 'WpifyWooDeps\ActionScheduler_LoggerSchema'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_StoreSchema', 'WpifyWooDeps\ActionScheduler_StoreSchema'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_FatalErrorMonitor', 'WpifyWooDeps\ActionScheduler_FatalErrorMonitor'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Abstract_Schema', 'WpifyWooDeps\ActionScheduler_Abstract_Schema'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Abstract_RecurringSchedule', 'WpifyWooDeps\ActionScheduler_Abstract_RecurringSchedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Abstract_ListTable', 'WpifyWooDeps\ActionScheduler_Abstract_ListTable'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Logger', 'WpifyWooDeps\ActionScheduler_Logger'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Store', 'WpifyWooDeps\ActionScheduler_Store'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Abstract_QueueRunner', 'WpifyWooDeps\ActionScheduler_Abstract_QueueRunner'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_WPCLI_Command', 'WpifyWooDeps\ActionScheduler_WPCLI_Command'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Lock', 'WpifyWooDeps\ActionScheduler_Lock'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler', 'WpifyWooDeps\ActionScheduler'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Abstract_Schedule', 'WpifyWooDeps\ActionScheduler_Abstract_Schedule'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_TimezoneHelper', 'WpifyWooDeps\ActionScheduler_TimezoneHelper'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_ActionClaim', 'WpifyWooDeps\ActionScheduler_ActionClaim'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_DateTime', 'WpifyWooDeps\ActionScheduler_DateTime'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_WPCommentCleaner', 'WpifyWooDeps\ActionScheduler_WPCommentCleaner'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_DayOfWeekField', 'WpifyWooDeps\CronExpression_DayOfWeekField'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_AbstractField', 'WpifyWooDeps\CronExpression_AbstractField'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_MinutesField', 'WpifyWooDeps\CronExpression_MinutesField'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_FieldInterface', 'WpifyWooDeps\CronExpression_FieldInterface'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_HoursField', 'WpifyWooDeps\CronExpression_HoursField'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_FieldFactory', 'WpifyWooDeps\CronExpression_FieldFactory'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_MonthField', 'WpifyWooDeps\CronExpression_MonthField'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_DayOfMonthField', 'WpifyWooDeps\CronExpression_DayOfMonthField'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression_YearField', 'WpifyWooDeps\CronExpression_YearField'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('CronExpression', 'WpifyWooDeps\CronExpression'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('WP_Async_Request', 'WpifyWooDeps\WP_Async_Request'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Schedule_Deprecated', 'WpifyWooDeps\ActionScheduler_Schedule_Deprecated'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_AdminView_Deprecated', 'WpifyWooDeps\ActionScheduler_AdminView_Deprecated'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Store_Deprecated', 'WpifyWooDeps\ActionScheduler_Store_Deprecated'); // commented by WPify Scoper
+// humbug_phpscoper_expose_class('ActionScheduler_Abstract_QueueRunner_Deprecated', 'WpifyWooDeps\ActionScheduler_Abstract_QueueRunner_Deprecated'); // commented by WPify Scoper
 
 // Function aliases. For more information see:
 // https://github.com/humbug/php-scoper/blob/master/docs/further-reading.md#function-aliases
-// if (!function_exists('as_enqueue_async_action')) { function as_enqueue_async_action() { return \WpifyWooDeps\as_enqueue_async_action(...func_get_args()); } }
-// if (!function_exists('as_get_datetime_object')) { function as_get_datetime_object() { return \WpifyWooDeps\as_get_datetime_object(...func_get_args()); } }
-// if (!function_exists('as_get_scheduled_actions')) { function as_get_scheduled_actions() { return \WpifyWooDeps\as_get_scheduled_actions(...func_get_args()); } }
-// if (!function_exists('as_has_scheduled_action')) { function as_has_scheduled_action() { return \WpifyWooDeps\as_has_scheduled_action(...func_get_args()); } }
-// if (!function_exists('as_next_scheduled_action')) { function as_next_scheduled_action() { return \WpifyWooDeps\as_next_scheduled_action(...func_get_args()); } }
-// if (!function_exists('as_schedule_cron_action')) { function as_schedule_cron_action() { return \WpifyWooDeps\as_schedule_cron_action(...func_get_args()); } }
-// if (!function_exists('as_schedule_recurring_action')) { function as_schedule_recurring_action() { return \WpifyWooDeps\as_schedule_recurring_action(...func_get_args()); } }
-// if (!function_exists('as_schedule_single_action')) { function as_schedule_single_action() { return \WpifyWooDeps\as_schedule_single_action(...func_get_args()); } }
-// if (!function_exists('as_unschedule_action')) { function as_unschedule_action() { return \WpifyWooDeps\as_unschedule_action(...func_get_args()); } }
-// if (!function_exists('as_unschedule_all_actions')) { function as_unschedule_all_actions() { return \WpifyWooDeps\as_unschedule_all_actions(...func_get_args()); } }
-// if (!function_exists('getallheaders')) { function getallheaders() { return \WpifyWooDeps\getallheaders(...func_get_args()); } }
-// if (!function_exists('wc_get_scheduled_actions')) { function wc_get_scheduled_actions() { return \WpifyWooDeps\wc_get_scheduled_actions(...func_get_args()); } }
-// if (!function_exists('wc_next_scheduled_action')) { function wc_next_scheduled_action() { return \WpifyWooDeps\wc_next_scheduled_action(...func_get_args()); } }
-// if (!function_exists('wc_schedule_cron_action')) { function wc_schedule_cron_action() { return \WpifyWooDeps\wc_schedule_cron_action(...func_get_args()); } }
-// if (!function_exists('wc_schedule_recurring_action')) { function wc_schedule_recurring_action() { return \WpifyWooDeps\wc_schedule_recurring_action(...func_get_args()); } }
-// if (!function_exists('wc_schedule_single_action')) { function wc_schedule_single_action() { return \WpifyWooDeps\wc_schedule_single_action(...func_get_args()); } }
-// if (!function_exists('wc_unschedule_action')) { function wc_unschedule_action() { return \WpifyWooDeps\wc_unschedule_action(...func_get_args()); } }
+// if (!function_exists('action_scheduler_initialize_3_dot_9_dot_2')) { function action_scheduler_initialize_3_dot_9_dot_2() { return \WpifyWooDeps\action_scheduler_initialize_3_dot_9_dot_2(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('action_scheduler_register_3_dot_9_dot_2')) { function action_scheduler_register_3_dot_9_dot_2() { return \WpifyWooDeps\action_scheduler_register_3_dot_9_dot_2(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_enqueue_async_action')) { function as_enqueue_async_action() { return \WpifyWooDeps\as_enqueue_async_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_get_datetime_object')) { function as_get_datetime_object() { return \WpifyWooDeps\as_get_datetime_object(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_get_scheduled_actions')) { function as_get_scheduled_actions() { return \WpifyWooDeps\as_get_scheduled_actions(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_has_scheduled_action')) { function as_has_scheduled_action() { return \WpifyWooDeps\as_has_scheduled_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_next_scheduled_action')) { function as_next_scheduled_action() { return \WpifyWooDeps\as_next_scheduled_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_schedule_cron_action')) { function as_schedule_cron_action() { return \WpifyWooDeps\as_schedule_cron_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_schedule_recurring_action')) { function as_schedule_recurring_action() { return \WpifyWooDeps\as_schedule_recurring_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_schedule_single_action')) { function as_schedule_single_action() { return \WpifyWooDeps\as_schedule_single_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_unschedule_action')) { function as_unschedule_action() { return \WpifyWooDeps\as_unschedule_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('as_unschedule_all_actions')) { function as_unschedule_all_actions() { return \WpifyWooDeps\as_unschedule_all_actions(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('getallheaders')) { function getallheaders() { return \WpifyWooDeps\getallheaders(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('wc_get_scheduled_actions')) { function wc_get_scheduled_actions() { return \WpifyWooDeps\wc_get_scheduled_actions(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('wc_next_scheduled_action')) { function wc_next_scheduled_action() { return \WpifyWooDeps\wc_next_scheduled_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('wc_schedule_cron_action')) { function wc_schedule_cron_action() { return \WpifyWooDeps\wc_schedule_cron_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('wc_schedule_recurring_action')) { function wc_schedule_recurring_action() { return \WpifyWooDeps\wc_schedule_recurring_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('wc_schedule_single_action')) { function wc_schedule_single_action() { return \WpifyWooDeps\wc_schedule_single_action(...func_get_args()); } } // commented by WPify Scoper
+// if (!function_exists('wc_unschedule_action')) { function wc_unschedule_action() { return \WpifyWooDeps\wc_unschedule_action(...func_get_args()); } } // commented by WPify Scoper
 
 return $loader;

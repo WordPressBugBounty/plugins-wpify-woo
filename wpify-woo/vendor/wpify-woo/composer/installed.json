@@ -2061,17 +2061,17 @@
         },
         {
             "name": "wpify\/custom-fields",
-            "version": "4.0.49",
-            "version_normalized": "4.0.49.0",
+            "version": "4.0.56",
+            "version_normalized": "4.0.56.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/custom-fields.git",
-                "reference": "749e83bad761ab9239018102cb6f6ef8cdff2d30"
+                "reference": "4996539ebee4c594643769d030608272e973f306"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/749e83bad761ab9239018102cb6f6ef8cdff2d30",
-                "reference": "749e83bad761ab9239018102cb6f6ef8cdff2d30",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/4996539ebee4c594643769d030608272e973f306",
+                "reference": "4996539ebee4c594643769d030608272e973f306",
                 "shasum": ""
             },
             "require": {
@@ -2084,7 +2084,7 @@
                 "squizlabs\/php_codesniffer": "^3.10",
                 "wp-coding-standards\/wpcs": "^3.0"
             },
-            "time": "2025-04-28T16:27:57+00:00",
+            "time": "2025-05-07T20:53:27+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2102,7 +2102,7 @@
             "description": "WPify Custom Fields",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/custom-fields\/issues",
-                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.49"
+                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.56"
             },
             "install-path": "..\/wpify\/custom-fields"
         },

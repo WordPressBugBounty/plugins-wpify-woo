@@ -131,7 +131,7 @@ class ActionScheduler_Versions
     public function active_source(): array
     {
         \_deprecated_function(__METHOD__, '3.9.2', 'ActionScheduler_SystemInformation::active_source()');
-        return ActionScheduler_SystemInformation::active_source();
+        return \ActionScheduler_SystemInformation::active_source();
     }
     /**
      * Returns the directory path for the currently active installation of Action Scheduler.
@@ -143,7 +143,7 @@ class ActionScheduler_Versions
     public function active_source_path(): string
     {
         \_deprecated_function(__METHOD__, '3.9.2', 'ActionScheduler_SystemInformation::active_source_path()');
-        return ActionScheduler_SystemInformation::active_source_path();
+        return \ActionScheduler_SystemInformation::active_source_path();
     }
 }
 /**

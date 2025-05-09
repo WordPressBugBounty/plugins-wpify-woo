@@ -308,7 +308,7 @@ class CustomFields
      */
     public function get_script_handle(): string
     {
-        return 'wpifycf-' . str_replace('/', '-', $this->get_api_basename());
+        return 'wpifycf_' . str_replace('/', '_', $this->get_api_basename());
     }
     /**
      * Sanitizes a given item's value based on its type using a closure.

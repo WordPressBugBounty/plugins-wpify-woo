@@ -73,3 +73,7 @@ abstract class ActionScheduler_WPCLI_Command extends \WP_CLI_Command
         }
     }
 }
+/**
+ * Abstract for WP-CLI commands.
+ */
+\class_alias('WpifyWooDeps\ActionScheduler_WPCLI_Command', 'ActionScheduler_WPCLI_Command', \false);
