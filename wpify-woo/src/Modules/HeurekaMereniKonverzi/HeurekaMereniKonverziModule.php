@@ -110,8 +110,27 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 				'add_product',
 				(string) $item->product_id,
 				$item->name,
-				(string) $item->unit_price_tax_included,
+				(string) $item->get_unit_price_tax_included(),
 				(string) $item->quantity,
+			];
+		}
+		$additional = [];
+		foreach ( $order->shipping_items as $item ) {
+			/** @var \WpifyWooDeps\Wpify\Model\OrderItemShipping $item */
+			$additional[] = [
+				'add_additional_item',
+				$item->name,
+				(string) $item->get_unit_price_tax_included(),
+				(string) $item->quantity,
+			];
+		}
+		foreach ( $order->fee_items as $item ) {
+			/** @var \WpifyWooDeps\Wpify\Model\OrderItemFee $item */
+			$additional[] = [
+				'add_additional_item',
+				$item->name,
+				(string) $item->get_unit_price_tax_included(),
+				"1",
 			];
 		}
 		$country = $this->get_setting( 'country' ) ?: 'cz';
@@ -139,7 +158,10 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 
 			heureka('set_order_id', '<?php echo esc_attr( $order->id ); ?>');
 			<?php foreach ( $products as $item ) { ?>
-			heureka(<?php echo json_encode( $item );?>);
+			heureka(<?php echo implode( ',', array_map( 'json_encode', $item ) ); ?>);
+			<?php }?>
+			<?php foreach ( $additional as $item ) { ?>
+			heureka(<?php echo implode( ',', array_map( 'json_encode', $item ) ); ?>);
 			<?php }?>
 			heureka('set_total_vat', '<?php echo esc_attr( $order->get_wc_order()->get_total() ); ?>');
 			heureka('set_currency', '<?php echo esc_attr( $order->get_wc_order()->get_currency() ); ?>');
