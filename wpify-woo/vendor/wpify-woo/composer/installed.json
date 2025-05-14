@@ -2281,17 +2281,17 @@
         },
         {
             "name": "wpify\/woo-core",
-            "version": "5.0.16",
-            "version_normalized": "5.0.16.0",
+            "version": "5.0.17",
+            "version_normalized": "5.0.17.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/woo-core.git",
-                "reference": "96d982ceeb7cd3d09488be6544c1c3b8c0011873"
+                "reference": "6afa83052cafe3243ed85c19bae35cb02f7b877a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/96d982ceeb7cd3d09488be6544c1c3b8c0011873",
-                "reference": "96d982ceeb7cd3d09488be6544c1c3b8c0011873",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/6afa83052cafe3243ed85c19bae35cb02f7b877a",
+                "reference": "6afa83052cafe3243ed85c19bae35cb02f7b877a",
                 "shasum": ""
             },
             "require": {
@@ -2299,7 +2299,7 @@
                 "wpify\/custom-fields": "^4.0",
                 "wpify\/license": "^2"
             },
-            "time": "2025-04-29T15:48:15+00:00",
+            "time": "2025-05-14T10:05:01+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2319,7 +2319,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/woo-core\/issues",
-                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.0.16"
+                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.0.17"
             },
             "install-path": "..\/wpify\/woo-core"
         }

@@ -329,7 +329,7 @@ class Settings
         $installed_plugins = $this->get_plugins();
         $extensions = get_transient('wpify_core_all_plugins');
         if (!$extensions) {
-            $response = wp_remote_get('https://wpify.io/wp-json/wpify/v1/plugins-list');
+            $response = wp_remote_get('https://wpify.cz/wp-json/wpify/v1/plugins-list');
             if (!is_wp_error($response)) {
                 $extensions = json_decode($response['body'], \true)['plugins'];
                 set_transient('wpify_core_all_plugins', $extensions, 6 * HOUR_IN_SECONDS);
@@ -493,7 +493,7 @@ class Settings
     {
         $posts = get_transient('wpify_core_news');
         if (!$posts) {
-            $response = wp_remote_get('https://wpify.io/wp-json/wp/v2/posts?per_page=4&_embed');
+            $response = wp_remote_get('https://wpify.cz/wp-json/wp/v2/posts?per_page=4&_embed');
             if (!is_wp_error($response)) {
                 $posts = json_decode(wp_remote_retrieve_body($response));
                 set_transient('wpify_core_news', $posts, DAY_IN_SECONDS);
@@ -579,7 +579,7 @@ class Settings
      */
     public function render_support(): void
     {
-        $doc_link = add_query_arg(array('utm_source' => 'plugin-support', 'utm_medium' => 'plugin-link', 'utm_campaign' => 'documentation-link'), 'https://wpify.io/dokumentace/');
+        $doc_link = add_query_arg(array('utm_source' => 'plugin-support', 'utm_medium' => 'plugin-link', 'utm_campaign' => 'documentation-link'), 'https://wpify.cz/dokumentace/');
         $faqs = apply_filters('wpify_dashboard_support_faqs', array(array('title' => __('How do the pricing plans work?', 'wpify-core'), 'content' => __('When you purchase the plugin, you receive support and updates for one year. After this period, the license will automatically renew.', 'wpify-core')), array('title' => __('Will the plugin work if I do not renew my license?', 'wpify-core'), 'content' => __('Yes, the plugin will continue to work, but you will no longer have access to updates and support.', 'wpify-core')), array('title' => __('I need a feature that the plugin does not currently support.', 'wpify-core'), 'content' => __('Let us know, and we will consider adding the requested functionality.', 'wpify-core'))));
         ?>
         <div class="wpify-dashboard__wrap wrap">
@@ -675,7 +675,7 @@ class Settings
             return;
         }
         global $title;
-        $data = array('title' => $title, 'icon' => '', 'parent' => '', 'plugin' => '', 'menu' => array(array('icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 6.75c0-1.768 0-2.652.55-3.2C4.097 3 4.981 3 6.75 3s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55C3 9.403 3 8.519 3 6.75m0 10.507c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55C3 19.91 3 19.026 3 17.258M13.5 6.75c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55c-.55-.548-.55-1.432-.55-3.2m0 10.507c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55c-.55-.548-.55-1.432-.55-3.2"/></svg>', 'label' => __('Dashboard', 'wpify-core'), 'link' => add_query_arg(['page' => $this::DASHBOARD_SLUG], admin_url('admin.php')))), 'support_url' => add_query_arg(['page' => $this::SUPPORT_MENU_SLUG], admin_url('admin.php')), 'doc_link' => 'https://wpify.io/dokumentace/');
+        $data = array('title' => $title, 'icon' => '', 'parent' => '', 'plugin' => '', 'menu' => array(array('icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 6.75c0-1.768 0-2.652.55-3.2C4.097 3 4.981 3 6.75 3s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55C3 9.403 3 8.519 3 6.75m0 10.507c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55C3 19.91 3 19.026 3 17.258M13.5 6.75c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55c-.55-.548-.55-1.432-.55-3.2m0 10.507c0-1.768 0-2.652.55-3.2c.548-.55 1.432-.55 3.2-.55s2.652 0 3.2.55c.55.548.55 1.432.55 3.2s0 2.652-.55 3.2c-.548.55-1.432.55-3.2.55s-2.652 0-3.2-.55c-.55-.548-.55-1.432-.55-3.2"/></svg>', 'label' => __('Dashboard', 'wpify-core'), 'link' => add_query_arg(['page' => $this::DASHBOARD_SLUG], admin_url('admin.php')))), 'support_url' => add_query_arg(['page' => $this::SUPPORT_MENU_SLUG], admin_url('admin.php')), 'doc_link' => 'https://wpify.cz/dokumentace/');
         $data = apply_filters('wpify_admin_menu_bar_data', $data);
         $sections = $this->get_sections($data['plugin']);
         foreach ($sections as $section_id => $section) {
