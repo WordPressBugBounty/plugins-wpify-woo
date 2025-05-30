@@ -314,7 +314,82 @@ class XmlFeedHeurekaModule extends AbstractModule {
 			'tab'            => 'general',
 		);
 
+		$writable_check = $this->can_write_feed_file();
+		if ( $writable_check ) {
+			$settings[] = array(
+				'id'   => 'error_title',
+				'type' => 'title',
+				'desc' => sprintf( '<p style="color:red"><strong>%s</strong>: %s</p>', __( 'Error saving files', 'wpify-woo' ), $writable_check ),
+				'tab'  => 'general',
+			);
+		}
+
 		return $settings;
+	}
+
+	public function can_write_feed_file(): string {
+		$dir = $this->feed->get_dir_path();
+		$file = $this->feed->get_xml_path();
+		$temp_dir = $this->feed->get_tmp_dir_path();
+		$temp_file = $this->feed->get_tmp_file_path();
+
+		if ( ! file_exists( $dir ) ) {
+			$parent_dir = dirname( $dir );
+			if ( ! is_writable( $parent_dir ) ) {
+				return sprintf(
+					__( 'Nelze vytvořit složku – nadřazená složka není zapisovatelná: %s', 'wpify-woo' ),
+					$parent_dir
+				);
+			}
+			if ( ! mkdir( $dir, 0777, true ) ) {
+				return sprintf(
+					__( 'Nepodařilo se vytvořit složku: %s', 'wpify-woo' ),
+					$dir
+				);
+			}
+		} elseif ( ! is_writable( $dir ) ) {
+			return sprintf(
+				__( 'Složka existuje, ale není zapisovatelná: %s', 'wpify-woo' ),
+				$dir
+			);
+		}
+
+		if ( file_exists( $file ) && ! is_writable( $file ) ) {
+			return sprintf(
+				__( 'Soubor existuje, ale není zapisovatelný: %s', 'wpify-woo' ),
+				$file
+			);
+		}
+
+		if ( ! file_exists( $temp_dir ) ) {
+			$parent_dir = dirname( $temp_dir );
+			if ( ! is_writable( $parent_dir ) ) {
+				return sprintf(
+					__( 'Nelze vytvořit temp složku – nadřazená složka není zapisovatelná: %s', 'wpify-woo' ),
+					$parent_dir
+				);
+			}
+			if ( ! mkdir( $temp_dir, 0777, true ) ) {
+				return sprintf(
+					__( 'Nepodařilo se vytvořit temp složku: %s', 'wpify-woo' ),
+					$temp_dir
+				);
+			}
+		} elseif ( ! is_writable( $temp_dir ) ) {
+			return sprintf(
+				__( 'Složka temp existuje, ale není zapisovatelná: %s', 'wpify-woo' ),
+				$temp_dir
+			);
+		}
+
+		if ( file_exists( $temp_file ) && ! is_writable( $temp_file ) ) {
+			return sprintf(
+				__( 'Soubor temp existuje, ale není zapisovatelný: %s', 'wpify-woo' ),
+				$temp_file
+			);
+		}
+
+		return '';
 	}
 
 	public function get_heureka_delivery_methods_select() {

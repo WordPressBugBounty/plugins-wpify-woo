@@ -105,8 +105,12 @@ abstract class AbstractFeed {
 	abstract public function data( array $product ): array;
 
 	public function add_tmp_data( array $data ) {
-		$data = array_merge( $this->get_tmp_data(), $data );
-		$this->save_tmp_data( $data );
+		$data   = array_merge( $this->get_tmp_data(), $data );
+		$result = $this->save_tmp_data( $data );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
 
 		return $data;
 	}
@@ -116,7 +120,53 @@ abstract class AbstractFeed {
 			mkdir( $this->get_tmp_dir_path(), 0777, true );
 		}
 
-		return file_put_contents( $this->get_tmp_file_path(), json_encode( $data ) );
+		$tmp_file = $this->get_tmp_file_path();
+		if ( $this->has_non_utf8( $data ) ) {
+			$data = $this->ensure_utf8( $data );
+		}
+		$json_data = json_encode( $data );
+
+		if ( $json_data === false ) {
+			return new \WP_Error( 'feed_save_error', json_last_error_msg() );
+		}
+
+		if ( file_exists( $tmp_file ) && ! is_writable( $tmp_file ) ) {
+			return new \WP_Error( 'feed_save_error', 'TMP soubor existuje, ale není zapisovatelný: ' . $tmp_file );
+		}
+
+		$result = file_put_contents( $tmp_file, $json_data );
+		if ( $result === false ) {
+			return new \WP_Error( 'feed_save_error', 'error file_put_contents: ' . $tmp_file );
+		}
+
+		return $result;
+	}
+
+	function has_non_utf8( $data ) {
+		if ( is_array( $data ) ) {
+			foreach ( $data as $value ) {
+				if ( $this->has_non_utf8( $value ) ) {
+					return true;
+				}
+			}
+		} elseif ( is_string( $data ) ) {
+			if ( ! mb_check_encoding( $data, 'UTF-8' ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function ensure_utf8( $data ) {
+		if ( is_array( $data ) ) {
+			return array_map( [ $this, 'ensure_utf8' ], $data );
+		} elseif ( is_string( $data ) ) {
+			if ( ! mb_check_encoding( $data, 'UTF-8' ) ) {
+				return mb_convert_encoding( $data, 'UTF-8', 'auto' );
+			}
+		}
+
+		return $data;
 	}
 
 	public function get_xml_from_array( $data, $root_name = 'root', $encoding = 'UTF-8' ) {

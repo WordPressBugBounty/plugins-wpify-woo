@@ -14,7 +14,7 @@ class ConnectionException extends \RuntimeException implements ClientExceptionIn
      * @param string $message
      * @param int $code
      */
-    public function __construct($message = 'The service is probably overloaded. Repeat request after a few minutes.', $code = 0, \Throwable $previous = null)
+    public function __construct($message = 'The service is probably overloaded. Repeat request after a few minutes.', $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

@@ -588,17 +588,17 @@
         },
         {
             "name": "h4kuna\/ares",
-            "version": "v3.0.10",
-            "version_normalized": "3.0.10.0",
+            "version": "v3.0.12",
+            "version_normalized": "3.0.12.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/h4kuna\/ares.git",
-                "reference": "f3dd2531dd32731366bd8dc1055e55ddc90c460e"
+                "reference": "5e70d2b700451bbe48358632bc2898087e6cc0cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/h4kuna\/ares\/zipball\/f3dd2531dd32731366bd8dc1055e55ddc90c460e",
-                "reference": "f3dd2531dd32731366bd8dc1055e55ddc90c460e",
+                "url": "https:\/\/api.github.com\/repos\/h4kuna\/ares\/zipball\/5e70d2b700451bbe48358632bc2898087e6cc0cb",
+                "reference": "5e70d2b700451bbe48358632bc2898087e6cc0cb",
                 "shasum": ""
             },
             "require": {
@@ -613,14 +613,14 @@
             "require-dev": {
                 "guzzlehttp\/guzzle": "^7.5",
                 "nette\/tester": "^2.4",
-                "phpstan\/phpstan": "^1.8",
-                "phpstan\/phpstan-strict-rules": "^1.4",
+                "phpstan\/phpstan": "^2.1",
+                "phpstan\/phpstan-strict-rules": "^2.0",
                 "tracy\/tracy": "^2.9"
             },
             "suggest": {
                 "guzzlehttp\/guzzle": "As default implementation for PSR-7, PSR-17 and PSR-18 standards."
             },
-            "time": "2024-11-10T10:21:20+00:00",
+            "time": "2025-05-30T07:28:31+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -646,7 +646,7 @@
             "homepage": "https:\/\/github.com\/h4kuna\/ares",
             "support": {
                 "issues": "https:\/\/github.com\/h4kuna\/ares\/issues",
-                "source": "https:\/\/github.com\/h4kuna\/ares\/tree\/v3.0.10"
+                "source": "https:\/\/github.com\/h4kuna\/ares\/tree\/v3.0.12"
             },
             "funding": [
                 {
@@ -1906,23 +1906,23 @@
         },
         {
             "name": "symfony\/deprecation-contracts",
-            "version": "v3.5.1",
-            "version_normalized": "3.5.1.0",
+            "version": "v3.6.0",
+            "version_normalized": "3.6.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/deprecation-contracts.git",
-                "reference": "74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6"
+                "reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/symfony\/deprecation-contracts\/zipball\/74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6",
-                "reference": "74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6",
+                "url": "https:\/\/api.github.com\/repos\/symfony\/deprecation-contracts\/zipball\/63afe740e99a13ba87ec199bb07bbdee937a5b62",
+                "reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.1"
             },
-            "time": "2024-09-25T14:20:29+00:00",
+            "time": "2024-09-25T14:21:43+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -1930,7 +1930,7 @@
                     "name": "symfony\/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.5-dev"
+                    "dev-main": "3.6-dev"
                 }
             },
             "installation-source": "dist",
@@ -1956,7 +1956,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https:\/\/symfony.com",
             "support": {
-                "source": "https:\/\/github.com\/symfony\/deprecation-contracts\/tree\/v3.5.1"
+                "source": "https:\/\/github.com\/symfony\/deprecation-contracts\/tree\/v3.6.0"
             },
             "funding": [
                 {
@@ -2061,17 +2061,17 @@
         },
         {
             "name": "wpify\/custom-fields",
-            "version": "4.0.56",
-            "version_normalized": "4.0.56.0",
+            "version": "4.0.59",
+            "version_normalized": "4.0.59.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/custom-fields.git",
-                "reference": "4996539ebee4c594643769d030608272e973f306"
+                "reference": "4f0fff76619608f6ede2a49701c430475d886c8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/4996539ebee4c594643769d030608272e973f306",
-                "reference": "4996539ebee4c594643769d030608272e973f306",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/4f0fff76619608f6ede2a49701c430475d886c8d",
+                "reference": "4f0fff76619608f6ede2a49701c430475d886c8d",
                 "shasum": ""
             },
             "require": {
@@ -2084,7 +2084,7 @@
                 "squizlabs\/php_codesniffer": "^3.10",
                 "wp-coding-standards\/wpcs": "^3.0"
             },
-            "time": "2025-05-07T20:53:27+00:00",
+            "time": "2025-05-29T17:56:36+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2102,7 +2102,7 @@
             "description": "WPify Custom Fields",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/custom-fields\/issues",
-                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.56"
+                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.59"
             },
             "install-path": "..\/wpify\/custom-fields"
         },
@@ -2198,23 +2198,23 @@
         },
         {
             "name": "wpify\/model",
-            "version": "4.1.23",
-            "version_normalized": "4.1.23.0",
+            "version": "4.1.24",
+            "version_normalized": "4.1.24.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/model.git",
-                "reference": "f7295fcf85f86ead9be01dd2fe1dcc4a5788e9c6"
+                "reference": "ebcac0038014dd0a8d7af5b31e3ee1efa542e9ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/model\/zipball\/f7295fcf85f86ead9be01dd2fe1dcc4a5788e9c6",
-                "reference": "f7295fcf85f86ead9be01dd2fe1dcc4a5788e9c6",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/model\/zipball\/ebcac0038014dd0a8d7af5b31e3ee1efa542e9ec",
+                "reference": "ebcac0038014dd0a8d7af5b31e3ee1efa542e9ec",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.0.0"
             },
-            "time": "2025-04-10T19:34:52+00:00",
+            "time": "2025-05-21T09:30:57+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2235,7 +2235,7 @@
             "description": "WPify Model",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/model\/issues",
-                "source": "https:\/\/github.com\/wpify\/model\/tree\/4.1.23"
+                "source": "https:\/\/github.com\/wpify\/model\/tree\/4.1.24"
             },
             "install-path": "..\/wpify\/model"
         },

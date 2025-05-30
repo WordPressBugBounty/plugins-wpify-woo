@@ -17,7 +17,7 @@ class ViesEntity
     public function toParam(): array
     {
         /** @var viesParam $data */
-        $data = array_filter(get_object_vars($this));
+        $data = array_filter(get_object_vars($this), static fn($value) => $value !== '' && $value !== null);
         return $data;
     }
 }

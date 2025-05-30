@@ -100,7 +100,11 @@ class FeedApi extends \WP_REST_Controller {
 		$new_data = $feed->get_data_for_page( $page );
 		if ( ! $new_data ) {
 			// We are done, save the feed.
-			$feed->save_feed( $feed->get_xml_from_array( $feed->get_tmp_data(), $feed->get_root_name() ) );
+			$result = $feed->save_feed( $feed->get_xml_from_array( $feed->get_tmp_data(), $feed->get_root_name() ) );
+
+			if ( $result === false ) {
+				return new \WP_Error( 'feed_save_error', 'Error write to file.', $feed->get_tmp_data() );
+			}
 
 			return new WP_REST_Response( array( 'status' => 'done' ), 201 );
 		}
