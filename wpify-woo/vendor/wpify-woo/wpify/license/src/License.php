@@ -15,16 +15,28 @@ class License
     private string $option_key;
     /**
      * @param string $plugin
-     * @param bool $enqueue_script
-     * @param int $network_id
+     * @param bool   $enqueue_script
+     * @param int    $network_id
      */
     public function __construct(private string $plugin, private $enqueue_script = \false, private $network_id = 0)
     {
         $this->option_key = sprintf('%s_license', $plugin);
         add_action('admin_init', array($this, 'save_activation_token'));
         add_action('admin_init', array($this, 'delete_activation_token'));
+        add_action('init', array($this, 'load_textdomain'));
         if ($this->enqueue_script) {
             add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'), 1000);
+        }
+    }
+    /**
+     * Register license textdomain
+     * @return void
+     */
+    function load_textdomain()
+    {
+        $mo_file = dirname(__DIR__, 2) . '/languages/wpify-license-' . get_locale() . '.mo';
+        if (file_exists($mo_file)) {
+            load_textdomain('wpify-license', $mo_file);
         }
     }
     public function get_full_url()
@@ -39,8 +51,8 @@ class License
         wp_dequeue_script('wpify-settings');
         $asset_factory = new AssetFactory();
         $asset_factory->wp_script(dirname(__DIR__) . '/build/settings.css', array('is_admin' => \true));
-        $asset_factory->wp_script(dirname(__DIR__) . '/build/settings.js', array('is_admin' => \true, 'variables' => array('wpifyWooLicenseSettings' => array('publicPath' => dirname($this::PATH) . '/build/', 'activateUrl' => add_query_arg(array('license-action' => 'add', 'slug' => $this->plugin, 'domain' => get_site_url(), 'return_url' => urlencode(urlencode($this->get_full_url()))), $this->get_base_url()), 'deactivateUrl' => add_query_arg(array('license-action' => 'deactivate', 'slug' => $this->plugin, 'domain' => get_site_url(), 'return_url' => urlencode(urlencode($this->get_full_url()))), $this->get_base_url()), 'activated' => $this->is_activated())), 'dependencies' => array('react', 'wp-components', 'wp-element', 'wp-hooks', 'wp-i18n', 'wp-polyfill')));
-        wp_set_script_translations('wpify-woo-settings.js', 'wpify-woo', '/languages');
+        $asset_factory->wp_script(dirname(__DIR__) . '/build/settings.js', array('handle' => 'wpify-woo-settings', 'is_admin' => \true, 'variables' => array('wpifyWooLicenseSettings' => array('publicPath' => dirname($this::PATH) . '/build/', 'activateUrl' => add_query_arg(array('license-action' => 'add', 'slug' => $this->plugin, 'domain' => get_site_url(), 'return_url' => urlencode(urlencode($this->get_full_url()))), $this->get_base_url()), 'deactivateUrl' => add_query_arg(array('license-action' => 'deactivate', 'slug' => $this->plugin, 'domain' => get_site_url(), 'return_url' => urlencode(urlencode($this->get_full_url()))), $this->get_base_url()), 'activated' => $this->is_activated())), 'dependencies' => array('react', 'wp-components', 'wp-element', 'wp-hooks', 'wp-i18n', 'wp-polyfill')));
+        wp_set_script_translations('wpify-woo-settings', 'wpify-license', dirname(__DIR__) . '/languages');
     }
     public function get_option_key()
     {

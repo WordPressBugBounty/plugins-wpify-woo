@@ -4,9 +4,13 @@ declare (strict_types=1);
 namespace WpifyWooDeps\h4kuna\Ares\Ares;
 
 use WpifyWooDeps\h4kuna\Ares\Ares\Core\SubjectType;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\InvalidStateException;
-use WpifyWooDeps\h4kuna\Ares\Tools\Strings;
+use WpifyWooDeps\h4kuna\Ares\Exception\LogicException;
+use WpifyWooDeps\h4kuna\Ares\Tool\Strings;
 use WpifyWooDeps\Nette\Utils\Strings as NetteStrings;
+/**
+ * @phpstan-type addressTypeRaw array{street?: string, zip?: string, city?: string, house_number?: string, country?: string}
+ * @phpstan-type addressType array{street: ?string, zip: ?string, city: ?string, house_number: ?string, country: ?string}
+ */
 final class Helper
 {
     public static string $baseUrl = 'https://ares.gov.cz/ekonomicke-subjekty-v-be/rest';
@@ -32,7 +36,7 @@ final class Helper
     public static function prepareUrl(string $source, string $in): string
     {
         if (self::endpointExists($source) === \false) {
-            throw new InvalidStateException(sprintf('Endpoint %s does not exists.', $source));
+            throw new LogicException(sprintf('Endpoint %s does not exists.', $source));
         }
         return str_replace('{ico}', self::normalizeIN($in), self::$baseUrl . self::$endpoints[$source]);
     }
@@ -70,20 +74,22 @@ final class Helper
         return str_pad($in, 8, '0', \STR_PAD_LEFT);
     }
     /**
-     * @return array{street: ?string, zip: ?string, city: ?string, house_number: ?string, country: ?string}
+     * @return addressType
      */
     public static function parseAddress(string $address): array
     {
+        /** @var ?addressTypeRaw $results */
         $results = NetteStrings::match($address, '~^(?<street>.+) (?<house_number>\d+(?:/\d+)?(\w)?)(?:, (?<district>.+?))?, (?<zip>\d{5}) (?<city>.+?)(, (?<country>.+))?$~');
         if ($results !== null) {
             return self::prepareAddressData($results);
         }
+        /** @var ?addressTypeRaw $results */
         $results = NetteStrings::match($address, '~^(?<city>.+), (?<zip>\d{5})(?:, (?<district>.+?))?, (?<street>.+), (?<house_number>\d+(?:/\d+)?(\w)?)$~');
         return self::prepareAddressData($results ?? []);
     }
     /**
-     * @param array{street?: string, zip?: string, city?: string, house_number?: string, country?: string} $results
-     * @return array{street: ?string, zip: ?string, city: ?string, house_number: ?string, country: ?string}
+     * @param addressTypeRaw $results
+     * @return addressType
      */
     private static function prepareAddressData(array $results): array
     {

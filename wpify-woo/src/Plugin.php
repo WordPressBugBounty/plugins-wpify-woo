@@ -19,9 +19,10 @@ use WpifyWooDeps\Wpify\WooCore\WpifyWooCore;
  * @package Wpify
  */
 class Plugin extends AbstractPlugin {
+	protected bool $requires_activation = false;
 
 	/** Plugin version */
-	public const VERSION = '5.0.12';
+	public const VERSION = '5.0.14';
 
 	/** Plugin slug name */
 	public const PLUGIN_SLUG = 'wpify-woo';

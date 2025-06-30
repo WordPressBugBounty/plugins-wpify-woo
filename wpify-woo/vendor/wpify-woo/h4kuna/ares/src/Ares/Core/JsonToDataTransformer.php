@@ -5,7 +5,7 @@ namespace WpifyWooDeps\h4kuna\Ares\Ares\Core;
 
 use WpifyWooDeps\h4kuna\Ares\Ares\Helper;
 use WpifyWooDeps\h4kuna\Ares\Ares\Sources;
-use WpifyWooDeps\h4kuna\Ares\Tools\Strings;
+use WpifyWooDeps\h4kuna\Ares\Tool\Strings;
 use stdClass;
 class JsonToDataTransformer
 {

@@ -4,9 +4,13 @@ declare (strict_types=1);
 namespace WpifyWooDeps\h4kuna\Ares\Adis;
 
 use WpifyWooDeps\h4kuna\Ares\Adis\Soap\Envelope;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
 use WpifyWooDeps\h4kuna\Ares\Http\TransportProvider;
-use WpifyWooDeps\h4kuna\Ares\Tools\Xml;
+use WpifyWooDeps\h4kuna\Ares\Tool\Arrays;
+use WpifyWooDeps\h4kuna\Ares\Tool\Integer;
+use WpifyWooDeps\h4kuna\Ares\Tool\Strings;
+use WpifyWooDeps\h4kuna\Ares\Tool\Xml;
+use SimpleXMLElement;
 use stdClass;
 final class Client
 {
@@ -16,31 +20,34 @@ final class Client
     }
     /**
      * @param array<string, string> $chunk
-     * @return array<stdClass>
+     * @return list<stdClass>
+     *
+     * @throws ServerResponseException
      */
     public function statusBusinessSubjects(array $chunk): array
     {
         $xml = Envelope::StatusNespolehlivySubjektRozsireny(...$chunk);
         $data = $this->request($xml, 'StatusNespolehlivySubjektRozsirenyResponse');
         $attributes = '@attributes';
-        assert($data->status instanceof stdClass);
-        if (isset($data->status->{$attributes}) === \false) {
-            throw new ServerResponseException('Broken response xml.');
+        if ($data->status instanceof stdClass === \false || isset($data->status->{$attributes}) === \false || $data->status->{$attributes} instanceof stdClass === \false) {
+            throw ServerResponseException::brokenXml();
         }
         $element = $data->status->{$attributes};
-        assert($element instanceof stdClass);
         if ($element->statusCode !== '0') {
-            throw new ServerResponseException($element->statusText, (int) $element->statusCode);
+            throw ServerResponseException::badResponse(Strings::fromMixedStrict($element->statusText), (int) Integer::fromMixed($element->statusCode));
         }
-        return is_array($data->statusSubjektu) ? $data->statusSubjektu : [$data->statusSubjektu];
+        return Arrays::fromStdClass($data->statusSubjektu);
     }
+    /**
+     * @throws ServerResponseException
+     */
     private function request(string $xml, string $name): stdClass
     {
         $request = $this->transportProvider->createXmlRequest(self::$url, $xml);
         $response = $this->transportProvider->response($request);
         $xml = @simplexml_load_string($response->getBody()->getContents(), namespace_or_prefix: 'soapenv', is_prefix: \true);
-        if ($xml === \false || isset($xml->Body->children()->{$name}) === \false) {
-            throw new ServerResponseException(sprintf('Missing tag "%s" in response.', $name));
+        if ($xml === \false || $xml->Body->children()->{$name} instanceof SimpleXMLElement === \false) {
+            throw ServerResponseException::badResponse(sprintf('Missing tag "%s" in response.', $name));
         }
         return Xml::toJson($xml->Body->children()->{$name});
     }

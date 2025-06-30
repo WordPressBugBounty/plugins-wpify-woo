@@ -117,10 +117,27 @@ class IcDicApi extends \WP_REST_Controller {
 			$error_text .= ' ' . __( 'Zero VAT could not be applied.', 'wpify-woo' );
 		}
 
-		if ( ! $this->module->is_valid_dic( $dic ) ) {
+		// Check if VIES validation is enabled
+		if ( ! $this->module->get_setting( 'validate_vies' ) ) {
+			return new WP_REST_Response( array( 'validation' => 'skipped' ), 200 );
+		}
+
+		$is_valid = $this->module->is_valid_dic( $dic );
+		
+		// If VIES validation fails and vies_fails is disabled, return error (blocks order)
+		if ( ! $is_valid && $this->module->get_setting( 'vies_fails' ) !== true ) {
 			return new \WP_Error( 'not-found', $error_text );
 		}
 
+		// If VIES validation fails but vies_fails is enabled, return passed with warning
+		if ( ! $is_valid && $this->module->get_setting( 'vies_fails' ) === true ) {
+			return new WP_REST_Response( array( 
+				'validation' => 'passed',
+				'warning' => $error_text
+			), 200 );
+		}
+
+		// Return validation result - BlockSupport will handle VAT exempt logic
 		return new WP_REST_Response( array( 'validation' => 'passed' ), 200 );
 	}
 

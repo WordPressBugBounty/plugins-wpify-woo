@@ -11,8 +11,9 @@ class RotatingFileLog extends Log
      * @param string                  $channel
      * @param string                  $path
      * @param FormatterInterface|null $formatter
+     * @param array                   $menu_args
      */
-    public function __construct(string $channel, string $path = '', ?FormatterInterface $formatter = null)
+    public function __construct(string $channel, string $path = '', ?FormatterInterface $formatter = null, array $menu_args = [])
     {
         $filename = sprintf('wpify_log_%s', $channel);
         if (!$path) {
@@ -26,6 +27,6 @@ class RotatingFileLog extends Log
         }
         $handler = new RotatingFileHandler($path, 5, Logger::DEBUG, \true, 0660);
         $handler->setFormatter($formatter ?? new JsonFormatter());
-        parent::__construct($channel, [$handler]);
+        parent::__construct($channel, [$handler], $menu_args);
     }
 }

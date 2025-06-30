@@ -17,6 +17,7 @@ use WpifyWooDeps\h4kuna\Ares;
 use WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException;
 use WpifyWooDeps\Wpify\Asset\AssetFactory;
 use WpifyWooDeps\Wpify\PluginUtils\PluginUtils;
+use WpifyWooDeps\Wpify\Log\RotatingFileLog;
 
 /**
  * Class IcDicModule
@@ -31,6 +32,7 @@ class IcDicModule extends AbstractModule {
 		private PluginUtils $plugin_utils,
 		private ApiManager $api_manager,
 		private WooCommerceIntegration $woo_integration,
+		public RotatingFileLog $log,
 	) {
 		parent::__construct();
 		$this->setup();
@@ -53,6 +55,7 @@ class IcDicModule extends AbstractModule {
 //			'display_block_fields_in_admin'
 //		) );
 		add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkout_validation' ), 10, 2 );
+		add_action( 'woocommerce_checkout_order_processed', array( $this, 'log_order_vat_exempt_decision' ), 10, 3 );
 		add_action( 'init', array( $this, 'add_rest_api' ) );
 
 		if ( $this->get_setting( 'autofill_ares' ) ) {
@@ -77,10 +80,12 @@ class IcDicModule extends AbstractModule {
 			10,
 			3
 		);
-		add_action( 'init', array( $this, 'set_customer_vat_extempt' ) );
+		add_action( 'wp', array( $this, 'set_customer_vat_extempt' ) ); // Only on frontend pages, not admin/ajax
 		add_action( 'woocommerce_checkout_update_order_review', array( $this, 'set_vat_extempt_on_order_review' ) );
 		add_filter( 'post_class', array( $this, 'add_post_class' ), 10, 3 );
 		add_filter( 'woocommerce_ajax_get_customer_details', array( $this, 'autofill_vat_fields_in_admin' ), 10, 3 );
+		
+		
 		new BlockSupport( $this );
 	}
 
@@ -143,6 +148,7 @@ class IcDicModule extends AbstractModule {
 					'optionalText'      => '(' . esc_html__( 'optional', 'woocommerce' ) . ')',
 					'changePlaceholder' => $this->get_setting( 'change_placeholder' ),
 					'checkingText'      => __( 'Checking in', 'wpify-woo' ),
+					'validateAres'      => $this->get_setting( 'validate_ares' ),
 				),
 			),
 		) );
@@ -162,6 +168,9 @@ class IcDicModule extends AbstractModule {
 						'checkingText'      => __( 'Checking in', 'wpify-woo' ),
 						'autofillAresText'  => $this->get_setting( 'autofill_ares_text' ) ?: __( 'Autofill from Ares', 'wpify-woo' ),
 						'searchAresText'    => $this->get_setting( 'submit_ares_text' ) ?: __( 'Search in Ares', 'wpify-woo' ),
+						'validateVies'      => $this->get_setting( 'validate_vies' ),
+						'viesFails'         => $this->get_setting( 'vies_fails' ),
+						'validateAres'      => $this->get_setting( 'validate_ares' ),
 					),
 				),
 				'dependencies' => array( 'wc-blocks-data-store', 'wc-blocks-checkout' ),
@@ -650,6 +659,7 @@ class IcDicModule extends AbstractModule {
 	 */
 	public function checkout_validation( $fields, $errors ) {
 		$country = $_POST['billing_country'];
+		
 
 		if ( $this->get_setting( 'validate_ares' )
 			 && $country === 'CZ'
@@ -717,6 +727,7 @@ class IcDicModule extends AbstractModule {
 			}
 		}
 
+
 		$is_required = '</strong> ' . _x( 'is a required field when purchasing for a company.', 'checkout-validation', 'wpify-woo' );
 
 		if ( ! empty( $this->get_setting( 'required_company' ) )
@@ -759,6 +770,10 @@ class IcDicModule extends AbstractModule {
 			return boolval( $valid );
 		}
 
+		if ( empty( $dic ) ) {
+			return false;
+		}
+
 		$current_country = substr( $dic, 0, 2 );
 		$current_vat_no  = substr( $dic, 2 );
 		$vies            = new Vies();
@@ -796,51 +811,100 @@ class IcDicModule extends AbstractModule {
 	}
 
 	public function set_customer_vat_extempt() {
-		if ( is_ajax() || is_admin() ) {
+		// Only run on frontend pages, skip admin and AJAX
+		if ( is_admin() || wp_doing_ajax() ) {
+			return;
+		}
+
+		// Skip if WooCommerce customer is not available
+		if ( empty( WC()->customer ) ) {
 			return;
 		}
 
 		$vies_fails            = $this->get_setting( 'vies_fails' );
 		$vat_extempt_countries = $this->get_setting( 'zero_tax_for_vat_countries' );
 
+		// Skip if VAT exempt functionality is not configured
 		if ( empty( $vat_extempt_countries ) ) {
 			return;
 		}
 
-		$dic = null;
+		$billing_country = WC()->customer->get_billing_country();
+		$dic = $billing_country === 'SK'
+			? WC()->customer->get_meta( 'billing_dic_dph' )
+			: WC()->customer->get_meta( 'billing_dic' );
 
-		if ( ! empty( WC()->customer ) ) {
-			$dic = WC()->customer->get_billing_country() === 'SK'
-				? WC()->customer->get_meta( 'billing_dic_dph' )
-				: WC()->customer->get_meta( 'billing_dic' );
-		}
-
-		if ( ! empty( $vies_fails ) && $vies_fails === true && ! $this->is_valid_dic( $dic ) ) {
-			if ( ! empty( WC()->customer ) ) {
-				WC()->customer->set_is_vat_exempt( false );
-			}
-
+		// Create cache key based on current data
+		$cache_key = 'vat_exempt_' . md5( $billing_country . '_' . $dic . '_' . WC()->customer->get_shipping_country() );
+		
+		// Check if we already calculated this recently (cache for current session)
+		$cached_result = WC()->session->get( $cache_key );
+		$cache_time = WC()->session->get( $cache_key . '_time' );
+		
+		// Use cache if it's less than 5 minutes old
+		if ( $cached_result !== null && $cache_time && ( time() - $cache_time ) < 300 ) {
+			WC()->customer->set_is_vat_exempt( $cached_result );
 			return;
 		}
 
-		$is_vat_extempt = null;
-		$session_key    = 'is_vat_extempt:' . $dic;
+		// Calculate VAT exempt status
+		$is_vat_extempt = false;
 
-		if ( ! empty( WC()->session ) ) {
-			$is_vat_extempt = WC()->session->get( $session_key );
+		if ( ! empty( $dic ) ) {
+			// If VIES fails is enabled and DIC is not valid, set to false
+			if ( ! empty( $vies_fails ) && $vies_fails === true && ! $this->is_valid_dic( $dic ) ) {
+				$is_vat_extempt = false;
+			} else {
+				$shipping_country = WC()->customer->get_shipping_country() ?: $billing_country;
+				$is_vat_extempt = $this->is_vat_extempt( $dic, $shipping_country );
+			}
 		}
 
-		if ( $is_vat_extempt === null ) {
-			$is_vat_extempt = $this->is_vat_extempt( $dic );
+		// Cache the result
+		WC()->session->set( $cache_key, $is_vat_extempt );
+		WC()->session->set( $cache_key . '_time', time() );
+
+		// Set customer VAT exempt status
+		WC()->customer->set_is_vat_exempt( $is_vat_extempt );
+	}
+
+	public function log_order_vat_exempt_decision( $order_id, $posted_data, $order ) {
+		// Only log if DIC was provided
+		$billing_country = $order->get_billing_country();
+		$dic = $billing_country === 'SK' 
+			? $order->get_meta('_billing_dic_dph')
+			: $order->get_meta('_billing_dic');
+			
+		if ( empty( $dic ) ) {
+			return; // No DIC provided, skip logging
 		}
 
-		if ( ! empty( WC()->session ) ) {
-			WC()->session->set( $session_key, $is_vat_extempt );
+		// Detect VAT exempt from order - if tax_total is 0 but order has taxable items, likely VAT exempt
+		$customer_vat_exempt = ($order->get_total_tax() == 0 && $order->get_total() > 0);
+		$vat_exempt_countries = $this->get_setting( 'zero_tax_for_vat_countries' );
+		$shop_country = wc_get_base_location()['country'];
+		$shipping_country = $order->get_shipping_country();
+		
+		// Determine if VAT should be exempt based on current logic  
+		$should_be_vat_exempt = false;
+		if ( ! empty( $vat_exempt_countries ) ) {
+			$should_be_vat_exempt = $this->is_vat_extempt( $dic, $shipping_country );
 		}
 
-		if ( ! empty( WC()->customer ) ) {
-			WC()->customer->set_is_vat_exempt( $is_vat_extempt );
-		}
+		$this->log->info('Order VAT Exempt Decision', [
+			'order_id' => $order->get_id(),
+			'order_number' => $order->get_order_number(),
+			'billing_country' => $billing_country,
+			'shipping_country' => $shipping_country,
+			'shop_country' => $shop_country,
+			'submitted_dic' => $dic,
+			'customer_vat_exempt' => $customer_vat_exempt,
+			'should_be_vat_exempt' => $should_be_vat_exempt,
+			'vat_exempt_countries' => $vat_exempt_countries,
+			'order_total' => $order->get_total(),
+			'tax_total' => $order->get_total_tax(),
+			'context' => 'Order created - Classic checkout'
+		]);
 	}
 
 	/**
@@ -854,8 +918,16 @@ class IcDicModule extends AbstractModule {
 		}
 
 		$current_country = substr( $dic, 0, 2 );
+		
+		// Check applicability FIRST - if not applicable, don't waste time on VIES validation
+		$is_applicable = $this->is_vat_extempt_applicable( $current_country, $shipping_country );
+		if ( ! $is_applicable ) {
+			return false; // Skip expensive VIES validation if result would be false anyway
+		}
+
 		$current_vat_no  = substr( $dic, 2 );
 		$vies            = new Vies();
+		$is_valid        = false;
 
 		try {
 			if ( $this->get_setting( 'validate_vies' ) && $vies->getHeartBeat() ) {
@@ -867,7 +939,7 @@ class IcDicModule extends AbstractModule {
 			$is_valid = false;
 		}
 
-		return $is_valid && $this->is_vat_extempt_applicable( $current_country, $shipping_country );
+		return $is_valid;
 	}
 
 	public function is_vat_extempt_applicable( $billing_country, $shipping_country = '' ) {
@@ -896,14 +968,13 @@ class IcDicModule extends AbstractModule {
 
 		wp_parse_str( $strdata, $data );
 
-		$country = $data['billing_country'];
+		$country = $data['billing_country'] ?? '';
 		$dic_dph = $country === 'SK'
-			? $data['billing_dic_dph']
-			: $data['billing_dic'];
+			? ($data['billing_dic_dph'] ?? '')
+			: ($data['billing_dic'] ?? '');
 
 		if ( ! empty( $vies_fails ) && $vies_fails === true && ! empty( $dic_dph ) && ! $this->is_valid_dic( $dic_dph ) ) {
 			WC()->customer->set_is_vat_exempt( false );
-
 			return;
 		}
 
@@ -914,7 +985,8 @@ class IcDicModule extends AbstractModule {
 				 ! isset( $data['company_details'] )
 			 )
 		) {
-			WC()->customer->set_is_vat_exempt( $this->is_vat_extempt( $dic_dph, $data['shipping_country'] ) );
+			$vat_exempt_result = $this->is_vat_extempt( $dic_dph, $data['shipping_country'] ?? '' );
+			WC()->customer->set_is_vat_exempt( $vat_exempt_result );
 		} else {
 			WC()->customer->set_is_vat_exempt( false );
 		}
@@ -1004,4 +1076,7 @@ class IcDicModule extends AbstractModule {
 
 		return $classes;
 	}
+
+
+
 }

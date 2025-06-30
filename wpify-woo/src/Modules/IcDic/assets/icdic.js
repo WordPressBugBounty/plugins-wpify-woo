@@ -437,6 +437,9 @@ window.jQuery(document).ready(function ($) {
 
 		if (dom.dicField().classList.contains('wpify-woo-vies--validate') && state.get('country') !== 'SK' && e.target.value.length > 0) {
 			validateDic();
+		} else {
+			// Trigger update_checkout when field is cleared or validation doesn't run
+			$(document.body).trigger('update_checkout');
 		}
 	});
 
@@ -445,6 +448,9 @@ window.jQuery(document).ready(function ($) {
 
 		if (dom.icDph().classList.contains('wpify-woo-vies--validate') && state.get('country') === 'SK' && e.target.value.length > 0) {
 			validateDic();
+		} else {
+			// Trigger update_checkout when field is cleared or validation doesn't run
+			$(document.body).trigger('update_checkout');
 		}
 	});
 

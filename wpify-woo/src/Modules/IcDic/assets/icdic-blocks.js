@@ -38,19 +38,20 @@ export const useValidationError = (id) => {
 };
 
 
-
 const App = () => {
 	const {extensionCartUpdate} = window.wc.blocksCheckout;
 	const [aresAdded, setAresAdded] = useState(false)
 	const [aresError, setAresError] = useState()
 	const [isAresLoading, setIsAresLoading] = useState()
+	const [aresStatus, setAresStatus] = useState() // 'success', 'error', null
 	const [viesError, setViesError] = useState()
 	const [isViesLoading, setIsViesLoading] = useState()
+	const [viesStatus, setViesStatus] = useState() // 'success', 'error', null
 	const cart = useCart();
 	const customer = useCustomerData();
 	const additionalFields = useAdditionalFields();
 	const {setAdditionalFields} = useDispatch(CHECKOUT_STORE_KEY);
-	const { showValidationError, setValidationErrors, showAllValidationErrors } = useDispatch( VALIDATION_STORE_KEY );
+	const {showValidationError, setValidationErrors, showAllValidationErrors} = useDispatch(VALIDATION_STORE_KEY);
 	const {setBillingAddress, setShippingAddress} = useDispatch(CART_STORE_KEY);
 
 	const dicError = useValidationError('contact-wpify-dic');
@@ -102,13 +103,123 @@ const App = () => {
 			dicDphFieldWrap.style.display = 'block';
 		}
 
+		// Show/hide ARES button based on settings and country
 		if (aresWrap && additionalFields?.['wpify/ic_dic_toggle'] && customer.billingAddress.country === 'CZ') {
-			aresWrap.style.display = 'block';
+			// Check if ARES validation on IC entered is enabled
+			const aresOnIcEntered = window.wpifyWooIcDic.validateAres &&
+				Array.isArray(window.wpifyWooIcDic.validateAres) &&
+				window.wpifyWooIcDic.validateAres.includes('ic_entered');
+
+			// Show button only if ARES validation on IC entered is NOT enabled
+			aresWrap.style.display = !aresOnIcEntered ? 'block' : 'none';
 		} else if (aresWrap) {
 			aresWrap.style.display = 'none';
 		}
 
 	}, [additionalFields, companyField, icField, dicField, dicDphField, companyFieldWrap, icFieldWrap, dicFieldWrap, dicDphFieldWrap, customer]);
+
+	// Reset status indicators when fields become empty
+	useEffect(() => {
+		// Reset ARES status if IC field is empty
+		if (!additionalFields['wpify/ic'] || additionalFields['wpify/ic'].trim() === '') {
+			setAresStatus(null);
+			setAresError(null);
+		}
+
+		// Reset VIES status if DIC fields are empty
+		const currentDic = customer.billingAddress.country === 'SK'
+			? additionalFields['wpify/dic-dph']
+			: additionalFields['wpify/dic'];
+
+		if (!currentDic || currentDic.trim() === '') {
+			setViesStatus(null);
+			setViesError(null);
+		}
+	}, [additionalFields, customer.billingAddress.country]);
+
+	// Reset VAT exempt on page load - always reset first, then check DIC
+	useEffect(() => {
+		// Always reset VAT exempt on page load first
+		extensionCartUpdate({
+			namespace: 'wpify_ic_dic',
+			data: {validation: 'dic_cleared'}
+		});
+		
+		// Then check if there are any DIC values on page load
+		const currentDic = customer.billingAddress.country === 'SK'
+			? additionalFields['wpify/dic-dph']
+			: additionalFields['wpify/dic'];
+			
+		if (currentDic && currentDic.trim() !== '') {
+			// DIC exists on page load - validate it after a short delay
+			setTimeout(() => {
+				if (window.wpifyWooIcDic.validateVies) {
+					validateDic(normalizeDic(currentDic));
+				} else {
+					// No VIES validation - just set VAT exempt based on settings
+					extensionCartUpdate({
+						namespace: 'wpify_ic_dic',
+						data: {
+							validation: 'passed',
+							country: customer.billingAddress.country,
+							dic: currentDic
+						}
+					});
+				}
+			}, 500);
+		}
+	}, []); // Run only once on component mount
+
+	// Clear validation errors and recalculate VAT exempt when country changes
+	useEffect(() => {
+		console.log('Country changed to:', customer.billingAddress.country);
+
+		// Clear ARES errors when switching away from Czech Republic
+		if (customer.billingAddress.country !== 'CZ') {
+			setAresError(null);
+			setAresStatus(null);
+			console.log('Cleared ARES error for non-Czech country');
+		}
+
+		// Clear VIES errors when country changes
+		setViesError(null);
+		setViesStatus(null);
+
+		// Clear any validation errors from the store
+		setValidationErrors({});
+
+		// Clear IČ DPH field when switching away from Slovakia
+		let updatedFields = {...additionalFields};
+		if (customer.billingAddress.country !== 'SK' && updatedFields['wpify/dic-dph']) {
+			updatedFields['wpify/dic-dph'] = '';
+			setAdditionalFields(updatedFields);
+		}
+
+		// Get current DIC values AFTER clearing fields for country change
+		const currentDic = customer.billingAddress.country === 'SK'
+			? (updatedFields['wpify/dic-dph'] || '')
+			: (updatedFields['wpify/dic'] || '');
+		
+		// Reset VAT exempt on country change with current DIC state
+		extensionCartUpdate({
+			namespace: 'wpify_ic_dic',
+			data: {
+				validation: 'country_change',
+				country: customer.billingAddress.country,
+				dic: currentDic
+			}
+		});
+
+		// Revalidate existing field values for the new country if any exist
+		if (currentDic && currentDic.length >= 4 && window.wpifyWooIcDic.validateVies) {
+			// Revalidate the existing DIC for the new country context
+			// Add delay to allow country change to process
+			setTimeout(() => {
+				validateDic(normalizeDic(currentDic));
+			}, 300);
+		}
+
+	}, [customer.billingAddress.country]);
 
 
 	useEffect(() => {
@@ -141,7 +252,7 @@ const App = () => {
 	}
 
 	useEffect(() => {
-		if (!icField || customer.billingAddress.country !== 'CZ' ) {
+		if (!icField) {
 			return;
 		}
 
@@ -154,7 +265,26 @@ const App = () => {
 				e.target.value = normalizedValue;
 				additionalFields['wpify/ic'] = normalizedValue;
 				setAdditionalFields(additionalFields);
-				autofillAres();
+
+				console.log('IC field change:', {
+					country: customer.billingAddress.country,
+					value: normalizedValue,
+					willCallAres: customer.billingAddress.country === 'CZ'
+				});
+
+				// Only call ARES autofill for Czech companies and if ic_entered validation is enabled
+				if (customer.billingAddress.country === 'CZ') {
+					const aresOnIcEntered = window.wpifyWooIcDic.validateAres &&
+						Array.isArray(window.wpifyWooIcDic.validateAres) &&
+						window.wpifyWooIcDic.validateAres.includes('ic_entered');
+
+					if (aresOnIcEntered) {
+						autofillAres();
+					}
+				} else {
+					// Clear any previous ARES errors when switching away from CZ
+					setAresError(null);
+				}
 			}, 2000);
 		};
 
@@ -164,7 +294,7 @@ const App = () => {
 			clearTimeout(typingTimeout);
 			icField.removeEventListener('input', handleIcInputChange);
 		};
-	}, [icField]);
+	}, [icField, customer.billingAddress.country]);
 
 	useEffect(() => {
 		if (!dicField && !dicDphField) {
@@ -178,8 +308,18 @@ const App = () => {
 			clearTimeout(typingTimeout);
 
 			typingTimeout = setTimeout(() => {
-				validateDic(normalizeDic(e.target.value));
-			}, 2000);
+				const normalizedValue = normalizeDic(e.target.value);
+				// Only validate if there's actually a meaningful value (at least country + some digits)
+				if (normalizedValue && normalizedValue.length >= 4) {
+					validateDic(normalizedValue);
+				} else {
+					// DIC field is empty or too short - reset VAT exempt
+					extensionCartUpdate({
+						namespace: 'wpify_ic_dic',
+						data: {validation: 'dic_cleared'}
+					});
+				}
+			}, 1500); // Reduced from 2000ms to 1500ms
 		};
 
 		activeField?.addEventListener('input', handleDicInputChange);
@@ -207,34 +347,74 @@ const App = () => {
 
 	function validateDic(dic) {
 		setViesError(null);
+		setViesStatus(null);
+
+		// Check if VIES validation is enabled in settings
+		if (!window.wpifyWooIcDic.validateVies) {
+			// VIES validation is disabled, don't validate
+			return;
+		}
+
+		// Skip validation if DIC is empty or too short
+		if (!dic || dic.length < 4) {
+			return;
+		}
+
 		setIsViesLoading(true);
 		if (window.wpifyWooIcDic.restUrl) {
 			fetchJson(window.wpifyWooIcDic.restUrl + '/icdic-vies?in=' + dic)
-				.then(({validation = {}}) => {
-					if (customer.billingAddress.country === 'SK') {
-						additionalFields['wpify/dic-dph'] = dic;
-					} else {
-						additionalFields['wpify/dic'] = dic;
+				.then((response) => {
+					const validation = response.validation || {};
+					const warning = response.warning || null;
+
+					// Clear previous errors if validation passed, show warning if present
+					if (validation === 'passed' && !warning) {
+						setViesError(null); // Clear any previous errors
+						setViesStatus('success');
+					} else if (warning) {
+						setViesError(warning);
+						setViesStatus('error');
 					}
-					setAdditionalFields(additionalFields);
+
+					// Don't overwrite field values - the user already entered the correct value
+					// The validation is just confirming it's valid, not changing it
+					// Let WooCommerce handle the field values naturally
+
+					// Get country from the validated DIC value instead of customer object to ensure accuracy
+					const dicCountry = dic.match(/^[A-Z]{2}/) ? dic.substring(0, 2) : customer.billingAddress.country;
 
 					extensionCartUpdate({
 						namespace: 'wpify_ic_dic',
 						data: {
 							validation: validation,
-							country: customer.billingAddress.country
+							country: dicCountry,
+							dic: dic
 						}
 					})
 
 					const evt = new CustomEvent("wpify_woo_ic_dic_vies_valid", {
 						detail: {
 							validation: validation,
+							warning: warning
 						}
 					});
 					window.dispatchEvent(evt);
 				})
 				.catch(error => {
+					// Only show error as warning, don't block checkout
+					// Final validation will happen server-side
 					setViesError(error);
+					setViesStatus('error');
+					
+					// Reset VAT exempt when VIES validation fails
+					extensionCartUpdate({
+						namespace: 'wpify_ic_dic',
+						data: {
+							validation: 'failed',
+							country: customer.billingAddress.country,
+							dic: dic
+						}
+					});
 				})
 				.finally(() => {
 					setIsViesLoading(false);
@@ -243,7 +423,13 @@ const App = () => {
 	}
 
 	const autofillAres = () => {
+		// ARES is only for Czech companies
+		if (customer.billingAddress.country !== 'CZ') {
+			return;
+		}
+
 		setAresError(null);
+		setAresStatus(null);
 		setIsAresLoading(true);
 		const ic = normalizeIc(additionalFields['wpify/ic']);
 		fetchJson(window.wpifyWooIcDic.restUrl + '/icdic?in=' + ic)
@@ -254,8 +440,12 @@ const App = () => {
 
 				setAdditionalFields(additionalFields);
 
-				if (details.billing_dic) {
-					validateDic(normalizeDic(details.billing_dic))
+				// Only validate DIC if we have one and VIES validation is enabled
+				if (details.billing_dic && window.wpifyWooIcDic.validateVies) {
+					// Add small delay to ensure fields are updated first
+					setTimeout(() => {
+						validateDic(normalizeDic(details.billing_dic));
+					}, 100);
 				}
 
 				const address = {
@@ -273,40 +463,134 @@ const App = () => {
 					}
 				});
 				window.dispatchEvent(evt);
+				setAresStatus('success');
 			})
 			.catch(error => {
 				setAresError(error);
+				setAresStatus('error');
 			})
 			.finally(() => {
 				setIsAresLoading(false);
 			});
 
 	}
+	// Create status indicator component
+	const StatusIndicator = ({isLoading, status, error, fieldValue}) => {
+		// Only show status indicators when field has content
+		if (!fieldValue || fieldValue.trim() === '') {
+			return null;
+		}
+
+		if (isLoading) {
+			return (
+				<div style={{
+					position: 'absolute',
+					top: '50%', right: '14px',
+					transform: 'translateY(-50%)',
+					color: '#0073aa'
+				}}>
+					<span style={{
+						display: 'inline-block',
+						width: '16px',
+						height: '16px',
+						border: '2px solid #f3f3f3',
+						borderTop: '2px solid #0073aa',
+						borderRadius: '50%',
+						animation: 'spin 1s linear infinite'
+					}}></span>
+					<style>{`
+						@keyframes spin {
+							0% { transform: rotate(0deg); }
+							100% { transform: rotate(360deg); }
+						}
+					`}</style>
+				</div>
+			);
+		}
+
+		if (status === 'success') {
+			return (
+				<div style={{
+					position: 'absolute',
+					top: '50%', right: '14px',
+					transform: 'translatey(-50%)',
+					color: '#46b450'
+				}}>
+					<span>✓</span>
+				</div>
+			);
+		}
+
+		if (status === 'error' || error) {
+			return (
+				<div style={{
+					position: 'absolute',
+					top: '50%', right: '14px',
+					transform: 'translatey(-50%)',
+					color: '#dc3232'}}>
+					<span>!</span>
+				</div>
+			);
+		}
+
+		return null;
+	};
+
 	if (!aresAdded) {
 		return null;
 	}
 
-
 	return (
 		<div>
-			{createPortal(
+			{icFieldWrap && createPortal(
 				<>
-					<div>
-						<input type="button" className="button wp-element-button" onClick={() => autofillAres()}
-							   value={window.wpifyWooIcDic.searchAresText}
-						/>
-						{isAresLoading && <div>Loading</div>}
-						{aresError && <div>{aresError}</div>}
-					</div>
+					<StatusIndicator
+						isLoading={isAresLoading}
+						status={aresStatus}
+						error={aresError}
+						fieldValue={additionalFields['wpify/ic']}
+					/>
+					{aresError && additionalFields['wpify/ic'] && <p style={{color: '#dc3232', fontSize: '14px', marginTop: '4px'}}>{aresError}</p>}
 				</>,
-				aresWrap
+				icFieldWrap
 			)}
+
+			{/* ARES button positioned after IC field */}
+			{icFieldWrap && additionalFields?.['wpify/ic_dic_toggle'] && customer.billingAddress.country === 'CZ' && (() => {
+				const aresOnIcEntered = window.wpifyWooIcDic.validateAres &&
+					Array.isArray(window.wpifyWooIcDic.validateAres) &&
+					window.wpifyWooIcDic.validateAres.includes('ic_entered');
+
+				if (!aresOnIcEntered) {
+					// Create a wrapper div that will be positioned right after the IC field
+					let aresButtonWrapper = document.querySelector('.wpify-ares-button-wrapper');
+					if (!aresButtonWrapper) {
+						aresButtonWrapper = document.createElement('div');
+						aresButtonWrapper.className = 'wpify-ares-button-wrapper';
+						icFieldWrap.insertAdjacentElement('afterend', aresButtonWrapper);
+					}
+					
+					return createPortal(
+						<div style={{marginTop: '8px'}}>
+							<input type="button" className="button wp-element-button" onClick={() => autofillAres()}
+								   value={window.wpifyWooIcDic.searchAresText}
+							/>
+						</div>,
+						aresButtonWrapper
+					);
+				}
+				return null;
+			})()}
+
 			{createPortal(
 				<>
-					<div>
-						{isViesLoading && <div>Loading</div>}
-						{viesError && <div>{viesError}</div>}
-					</div>
+					<StatusIndicator
+						isLoading={isViesLoading}
+						status={viesStatus}
+						error={viesError}
+						fieldValue={customer.billingAddress.country === 'SK' ? additionalFields['wpify/dic-dph'] : additionalFields['wpify/dic']}
+					/>
+					{viesError && (customer.billingAddress.country === 'SK' ? additionalFields['wpify/dic-dph'] : additionalFields['wpify/dic']) && <p style={{color: '#dc3232', fontSize: '14px', marginTop: '4px'}}>{viesError}</p>}
 				</>,
 				customer.billingAddress.country === 'SK' ? dicDphFieldWrap : dicFieldWrap
 			)}

@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace WpifyWooDeps\h4kuna\Ares\Http;
 
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
 use WpifyWooDeps\Nette\Utils\Json;
 use WpifyWooDeps\Nette\Utils\JsonException;
 use WpifyWooDeps\Psr\Http\Client\ClientExceptionInterface;
@@ -19,23 +19,29 @@ final class TransportProvider
     public function __construct(private RequestFactoryInterface $requestFactory, private ClientInterface $client, private StreamFactoryInterface $streamFactory)
     {
     }
+    /**
+     * @throws ServerResponseException
+     */
     public function response(RequestInterface|string $url): ResponseInterface
     {
         $request = ($url instanceof RequestInterface) ? $url : $this->createRequest($url);
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $e) {
-            throw new ServerResponseException($e->getMessage(), $e->getCode(), $e);
+            throw ServerResponseException::fromException($e);
         }
         return $response;
     }
+    /**
+     * @throws ServerResponseException
+     */
     public function toJson(ResponseInterface $response): stdClass
     {
         try {
             $json = Json::decode($response->getBody()->getContents());
             assert($json instanceof stdClass);
         } catch (JsonException $e) {
-            throw new ServerResponseException($e->getMessage(), $e->getCode(), $e);
+            throw ServerResponseException::fromException($e);
         }
         return $json;
     }

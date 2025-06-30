@@ -3,12 +3,10 @@
 declare (strict_types=1);
 namespace WpifyWooDeps\h4kuna\Ares\Ares;
 
-use WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ResultException;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\IdentificationNumberNotFoundException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ResultException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
 use WpifyWooDeps\h4kuna\Ares\Http\TransportProvider;
-use WpifyWooDeps\Nette\Utils\Json;
-use WpifyWooDeps\Nette\Utils\JsonException;
 use WpifyWooDeps\Psr\Http\Message\ResponseInterface;
 use stdClass;
 class Client
@@ -19,6 +17,9 @@ class Client
     /**
      * @param Sources::SERVICE_*|Sources::CORE|Sources::DIAL $key
      * @param array<string, mixed> $data
+     *
+     * @throws ResultException
+     * @throws ServerResponseException
      */
     public function searchEndpoint(string $key, array $data = []): stdClass
     {
@@ -28,6 +29,8 @@ class Client
     }
     /**
      * @param Sources::SERVICE_*|Sources::CORE $key
+     * @throws IdentificationNumberNotFoundException
+     * @throws ServerResponseException
      */
     public function useEndpoint(string $key, string $in): stdClass
     {
@@ -40,6 +43,10 @@ class Client
         }
         return $json;
     }
+    /**
+     * @throws ResultException
+     * @throws ServerResponseException
+     */
     protected function responseToStdClass(ResponseInterface $response): stdClass
     {
         $json = $this->transportProvider->toJson($response);

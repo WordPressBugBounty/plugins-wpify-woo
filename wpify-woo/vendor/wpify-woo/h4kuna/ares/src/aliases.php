@@ -1,15 +1,8 @@
 <?php
 
 declare (strict_types=1);
-// keep up to v3.1
-namespace WpifyWooDeps\h4kuna\Ares\Basic;
+namespace WpifyWooDeps;
 
-if (\false) {
-    /** @deprecated use h4kuna\Ares\Ares\Core\Data */
-    class Data
-    {
-    }
-}
-namespace WpifyWooDeps\h4kuna\Ares;
-
-class_alias(Ares\Core\Data::class, 'WpifyWooDeps\h4kuna\Ares\Basic\Data');
+\class_alias(h4kuna\Ares\Exception\IdentificationNumberNotFoundException::class, 'WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException');
+\class_alias(h4kuna\Ares\Exception\ResultException::class, 'WpifyWooDeps\h4kuna\Ares\Exceptions\ResultException');
+\class_alias(h4kuna\Ares\Exception\ServerResponseException::class, 'WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException');

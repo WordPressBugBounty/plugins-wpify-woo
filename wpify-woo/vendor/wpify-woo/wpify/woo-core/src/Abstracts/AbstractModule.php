@@ -4,14 +4,12 @@ namespace WpifyWooDeps\Wpify\WooCore\Abstracts;
 
 use WpifyWooDeps\Wpify\License\License;
 use WpifyWooDeps\Wpify\WooCore\Admin\Settings;
-use WpifyWooDeps\Wpify\WooCore\WooCommerceIntegration;
 /**
  * Class AbstractModule
  * @package WpifyWoo\Abstracts
  */
 abstract class AbstractModule
 {
-    protected $requires_activation = \false;
     /** @var string $id */
     private $id = '';
     private $license = null;
@@ -32,13 +30,11 @@ abstract class AbstractModule
                 });
             }
         }
-        if ($this->requires_activation) {
-            $enqueue = $this->is_settings_page();
-            $this->license = new License($this->plugin_slug(), $enqueue, is_multisite() ? get_current_network_id() : 0);
-            if (!$this->license->is_activated()) {
-                add_action('admin_notices', array($this, 'activation_notice'));
+        add_action('admin_init', function () {
+            if ($this->requires_activation() && $this->is_settings_page()) {
+                $this->license = new License($this->plugin_slug(), \true, is_multisite() ? get_current_network_id() : 0);
             }
-        }
+        });
     }
     /**
      * Module ID - use underscores
@@ -55,13 +51,6 @@ abstract class AbstractModule
      * @return mixed
      */
     abstract public function name();
-    /**
-     * Check if the module is enabled.
-     * @return bool
-     */
-    //	public function is_module_enabled(): bool {
-    //		return in_array( $this->get_id(), $this->woocommerce_integration->get_modules(), true );
-    //	}
     /**
      * Get module ID
      * @return string
@@ -119,7 +108,7 @@ abstract class AbstractModule
      */
     public function add_settings_section($sections)
     {
-        $sections[$this->id()] = array('title' => $this->name(), 'parent' => $this->parent_settings_id(), 'menu_slug' => $this->get_menu_slug(), 'url' => $this->get_settings_url(), 'option_id' => $this->id(), 'tabs' => $this->settings_tabs(), 'settings' => $this->settings(), 'in_menubar' => $this->display_in_menubar());
+        $sections[$this->id()] = array('title' => $this->name(), 'parent' => $this->parent_settings_id(), 'menu_slug' => $this->get_menu_slug(), 'url' => $this->get_settings_url(), 'option_id' => $this->id(), 'option_name' => $this->get_option_key(), 'tabs' => $this->settings_tabs(), 'settings' => $this->settings(), 'in_menubar' => $this->display_in_menubar());
         return $sections;
     }
     /**
@@ -180,7 +169,7 @@ abstract class AbstractModule
     {
         return array();
     }
-    public function needs_activation()
+    public function requires_activation()
     {
         foreach ($this->settings() as $setting) {
             if (!empty($setting['type']) && 'license' === $setting['type']) {
@@ -188,19 +177,6 @@ abstract class AbstractModule
             }
         }
         return \false;
-    }
-    /**
-     * Add activation notice if the license s not active yet.
-     */
-    public function activation_notice()
-    {
-        ?>
-        <div class="error notice">
-            <p><?php 
-        printf(__('Your %1$s plugin licence is not activated yet. Please <a href="%2$s">activate the domain</a> by connecting it with your WPify account!', 'wpify-core'), $this->name(), $this->get_settings_url());
-        ?></p>
-        </div>
-		<?php 
     }
     public function is_settings_page()
     {
@@ -220,10 +196,6 @@ abstract class AbstractModule
     }
     public function is_enabled()
     {
-    }
-    public function requires_activation()
-    {
-        return $this->requires_activation;
     }
     public function is_activated()
     {

@@ -2,6 +2,7 @@
 
 namespace WpifyWooDeps\Wpify\WooCore\Abstracts;
 
+use WpifyWooDeps\Wpify\License\License;
 use WpifyWooDeps\Wpify\PluginUtils\PluginUtils;
 use WpifyWooDeps\Wpify\WooCore\WpifyWooCore;
 /**
@@ -10,8 +11,10 @@ use WpifyWooDeps\Wpify\WooCore\WpifyWooCore;
  */
 abstract class AbstractPlugin
 {
+    protected bool $requires_activation = \true;
     private WpifyWooCore $wpify_woo_core;
     private PluginUtils $plugin_utils;
+    private License $license;
     public function __construct(WpifyWooCore $wpify_woo_core, PluginUtils $plugin_utils)
     {
         $this->wpify_woo_core = $wpify_woo_core;
@@ -19,6 +22,13 @@ abstract class AbstractPlugin
         add_filter('wpify_installed_plugins', array($this, 'add_plugin'));
         add_filter('plugin_action_links_' . $this->id() . '/' . $this->id() . '.php', array($this, 'add_action_links'));
         add_filter('plugin_row_meta', array($this, 'add_row_meta_links'), 10, 2);
+        if ($this->requires_activation) {
+            $this->license = new License($this->id(), \false, is_multisite() ? get_current_network_id() : 0);
+            if (!$this->license->is_activated()) {
+                //				add_action( 'admin_notices', array( $this, 'activation_notice' ) );
+                add_action('after_plugin_row_' . $this->plugin_utils->get_plugin_basename(), array($this, 'activation_update_notice'), 10, 3);
+            }
+        }
     }
     /**
      * Plugin data
@@ -128,7 +138,7 @@ abstract class AbstractPlugin
      */
     public function add_plugin($plugins)
     {
-        $plugins[$this->id()] = array('title' => $this->name(), 'desc' => $this->plugin_data()['Description'], 'icon' => $this->icon_file(), 'version' => $this->plugin_utils->get_plugin_version(), 'doc_link' => $this->documentation_url(), 'support_url' => $this->support_url(), 'menu_slug' => $this->get_menu_slug(), 'option_id' => $this->base_option_id(), 'settings_url' => $this->settings_url(), 'tabs' => $this->settings_tabs(), 'settings' => $this->settings());
+        $plugins[$this->id()] = array('title' => $this->name(), 'desc' => $this->plugin_data()['Description'], 'icon' => $this->icon_file(), 'version' => $this->plugin_utils->get_plugin_version(), 'doc_link' => $this->documentation_url(), 'support_url' => $this->support_url(), 'menu_slug' => $this->get_menu_slug(), 'option_id' => $this->base_option_id(), 'settings_url' => $this->settings_url(), 'tabs' => $this->settings_tabs(), 'settings' => $this->settings(), 'license' => $this->requires_activation ? $this->license->is_activated() : \true);
         return $plugins;
     }
     /**
@@ -161,5 +171,44 @@ abstract class AbstractPlugin
             $new_links = array('wpify-doc' => sprintf('<a href="%s" target="_blank">%s</a>', $doc_link, __('Documentation', 'wpify-core')));
         }
         return array_merge($plugin_meta, $new_links);
+    }
+    public function requires_activation()
+    {
+        return $this->requires_activation;
+    }
+    public function get_license()
+    {
+        return $this->license;
+    }
+    /**
+     * Add activation notice if the license s not active yet.
+     */
+    public function activation_notice($notice = \false)
+    {
+        $class = (!$notice) ? 'error notice' : 'update-message notice inline notice-error notice-alt';
+        ?>
+        <div class="<?php 
+        echo $class;
+        ?>">
+            <p><?php 
+        printf(__('Your %1$s plugin licence is not activated yet. Please <a href="%2$s">activate the domain</a> by connecting it with your WPify account!', 'wpify-core'), $this->name(), $this->settings_url());
+        ?></p>
+        </div>
+		<?php 
+    }
+    /**
+     * Add activation notice if the license s not active yet.
+     */
+    public function activation_update_notice($plugin_file, $plugin_data, $status)
+    {
+        ?>
+        <tr class="plugin-update-tr active">
+            <td colspan="4" class="plugin-update colspanchange">
+				<?php 
+        $this->activation_notice(\true);
+        ?>
+            </td>
+        </tr>
+		<?php 
     }
 }

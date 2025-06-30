@@ -30,8 +30,9 @@ use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
  * @property Plugin $plugin
  */
 class ModulesManager {
+	const OPTION_NAME = 'wpify-woo-settings';
+
 	public function __construct(
-		private WooCommerceIntegration $woocommerce_integration,
 		private WpifyWooCore $wpify_woo_core,
 	) {
 
@@ -57,12 +58,41 @@ class ModulesManager {
 	private $delivery_dates = DeliveryDatesModule::class;
 
 
+	private array $modules_ids = [
+		'async_emails',
+		'ic_dic',
+		'heureka_overeno_zakazniky',
+		'heureka_mereni_konverzi',
+		'xml_feed_heureka',
+		'free_shipping_notice',
+		'vocative',
+		'qr_payment',
+		'sklik_retargeting',
+		'zbozi_conversions_lite',
+		'template',
+		'email_attachments',
+		'prices',
+		'prices_log',
+		'comments',
+		'delivery_dates',
+	];
+
 	public function get_module_by_id( $module ) {
 		if ( ! property_exists( $this, $module ) ) {
 			return null;
 		}
 
 		return wpify_woo_container()->get( $this->{$module} );
+	}
+
+
+	public function load_components() {
+		foreach ( $this->modules_ids as $module ) {
+			if ( $this->is_module_enabled( $module ) && property_exists( $this, $module ) ) {
+				$module = $this->get_module_by_id( $module );
+				$this->wpify_woo_core->get_modules_manager()->add_module( $module->id(), $module );
+			}
+		}
 	}
 
 	public function get_modules(): array {
@@ -151,7 +181,7 @@ class ModulesManager {
 		);
 
 		foreach ( $modules as $key => $module ) {
-			if ( $this->woocommerce_integration->is_module_enabled( $module['value'] ) && property_exists( $this, $module['value'] ) ) {
+			if ( $this->is_module_enabled( $module['value'] ) && property_exists( $this, $module['value'] ) ) {
 				/** @var AbstractModule $module_obj */
 				$module_obj = $this->get_module_by_id( $module['value'] );
 
@@ -159,18 +189,41 @@ class ModulesManager {
 			}
 		}
 
-		//$modules = apply_filters( 'wpify_woo_modules', $modules );
-
 		return $modules;
-		//return $this->woocommerce_integration->get_modules();
 	}
 
-	public function load_components() {
-		foreach ( $this->get_modules() as $module ) {
-			if ( $this->woocommerce_integration->is_module_enabled( $module['value'] ) && property_exists( $this, $module['value'] ) ) {
-				$module = $this->get_module_by_id( $module['value'] );
-				$this->wpify_woo_core->get_modules_manager()->add_module( $module->id(), $module );
-			}
-		}
+	/**
+	 * Check if a module is enabled
+	 *
+	 * @param string $module Module name.
+	 *
+	 * @return bool
+	 */
+	public function is_module_enabled( string $module ): bool {
+		return in_array( $module, $this->get_enabled_modules(), true );
+	}
+
+	/**
+	 * Get an array of enabled modules
+	 *
+	 * @return array
+	 */
+	public function get_enabled_modules(): array {
+		return $this->get_settings( 'general' )['enabled_modules'] ?? array();
+	}
+
+	/**
+	 * Get settings for a specific module
+	 *
+	 * @param string $module Module name.
+	 *
+	 * @return array
+	 */
+	public function get_settings( string $module ): array {
+		return get_option( $this->get_settings_name( $module ), array() );
+	}
+
+	public function get_settings_name( string $module ): string {
+		return sprintf( '%s-%s', $this::OPTION_NAME, $module );
 	}
 }

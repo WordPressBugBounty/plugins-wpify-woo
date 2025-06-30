@@ -7,23 +7,29 @@ use Generator;
 use WpifyWooDeps\h4kuna\Ares\Adis\StatusBusinessSubjects\StatusBusinessSubjectsTransformer;
 use WpifyWooDeps\h4kuna\Ares\Adis\StatusBusinessSubjects\Subject;
 use WpifyWooDeps\h4kuna\Ares\Ares\Helper;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\InvalidStateException;
-use WpifyWooDeps\h4kuna\Ares\Tools\Batch;
+use WpifyWooDeps\h4kuna\Ares\Exception\LogicException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Tool\Batch;
 final class ContentProvider
 {
     public function __construct(private Client $client, private StatusBusinessSubjectsTransformer $stdClassTransformer)
     {
     }
+    /**
+     * @throws ServerResponseException
+     */
     public function statusBusinessSubject(string $tin): Subject
     {
         foreach ($this->statusBusinessSubjects([$tin => $tin]) as $subject) {
             return $subject;
         }
-        throw new InvalidStateException('ADIS must return anything.');
+        throw new LogicException('ADIS must return anything.');
     }
     /**
      * @param array<string, string> $tin
      * @return Generator<string, Subject>
+     *
+     * @throws ServerResponseException
      */
     public function statusBusinessSubjects(array $tin): Generator
     {

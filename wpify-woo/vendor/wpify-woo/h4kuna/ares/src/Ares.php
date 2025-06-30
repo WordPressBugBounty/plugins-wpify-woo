@@ -6,9 +6,10 @@ namespace WpifyWooDeps\h4kuna\Ares;
 use Generator;
 use WpifyWooDeps\h4kuna\Ares\Ares\Core;
 use WpifyWooDeps\h4kuna\Ares\Ares\Core\Data;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\AdisResponseException;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\AdisResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\IdentificationNumberNotFoundException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ResultException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
 use WpifyWooDeps\h4kuna\Ares\Vies\ViesEntity;
 use stdClass;
 /**
@@ -34,14 +35,18 @@ class Ares
      * @template KeyName
      * @param array<KeyName, string|int> $identificationNumbers
      * @return Generator<(int&KeyName)|(KeyName&string), Data>
+     *
+     * @throws ResultException
+     * @throws ServerResponseException
      */
     public function loadBasicMulti(array $identificationNumbers): Generator
     {
         return $this->aresContentProvider->loadByIdentificationNumbers($identificationNumbers);
     }
     /**
-     * @throws IdentificationNumberNotFoundException
      * @throws AdisResponseException
+     * @throws IdentificationNumberNotFoundException
+     * @throws ServerResponseException
      */
     public function loadBasic(string $in): Data
     {
@@ -49,6 +54,8 @@ class Ares
     }
     /**
      * @return array<stdClass>
+     * @throws ResultException
+     * @throws ServerResponseException
      */
     public function loadDataBox(string $in): array
     {

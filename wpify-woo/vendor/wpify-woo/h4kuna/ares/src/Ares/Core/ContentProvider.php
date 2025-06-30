@@ -8,10 +8,11 @@ use WpifyWooDeps\h4kuna\Ares\Adis;
 use WpifyWooDeps\h4kuna\Ares\Ares\Client;
 use WpifyWooDeps\h4kuna\Ares\Ares\Helper;
 use WpifyWooDeps\h4kuna\Ares\Ares\Sources;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\AdisResponseException;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\IdentificationNumberNotFoundException;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException;
-use WpifyWooDeps\h4kuna\Ares\Tools\Batch;
+use WpifyWooDeps\h4kuna\Ares\Exception\AdisResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\IdentificationNumberNotFoundException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ResultException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Tool\Batch;
 final class ContentProvider
 {
     private const BATCH = 100;
@@ -27,6 +28,9 @@ final class ContentProvider
      * @template KeyName
      * @param array<KeyName, string|int> $identificationNumbers
      * @return Generator<(int&KeyName)|(KeyName&string), Data>
+     *
+     * @throws ResultException
+     * @throws ServerResponseException
      */
     public function loadByIdentificationNumbers(array $identificationNumbers): Generator
     {
@@ -58,8 +62,9 @@ final class ContentProvider
         }
     }
     /**
-     * @throws IdentificationNumberNotFoundException
      * @throws AdisResponseException
+     * @throws IdentificationNumberNotFoundException
+     * @throws ServerResponseException
      */
     public function load(string $in): Data
     {
@@ -69,7 +74,7 @@ final class ContentProvider
             try {
                 $adis = $this->adisContentProvider->statusBusinessSubject($data->tin);
             } catch (ServerResponseException $e) {
-                throw new AdisResponseException($data, previous: $e);
+                throw AdisResponseException::fromServerException($data, $e);
             }
             $data->setAdis($adis);
         }

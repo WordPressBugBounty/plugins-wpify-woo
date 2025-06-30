@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-29T15:12:30+00:00\n"
-"PO-Revision-Date: 2025-04-29 17:14+0200\n"
+"POT-Creation-Date: 2025-06-10T17:16:57+00:00\n"
+"PO-Revision-Date: 2025-06-10 19:18+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -13,7 +13,22 @@ msgstr ""
 "X-Generator: Poedit 3.6\n"
 "X-Domain: wpify-core\n"
 
-#: src/Abstracts/AbstractModule.php:224
+#: src/Abstracts/AbstractModule.php:242 src/Abstracts/AbstractPlugin.php:187
+#: src/Admin/Settings.php:670
+msgid "Settings"
+msgstr "Nastavení"
+
+#: src/Abstracts/AbstractPlugin.php:191
+msgid "Get more plugins and support"
+msgstr "Více pluginů a podpora"
+
+#: src/Abstracts/AbstractPlugin.php:216 src/Admin/Settings.php:613
+#: src/Admin/Settings.php:639 src/Admin/Settings.php:844
+#: src/Admin/Settings.php:965
+msgid "Documentation"
+msgstr "Dokumentace"
+
+#: src/Abstracts/AbstractPlugin.php:238
 msgid ""
 "Your %1$s plugin licence is not activated yet. Please <a "
 "href=\"%2$s\">activate the domain</a> by connecting it with your WPify "
@@ -22,82 +37,71 @@ msgstr ""
 "Vaše licence pluginu %1$s ještě není aktivována. Prosím, <a "
 "href=\"%2$s\">aktivujte doménu</a> propojením s vaším účtem WPify!"
 
-#: src/Abstracts/AbstractModule.php:272 src/Abstracts/AbstractPlugin.php:163
-#: src/Admin/Settings.php:557
-msgid "Settings"
-msgstr "Nastavení"
-
-#: src/Abstracts/AbstractPlugin.php:167
-msgid "Get more plugins and support"
-msgstr "Více pluginů a podpora"
-
-#: src/Abstracts/AbstractPlugin.php:192 src/Admin/Settings.php:519
-#: src/Admin/Settings.php:545 src/Admin/Settings.php:714
-#: src/Admin/Settings.php:1228
-msgid "Documentation"
-msgstr "Dokumentace"
-
 #: src/Admin/Settings.php:48
 msgid "WPify Woo"
 msgstr "WPify Woo"
 
-#: src/Admin/Settings.php:65
-msgid "Your license has been activated."
-msgstr "Vaše licence byla aktivována."
-
-#: src/Admin/Settings.php:68
-msgid "Your license has been deactivated."
-msgstr "Vaše licence byla deaktivována."
-
-#: src/Admin/Settings.php:347
+#: src/Admin/Settings.php:394
 msgid "WPify Plugins"
 msgstr "Pluginy WPify"
 
-#: src/Admin/Settings.php:348
+#: src/Admin/Settings.php:395
 msgid "WPify"
 msgstr "WPify"
 
-#: src/Admin/Settings.php:359
+#: src/Admin/Settings.php:406
 msgid "WPify Plugins Dashboard"
 msgstr "Nástěnka WPify pluginů"
 
-#: src/Admin/Settings.php:360 src/Admin/Settings.php:768
+#: src/Admin/Settings.php:407 src/Admin/Settings.php:903
 msgid "Dashboard"
 msgstr "Nástěnka"
 
-#: src/Admin/Settings.php:368
+#: src/Admin/Settings.php:415
 msgid "WPify Plugins Support"
 msgstr "Podpora WPify pluginů"
 
-#: src/Admin/Settings.php:369 src/Admin/Settings.php:1231
+#: src/Admin/Settings.php:416 src/Admin/Settings.php:968
 msgid "Support"
 msgstr "Podpora"
 
-#: src/Admin/Settings.php:433
+#: src/Admin/Settings.php:512
 msgid "Installed plugins"
 msgstr "Instalované pluginy"
 
-#: src/Admin/Settings.php:439
+#: src/Admin/Settings.php:518
 msgid "Our other plugins"
 msgstr "Naše další pluginy"
 
-#: src/Admin/Settings.php:507
-msgid "New version <a href=\"%s\">%s</a> available."
-msgstr "Nová verze <a href=\"%s\">%s</a> je k dispozici."
+#: src/Admin/Settings.php:586
+msgid "Please, activate the license."
+msgstr "Prosím, aktivujte vaši licenci."
 
-#: src/Admin/Settings.php:564
+#: src/Admin/Settings.php:596
+msgid "New version %s available."
+msgstr "Nová verze %s je k dispozici."
+
+#: src/Admin/Settings.php:657
+msgid "Deactivate"
+msgstr "Deaktivovat"
+
+#: src/Admin/Settings.php:682
+msgid "Activate"
+msgstr "Aktivovat"
+
+#: src/Admin/Settings.php:694
 msgid "Get plugin"
 msgstr "Získat plugin"
 
-#: src/Admin/Settings.php:602
+#: src/Admin/Settings.php:732
 msgid "WPify News"
 msgstr "Novinky WPify"
 
-#: src/Admin/Settings.php:677
+#: src/Admin/Settings.php:807
 msgid "How do the pricing plans work?"
 msgstr "Jak fungují ceny?"
 
-#: src/Admin/Settings.php:678
+#: src/Admin/Settings.php:808
 msgid ""
 "When you purchase the plugin, you receive support and updates for one year. "
 "After this period, the license will automatically renew."
@@ -105,11 +109,11 @@ msgstr ""
 "Koupí pluginu získáte podporu a aktualizace pluginu na jeden rok. Po "
 "uplynutí této doby dojde k automatické platbě a obnovení licence."
 
-#: src/Admin/Settings.php:681
+#: src/Admin/Settings.php:811
 msgid "Will the plugin work if I do not renew my license?"
 msgstr "Bude plugin fungovat, pokud neprodloužím licenci?"
 
-#: src/Admin/Settings.php:682
+#: src/Admin/Settings.php:812
 msgid ""
 "Yes, the plugin will continue to work, but you will no longer have access to "
 "updates and support."
@@ -117,34 +121,40 @@ msgstr ""
 "Ano, plugin bude fungovat i nadále, jen nebudete mít přístup k novým "
 "aktualizacím a podpoře pluginu."
 
-#: src/Admin/Settings.php:685
+#: src/Admin/Settings.php:815
 msgid "I need a feature that the plugin does not currently support."
 msgstr ""
 "Potřebuji přidat nějakou funkcionalitu, kterou plugin zatím nepodporuje."
 
-#: src/Admin/Settings.php:686
+#: src/Admin/Settings.php:816
 msgid "Let us know, and we will consider adding the requested functionality."
 msgstr ""
 "Dejte nám vědět a zvážíme rozšíření a přidání požadované funkcionality."
 
-#: src/Admin/Settings.php:692
+#: src/Admin/Settings.php:822
 msgid "Support page"
 msgstr "Stránka podpory"
 
-#: src/Admin/Settings.php:699
+#: src/Admin/Settings.php:829
 msgid "Frequently Asked Questions"
 msgstr "Často kladené dotazy"
 
-#: src/Admin/Settings.php:711
+#: src/Admin/Settings.php:841
 msgid "Do you have any other questions?"
 msgstr "Máte ještě nějakou otázku?"
 
-#: src/Admin/Settings.php:712
+#: src/Admin/Settings.php:842
 msgid ""
 "Check out the plugin documentation to see if your question is already "
 "answered."
 msgstr "Zkuste se podívat do dokumentace pluginu, zda tam nenajdete odpověď."
 
-#: src/Admin/Settings.php:720
+#: src/Admin/Settings.php:850
 msgid "If you haven’t found the answer, email us at:"
 msgstr "Pokud jste odpověď nenašli, napište nám na adresu:"
+
+#~ msgid "Your license has been activated."
+#~ msgstr "Vaše licence byla aktivována."
+
+#~ msgid "Your license has been deactivated."
+#~ msgstr "Vaše licence byla deaktivována."

@@ -5,7 +5,7 @@ namespace WpifyWooDeps\h4kuna\Ares;
 
 use WpifyWooDeps\GuzzleHttp;
 use WpifyWooDeps\h4kuna\Ares\Adis\StatusBusinessSubjects\StatusBusinessSubjectsTransformer;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\InvalidStateException;
+use WpifyWooDeps\h4kuna\Ares\Exception\LogicException;
 use WpifyWooDeps\h4kuna\Ares\Http\HttpFactory;
 use WpifyWooDeps\h4kuna\Ares\Http\TransportProvider;
 use WpifyWooDeps\h4kuna\Ares\Vies\Client;
@@ -74,7 +74,7 @@ class AresFactory
     private static function checkGuzzle(): void
     {
         if (!class_exists(GuzzleHttp\Client::class)) {
-            throw new InvalidStateException('Guzzle not found, let implement own solution or install guzzle by: composer require guzzlehttp/guzzle');
+            throw new LogicException('Guzzle not found, let implement own solution or install guzzle by: composer require guzzlehttp/guzzle');
         }
     }
 }

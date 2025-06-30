@@ -22,7 +22,7 @@ class CommentsModule extends AbstractModule {
 	 */
 	public function setup() {
 		add_action( 'woocommerce_review_meta', [ $this, 'display_type' ] );
-		$this->register_metabox();
+		add_action( 'init', array( $this, 'register_metabox' ) );
 	}
 
 	/**

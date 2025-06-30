@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace WpifyWooDeps\h4kuna\Ares\Vies;
 
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
 use WpifyWooDeps\h4kuna\Ares\Http\TransportProvider;
 use stdClass;
 /**
@@ -34,6 +34,9 @@ final class Client
         /** @var ViesResponse $data */
         return $data;
     }
+    /**
+     * @throws ServerResponseException
+     */
     public function status(): stdClass
     {
         $request = $this->transportProvider->createRequest(static::$url . '/check-status');

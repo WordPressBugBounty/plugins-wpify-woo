@@ -3,6 +3,9 @@
 declare (strict_types=1);
 namespace WpifyWooDeps\h4kuna\Ares\DataBox;
 
+use WpifyWooDeps\h4kuna\Ares\Exception\ResultException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Tool\Arrays;
 use WpifyWooDeps\Psr\Http\Message\StreamFactoryInterface;
 use stdClass;
 class ContentProvider
@@ -11,13 +14,19 @@ class ContentProvider
     {
     }
     /**
-     * @return array<stdClass>
+     * @return list<stdClass>
+     * @throws ResultException
+     * @throws ServerResponseException
      */
     public function load(string $in): array
     {
         $content = $this->xml('Ico', $in)->Osoba;
-        return is_array($content) ? $content : [$content];
+        return Arrays::fromStdClass($content);
     }
+    /**
+     * @throws ResultException
+     * @throws ServerResponseException
+     */
     protected function xml(string $parameter, string $value): stdClass
     {
         $xml = <<<XML

@@ -12,6 +12,7 @@ class Log
     private $logger;
     private $channel;
     private $handlers;
+    private $menu_args;
     /**
      * Detailed debug information
      */
@@ -53,11 +54,13 @@ class Log
     /**
      * @param  string  $channel
      * @param  array  $handlers
+     * @param  array  $menu_args
      */
-    public function __construct(string $channel, array $handlers = [])
+    public function __construct(string $channel, array $handlers = [], array $menu_args = [])
     {
         $this->channel = $channel;
         $this->handlers = $handlers;
+        $this->menu_args = $menu_args;
         $this->logger = new Logger($this->channel);
         foreach ($handlers as $handler) {
             $this->logger->pushHandler($handler);
@@ -72,7 +75,7 @@ class Log
         });
         if (!apply_filters('wpify_log_tools_initialized', \false)) {
             add_filter('wpify_log_tools_initialized', '__return_true');
-            new Tools();
+            new Tools($this->menu_args);
         }
     }
     /**

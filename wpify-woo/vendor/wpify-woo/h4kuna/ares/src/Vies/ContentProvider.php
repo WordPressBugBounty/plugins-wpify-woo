@@ -3,8 +3,8 @@
 declare (strict_types=1);
 namespace WpifyWooDeps\h4kuna\Ares\Vies;
 
-use WpifyWooDeps\h4kuna\Ares\Exceptions\InvalidStateException;
-use WpifyWooDeps\h4kuna\Ares\Exceptions\ServerResponseException;
+use WpifyWooDeps\h4kuna\Ares\Exception\LogicException;
+use WpifyWooDeps\h4kuna\Ares\Exception\ServerResponseException;
 use WpifyWooDeps\Nette\Utils\Strings;
 use stdClass;
 /**
@@ -26,7 +26,7 @@ final class ContentProvider
         if (is_string($vatNumber)) {
             $match = Strings::match($vatNumber, '/(?<country>[A-Z]{2})/');
             if (isset($match['country']) === \false) {
-                throw new InvalidStateException('Use class ViesEntity instead of string.');
+                throw new LogicException('Use class ViesEntity instead of string.');
             }
             $viesEntity = new ViesEntity(substr($vatNumber, 2), $match['country']);
         } else {
@@ -34,6 +34,9 @@ final class ContentProvider
         }
         return $this->client->checkVatNumber($viesEntity);
     }
+    /**
+     * @throws ServerResponseException
+     */
     public function status(): stdClass
     {
         return $this->client->status();

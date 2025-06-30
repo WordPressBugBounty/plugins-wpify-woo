@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, WPify, Zásilkovna, Heureka, IČ DIČ
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 5.0.12
+Stable tag: 5.0.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -218,6 +218,19 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+= 5.0.14 =
+* Fix VAT exempt calculation bug in block checkout
+* Fix VAT exempt timing issue in block checkout
+* Optimize performance by reducing excessive validation calls during checkout
+* Add logging for VAT exempt
+* Improve VAT exempt logic to handle different validation states properly
+
+= 5.0.13 =
+* Add global unique id support for EAN in XML feed
+* Fix load textdomain
+* update plugin dashboard
+* Update dependencies
+
 = 5.0.12 =
 * Add function to check if feed directories and files are writable.
 * Add errors to Heureka feed generation
