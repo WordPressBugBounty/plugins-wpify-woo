@@ -84,8 +84,8 @@ class IcDicModule extends AbstractModule {
 		add_action( 'woocommerce_checkout_update_order_review', array( $this, 'set_vat_extempt_on_order_review' ) );
 		add_filter( 'post_class', array( $this, 'add_post_class' ), 10, 3 );
 		add_filter( 'woocommerce_ajax_get_customer_details', array( $this, 'autofill_vat_fields_in_admin' ), 10, 3 );
-		
-		
+
+
 		new BlockSupport( $this );
 	}
 
@@ -577,7 +577,7 @@ class IcDicModule extends AbstractModule {
 	 * @return mixed
 	 */
 	public function localisation_address_formats( array $address_formats ): array {
-		if ( $this->woo_integration->is_block_checkout() || apply_filters( 'wpify_woo_add_ic_dic_to_address', true ) === false ) {
+		if ( $this->woo_integration->is_block_checkout() && is_checkout() || apply_filters( 'wpify_woo_add_ic_dic_to_address', true ) === false ) {
 			return $address_formats;
 		}
 
@@ -659,7 +659,7 @@ class IcDicModule extends AbstractModule {
 	 */
 	public function checkout_validation( $fields, $errors ) {
 		$country = $_POST['billing_country'];
-		
+
 
 		if ( $this->get_setting( 'validate_ares' )
 			 && $country === 'CZ'
@@ -836,11 +836,11 @@ class IcDicModule extends AbstractModule {
 
 		// Create cache key based on current data
 		$cache_key = 'vat_exempt_' . md5( $billing_country . '_' . $dic . '_' . WC()->customer->get_shipping_country() );
-		
+
 		// Check if we already calculated this recently (cache for current session)
 		$cached_result = WC()->session->get( $cache_key );
 		$cache_time = WC()->session->get( $cache_key . '_time' );
-		
+
 		// Use cache if it's less than 5 minutes old
 		if ( $cached_result !== null && $cache_time && ( time() - $cache_time ) < 300 ) {
 			WC()->customer->set_is_vat_exempt( $cached_result );
@@ -871,10 +871,10 @@ class IcDicModule extends AbstractModule {
 	public function log_order_vat_exempt_decision( $order_id, $posted_data, $order ) {
 		// Only log if DIC was provided
 		$billing_country = $order->get_billing_country();
-		$dic = $billing_country === 'SK' 
+		$dic = $billing_country === 'SK'
 			? $order->get_meta('_billing_dic_dph')
 			: $order->get_meta('_billing_dic');
-			
+
 		if ( empty( $dic ) ) {
 			return; // No DIC provided, skip logging
 		}
@@ -884,8 +884,8 @@ class IcDicModule extends AbstractModule {
 		$vat_exempt_countries = $this->get_setting( 'zero_tax_for_vat_countries' );
 		$shop_country = wc_get_base_location()['country'];
 		$shipping_country = $order->get_shipping_country();
-		
-		// Determine if VAT should be exempt based on current logic  
+
+		// Determine if VAT should be exempt based on current logic
 		$should_be_vat_exempt = false;
 		if ( ! empty( $vat_exempt_countries ) ) {
 			$should_be_vat_exempt = $this->is_vat_extempt( $dic, $shipping_country );
@@ -918,7 +918,7 @@ class IcDicModule extends AbstractModule {
 		}
 
 		$current_country = substr( $dic, 0, 2 );
-		
+
 		// Check applicability FIRST - if not applicable, don't waste time on VIES validation
 		$is_applicable = $this->is_vat_extempt_applicable( $current_country, $shipping_country );
 		if ( ! $is_applicable ) {
