@@ -25,13 +25,13 @@ class BlockSupport {
 		add_filter( 'woocommerce_get_default_value_for_wpify/company', function ( $value, $group, $wc_object ) {
 			return $wc_object->get_billing_company();
 		}, 10, 3 );
-		add_filter( 'woocommerce_get_default_value_for_my-wpify/ic', function ( $value, $group, $wc_object ) {
+		add_filter( 'woocommerce_get_default_value_for_wpify/ic', function ( $value, $group, $wc_object ) {
 			return $wc_object->get_meta( '_billing_ic' );
 		}, 10, 3 );
-		add_filter( 'woocommerce_get_default_value_for_my-wpify/dic', function ( $value, $group, $wc_object ) {
+		add_filter( 'woocommerce_get_default_value_for_wpify/dic', function ( $value, $group, $wc_object ) {
 			return $wc_object->get_meta( '_billing_dic' );
 		}, 10, 3 );
-		add_filter( 'woocommerce_get_default_value_for_my-wpify/dic-dph', function ( $value, $group, $wc_object ) {
+		add_filter( 'woocommerce_get_default_value_for_wpify/dic-dph', function ( $value, $group, $wc_object ) {
 			return $wc_object->get_meta( '_billing_dic_dph' );
 		}, 10, 3 );
 		add_action( 'woocommerce_validate_additional_field', [ $this, 'validate_ic_dic_fields' ], 10, 3 );
@@ -43,7 +43,7 @@ class BlockSupport {
 
 		// Ensure VAT exempt is set before order totals calculation
 		add_action( 'woocommerce_store_api_checkout_update_customer_from_request', [ $this, 'ensure_vat_exempt_from_checkout_data' ], 20, 2 );
-		
+
 		// Log VAT exempt decision after order is created
 		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'log_order_vat_exempt_decision' ] );
 
@@ -129,11 +129,10 @@ class BlockSupport {
 	public function sanitize_ic_dic_fields( $value, $key = null ) {
 		// Handle both old and new callback signatures
 		if ( $key === null && is_string( $value ) ) {
-			// New signature: only value is passed, try to determine field from context
-			$value = str_replace( ' ', '', $value );
-			$value = strtoupper( $value );
+			// Skip sanitization without key to avoid affecting company field
+			return $value;
 		} elseif ( $key !== null && in_array( $key, array( 'wpify/ic', 'wpify/dic', 'wpify/dic-dph' ) ) ) {
-			// Old signature: both value and key are passed
+			// Only sanitize IC/DIC fields
 			$value = str_replace( ' ', '', $value );
 			$value = strtoupper( $value );
 		}
@@ -265,7 +264,7 @@ class BlockSupport {
 	public function set_customer_vat_extempt( $data ) {
 		// Default: always reset VAT exempt first
 		WC()->customer->set_is_vat_exempt( false );
-		
+
 		// Handle different validation states first
 		if ( isset( $data['validation'] ) && ( $data['validation'] === 'dic_cleared' || $data['validation'] === 'failed' ) ) {
 			// DIC was cleared or validation failed - ensure VAT exempt is false
@@ -366,7 +365,7 @@ class BlockSupport {
 			WC()->customer->set_is_vat_exempt( $is_vat_exempt );
 		}
 	}
-	
+
 	public function ensure_vat_exempt_before_totals( $customer, $request ) {
 		// This runs late in the checkout process to ensure VAT exempt is applied before final totals
 		$data = $request->get_json_params();
