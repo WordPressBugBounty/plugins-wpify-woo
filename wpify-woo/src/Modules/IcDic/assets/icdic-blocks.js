@@ -90,9 +90,9 @@ const App = () => {
 			setAdditionalFields(additionalFields);
 
 		} else {
-			companyFieldWrap.style.display = 'block';
-			icFieldWrap.style.display = 'block';
-			dicFieldWrap.style.display = 'block';
+			companyFieldWrap.style.removeProperty('display');
+			icFieldWrap.style.removeProperty('display');
+			dicFieldWrap.style.removeProperty('display');
 
 			if (customer.billingAddress.company) {
 				additionalFields['wpify/company'] = customer.billingAddress.company;
@@ -100,7 +100,7 @@ const App = () => {
 		}
 
 		if (additionalFields?.['wpify/ic_dic_toggle'] && customer.billingAddress.country === 'SK') {
-			dicDphFieldWrap.style.display = 'block';
+			dicDphFieldWrap.style.removeProperty('display');
 		}
 
 		// Show/hide ARES button based on settings and country

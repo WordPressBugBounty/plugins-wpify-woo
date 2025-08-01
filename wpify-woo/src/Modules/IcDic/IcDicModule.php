@@ -584,6 +584,7 @@ class IcDicModule extends AbstractModule {
 		foreach ( $address_formats as $key => $format ) {
 			$address_formats[ $key ] = $format . "\n{billing_ic}\n{billing_dic}\n{billing_dic_dph}";
 		}
+
 		return $address_formats;
 	}
 
@@ -794,6 +795,11 @@ class IcDicModule extends AbstractModule {
 				return $vies->validateVatSum( $current_country, $current_vat_no );
 			}
 		} catch ( Exception $e ) {
+			$this->log->error( 'VIES ERROR', array(
+				'code'    => $e->getCode(),
+				'message' => $e->getMessage(),
+			) );
+
 			return false;
 		}
 	}
@@ -830,7 +836,7 @@ class IcDicModule extends AbstractModule {
 		}
 
 		$billing_country = WC()->customer->get_billing_country();
-		$dic = $billing_country === 'SK'
+		$dic             = $billing_country === 'SK'
 			? WC()->customer->get_meta( 'billing_dic_dph' )
 			: WC()->customer->get_meta( 'billing_dic' );
 
@@ -839,11 +845,12 @@ class IcDicModule extends AbstractModule {
 
 		// Check if we already calculated this recently (cache for current session)
 		$cached_result = WC()->session->get( $cache_key );
-		$cache_time = WC()->session->get( $cache_key . '_time' );
+		$cache_time    = WC()->session->get( $cache_key . '_time' );
 
 		// Use cache if it's less than 5 minutes old
 		if ( $cached_result !== null && $cache_time && ( time() - $cache_time ) < 300 ) {
 			WC()->customer->set_is_vat_exempt( $cached_result );
+
 			return;
 		}
 
@@ -856,7 +863,7 @@ class IcDicModule extends AbstractModule {
 				$is_vat_extempt = false;
 			} else {
 				$shipping_country = WC()->customer->get_shipping_country() ?: $billing_country;
-				$is_vat_extempt = $this->is_vat_extempt( $dic, $shipping_country );
+				$is_vat_extempt   = $this->is_vat_extempt( $dic, $shipping_country );
 			}
 		}
 
@@ -871,19 +878,19 @@ class IcDicModule extends AbstractModule {
 	public function log_order_vat_exempt_decision( $order_id, $posted_data, $order ) {
 		// Only log if DIC was provided
 		$billing_country = $order->get_billing_country();
-		$dic = $billing_country === 'SK'
-			? $order->get_meta('_billing_dic_dph')
-			: $order->get_meta('_billing_dic');
+		$dic             = $billing_country === 'SK'
+			? $order->get_meta( '_billing_dic_dph' )
+			: $order->get_meta( '_billing_dic' );
 
 		if ( empty( $dic ) ) {
 			return; // No DIC provided, skip logging
 		}
 
 		// Detect VAT exempt from order - if tax_total is 0 but order has taxable items, likely VAT exempt
-		$customer_vat_exempt = ($order->get_total_tax() == 0 && $order->get_total() > 0);
+		$customer_vat_exempt  = ( $order->get_total_tax() == 0 && $order->get_total() > 0 );
 		$vat_exempt_countries = $this->get_setting( 'zero_tax_for_vat_countries' );
-		$shop_country = wc_get_base_location()['country'];
-		$shipping_country = $order->get_shipping_country();
+		$shop_country         = wc_get_base_location()['country'];
+		$shipping_country     = $order->get_shipping_country();
 
 		// Determine if VAT should be exempt based on current logic
 		$should_be_vat_exempt = false;
@@ -891,20 +898,20 @@ class IcDicModule extends AbstractModule {
 			$should_be_vat_exempt = $this->is_vat_extempt( $dic, $shipping_country );
 		}
 
-		$this->log->info('Order VAT Exempt Decision', [
-			'order_id' => $order->get_id(),
-			'order_number' => $order->get_order_number(),
-			'billing_country' => $billing_country,
-			'shipping_country' => $shipping_country,
-			'shop_country' => $shop_country,
-			'submitted_dic' => $dic,
-			'customer_vat_exempt' => $customer_vat_exempt,
+		$this->log->info( 'Order VAT Exempt Decision', [
+			'order_id'             => $order->get_id(),
+			'order_number'         => $order->get_order_number(),
+			'billing_country'      => $billing_country,
+			'shipping_country'     => $shipping_country,
+			'shop_country'         => $shop_country,
+			'submitted_dic'        => $dic,
+			'customer_vat_exempt'  => $customer_vat_exempt,
 			'should_be_vat_exempt' => $should_be_vat_exempt,
 			'vat_exempt_countries' => $vat_exempt_countries,
-			'order_total' => $order->get_total(),
-			'tax_total' => $order->get_total_tax(),
-			'context' => 'Order created - Classic checkout'
-		]);
+			'order_total'          => $order->get_total(),
+			'tax_total'            => $order->get_total_tax(),
+			'context'              => 'Order created - Classic checkout'
+		] );
 	}
 
 	/**
@@ -925,9 +932,9 @@ class IcDicModule extends AbstractModule {
 			return false; // Skip expensive VIES validation if result would be false anyway
 		}
 
-		$current_vat_no  = substr( $dic, 2 );
-		$vies            = new Vies();
-		$is_valid        = false;
+		$current_vat_no = substr( $dic, 2 );
+		$vies           = new Vies();
+		$is_valid       = false;
 
 		try {
 			if ( $this->get_setting( 'validate_vies' ) && $vies->getHeartBeat() ) {
@@ -970,11 +977,12 @@ class IcDicModule extends AbstractModule {
 
 		$country = $data['billing_country'] ?? '';
 		$dic_dph = $country === 'SK'
-			? ($data['billing_dic_dph'] ?? '')
-			: ($data['billing_dic'] ?? '');
+			? ( $data['billing_dic_dph'] ?? '' )
+			: ( $data['billing_dic'] ?? '' );
 
 		if ( ! empty( $vies_fails ) && $vies_fails === true && ! empty( $dic_dph ) && ! $this->is_valid_dic( $dic_dph ) ) {
 			WC()->customer->set_is_vat_exempt( false );
+
 			return;
 		}
 
@@ -1076,7 +1084,6 @@ class IcDicModule extends AbstractModule {
 
 		return $classes;
 	}
-
 
 
 }
