@@ -355,8 +355,8 @@ class DeliveryDatesModule extends AbstractModule {
 	 */
 	public function get_zone_id_for_country( string $country_code, array $zones ): ?int {
 		// First, get full info about country (from WC)
-		$wc_countries     = new \WC_Countries();
-		$continent_code    = $wc_countries->get_continent_code_for_country( $country_code );
+		$wc_countries   = new \WC_Countries();
+		$continent_code = $wc_countries->get_continent_code_for_country( $country_code );
 
 		foreach ( $zones as $zone ) {
 			if ( ! isset( $zone['zone_locations'] ) || ! is_array( $zone['zone_locations'] ) ) {
@@ -589,7 +589,7 @@ class DeliveryDatesModule extends AbstractModule {
 						continue;
 					}
 
-					$selected = $actual_zone_id === $zone['id'];
+					$selected     = $actual_zone_id === $zone['id'];
 					$country_code = array_search( $zone['formatted_zone_location'], $shipping_countries );
 					echo '<option value="zone-' . esc_attr( $zone['id'] ) . '" data-country="' . esc_attr( $country_code ) . '" ' . selected( $selected, true, false ) . '>' . esc_html( $zone['formatted_zone_location'] ) . '</option>';
 				}
@@ -608,7 +608,7 @@ class DeliveryDatesModule extends AbstractModule {
 
 		$delivery_days = $this->get_setting( 'delivery_days' );
 
-		if ( empty( $delivery_days ) || empty( WC()->countries ) ) {
+		if ( ! $product || empty( $delivery_days ) || empty( WC()->countries ) ) {
 			return;
 		}
 
