@@ -8,6 +8,7 @@ declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
+use function is_array;
 /**
  * Utilities for iterables.
  */

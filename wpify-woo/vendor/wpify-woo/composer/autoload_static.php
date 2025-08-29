@@ -39,6 +39,7 @@ class ComposerStaticInit40841a3e22bd0827e6d48ce9952ac1ed
             'WpifyWooDeps\\Psr\\Http\\Client\\' => 29,
             'WpifyWooDeps\\Psr\\Container\\' => 27,
             'WpifyWooDeps\\PhpDocReader\\' => 26,
+            'WpifyWooDeps\\Nette\\' => 19,
             'WpifyWooDeps\\Monolog\\' => 21,
             'WpifyWooDeps\\Laravel\\SerializableClosure\\' => 41,
             'WpifyWooDeps\\Invoker\\' => 21,
@@ -135,6 +136,10 @@ class ComposerStaticInit40841a3e22bd0827e6d48ce9952ac1ed
         'WpifyWooDeps\\PhpDocReader\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-di/phpdoc-reader/src/PhpDocReader',
+        ),
+        'WpifyWooDeps\\Nette\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nette/utils/src',
         ),
         'WpifyWooDeps\\Monolog\\' => 
         array (

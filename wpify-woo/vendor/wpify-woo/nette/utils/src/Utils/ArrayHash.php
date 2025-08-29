@@ -8,6 +8,7 @@ declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
+use function count, is_array, is_scalar, sprintf;
 /**
  * Provides objects to work as array.
  * @template T
@@ -46,7 +47,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
         return count((array) $this);
     }
     /**
-     * Replaces or appends a item.
+     * Replaces or appends an item.
      * @param  array-key  $key
      * @param  T  $value
      */
@@ -59,7 +60,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
         $this->{$key} = $value;
     }
     /**
-     * Returns a item.
+     * Returns an item.
      * @param  array-key  $key
      * @return T
      */
@@ -69,7 +70,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
         return $this->{$key};
     }
     /**
-     * Determines whether a item exists.
+     * Determines whether an item exists.
      * @param  array-key  $key
      */
     public function offsetExists($key): bool

@@ -8,6 +8,7 @@ declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
+use function abs, is_finite, is_nan, max, round;
 /**
  * Floating-point numbers comparison.
  */

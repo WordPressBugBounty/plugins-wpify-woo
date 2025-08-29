@@ -9,7 +9,8 @@ namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\JetBrains\PhpStorm\Language;
 use WpifyWooDeps\Nette;
-use function is_array, is_int, is_object, count;
+use function array_combine, array_intersect_key, array_is_list, array_key_exists, array_key_first, array_key_last, array_keys, array_reverse, array_search, array_slice, array_walk_recursive, count, func_num_args, in_array, is_array, is_int, is_object, key, preg_split, range;
+use const PHP_VERSION_ID, PREG_GREP_INVERT, PREG_SPLIT_DELIM_CAPTURE, PREG_SPLIT_NO_EMPTY;
 /**
  * Array tools library.
  */
@@ -200,7 +201,7 @@ class Arrays
      */
     public static function grep(array $array, #[Language('RegExp')] string $pattern, bool|int $invert = \false): array
     {
-        $flags = $invert ? \PREG_GREP_INVERT : 0;
+        $flags = $invert ? PREG_GREP_INVERT : 0;
         return Strings::pcre('preg_grep', [$pattern, $array, $flags]);
     }
     /**
@@ -223,7 +224,7 @@ class Arrays
      */
     public static function isList(mixed $value): bool
     {
-        return is_array($value) && ((\PHP_VERSION_ID < 80100) ? !$value || array_keys($value) === range(0, count($value) - 1) : array_is_list($value));
+        return is_array($value) && ((PHP_VERSION_ID < 80100) ? !$value || array_keys($value) === range(0, count($value) - 1) : array_is_list($value));
     }
     /**
      * Reformats table to associative tree. Path looks like 'field|field[]field->field=field'.
@@ -231,7 +232,7 @@ class Arrays
      */
     public static function associate(array $array, $path): array|\stdClass
     {
-        $parts = is_array($path) ? $path : preg_split('#(\[\]|->|=|\|)#', $path, -1, \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY);
+        $parts = is_array($path) ? $path : preg_split('#(\[\]|->|=|\|)#', $path, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         if (!$parts || $parts === ['->'] || $parts[0] === '=' || $parts[0] === '|') {
             throw new Nette\InvalidArgumentException("Invalid path '{$path}'.");
         }

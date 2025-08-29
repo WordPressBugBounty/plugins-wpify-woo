@@ -8,6 +8,8 @@ declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
+use function array_merge, count, func_get_args, func_num_args, glob, implode, is_array, is_dir, iterator_to_array, preg_match, preg_quote, preg_replace, preg_split, rtrim, spl_object_id, sprintf, str_ends_with, str_starts_with, strnatcmp, strpbrk, strrpos, strtolower, strtr, substr, usort;
+use const GLOB_NOESCAPE, GLOB_NOSORT, GLOB_ONLYDIR;
 /**
  * Finder allows searching through directory trees using iterator.
  *
@@ -367,7 +369,7 @@ class Finder implements \IteratorAggregate
             }
             foreach ($splits as [$base, $rest, $recursive]) {
                 $base = ($base === '') ? '.' : $base;
-                $dirs = $dirCache[$base] ??= strpbrk($base, '*?[') ? glob($base, \GLOB_NOSORT | \GLOB_ONLYDIR | \GLOB_NOESCAPE) : [strtr($base, ['[[]' => '[', '[]]' => ']'])];
+                $dirs = $dirCache[$base] ??= strpbrk($base, '*?[') ? glob($base, GLOB_NOSORT | GLOB_ONLYDIR | GLOB_NOESCAPE) : [strtr($base, ['[[]' => '[', '[]]' => ']'])];
                 // unescape [ and ]
                 if (!$dirs) {
                     throw new Nette\InvalidStateException(sprintf("Directory '%s' does not exist.", rtrim($base, '/\\')));

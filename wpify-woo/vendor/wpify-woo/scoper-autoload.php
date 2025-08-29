@@ -102,8 +102,6 @@ if (!function_exists('humbug_phpscoper_expose_class')) {
 
 // Function aliases. For more information see:
 // https://github.com/humbug/php-scoper/blob/master/docs/further-reading.md#function-aliases
-// if (!function_exists('action_scheduler_initialize_3_dot_9_dot_2')) { function action_scheduler_initialize_3_dot_9_dot_2() { return \WpifyWooDeps\action_scheduler_initialize_3_dot_9_dot_2(...func_get_args()); } } // commented by WPify Scoper
-// if (!function_exists('action_scheduler_register_3_dot_9_dot_2')) { function action_scheduler_register_3_dot_9_dot_2() { return \WpifyWooDeps\action_scheduler_register_3_dot_9_dot_2(...func_get_args()); } } // commented by WPify Scoper
 // if (!function_exists('as_enqueue_async_action')) { function as_enqueue_async_action() { return \WpifyWooDeps\as_enqueue_async_action(...func_get_args()); } } // commented by WPify Scoper
 // if (!function_exists('as_get_datetime_object')) { function as_get_datetime_object() { return \WpifyWooDeps\as_get_datetime_object(...func_get_args()); } } // commented by WPify Scoper
 // if (!function_exists('as_get_scheduled_actions')) { function as_get_scheduled_actions() { return \WpifyWooDeps\as_get_scheduled_actions(...func_get_args()); } } // commented by WPify Scoper

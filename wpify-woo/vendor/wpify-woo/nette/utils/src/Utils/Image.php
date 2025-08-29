@@ -8,6 +8,8 @@ declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
+use function is_array, is_int, is_string;
+use const IMG_BMP, IMG_FLIP_BOTH, IMG_FLIP_HORIZONTAL, IMG_FLIP_VERTICAL, IMG_GIF, IMG_JPG, IMG_PNG, IMG_WEBP, PATHINFO_EXTENSION;
 /**
  * Basic manipulation with images. Supported types are JPEG, PNG, GIF, WEBP, AVIF and BMP.
  *
@@ -243,13 +245,13 @@ class Image
     {
         self::ensureExtension();
         return (bool) (imagetypes() & match ($type) {
-            ImageType::JPEG => \IMG_JPG,
-            ImageType::PNG => \IMG_PNG,
-            ImageType::GIF => \IMG_GIF,
-            ImageType::WEBP => \IMG_WEBP,
+            ImageType::JPEG => IMG_JPG,
+            ImageType::PNG => IMG_PNG,
+            ImageType::GIF => IMG_GIF,
+            ImageType::WEBP => IMG_WEBP,
             ImageType::AVIF => 256,
             // IMG_AVIF,
-            ImageType::BMP => \IMG_BMP,
+            ImageType::BMP => IMG_BMP,
             default => 0,
         });
     }
@@ -259,13 +261,13 @@ class Image
         self::ensureExtension();
         $flag = imagetypes();
         return array_filter([
-            ($flag & \IMG_GIF) ? ImageType::GIF : null,
-            ($flag & \IMG_JPG) ? ImageType::JPEG : null,
-            ($flag & \IMG_PNG) ? ImageType::PNG : null,
-            ($flag & \IMG_WEBP) ? ImageType::WEBP : null,
+            ($flag & IMG_GIF) ? ImageType::GIF : null,
+            ($flag & IMG_JPG) ? ImageType::JPEG : null,
+            ($flag & IMG_PNG) ? ImageType::PNG : null,
+            ($flag & IMG_WEBP) ? ImageType::WEBP : null,
             ($flag & 256) ? ImageType::AVIF : null,
             // IMG_AVIF
-            ($flag & \IMG_BMP) ? ImageType::BMP : null,
+            ($flag & IMG_BMP) ? ImageType::BMP : null,
         ]);
     }
     /**
@@ -324,7 +326,7 @@ class Image
             $this->image = $newImage;
         }
         if ($width < 0 || $height < 0) {
-            imageflip($this->image, ($width < 0) ? ($height < 0) ? \IMG_FLIP_BOTH : \IMG_FLIP_HORIZONTAL : \IMG_FLIP_VERTICAL);
+            imageflip($this->image, ($width < 0) ? ($height < 0) ? IMG_FLIP_BOTH : IMG_FLIP_HORIZONTAL : IMG_FLIP_VERTICAL);
         }
         return $this;
     }
@@ -518,7 +520,7 @@ class Image
      */
     public function save(string $file, ?int $quality = null, ?int $type = null): void
     {
-        $type ??= self::extensionToType(pathinfo($file, \PATHINFO_EXTENSION));
+        $type ??= self::extensionToType(pathinfo($file, PATHINFO_EXTENSION));
         $this->output($type, $quality, $file);
     }
     /**
@@ -597,8 +599,7 @@ class Image
     }
     public function __clone()
     {
-        ob_start(function () {
-        });
+        ob_start(fn() => '');
         imagepng($this->image, null, 0);
         $this->setImageResource(imagecreatefromstring(ob_get_clean()));
     }
@@ -616,7 +617,7 @@ class Image
     /**
      * Prevents serialization.
      */
-    public function __sleep(): array
+    public function __serialize(): array
     {
         throw new Nette\NotSupportedException('You cannot serialize or unserialize ' . self::class . ' instances.');
     }

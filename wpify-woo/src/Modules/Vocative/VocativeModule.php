@@ -3,12 +3,15 @@
 namespace WpifyWoo\Modules\Vocative;
 
 use WpifyWoo\Plugin;
+use WpifyWoo\WooCommerceIntegration;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooDeps\Inflection;
 
 class VocativeModule extends AbstractModule {
 
-	public function __construct() {
+	public function __construct(
+		private WooCommerceIntegration $woocommerce_integration,
+	) {
 		parent::__construct();
 
 		add_filter( 'woocommerce_mail_callback_params', array( $this, 'change_name_to_vocative' ), 20, 2 );
@@ -45,6 +48,22 @@ class VocativeModule extends AbstractModule {
 				'desc'  => sprintf( __( 'By default, WooCommerce uses first name only in the emails. You can set here to replace the "Hi {first_name}" text. Use {first_name}, {last_name} and {full_name} tags, ie set "Hi {full_name}" as the value.',
 					'wpify-woo' ) ),
 			),
+			array(
+				'id'      => 'allowed_languages',
+				'type'    => 'multi_select',
+				'label'   => __( 'Allowed languages', 'wpify-woo' ),
+				'desc'    => sprintf( __( 'Select languages where you want to use the vocative in emails. If you don`t select any language, the vocative will be used in all languages.',
+					'wpify-woo' ) ),
+				'options'      => function () {
+					return $this->woocommerce_integration->get_language_select();
+				},
+				'async'        => true,
+				'async_params' => array(
+					'tab'       => 'wpify-woo-settings',
+					'section'   => $this->id(),
+					'module_id' => $this->id(),
+				),
+			),
 		);
 
 		return $settings;
@@ -68,6 +87,15 @@ class VocativeModule extends AbstractModule {
 	 */
 	public function change_name_to_vocative( $params, $email ) {
 		if ( ! is_a( $email->object, '\Automattic\WooCommerce\Admin\Overrides\Order' ) ) {
+			return $params;
+		}
+		$allowed_languages = $this->get_setting( 'allowed_languages' ) ?? [];
+
+		if (
+			is_array( $allowed_languages )
+			&& ! empty( $allowed_languages )
+			&& ! in_array( get_locale(), $allowed_languages )
+		) {
 			return $params;
 		}
 

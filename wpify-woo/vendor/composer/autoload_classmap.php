@@ -27,6 +27,7 @@ return array(
     'WpifyWoo\\Modules\\EmailAttachments\\EmailAttachmentsModule' => $baseDir . '/src/Modules/EmailAttachments/EmailAttachmentsModule.php',
     'WpifyWoo\\Modules\\FreeShippingNotice\\FreeShippingNoticeModule' => $baseDir . '/src/Modules/FreeShippingNotice/FreeShippingNoticeModule.php',
     'WpifyWoo\\Modules\\HeurekaMereniKonverzi\\HeurekaMereniKonverziModule' => $baseDir . '/src/Modules/HeurekaMereniKonverzi/HeurekaMereniKonverziModule.php',
+    'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\BlockSupport' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/BlockSupport.php',
     'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\HeurekaOverenoZakaznikyModule' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/HeurekaOverenoZakaznikyModule.php',
     'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\WpRequester' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/WpRequester.php',
     'WpifyWoo\\Modules\\IcDic\\Api\\IcDicApi' => $baseDir . '/src/Modules/IcDic/Api/IcDicApi.php',

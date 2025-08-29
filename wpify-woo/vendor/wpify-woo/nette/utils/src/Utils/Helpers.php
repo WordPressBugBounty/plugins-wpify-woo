@@ -8,16 +8,17 @@ declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
+use function array_unique, ini_get, levenshtein, max, min, ob_end_clean, ob_get_clean, ob_start, preg_replace, strlen;
+use const PHP_OS_FAMILY;
 class Helpers
 {
-    public const IsWindows = \PHP_OS_FAMILY === 'Windows';
+    public const IsWindows = PHP_OS_FAMILY === 'Windows';
     /**
      * Executes a callback and returns the captured output as a string.
      */
     public static function capture(callable $func): string
     {
-        ob_start(function () {
-        });
+        ob_start(fn() => '');
         try {
             $func();
             return ob_get_clean();

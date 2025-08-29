@@ -42,6 +42,7 @@ class ComposerStaticInit38c25aa05b152ebf78aa46f74d74576b
         'WpifyWoo\\Modules\\EmailAttachments\\EmailAttachmentsModule' => __DIR__ . '/../..' . '/src/Modules/EmailAttachments/EmailAttachmentsModule.php',
         'WpifyWoo\\Modules\\FreeShippingNotice\\FreeShippingNoticeModule' => __DIR__ . '/../..' . '/src/Modules/FreeShippingNotice/FreeShippingNoticeModule.php',
         'WpifyWoo\\Modules\\HeurekaMereniKonverzi\\HeurekaMereniKonverziModule' => __DIR__ . '/../..' . '/src/Modules/HeurekaMereniKonverzi/HeurekaMereniKonverziModule.php',
+        'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\BlockSupport' => __DIR__ . '/../..' . '/src/Modules/HeurekaOverenoZakazniky/BlockSupport.php',
         'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\HeurekaOverenoZakaznikyModule' => __DIR__ . '/../..' . '/src/Modules/HeurekaOverenoZakazniky/HeurekaOverenoZakaznikyModule.php',
         'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\WpRequester' => __DIR__ . '/../..' . '/src/Modules/HeurekaOverenoZakazniky/WpRequester.php',
         'WpifyWoo\\Modules\\IcDic\\Api\\IcDicApi' => __DIR__ . '/../..' . '/src/Modules/IcDic/Api/IcDicApi.php',

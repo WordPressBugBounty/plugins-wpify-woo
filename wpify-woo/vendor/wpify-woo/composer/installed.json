@@ -254,23 +254,23 @@
         },
         {
             "name": "guzzlehttp\/guzzle",
-            "version": "7.9.3",
-            "version_normalized": "7.9.3.0",
+            "version": "7.10.0",
+            "version_normalized": "7.10.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/guzzle.git",
-                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77"
+                "reference": "b51ac707cfa420b7bfd4e4d5e510ba8008e822b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/guzzle\/zipball\/7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
-                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/guzzle\/zipball\/b51ac707cfa420b7bfd4e4d5e510ba8008e822b4",
+                "reference": "b51ac707cfa420b7bfd4e4d5e510ba8008e822b4",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp\/promises": "^1.5.3 || ^2.0.3",
-                "guzzlehttp\/psr7": "^2.7.0",
+                "guzzlehttp\/promises": "^2.3",
+                "guzzlehttp\/psr7": "^2.8",
                 "php": "^7.2.5 || ^8.0",
                 "psr\/http-client": "^1.0",
                 "symfony\/deprecation-contracts": "^2.2 || ^3.0"
@@ -291,7 +291,7 @@
                 "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr\/log": "Required for using the Log middleware"
             },
-            "time": "2025-03-27T13:37:11+00:00",
+            "time": "2025-08-23T22:36:01+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -363,7 +363,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/guzzle\/issues",
-                "source": "https:\/\/github.com\/guzzle\/guzzle\/tree\/7.9.3"
+                "source": "https:\/\/github.com\/guzzle\/guzzle\/tree\/7.10.0"
             },
             "funding": [
                 {
@@ -383,17 +383,17 @@
         },
         {
             "name": "guzzlehttp\/promises",
-            "version": "2.2.0",
-            "version_normalized": "2.2.0.0",
+            "version": "2.3.0",
+            "version_normalized": "2.3.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/promises.git",
-                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c"
+                "reference": "481557b130ef3790cf82b713667b43030dc9c957"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/promises\/zipball\/7c69f28996b0a6920945dd20b3857e499d9ca96c",
-                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/promises\/zipball\/481557b130ef3790cf82b713667b43030dc9c957",
+                "reference": "481557b130ef3790cf82b713667b43030dc9c957",
                 "shasum": ""
             },
             "require": {
@@ -401,9 +401,9 @@
             },
             "require-dev": {
                 "bamarni\/composer-bin-plugin": "^1.8.2",
-                "phpunit\/phpunit": "^8.5.39 || ^9.6.20"
+                "phpunit\/phpunit": "^8.5.44 || ^9.6.25"
             },
-            "time": "2025-03-27T13:27:01+00:00",
+            "time": "2025-08-22T14:34:08+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -449,7 +449,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/promises\/issues",
-                "source": "https:\/\/github.com\/guzzle\/promises\/tree\/2.2.0"
+                "source": "https:\/\/github.com\/guzzle\/promises\/tree\/2.3.0"
             },
             "funding": [
                 {
@@ -469,17 +469,17 @@
         },
         {
             "name": "guzzlehttp\/psr7",
-            "version": "2.7.1",
-            "version_normalized": "2.7.1.0",
+            "version": "2.8.0",
+            "version_normalized": "2.8.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/psr7.git",
-                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16"
+                "reference": "21dc724a0583619cd1652f673303492272778051"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/c2270caaabe631b3b44c85f99e5a04bbb8060d16",
-                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/21dc724a0583619cd1652f673303492272778051",
+                "reference": "21dc724a0583619cd1652f673303492272778051",
                 "shasum": ""
             },
             "require": {
@@ -495,12 +495,12 @@
             "require-dev": {
                 "bamarni\/composer-bin-plugin": "^1.8.2",
                 "http-interop\/http-factory-tests": "0.9.0",
-                "phpunit\/phpunit": "^8.5.39 || ^9.6.20"
+                "phpunit\/phpunit": "^8.5.44 || ^9.6.25"
             },
             "suggest": {
                 "laminas\/laminas-httphandlerrunner": "Emit PSR-7 responses"
             },
-            "time": "2025-03-27T12:30:47+00:00",
+            "time": "2025-08-23T21:21:41+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -568,7 +568,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/psr7\/issues",
-                "source": "https:\/\/github.com\/guzzle\/psr7\/tree\/2.7.1"
+                "source": "https:\/\/github.com\/guzzle\/psr7\/tree\/2.8.0"
             },
             "funding": [
                 {
@@ -946,30 +946,30 @@
         },
         {
             "name": "nette\/utils",
-            "version": "v4.0.7",
-            "version_normalized": "4.0.7.0",
+            "version": "v4.0.8",
+            "version_normalized": "4.0.8.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/nette\/utils.git",
-                "reference": "e67c4061eb40b9c113b218214e42cb5a0dda28f2"
+                "reference": "c930ca4e3cf4f17dcfb03037703679d2396d2ede"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/nette\/utils\/zipball\/e67c4061eb40b9c113b218214e42cb5a0dda28f2",
-                "reference": "e67c4061eb40b9c113b218214e42cb5a0dda28f2",
+                "url": "https:\/\/api.github.com\/repos\/nette\/utils\/zipball\/c930ca4e3cf4f17dcfb03037703679d2396d2ede",
+                "reference": "c930ca4e3cf4f17dcfb03037703679d2396d2ede",
                 "shasum": ""
             },
             "require": {
-                "php": "8.0 - 8.4"
+                "php": "8.0 - 8.5"
             },
             "conflict": {
                 "nette\/finder": "<3",
                 "nette\/schema": "<1.2.2"
             },
             "require-dev": {
-                "jetbrains\/phpstorm-attributes": "dev-master",
+                "jetbrains\/phpstorm-attributes": "^1.2",
                 "nette\/tester": "^2.5",
-                "phpstan\/phpstan": "^1.0",
+                "phpstan\/phpstan-nette": "^2.0@stable",
                 "tracy\/tracy": "^2.9"
             },
             "suggest": {
@@ -980,7 +980,7 @@
                 "ext-mbstring": "to use Strings::lower() etc...",
                 "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()"
             },
-            "time": "2025-06-03T04:55:08+00:00",
+            "time": "2025-08-06T21:43:34+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -989,6 +989,9 @@
             },
             "installation-source": "dist",
             "autoload": {
+                "psr-4": {
+                    "WpifyWooDeps\\Nette\\": "src"
+                },
                 "classmap": [
                     "src\/"
                 ]
@@ -1029,7 +1032,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/nette\/utils\/issues",
-                "source": "https:\/\/github.com\/nette\/utils\/tree\/v4.0.7"
+                "source": "https:\/\/github.com\/nette\/utils\/tree\/v4.0.8"
             },
             "install-path": "..\/nette\/utils"
         },
@@ -1976,29 +1979,29 @@
         },
         {
             "name": "woocommerce\/action-scheduler",
-            "version": "3.9.2",
-            "version_normalized": "3.9.2.0",
+            "version": "3.9.3",
+            "version_normalized": "3.9.3.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/woocommerce\/action-scheduler.git",
-                "reference": "efbb7953f72a433086335b249292f280dd43ddfe"
+                "reference": "c58cdbab17651303d406cd3b22cf9d75c71c986c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/woocommerce\/action-scheduler\/zipball\/efbb7953f72a433086335b249292f280dd43ddfe",
-                "reference": "efbb7953f72a433086335b249292f280dd43ddfe",
+                "url": "https:\/\/api.github.com\/repos\/woocommerce\/action-scheduler\/zipball\/c58cdbab17651303d406cd3b22cf9d75c71c986c",
+                "reference": "c58cdbab17651303d406cd3b22cf9d75c71c986c",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=7.2"
             },
             "require-dev": {
-                "phpunit\/phpunit": "^7.5",
+                "phpunit\/phpunit": "^8.5",
                 "woocommerce\/woocommerce-sniffs": "0.1.0",
                 "wp-cli\/wp-cli": "~2.5.0",
                 "yoast\/phpunit-polyfills": "^2.0"
             },
-            "time": "2025-02-03T09:09:30+00:00",
+            "time": "2025-07-15T09:32:30+00:00",
             "type": "wordpress-plugin",
             "extra": {
                 "scripts-description": {
@@ -2016,7 +2019,7 @@
             "homepage": "https:\/\/actionscheduler.org\/",
             "support": {
                 "issues": "https:\/\/github.com\/woocommerce\/action-scheduler\/issues",
-                "source": "https:\/\/github.com\/woocommerce\/action-scheduler\/tree\/3.9.2"
+                "source": "https:\/\/github.com\/woocommerce\/action-scheduler\/tree\/3.9.3"
             },
             "install-path": "..\/woocommerce\/action-scheduler"
         },
@@ -2061,17 +2064,17 @@
         },
         {
             "name": "wpify\/custom-fields",
-            "version": "4.0.65",
-            "version_normalized": "4.0.65.0",
+            "version": "4.0.70",
+            "version_normalized": "4.0.70.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/custom-fields.git",
-                "reference": "2d3de7bbce4c14a524a7babe034a797461a7737c"
+                "reference": "28de2558e29942e353f7a0e1a31a1113089ebee6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/2d3de7bbce4c14a524a7babe034a797461a7737c",
-                "reference": "2d3de7bbce4c14a524a7babe034a797461a7737c",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/28de2558e29942e353f7a0e1a31a1113089ebee6",
+                "reference": "28de2558e29942e353f7a0e1a31a1113089ebee6",
                 "shasum": ""
             },
             "require": {
@@ -2084,7 +2087,7 @@
                 "squizlabs\/php_codesniffer": "^3.10",
                 "wp-coding-standards\/wpcs": "^3.0"
             },
-            "time": "2025-06-10T09:01:46+00:00",
+            "time": "2025-08-28T20:48:03+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2102,7 +2105,7 @@
             "description": "WPify Custom Fields",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/custom-fields\/issues",
-                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.65"
+                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.70"
             },
             "install-path": "..\/wpify\/custom-fields"
         },
@@ -2198,23 +2201,23 @@
         },
         {
             "name": "wpify\/model",
-            "version": "4.1.24",
-            "version_normalized": "4.1.24.0",
+            "version": "4.1.27",
+            "version_normalized": "4.1.27.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/model.git",
-                "reference": "ebcac0038014dd0a8d7af5b31e3ee1efa542e9ec"
+                "reference": "e6c6a6421ade5498be4f5fd1580770bd8dbd2fd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/model\/zipball\/ebcac0038014dd0a8d7af5b31e3ee1efa542e9ec",
-                "reference": "ebcac0038014dd0a8d7af5b31e3ee1efa542e9ec",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/model\/zipball\/e6c6a6421ade5498be4f5fd1580770bd8dbd2fd6",
+                "reference": "e6c6a6421ade5498be4f5fd1580770bd8dbd2fd6",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.0.0"
             },
-            "time": "2025-05-21T09:30:57+00:00",
+            "time": "2025-07-11T12:58:54+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2235,7 +2238,7 @@
             "description": "WPify Model",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/model\/issues",
-                "source": "https:\/\/github.com\/wpify\/model\/tree\/4.1.24"
+                "source": "https:\/\/github.com\/wpify\/model\/tree\/4.1.27"
             },
             "install-path": "..\/wpify\/model"
         },

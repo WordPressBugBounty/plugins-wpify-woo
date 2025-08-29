@@ -19,12 +19,15 @@ use WpifyWooDeps\Wpify\Model\Exceptions\RepositoryNotInitialized;
  * @package WpifyWoo\Modules\HeurekaOverenoZakazniky
  */
 class HeurekaOverenoZakaznikyModule extends AbstractModule {
+	private $block_support;
+
 	public function __construct(
 		private RotatingFileLog $log,
 		private WooOrderRepository $woo_order_repository
 	) {
 		parent::__construct();
 		$this->setup();
+		$this->init_block_support();
 	}
 
 	/**
@@ -274,6 +277,15 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 		}
 
 		echo $this->get_setting( 'widget_code' );
+	}
+
+	/**
+	 * Initialize block checkout support
+	 */
+	private function init_block_support() {
+		if ( class_exists( '\Automattic\WooCommerce\Blocks\Package' ) ) {
+			$this->block_support = new BlockSupport( $this );
+		}
 	}
 
 	public function name() {

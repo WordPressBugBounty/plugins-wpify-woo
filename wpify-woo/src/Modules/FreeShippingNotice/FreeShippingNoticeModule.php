@@ -3,11 +3,14 @@
 namespace WpifyWoo\Modules\FreeShippingNotice;
 
 use WpifyWoo\Plugin;
+use WpifyWoo\WooCommerceIntegration;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 
 class FreeShippingNoticeModule extends AbstractModule {
 
-	public function __construct() {
+	public function __construct(
+		private WooCommerceIntegration $woocommerce_integration,
+	) {
 		parent::__construct();
 		$this->setup();
 	}
@@ -108,18 +111,20 @@ class FreeShippingNoticeModule extends AbstractModule {
 				'default' => 'subtotal',
 			),
 			array(
-				'id'      => 'free_shipping_message',
-				'type'    => 'text',
-				'label'   => __( 'Free shipping message', 'wpify-woo' ),
-				'desc'    => __( 'Enter the message that should be displayed. The {price} will be replaced with the price to get free shippping', 'wpify-woo' ),
-				'default' => __( 'Buy for {price} more to get free shipping', 'wpify-woo' ),
+				'id'         => 'free_shipping_message',
+				'type'       => 'text',
+				'label'      => __( 'Free shipping message', 'wpify-woo' ),
+				'desc'       => __( 'Enter the message that should be displayed. The {price} will be replaced with the price to get free shippping', 'wpify-woo' ),
+				'default'    => __( 'Buy for {price} more to get free shipping', 'wpify-woo' ),
+				'unfiltered' => true
 			),
 			array(
-				'id'      => 'free_shipping_confirmation_message',
-				'type'    => 'text',
-				'label'   => __( 'Free shipping confirmation message', 'wpify-woo' ),
-				'desc'    => __( 'Enter the message that should be displayed when the user has free shipping.', 'wpify-woo' ),
-				'default' => __( 'Great, you have the shipping free!', 'wpify-woo' ),
+				'id'         => 'free_shipping_confirmation_message',
+				'type'       => 'text',
+				'label'      => __( 'Free shipping confirmation message', 'wpify-woo' ),
+				'desc'       => __( 'Enter the message that should be displayed when the user has free shipping.', 'wpify-woo' ),
+				'default'    => __( 'Great, you have the shipping free!', 'wpify-woo' ),
+				'unfiltered' => true
 			),
 			array(
 				'id'      => 'minimum_cart_amount_to_display',
@@ -140,6 +145,27 @@ class FreeShippingNoticeModule extends AbstractModule {
 				'type'  => 'switch',
 				'label' => __( 'Set free shipping if any shipping method is free', 'wpify-woo' ),
 				'desc'  => __( 'Check if you wish to display Free shipping confirmation message if any of the shipping methods is free.', 'wpify-woo' ),
+			),
+			array(
+				'id'           => 'excluded_shipping',
+				'label'        => __( 'Exclude shipping from check', 'wpify-woo-conditional-shipping' ),
+				'type'         => 'multi_select',
+				'desc'         => __( 'If you are showing free shipping if there is any free shipping, this sets the methods to be excluded from this check.', 'wpify-woo-conditional-shipping' ),
+				'options'      => function () {
+					return $this->woocommerce_integration->get_shipping_methods_option();
+				},
+				'async'        => true,
+				'async_params' => array(
+					'tab'       => 'wpify-woo-settings',
+					'section'   => $this->id(),
+					'module_id' => $this->id(),
+				),
+				'conditions'   => array(
+					array(
+						'field'     => 'free_shipping_if_any_method_free',
+						'condition' => 'not_empty',
+					),
+				),
 			),
 			array(
 				'id'      => 'positions',
@@ -243,6 +269,15 @@ class FreeShippingNoticeModule extends AbstractModule {
 			return;
 		}
 
+		if ( $this->get_amount_for_free_shipping() < 0 && empty( $this->get_setting( 'free_shipping_confirmation_message' ) ) ) {
+			?>
+			<div class="wpify-woo-free-shipping-notice__wrapper"></div>
+			<?php
+			var_dump( 'return C' );
+
+			return;
+		}
+
 		$style = 'padding: 20px; display: flex;';
 		if ( ! empty( $this->get_setting( 'background_color' ) ) ) {
 			$style .= sprintf( 'background-color: %s; ', esc_attr( $this->get_setting( 'background_color' ) ) );
@@ -283,14 +318,6 @@ class FreeShippingNoticeModule extends AbstractModule {
 				}
 			}
 		</style>
-		<?php
-		if ( $this->get_amount_for_free_shipping() < 0 && empty( $this->get_setting( 'free_shipping_confirmation_message' ) ) ) {
-			?>
-			<div class="wpify-woo-free-shipping-notice__wrapper"></div>
-			<?php
-			return;
-		}
-		?>
 		<div class="wpify-woo-free-shipping-notice__wrapper">
 			<div class="wpify-woo-free-shipping-notice" style="<?php echo esc_attr( $style ); ?>">
 				<div>
@@ -408,6 +435,8 @@ class FreeShippingNoticeModule extends AbstractModule {
 			return $free;
 		}
 
+		$excluded = $this->get_setting( 'excluded_shipping' ) ?? [];
+
 		foreach ( WC()->session->get_session_data() as $key => $data ) {
 			if ( strpos( $key, 'package' ) !== false ) {
 				$item = WC()->session->get( $key );
@@ -416,6 +445,10 @@ class FreeShippingNoticeModule extends AbstractModule {
 				}
 
 				foreach ( $item['rates'] as $rate ) {
+					if ( is_array( $excluded ) && in_array( $rate->id, $excluded ) ) {
+						continue;
+					}
+
 					if ( ! floatval( $rate->get_cost() ) ) {
 						$free = true;
 						break 2;

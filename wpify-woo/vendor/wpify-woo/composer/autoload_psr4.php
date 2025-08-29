@@ -26,6 +26,7 @@ return array(
     'WpifyWooDeps\\Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
     'WpifyWooDeps\\Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'WpifyWooDeps\\PhpDocReader\\' => array($vendorDir . '/php-di/phpdoc-reader/src/PhpDocReader'),
+    'WpifyWooDeps\\Nette\\' => array($vendorDir . '/nette/utils/src'),
     'WpifyWooDeps\\Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'WpifyWooDeps\\Laravel\\SerializableClosure\\' => array($vendorDir . '/laravel/serializable-closure/src'),
     'WpifyWooDeps\\Invoker\\' => array($vendorDir . '/php-di/invoker/src'),

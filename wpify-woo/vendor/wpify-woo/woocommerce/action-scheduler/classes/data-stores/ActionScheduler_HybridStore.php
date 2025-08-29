@@ -388,7 +388,7 @@ class ActionScheduler_HybridStore extends Store
         return $this->primary_store->get_claim_id($action_id);
     }
     /**
-     * Release a claim in the table data store.
+     * Release a claim in the table data store on any pending actions.
      *
      * @param ActionScheduler_ActionClaim $claim Claim object.
      */

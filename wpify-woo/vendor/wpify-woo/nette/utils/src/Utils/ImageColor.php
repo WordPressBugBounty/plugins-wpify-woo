@@ -8,6 +8,7 @@ declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
+use function hexdec, ltrim, max, min, round, strlen;
 /**
  * Represent RGB color (0..255) with opacity (0..1).
  */

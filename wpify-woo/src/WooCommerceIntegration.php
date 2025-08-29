@@ -62,6 +62,28 @@ class WooCommerceIntegration {
 		return sprintf( '%s-%s', $this::OPTION_NAME, $module );
 	}
 
+	/**
+	 * Get list of shipping methods for options
+	 *
+	 * @return array
+	 */
+	public function get_shipping_methods_option(): array {
+		$shipping_methods = [];
+
+		foreach ( $this->get_all_zones() as $zone ) {
+			$name = $zone['zone_name'];
+
+			foreach ( $zone['shipping_methods'] as $shipping ) {
+				/** @var $shipping \WC_Shipping_Flat_Rate */
+				$shipping_methods[] = array(
+					'label' => sprintf( '%s: %s', $name, $shipping->get_title() ),
+					'value' => $shipping->get_rate_id(),
+				);
+			}
+		}
+
+		return $shipping_methods;
+	}
 
 	public function get_avaliable_shipping_methods() {
 		$shipping_methods = array();
@@ -139,6 +161,38 @@ class WooCommerceIntegration {
 		}
 
 		return $currencies;
+	}
+
+	public function get_language_select() {
+		$languages = [];
+		foreach ( get_available_languages() as $val ) {
+			$languages[] = [
+				'label' => $val,
+				'value' => $val,
+			];
+		}
+
+		return $languages;
+	}
+
+	/**
+	 * Get all shipping zones
+	 *
+	 * @return array
+	 */
+	public function get_all_zones(): array {
+		$zones        = \WC_Shipping_Zones::get_zones();
+		$default_zone = new \WC_Shipping_Zone( 0 );
+
+		if ( empty( $default_zone->get_shipping_methods() ) ) {
+			return $zones;
+		}
+
+		$zones[ $default_zone->get_id() ]                            = $default_zone->get_data();
+		$zones[ $default_zone->get_id() ]['formatted_zone_location'] = __( 'Other regions', 'wpify-woo' );
+		$zones[ $default_zone->get_id() ]['shipping_methods']        = $default_zone->get_shipping_methods();
+
+		return $zones;
 	}
 
 	public function is_block_checkout(): bool {
