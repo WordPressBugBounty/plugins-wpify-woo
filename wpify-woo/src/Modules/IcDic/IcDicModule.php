@@ -130,7 +130,7 @@ class IcDicModule extends AbstractModule {
 	 * Enqueue frontend scripts
 	 */
 	public function enqueue_scripts() {
-		if ( ! is_checkout() ) {
+		if ( ! is_checkout() && ! is_account_page()) {
 			return;
 		}
 
@@ -980,6 +980,13 @@ class IcDicModule extends AbstractModule {
 			? ( $data['billing_dic_dph'] ?? '' )
 			: ( $data['billing_dic'] ?? '' );
 
+		// Determine shipping country - use billing country if ship to different address is not checked
+		// or if shipping country is not provided (when "ship to same address" is checked)
+		$ship_to_different = isset( $data['ship_to_different_address'] ) && $data['ship_to_different_address'] === '1';
+		$shipping_country = $ship_to_different && ! empty( $data['shipping_country'] )
+			? $data['shipping_country']
+			: $country;
+
 		if ( ! empty( $vies_fails ) && $vies_fails === true && ! empty( $dic_dph ) && ! $this->is_valid_dic( $dic_dph ) ) {
 			WC()->customer->set_is_vat_exempt( false );
 
@@ -993,7 +1000,7 @@ class IcDicModule extends AbstractModule {
 				 ! isset( $data['company_details'] )
 			 )
 		) {
-			$vat_exempt_result = $this->is_vat_extempt( $dic_dph, $data['shipping_country'] ?? '' );
+			$vat_exempt_result = $this->is_vat_extempt( $dic_dph, $shipping_country );
 			WC()->customer->set_is_vat_exempt( $vat_exempt_result );
 		} else {
 			WC()->customer->set_is_vat_exempt( false );

@@ -47,6 +47,9 @@ class BlockSupport {
 		// Log VAT exempt decision after order is created
 		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'log_order_vat_exempt_decision' ] );
 
+		// Hide IC/DIC fields from My Account > Account Details page using CSS
+		add_action( 'woocommerce_edit_account_form_start', [ $this, 'hide_ic_dic_fields_with_css' ] );
+
 		$this->register_vat_exempt_callback();
 	}
 
@@ -504,5 +507,28 @@ class BlockSupport {
 			'tax_total' => $order->get_total_tax(),
 			'context' => 'Order created - Block checkout'
 		]);
+	}
+
+	/**
+	 * Hide IC/DIC fields from My Account > Account Details page using CSS
+	 * These fields should only be visible in the Billing Address section
+	 */
+	public function hide_ic_dic_fields_with_css() {
+		// Only output CSS on the account edit page
+		if ( ! is_account_page() ) {
+			return;
+		}
+		?>
+		<style type="text/css">
+			/* Hide IC/DIC fields from My Account > Account Details form */
+			.woocommerce-EditAccountForm p[id*="wpify/ic_dic_toggle"],
+			.woocommerce-EditAccountForm p[id*="wpify/ic"],
+			.woocommerce-EditAccountForm p[id*="wpify/dic"],
+			.woocommerce-EditAccountForm p[id*="wpify/dic-dph"],
+			.woocommerce-EditAccountForm p[id*="wpify/company"] {
+				display: none !important;
+			}
+		</style>
+		<?php
 	}
 }
