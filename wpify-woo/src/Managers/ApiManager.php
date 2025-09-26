@@ -40,6 +40,10 @@ class ApiManager {
 	}
 
 	public function enable_wc_frontend_in_rest() {
+		if ( ! function_exists( 'WC' ) || ! WC() ) {
+			return;
+		}
+
 		if ( ! WC()->is_rest_api_request() ) {
 			return;
 		}

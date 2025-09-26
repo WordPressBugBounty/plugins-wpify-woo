@@ -269,7 +269,7 @@ class Settings {
 			return;
 		}
 
-		$api_url  = 'https://wpify.io/wp-json/fluent-crm/v2/subscribers';
+		$api_url  = 'https://wpify.cz/wp-json/fluent-crm/v2/subscribers';
 		$api_user = 'managercrm';
 		$api_key  = 'XahE M54R 5B00 rFLf Tsje vNLP';
 

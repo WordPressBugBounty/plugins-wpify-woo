@@ -182,8 +182,10 @@ class Feed extends AbstractFeed {
 	public function get_ean( $product ) {
 		$ean = '';
 		if ( $this->module->get_setting( 'ean_custom_field' ) ) {
-			$ean = $product->get_meta( $this->module->get_setting( 'ean_custom_field' ), true );
-		} elseif (
+			return $product->get_meta( $this->module->get_setting( 'ean_custom_field' ), true );
+		}
+
+		if (
 			method_exists( $product, 'get_global_unique_id' ) &&
 			is_callable( [ $product, 'get_global_unique_id' ] )
 		) {

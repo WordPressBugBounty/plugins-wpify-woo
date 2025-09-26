@@ -130,7 +130,7 @@ class IcDicModule extends AbstractModule {
 	 * Enqueue frontend scripts
 	 */
 	public function enqueue_scripts() {
-		if ( ! is_checkout() && ! is_account_page()) {
+		if ( ! is_checkout() && ! is_account_page() ) {
 			return;
 		}
 
@@ -848,11 +848,11 @@ class IcDicModule extends AbstractModule {
 		$cache_time    = WC()->session->get( $cache_key . '_time' );
 
 		// Use cache if it's less than 5 minutes old
-		if ( $cached_result !== null && $cache_time && ( time() - $cache_time ) < 300 ) {
-			WC()->customer->set_is_vat_exempt( $cached_result );
-
-			return;
-		}
+//		if ( $cached_result !== null && $cache_time && ( time() - $cache_time ) < 300 ) {
+//			WC()->customer->set_is_vat_exempt( $cached_result );
+//
+//			return;
+//		}
 
 		// Calculate VAT exempt status
 		$is_vat_extempt = false;
@@ -905,6 +905,7 @@ class IcDicModule extends AbstractModule {
 			'shipping_country'     => $shipping_country,
 			'shop_country'         => $shop_country,
 			'submitted_dic'        => $dic,
+			'validate_in_VIES'     => $this->get_setting( 'validate_vies' ),
 			'customer_vat_exempt'  => $customer_vat_exempt,
 			'should_be_vat_exempt' => $should_be_vat_exempt,
 			'vat_exempt_countries' => $vat_exempt_countries,
@@ -983,7 +984,7 @@ class IcDicModule extends AbstractModule {
 		// Determine shipping country - use billing country if ship to different address is not checked
 		// or if shipping country is not provided (when "ship to same address" is checked)
 		$ship_to_different = isset( $data['ship_to_different_address'] ) && $data['ship_to_different_address'] === '1';
-		$shipping_country = $ship_to_different && ! empty( $data['shipping_country'] )
+		$shipping_country  = $ship_to_different && ! empty( $data['shipping_country'] )
 			? $data['shipping_country']
 			: $country;
 

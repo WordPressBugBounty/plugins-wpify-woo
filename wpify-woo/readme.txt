@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, WPify, Zásilkovna, Heureka, IČ DIČ
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 5.1.1
+Stable tag: 5.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -218,6 +218,13 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+
+= 5.1.3 =
+* Fix Subscription form
+
+= 5.1.2 =
+* Improved - leave empty ean field in XML if is ean custom field set
+
 = 5.1.1 =
 * Fix calculate VAT exempt if shipping address is the same as billing in IČ DIČ module
 * Fix loading an IČ DIČ script on my account page.

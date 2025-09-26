@@ -352,7 +352,7 @@ window.jQuery(document).ready(function ($) {
 					.catch(error => {
 						state.set({viesResult: error});
 					})
-					.finally(() => {
+					.finally((result) => {
 						$(document.body).trigger('update_checkout');
 						state.set({viesLoading: false, disableSubmit: false, viesLastChecked: dic});
 					});
