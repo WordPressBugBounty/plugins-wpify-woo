@@ -57,7 +57,7 @@ trait SmartObject
             if (!($prop & 0b1)) {
                 throw new MemberAccessException("Cannot read a write-only property {$class}::\${$name}.");
             }
-            $m = (($prop & 0b10) ? 'get' : 'is') . ucfirst($name);
+            $m = ($prop & 0b10 ? 'get' : 'is') . ucfirst($name);
             if ($prop & 0b10000) {
                 $trace = debug_backtrace(0, 1)[0];
                 // suppose this method is called from __call()

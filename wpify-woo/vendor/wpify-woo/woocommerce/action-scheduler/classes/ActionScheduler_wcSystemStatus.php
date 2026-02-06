@@ -64,7 +64,7 @@ class ActionScheduler_wcSystemStatus
      */
     protected function get_action_status_date($status, $date_type = 'oldest')
     {
-        $order = ('oldest' === $date_type) ? 'ASC' : 'DESC';
+        $order = 'oldest' === $date_type ? 'ASC' : 'DESC';
         $action = $this->store->query_actions(array('status' => $status, 'per_page' => 1, 'order' => $order));
         if (!empty($action)) {
             $date_object = $this->store->get_date($action[0]);

@@ -100,7 +100,7 @@ final class Reflection
         } elseif ($ref instanceof \ReflectionMethod) {
             return $ref->getDeclaringClass()->name . '::' . $ref->name . '()';
         } elseif ($ref instanceof \ReflectionFunction) {
-            return (PHP_VERSION_ID >= 80200 && $ref->isAnonymous()) ? '{closure}()' : ($ref->name . '()');
+            return PHP_VERSION_ID >= 80200 && $ref->isAnonymous() ? '{closure}()' : $ref->name . '()';
         } elseif ($ref instanceof \ReflectionProperty) {
             return self::getPropertyDeclaringClass($ref)->name . '::$' . $ref->name;
         } elseif ($ref instanceof \ReflectionParameter) {
@@ -182,7 +182,7 @@ final class Reflection
                 case T_CLASS:
                 case T_INTERFACE:
                 case T_TRAIT:
-                case (PHP_VERSION_ID < 80100) ? T_CLASS : T_ENUM:
+                case PHP_VERSION_ID < 80100 ? T_CLASS : T_ENUM:
                     if ($name = self::fetch($tokens, T_STRING)) {
                         $class = $namespace . $name;
                         $classLevel = $level + 1;

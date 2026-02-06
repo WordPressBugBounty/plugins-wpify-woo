@@ -56,7 +56,7 @@ final class Callback
     {
         if ($callable instanceof \Closure) {
             $inner = self::unwrap($callable);
-            return '{closure' . (($inner instanceof \Closure) ? '}' : (' ' . self::toString($inner) . '}'));
+            return '{closure' . ($inner instanceof \Closure ? '}' : ' ' . self::toString($inner) . '}');
         } else {
             is_callable(is_object($callable) ? [$callable, '__invoke'] : $callable, \true, $textual);
             return $textual;

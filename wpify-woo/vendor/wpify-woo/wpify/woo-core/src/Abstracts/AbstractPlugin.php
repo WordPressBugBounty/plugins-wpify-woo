@@ -22,6 +22,8 @@ abstract class AbstractPlugin
         add_filter('wpify_installed_plugins', array($this, 'add_plugin'));
         add_filter('plugin_action_links_' . $this->id() . '/' . $this->id() . '.php', array($this, 'add_action_links'));
         add_filter('plugin_row_meta', array($this, 'add_row_meta_links'), 10, 2);
+        // Registrace filteru pro moduly - fallback na plugin dokumentaci
+        add_filter('wpify_woo_plugin_documentation_url_' . $this->id(), array($this, 'documentation_url'));
         if ($this->requires_activation) {
             $this->license = new License($this->id(), \false, is_multisite() ? get_current_network_id() : 0);
             if (!$this->license->is_activated()) {
@@ -84,13 +86,27 @@ abstract class AbstractPlugin
         return add_query_arg(['page' => $this->get_menu_slug()], admin_url('admin.php'));
     }
     /**
+     * Plugin documentation path
+     *
+     * @return string
+     */
+    public function get_documentation_path(): string
+    {
+        return '';
+    }
+    /**
      * Plugin documentation url
      *
      * @return string
      */
     public function documentation_url(): string
     {
-        return '';
+        $domain = 'https://docs.wpify.cz/';
+        if (in_array(get_locale(), array('cs_CZ', 'sk_SK'), \true)) {
+            $domain = 'https://docs.wpify.cz/cs/';
+        }
+        $path = $this->get_documentation_path();
+        return esc_url($domain . $path);
     }
     /**
      * Plugin support url
@@ -185,12 +201,13 @@ abstract class AbstractPlugin
      */
     public function activation_notice($notice = \false)
     {
-        $class = (!$notice) ? 'error notice' : 'update-message notice inline notice-error notice-alt';
+        $class = !$notice ? 'error notice' : 'update-message notice inline notice-error notice-alt';
         ?>
         <div class="<?php 
         echo $class;
         ?>">
             <p><?php 
+        /* translators: 1: Plugin name, 2: Settings URL. */
         printf(__('Your %1$s plugin licence is not activated yet. Please <a href="%2$s">activate the domain</a> by connecting it with your WPify account!', 'wpify-core'), $this->name(), $this->settings_url());
         ?></p>
         </div>

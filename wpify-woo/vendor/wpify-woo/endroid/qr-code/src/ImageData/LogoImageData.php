@@ -95,7 +95,7 @@ class LogoImageData
     private static function detectMimeTypeFromUrl(string $url): string
     {
         /** @var mixed $format */
-        $format = (\PHP_VERSION_ID >= 80000) ? \true : 1;
+        $format = \PHP_VERSION_ID >= 80000 ? \true : 1;
         $headers = get_headers($url, $format);
         if (!is_array($headers) || !isset($headers['Content-Type'])) {
             throw new \Exception(sprintf('Content type could not be determined for logo URL "%s"', $url));

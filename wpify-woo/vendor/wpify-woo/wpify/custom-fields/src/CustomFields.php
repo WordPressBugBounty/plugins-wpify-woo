@@ -10,7 +10,9 @@ namespace WpifyWooDeps\Wpify\CustomFields;
 use Closure;
 use stdClass;
 use WpifyWooDeps\Wpify\CustomFields\Exceptions\MissingArgumentException;
+use WpifyWooDeps\Wpify\CustomFields\Fields\DirectFileField;
 use WpifyWooDeps\Wpify\CustomFields\Integrations\Comment;
+use WpifyWooDeps\Wpify\CustomFields\Integrations\CouponOptions;
 use WpifyWooDeps\Wpify\CustomFields\Integrations\GutenbergBlock;
 use WpifyWooDeps\Wpify\CustomFields\Integrations\MenuItem;
 use WpifyWooDeps\Wpify\CustomFields\Integrations\Metabox;
@@ -45,12 +47,20 @@ class CustomFields
      */
     public readonly Api $api;
     /**
+     * DirectFileField class.
+     *
+     * @var DirectFileField
+     */
+    public readonly DirectFileField $direct_file_field;
+    /**
      * Custom fields constructor.
      */
     public function __construct()
     {
         $this->helpers = new Helpers();
         $this->api = new Api($this, $this->helpers);
+        $this->direct_file_field = new DirectFileField($this);
+        $this->init_temp_cleanup();
     }
     /**
      * Creates an options page.
@@ -110,6 +120,18 @@ class CustomFields
     public function create_product_variation_options(array $args): ProductVariationOptions
     {
         return new ProductVariationOptions($args, $this);
+    }
+    /**
+     * Creates custom fields in WooCommerce Coupon Options.
+     *
+     * @param array $args An associative array of arguments for configuring the product options.
+     *
+     * @return CouponOptions An instance of the ProductOptions class configured with the provided arguments.
+     * @throws MissingArgumentException Missing arguments.
+     */
+    public function create_coupon_options(array $args): CouponOptions
+    {
+        return new CouponOptions($args, $this);
     }
     /**
      * Creates custom fields in WooCommerce Order with the provided arguments.
@@ -284,7 +306,7 @@ class CustomFields
         if (file_exists($asset_php)) {
             $asset = require $asset_php;
         }
-        $src = (!empty($asset)) ? add_query_arg('ver', $asset['version'], $this->get_build_url($item . '.css')) : $this->get_build_url($item . '.css');
+        $src = !empty($asset) ? add_query_arg('ver', $asset['version'], $this->get_build_url($item . '.css')) : $this->get_build_url($item . '.css');
         if (!empty($asset) && file_exists($this->get_build_path('style-' . $item . '.css'))) {
             $src = array($src, add_query_arg('ver', $asset['version'], $this->get_build_url('style-' . $item . '.css')));
         }
@@ -323,11 +345,12 @@ class CustomFields
          * Sanitizes the value based on the specified item type.
          *
          * @param mixed $value The value to be sanitized.
+         * @param mixed $previous_value The previous stored value.
          *
          * @return mixed The sanitized value.
          */
-        return function (mixed $value) use ($item): mixed {
-            $original_value = $value;
+        return function (mixed $value, mixed $previous_value = null) use ($item): mixed {
+            $original_value = $previous_value ?? $value;
             if (isset($item['unfiltered']) && \true === $item['unfiltered']) {
                 $sanitized_value = $value;
             } elseif (in_array($item['type'], array('attachment', 'post', 'term'), \true)) {
@@ -368,6 +391,13 @@ class CustomFields
                 $sanitized_value['city'] = sanitize_text_field($value['city'] ?? '');
                 $sanitized_value['cityPart'] = sanitize_text_field($value['cityPart'] ?? '');
                 $sanitized_value['country'] = sanitize_text_field($value['country'] ?? '');
+            } elseif ('date_range' === $item['type']) {
+                $value = is_string($value) ? json_decode($value, \true) : $value;
+                if (!is_array($value) || empty($value[0]) && empty($value[1])) {
+                    $sanitized_value = null;
+                } else {
+                    $sanitized_value = array(!empty($value[0]) ? sanitize_text_field($value[0]) : null, !empty($value[1]) ? sanitize_text_field($value[1]) : null);
+                }
             } elseif (in_array($item['type'], array('number', 'range'), \true)) {
                 $sanitized_value = floatval($value);
             } elseif ('textarea' === $item['type']) {
@@ -384,12 +414,15 @@ class CustomFields
                         $sanitized_value[] = sanitize_text_field($sub_value);
                     }
                 }
+            } elseif (in_array($item['type'], array('direct_file', 'multi_direct_file'), \true)) {
+                $sanitized_value = $value;
             } elseif (str_starts_with($item['type'], 'multi_')) {
                 $single_type = substr($item['type'], strlen('multi_'));
                 $value = is_string($value) ? json_decode($value, \true) : (array) $value;
+                $original_value = is_string($original_value) ? json_decode($original_value, \true) : (array) $original_value;
                 $sanitized_value = array();
                 foreach ($value as $sub_key => $sub_value) {
-                    $sanitized_value[$sub_key] = $this->sanitize_item_value(array(...$item, 'type' => $single_type))($sub_value);
+                    $sanitized_value[$sub_key] = $this->sanitize_item_value(array(...$item, 'type' => $single_type))($sub_value, $original_value[$sub_key] ?? null);
                 }
             } else {
                 $sanitized_value = sanitize_textarea_field($value);
@@ -412,7 +445,7 @@ class CustomFields
             $next_value = is_array($previous_value) ? $previous_value : array();
             foreach ($items as $item) {
                 if (isset($value[$item['id']])) {
-                    $next_value[$item['id']] = $this->sanitize_item_value($item)($value[$item['id']]);
+                    $next_value[$item['id']] = $this->sanitize_item_value($item)($value[$item['id']], $previous_value[$item['id']] ?? null);
                 }
             }
             return $next_value;
@@ -440,6 +473,8 @@ class CustomFields
             $type = 'boolean';
         } elseif (in_array($item['type'], array('group', 'link', 'mapycz'), \true)) {
             $type = 'object';
+        } elseif ('date_range' === $item['type']) {
+            $type = 'array';
         } elseif (str_starts_with($item['type'], 'multi_')) {
             $type = 'array';
         } else {
@@ -458,6 +493,8 @@ class CustomFields
     {
         if (isset($item['default'])) {
             $default_value = $item['default'];
+        } elseif ('date_range' === $item['type']) {
+            $default_value = null;
         } else {
             $wp_type = $this->get_wp_type($item);
             $default_value = match ($wp_type) {
@@ -470,5 +507,22 @@ class CustomFields
             };
         }
         return apply_filters('wpifycf_default_value_' . $item['type'], $default_value, $item);
+    }
+    /**
+     * Initializes the temporary file cleanup system.
+     *
+     * Schedules a WordPress cron job to clean up old temporary files.
+     * This method ensures the cron is only scheduled once (singleton pattern).
+     *
+     * @return void
+     */
+    private function init_temp_cleanup(): void
+    {
+        // Schedule cleanup cron if not already scheduled.
+        if (!wp_next_scheduled('wpifycf_cleanup_temp_files')) {
+            wp_schedule_event(time(), 'twicedaily', 'wpifycf_cleanup_temp_files');
+        }
+        // Register cleanup callback.
+        add_action('wpifycf_cleanup_temp_files', array($this->helpers, 'cleanup_temp_files'));
     }
 }

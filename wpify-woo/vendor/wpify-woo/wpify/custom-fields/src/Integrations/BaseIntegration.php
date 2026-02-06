@@ -150,7 +150,7 @@ abstract class BaseIntegration
         }
         $handle = $this->custom_fields->get_script_handle();
         $js = $this->custom_fields->get_js_asset('wpify-custom-fields');
-        $data = array('instance' => $this->custom_fields->get_script_handle(), 'stylesheet' => $this->custom_fields->get_css_asset('wpify-custom-fields'), 'api_path' => $this->custom_fields->api->get_rest_namespace());
+        $data = array('instance' => $this->custom_fields->get_script_handle(), 'stylesheet' => $this->custom_fields->get_css_asset('wpify-custom-fields'), 'api_path' => $this->custom_fields->api->get_rest_namespace(), 'abspath' => \ABSPATH, 'site_url' => get_site_url());
         // Dependencies for WYSIWYG field.
         wp_enqueue_editor();
         wp_tinymce_inline_scripts();
@@ -165,6 +165,41 @@ abstract class BaseIntegration
         }
         wp_enqueue_script($handle, $js['src'], $js['dependencies'], $js['version'], array('in_footer' => \false));
         wp_add_inline_script($handle, 'window.wpifycf=' . wp_json_encode($data) . ';', 'before');
+        // Add hidden editor and toolbar config for WYSIWYG.
+        add_action('admin_print_footer_scripts', array($this, 'print_wysiwyg_scripts'), 5);
+        add_action('admin_print_footer_scripts', array($this, 'localize_wysiwyg_toolbars'), 6);
+    }
+    /**
+     * Print hidden wp_editor for TinyMCE initialization.
+     * This ensures TinyMCE settings are properly loaded.
+     *
+     * @return void
+     */
+    public function print_wysiwyg_scripts(): void
+    {
+        static $printed = \false;
+        if ($printed) {
+            return;
+        }
+        $printed = \true;
+        ?>
+		<div id="wpifycf-hidden-wp-editor" style="display: none !important; visibility: hidden; position: absolute; left: -9999px;">
+			<?php 
+        wp_editor('', 'wpifycf_content', array('tinymce' => array('wp_autoresize_on' => \false), 'quicktags' => \false));
+        ?>
+		</div>
+		<?php 
+    }
+    /**
+     * Localize toolbar configurations for JavaScript.
+     *
+     * @return void
+     */
+    public function localize_wysiwyg_toolbars(): void
+    {
+        $toolbars = apply_filters('wpifycf_wysiwyg_toolbars', array('full' => array(1 => 'formatselect,bold,italic,underline,strikethrough,bullist,numlist,blockquote,hr,alignleft,aligncenter,alignright,link,unlink,wp_add_media,wp_more,spellchecker,fullscreen,wp_adv', 2 => 'fontsizeselect,forecolor,pastetext,removeformat,charmap,outdent,indent,undo,redo,wp_help'), 'basic' => array(1 => 'bold,italic,underline,link,unlink')));
+        $handle = $this->custom_fields->get_script_handle();
+        wp_add_inline_script($handle, 'window.wpifycf_wysiwyg_toolbars = ' . wp_json_encode($toolbars) . ';', 'before');
     }
     /**
      * Registers REST API for options recursively.

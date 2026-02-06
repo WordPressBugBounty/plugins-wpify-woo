@@ -37,6 +37,6 @@ class ValidatorFI extends ValidatorAbstract
         }
         $weights = [7, 9, 10, 5, 8, 4, 2];
         $checkVal = $this->sumWeights($weights, $vatNumber);
-        return (0 === $checkVal % 11) ? (int) $vatNumber[7] === 0 : (11 - $checkVal % 11 == (int) $vatNumber[7]);
+        return 0 === $checkVal % 11 ? (int) $vatNumber[7] === 0 : 11 - $checkVal % 11 == (int) $vatNumber[7];
     }
 }

@@ -17,7 +17,7 @@ final class Helper
     /**
      * @var array<string, string>
      */
-    public static $endpoints = [Sources::SERVICE_VR => '/ekonomicke-subjekty-vr/{ico}', Sources::SERVICE_RES => '/ekonomicke-subjekty-res/{ico}', Sources::SERVICE_RZP => '/ekonomicke-subjekty-rzp/{ico}', Sources::SERVICE_NRPZS => '/ekonomicke-subjekty-nrpzs/{ico}', Sources::SERVICE_RCNS => '/ekonomicke-subjekty-rcns/{ico}', Sources::SERVICE_RPSH => '/ekonomicke-subjekty-rpsh/{ico}', Sources::SERVICE_RS => '/ekonomicke-subjekty-rs/{ico}', Sources::SERVICE_SZR => '/ekonomicke-subjekty-szr/{ico}', Sources::SERVICE_CEU => '/ekonomicke-subjekty-ceu/{ico}', Sources::CORE => '/ekonomicke-subjekty/{ico}', Sources::DIAL => '/ciselniky-nazevniky/{ico}'];
+    public static $endpoints = [Sources::SERVICE_VR => '/ekonomicke-subjekty-vr/{ico}', Sources::SERVICE_RES => '/ekonomicke-subjekty-res/{ico}', Sources::SERVICE_RZP => '/ekonomicke-subjekty-rzp/{ico}', Sources::SERVICE_NRPZS => '/ekonomicke-subjekty-nrpzs/{ico}', Sources::SERVICE_RCNS => '/ekonomicke-subjekty-rcns/{ico}', Sources::SERVICE_RPSH => '/ekonomicke-subjekty-rpsh/{ico}', Sources::SERVICE_RS => '/ekonomicke-subjekty-rs/{ico}', Sources::SERVICE_SZR => '/ekonomicke-subjekty-szr/{ico}', Sources::SERVICE_ROS => '/ekonomicke-subjekty-ros/{ico}', Sources::SERVICE_CEU => '/ekonomicke-subjekty-ceu/{ico}', Sources::CORE => '/ekonomicke-subjekty/{ico}', Sources::DIAL => '/ciselniky-nazevniky/{ico}'];
     private const SERVICES = [Sources::SERVICE_VR => 'NEEXISTUJICI', Sources::SERVICE_RES => 'NEEXISTUJICI', Sources::SERVICE_RZP => 'NEEXISTUJICI', Sources::SERVICE_NRPZS => 'NEEXISTUJICI', Sources::SERVICE_RCNS => 'NEEXISTUJICI', Sources::SERVICE_RPSH => 'NEEXISTUJICI', Sources::SERVICE_RS => 'NEEXISTUJICI', Sources::SERVICE_SZR => 'NEEXISTUJICI', Sources::SERVICE_CEU => 'NEEXISTUJICI', Sources::SER_NO_DPH => 'NEEXISTUJICI', Sources::SER_NO_IR => 'NEEXISTUJICI', Sources::SER_NO_RED => 'NEEXISTUJICI', Sources::SER_NO_SD => 'NEEXISTUJICI'];
     public static function endpointExists(string $source): bool
     {
@@ -48,14 +48,14 @@ final class Helper
     {
         $map = [];
         foreach ($registrations as $k => $v) {
-            $map[$k] = ($v === 'AKTIVNI') ? \true : $v;
+            $map[$k] = $v === 'AKTIVNI' ? \true : $v;
         }
         return $map + self::SERVICES;
     }
     public static function houseNumber(string $cisloDomovni, string $cisloOrientacni, string $cisloOrientacniPismeno): ?string
     {
         $houseNumber = Strings::trimNull(trim($cisloDomovni . '/' . $cisloOrientacni, '/'));
-        $houseNumber = ($houseNumber === '0') ? null : $houseNumber;
+        $houseNumber = $houseNumber === '0' ? null : $houseNumber;
         $cisloOrientacniPismeno = Strings::trimNull($cisloOrientacniPismeno);
         if ($cisloOrientacniPismeno !== null) {
             $houseNumber .= $cisloOrientacniPismeno;

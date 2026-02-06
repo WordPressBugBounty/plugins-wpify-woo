@@ -48,9 +48,9 @@ final class RoundnessModule implements ModuleInterface
                     $currentPoint = $points[0];
                     $nextPoint = $points[1];
                 } else {
-                    $previousPoint = $points[((0 === $i) ? $length : $i) - 1];
+                    $previousPoint = $points[(0 === $i ? $length : $i) - 1];
                     $currentPoint = $points[$i];
-                    $nextPoint = $points[(($length - 1 === $i) ? -1 : $i) + 1];
+                    $nextPoint = $points[($length - 1 === $i ? -1 : $i) + 1];
                 }
                 $horizontal = $previousPoint[1] === $currentPoint[1];
                 if ($horizontal) {

@@ -65,7 +65,7 @@ abstract class ValidatorAbstract implements ValidatorInterface
         if ($checkVal % 11 == 10) {
             $weights = [3, 4, 5, 6, 7, 8, 9, 10];
             $checkVal = $this->sumWeights($weights, $vatNumber, $weightStart);
-            $checkVal = ($checkVal % 11 == 10) ? 0 : ($checkVal % 11);
+            $checkVal = $checkVal % 11 == 10 ? 0 : $checkVal % 11;
         } else {
             $checkVal = $checkVal % $restModulo;
         }

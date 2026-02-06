@@ -95,98 +95,139 @@ class ModulesManager {
 		}
 	}
 
+	/**
+	 * Get documentation URL for a module
+	 *
+	 * @param string $module_id Module ID.
+	 *
+	 * @return string
+	 */
+	private function get_module_documentation_url( string $module_id ): string {
+		// Map module ID to documentation path slug
+		$path_map = array(
+			'async_emails'             => 'async-emails',
+			'ic_dic'                   => 'ic-dic',
+			'heureka_overeno_zakazniky' => 'heureka-verified',
+			'heureka_mereni_konverzi'  => 'heureka-conversions',
+			'xml_feed_heureka'         => 'xml-feed-heureka',
+			'free_shipping_notice'     => 'free-shipping-notice',
+			'vocative'                 => 'vocative',
+			'qr_payment'               => 'qr-payment',
+			'sklik_retargeting'        => 'sklik-retargeting',
+			'zbozi_conversions_lite'   => 'zbozi-conversions',
+			'template'                 => 'template',
+			'email_attachments'        => 'email-attachments',
+			'prices'                   => 'prices',
+			'prices_log'               => 'prices-log',
+			'comments'                 => 'comments',
+			'delivery_dates'           => 'delivery-dates',
+		);
+
+		$slug   = $path_map[ $module_id ] ?? str_replace( '_', '-', $module_id );
+		$path   = 'wpify-woo/modules/' . $slug;
+		$domain = 'https://docs.wpify.cz/';
+
+		if ( in_array( get_locale(), array( 'cs_CZ', 'sk_SK' ), true ) ) {
+			$domain = 'https://docs.wpify.cz/cs/';
+		}
+
+		return esc_url( $domain . $path );
+	}
+
 	public function get_modules(): array {
-		$modules = array(
+		$modules_data = array(
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Async emails', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/asynchronni-odesilani-e-mailu/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Async emails', 'wpify-woo' ),
 				'value' => 'async_emails',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Checkout IČ and DIČ', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/ic-dic/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Checkout IČ and DIČ', 'wpify-woo' ),
 				'value' => 'ic_dic',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Heureka ověřeno zákazníky', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/heureka-overeno-zakazniky/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Heureka ověřeno zákazníky', 'wpify-woo' ),
 				'value' => 'heureka_overeno_zakazniky',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Heureka měření konverzí', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/heureka-mereni-konverzi/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Heureka měření konverzí', 'wpify-woo' ),
 				'value' => 'heureka_mereni_konverzi',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'XML Feed Heureka', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/xml-feed-heureka/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'XML Feed Heureka', 'wpify-woo' ),
 				'value' => 'xml_feed_heureka',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Free shipping notice', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/notifikace-pro-dopravu-zdarma/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Free shipping notice', 'wpify-woo' ),
 				'value' => 'free_shipping_notice',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Emails Vocative', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/paty-pad-v-e-mailech/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Emails Vocative', 'wpify-woo' ),
 				'value' => 'vocative',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'QR Payment', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/qr-platba/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'QR Payment', 'wpify-woo' ),
 				'value' => 'qr_payment',
 			),
 			array(
-				'label'    => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Sklik retargeting', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/sklik-retargeting/', __( 'Documentation', 'wpify-woo' ) ),
-				'title'    => __( 'Sklik retargeting', 'wpify-woo' ),
-				'doc_link' => 'https://wpify.io/dokumentace/wpify-woo/sklik-retargeting/',
-				'value'    => 'sklik_retargeting',
+				'title' => __( 'Sklik retargeting', 'wpify-woo' ),
+				'value' => 'sklik_retargeting',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Zbozi.cz/Sklik Conversions Limited', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/zbozi-sklik-konverze/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Zbozi.cz/Sklik Conversions Limited', 'wpify-woo' ),
 				'value' => 'zbozi_conversions_lite',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Template', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/sablona/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Template', 'wpify-woo' ),
 				'value' => 'template',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Email attachments', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/prilohy-emailu/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Email attachments', 'wpify-woo' ),
 				'value' => 'email_attachments',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Prices', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/ceny/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Prices', 'wpify-woo' ),
 				'value' => 'prices',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Prices log', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/historie-cen/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Prices log', 'wpify-woo' ),
 				'value' => 'prices_log',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Comments', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/komentare/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Comments', 'wpify-woo' ),
 				'value' => 'comments',
 			),
 			array(
-				'label' => sprintf( '<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>', __( 'Delivery dates', 'wpify-woo' ), 'https://wpify.io/dokumentace/wpify-woo/terminy-doruceni/', __( 'Documentation', 'wpify-woo' ) ),
 				'title' => __( 'Delivery dates', 'wpify-woo' ),
 				'value' => 'delivery_dates',
 			),
 		);
 
-		foreach ( $modules as $key => $module ) {
-			if ( $this->is_module_enabled( $module['value'] ) && property_exists( $this, $module['value'] ) ) {
-				/** @var AbstractModule $module_obj */
-				$module_obj = $this->get_module_by_id( $module['value'] );
+		$modules = array();
+		foreach ( $modules_data as $module_data ) {
+			$doc_url = $this->get_module_documentation_url( $module_data['value'] );
+			$label   = sprintf(
+				'<h3>%1$s</h3> <a href="%2$s" target="_blank">%3$s</a>',
+				$module_data['title'],
+				$doc_url,
+				__( 'Documentation', 'wpify-woo' )
+			);
 
-				$modules[ $key ]['label'] = sprintf( '%1$s <a href="%2$s" class="button">%3$s</a>', $module['label'], $module_obj->get_settings_url(), __( 'Settings', 'wpify-woo' ) );
+			if ( $this->is_module_enabled( $module_data['value'] ) && property_exists( $this, $module_data['value'] ) ) {
+				/** @var AbstractModule $module_obj */
+				$module_obj = $this->get_module_by_id( $module_data['value'] );
+				$label      = sprintf(
+					'%1$s <a href="%2$s" class="button">%3$s</a>',
+					$label,
+					$module_obj->get_settings_url(),
+					__( 'Settings', 'wpify-woo' )
+				);
 			}
+
+			$modules[] = array(
+				'label' => $label,
+				'title' => $module_data['title'],
+				'value' => $module_data['value'],
+			);
 		}
 
 		return $modules;

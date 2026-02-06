@@ -93,7 +93,7 @@ class ActionScheduler_Compatibility
             return;
         }
         // Whichever of $max_execution_time or $limit is higher is the amount by which we raise the time limit.
-        $raise_by = (0 === $limit || $limit > $max_execution_time) ? $limit : $max_execution_time;
+        $raise_by = 0 === $limit || $limit > $max_execution_time ? $limit : $max_execution_time;
         if (\function_exists('wc_set_time_limit')) {
             \wc_set_time_limit($raise_by);
         } elseif (\function_exists('set_time_limit') && \false === \strpos(\ini_get('disable_functions'), 'set_time_limit') && !\ini_get('safe_mode')) {

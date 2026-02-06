@@ -54,7 +54,7 @@ class PhpRequester implements IRequester
         } catch (RequesterException $e) {
             throw $e;
         } catch (\Exception $e) {
-            $result = empty($result) ? '' : (', result: ' . $result);
+            $result = empty($result) ? '' : ', result: ' . $result;
             $message = 'An error occurred during the transfer' . $result . "\n\n" . "Please consider installing cURL and it's PHP extension - it is recommended.";
             throw new RequesterException($message, null, $e);
         }

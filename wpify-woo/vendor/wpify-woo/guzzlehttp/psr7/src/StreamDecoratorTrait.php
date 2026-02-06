@@ -62,7 +62,7 @@ trait StreamDecoratorTrait
         $callable = [$this->stream, $method];
         $result = $callable(...$args);
         // Always return the wrapped object if the result is a return $this
-        return ($result === $this->stream) ? $this : $result;
+        return $result === $this->stream ? $this : $result;
     }
     public function close(): void
     {

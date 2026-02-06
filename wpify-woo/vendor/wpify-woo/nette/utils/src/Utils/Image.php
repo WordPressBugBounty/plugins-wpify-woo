@@ -191,9 +191,9 @@ class Image
      */
     public static function detectTypeFromFile(string $file, &$width = null, &$height = null): ?int
     {
-        [$width, $height, $type] = @getimagesize($file);
+        [$width, $height, $type] = Helpers::falseToNull(@getimagesize($file));
         // @ - files smaller than 12 bytes causes read error
-        return isset(self::Formats[$type]) ? $type : null;
+        return $type && isset(self::Formats[$type]) ? $type : null;
     }
     /**
      * Returns the type of image from string.
@@ -201,9 +201,9 @@ class Image
      */
     public static function detectTypeFromString(string $s, &$width = null, &$height = null): ?int
     {
-        [$width, $height, $type] = @getimagesizefromstring($s);
+        [$width, $height, $type] = Helpers::falseToNull(@getimagesizefromstring($s));
         // @ - strings smaller than 12 bytes causes read error
-        return isset(self::Formats[$type]) ? $type : null;
+        return $type && isset(self::Formats[$type]) ? $type : null;
     }
     /**
      * Returns the file extension for the given image type.
@@ -261,13 +261,13 @@ class Image
         self::ensureExtension();
         $flag = imagetypes();
         return array_filter([
-            ($flag & IMG_GIF) ? ImageType::GIF : null,
-            ($flag & IMG_JPG) ? ImageType::JPEG : null,
-            ($flag & IMG_PNG) ? ImageType::PNG : null,
-            ($flag & IMG_WEBP) ? ImageType::WEBP : null,
-            ($flag & 256) ? ImageType::AVIF : null,
+            $flag & IMG_GIF ? ImageType::GIF : null,
+            $flag & IMG_JPG ? ImageType::JPEG : null,
+            $flag & IMG_PNG ? ImageType::PNG : null,
+            $flag & IMG_WEBP ? ImageType::WEBP : null,
+            $flag & 256 ? ImageType::AVIF : null,
             // IMG_AVIF
-            ($flag & IMG_BMP) ? ImageType::BMP : null,
+            $flag & IMG_BMP ? ImageType::BMP : null,
         ]);
     }
     /**
@@ -326,7 +326,7 @@ class Image
             $this->image = $newImage;
         }
         if ($width < 0 || $height < 0) {
-            imageflip($this->image, ($width < 0) ? ($height < 0) ? IMG_FLIP_BOTH : IMG_FLIP_HORIZONTAL : IMG_FLIP_VERTICAL);
+            imageflip($this->image, $width < 0 ? $height < 0 ? IMG_FLIP_BOTH : IMG_FLIP_HORIZONTAL : IMG_FLIP_VERTICAL);
         }
         return $this;
     }
@@ -501,7 +501,7 @@ class Image
     public function rectangleWH(int $x, int $y, int $width, int $height, ImageColor $color): void
     {
         if ($width !== 0 && $height !== 0) {
-            $this->rectangle($x, $y, $x + $width + (($width > 0) ? -1 : 1), $y + $height + (($height > 0) ? -1 : 1), $color);
+            $this->rectangle($x, $y, $x + $width + ($width > 0 ? -1 : 1), $y + $height + ($height > 0 ? -1 : 1), $color);
         }
     }
     /**
@@ -510,7 +510,7 @@ class Image
     public function filledRectangleWH(int $x, int $y, int $width, int $height, ImageColor $color): void
     {
         if ($width !== 0 && $height !== 0) {
-            $this->filledRectangle($x, $y, $x + $width + (($width > 0) ? -1 : 1), $y + $height + (($height > 0) ? -1 : 1), $color);
+            $this->filledRectangle($x, $y, $x + $width + ($width > 0 ? -1 : 1), $y + $height + ($height > 0 ? -1 : 1), $color);
         }
     }
     /**
@@ -568,7 +568,7 @@ class Image
         };
         $args = [$this->image, $file];
         if ($defQuality !== null) {
-            $args[] = ($quality === null) ? $defQuality : max($min, min($max, $quality));
+            $args[] = $quality === null ? $defQuality : max($min, min($max, $quality));
         }
         Callback::invokeSafe('image' . self::Formats[$type], $args, function (string $message) use ($file): void {
             if ($file !== null) {
@@ -595,7 +595,7 @@ class Image
             }
         }
         $res = $function($this->image, ...$args);
-        return ($res instanceof \GdImage) ? $this->setImageResource($res) : $res;
+        return $res instanceof \GdImage ? $this->setImageResource($res) : $res;
     }
     public function __clone()
     {
@@ -623,7 +623,7 @@ class Image
     }
     public function resolveColor(ImageColor|array $color): int
     {
-        $color = ($color instanceof ImageColor) ? $color->toRGBA() : array_values($color);
+        $color = $color instanceof ImageColor ? $color->toRGBA() : array_values($color);
         return imagecolorallocatealpha($this->image, ...$color) ?: imagecolorresolvealpha($this->image, ...$color);
     }
     private static function ensureExtension(): void

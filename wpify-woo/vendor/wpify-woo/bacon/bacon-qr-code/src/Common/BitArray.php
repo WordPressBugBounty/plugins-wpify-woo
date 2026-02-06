@@ -93,7 +93,7 @@ final class BitArray
             $currentBits = $this->bits[$bitsOffset];
         }
         $result = ($bitsOffset << 5) + BitUtils::numberOfTrailingZeros($currentBits);
-        return ($result > $this->size) ? $this->size : $result;
+        return $result > $this->size ? $this->size : $result;
     }
     /**
      * Gets the next unset bit position from a given position.
@@ -114,7 +114,7 @@ final class BitArray
             $currentBits = ~$this->bits[$bitsOffset];
         }
         $result = ($bitsOffset << 5) + BitUtils::numberOfTrailingZeros($currentBits);
-        return ($result > $this->size) ? $this->size : $result;
+        return $result > $this->size ? $this->size : $result;
     }
     /**
      * Sets a bulk of bits.
@@ -140,8 +140,8 @@ final class BitArray
         $firstInt = $start >> 5;
         $lastInt = $end >> 5;
         for ($i = $firstInt; $i <= $lastInt; ++$i) {
-            $firstBit = ($i > $firstInt) ? 0 : ($start & 0x1f);
-            $lastBit = ($i < $lastInt) ? 31 : ($end & 0x1f);
+            $firstBit = $i > $firstInt ? 0 : $start & 0x1f;
+            $lastBit = $i < $lastInt ? 31 : $end & 0x1f;
             if (0 === $firstBit && 31 === $lastBit) {
                 $mask = 0x7fffffff;
             } else {
@@ -179,8 +179,8 @@ final class BitArray
         $firstInt = $start >> 5;
         $lastInt = $end >> 5;
         for ($i = $firstInt; $i <= $lastInt; ++$i) {
-            $firstBit = ($i > $firstInt) ? 0 : ($start & 0x1f);
-            $lastBit = ($i < $lastInt) ? 31 : ($end & 0x1f);
+            $firstBit = $i > $firstInt ? 0 : $start & 0x1f;
+            $lastBit = $i < $lastInt ? 31 : $end & 0x1f;
             if (0 === $firstBit && 31 === $lastBit) {
                 $mask = 0x7fffffff;
             } else {

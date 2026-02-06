@@ -78,7 +78,7 @@ final class FileSystem
     public static function delete(string $path): void
     {
         if (is_file($path) || is_link($path)) {
-            $func = (DIRECTORY_SEPARATOR === '\\' && is_dir($path)) ? 'rmdir' : 'unlink';
+            $func = DIRECTORY_SEPARATOR === '\\' && is_dir($path) ? 'rmdir' : 'unlink';
             if (!@$func($path)) {
                 // @ is escalated to exception
                 throw new Nette\IOException(sprintf("Unable to delete '%s'. %s", self::normalizePath($path), Helpers::getLastError()));
@@ -203,7 +203,7 @@ final class FileSystem
      */
     public static function normalizePath(string $path): string
     {
-        $parts = ($path === '') ? [] : preg_split('~[/\\\\]+~', $path);
+        $parts = $path === '' ? [] : preg_split('~[/\\\\]+~', $path);
         $res = [];
         foreach ($parts as $part) {
             if ($part === '..' && $res && end($res) !== '..' && end($res) !== '') {
@@ -212,7 +212,7 @@ final class FileSystem
                 $res[] = $part;
             }
         }
-        return ($res === ['']) ? DIRECTORY_SEPARATOR : implode(DIRECTORY_SEPARATOR, $res);
+        return $res === [''] ? DIRECTORY_SEPARATOR : implode(DIRECTORY_SEPARATOR, $res);
     }
     /**
      * Joins all segments of the path and normalizes the result.
@@ -244,7 +244,7 @@ final class FileSystem
      */
     public static function platformSlashes(string $path): string
     {
-        return (DIRECTORY_SEPARATOR === '/') ? strtr($path, '\\', '/') : str_replace(':\\\\', '://', strtr($path, '/', '\\'));
+        return DIRECTORY_SEPARATOR === '/' ? strtr($path, '\\', '/') : str_replace(':\\\\', '://', strtr($path, '/', '\\'));
         // protocol://
     }
 }

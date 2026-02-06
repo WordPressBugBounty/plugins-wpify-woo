@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\AsyncEmails;
 
+defined( 'ABSPATH' ) || exit;
+
 use WP_Error;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
@@ -50,12 +52,12 @@ class AsyncEmailsModule extends AbstractModule {
 	}
 
 	/**
-	 * Module documentation url
+	 * Module documentation path
 	 *
 	 * @return string
 	 */
-	public function get_documentation_url() {
-		return 'https://wpify.io/dokumentace/wpify-woo/asynchronni-odesilani-e-mailu/';
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/async-emails';
 	}
 
 	/**

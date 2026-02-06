@@ -1,6 +1,6 @@
 import {useDispatch, useSelect} from '@wordpress/data';
 import {createRoot} from 'react-dom/client';
-import {useEffect, useState} from "react";
+import {useEffect, useState, useRef} from "react";
 import {createPortal} from 'react-dom';
 
 const {CART_STORE_KEY, CHECKOUT_STORE_KEY, COLLECTIONS_STORE_KEY, VALIDATION_STORE_KEY} = window.wc.wcBlocksData;
@@ -54,8 +54,15 @@ const App = () => {
 	const {showValidationError, setValidationErrors, showAllValidationErrors} = useDispatch(VALIDATION_STORE_KEY);
 	const {setBillingAddress, setShippingAddress} = useDispatch(CART_STORE_KEY);
 
+	// Use ref to always have fresh additionalFields values in event handlers
+	const additionalFieldsRef = useRef(additionalFields);
+	const previousToggleRef = useRef(additionalFields?.['wpify/ic_dic_toggle']);
+
+	useEffect(() => {
+		additionalFieldsRef.current = additionalFields;
+	}, [additionalFields]);
+
 	const dicError = useValidationError('contact-wpify-dic');
-	console.log(dicError);
 	const companyFieldWrap = document.querySelector('.wc-block-components-address-form__wpify-company');
 	const icFieldWrap = document.querySelector('.wc-block-components-address-form__wpify-ic');
 	const dicFieldWrap = document.querySelector('.wc-block-components-address-form__wpify-dic');
@@ -77,25 +84,51 @@ const App = () => {
 			dicDphFieldWrap.style.display = 'none';
 		}
 
-		if (!additionalFields?.['wpify/ic_dic_toggle']) {
-			companyFieldWrap.style.display = 'none';
-			icFieldWrap.style.display = 'none';
-			dicFieldWrap.style.display = 'none';
+		const currentToggle = additionalFields?.['wpify/ic_dic_toggle'];
+		const previousToggle = previousToggleRef.current;
 
-			additionalFields['wpify/company'] = '';
-			additionalFields['wpify/ic'] = '';
-			additionalFields['wpify/dic'] = '';
-			additionalFields['wpify/dic-dph'] = '';
+		// Handle toggle change
+		if (currentToggle !== previousToggle) {
+			if (!currentToggle) {
+				// Toggle turned OFF - hide and clear all fields
+				companyFieldWrap.style.display = 'none';
+				icFieldWrap.style.display = 'none';
+				dicFieldWrap.style.display = 'none';
 
-			setAdditionalFields(additionalFields);
+				const currentFields = additionalFieldsRef.current;
+				setAdditionalFields({
+					...currentFields,
+					'wpify/company': '',
+					'wpify/ic': '',
+					'wpify/dic': '',
+					'wpify/dic-dph': ''
+				});
+			} else {
+				// Toggle turned ON - show fields and prefill company if available
+				companyFieldWrap.style.removeProperty('display');
+				icFieldWrap.style.removeProperty('display');
+				dicFieldWrap.style.removeProperty('display');
 
+				if (customer.billingAddress.company) {
+					const currentFields = additionalFieldsRef.current;
+					setAdditionalFields({
+						...currentFields,
+						'wpify/company': customer.billingAddress.company
+					});
+				}
+			}
+
+			previousToggleRef.current = currentToggle;
 		} else {
-			companyFieldWrap.style.removeProperty('display');
-			icFieldWrap.style.removeProperty('display');
-			dicFieldWrap.style.removeProperty('display');
-
-			if (customer.billingAddress.company) {
-				additionalFields['wpify/company'] = customer.billingAddress.company;
+			// Toggle didn't change, just update visibility
+			if (!currentToggle) {
+				companyFieldWrap.style.display = 'none';
+				icFieldWrap.style.display = 'none';
+				dicFieldWrap.style.display = 'none';
+			} else {
+				companyFieldWrap.style.removeProperty('display');
+				icFieldWrap.style.removeProperty('display');
+				dicFieldWrap.style.removeProperty('display');
 			}
 		}
 
@@ -142,14 +175,18 @@ const App = () => {
 		// Always reset VAT exempt on page load first
 		extensionCartUpdate({
 			namespace: 'wpify_ic_dic',
-			data: {validation: 'dic_cleared'}
+			data: {
+				validation: 'dic_cleared',
+				country: customer.billingAddress.country,
+				shipping_country: customer.shippingAddress.country
+			}
 		});
-		
+
 		// Then check if there are any DIC values on page load
 		const currentDic = customer.billingAddress.country === 'SK'
 			? additionalFields['wpify/dic-dph']
 			: additionalFields['wpify/dic'];
-			
+
 		if (currentDic && currentDic.trim() !== '') {
 			// DIC exists on page load - validate it after a short delay
 			setTimeout(() => {
@@ -162,6 +199,7 @@ const App = () => {
 						data: {
 							validation: 'passed',
 							country: customer.billingAddress.country,
+							shipping_country: customer.shippingAddress.country,
 							dic: currentDic
 						}
 					});
@@ -170,15 +208,12 @@ const App = () => {
 		}
 	}, []); // Run only once on component mount
 
-	// Clear validation errors and recalculate VAT exempt when country changes
+	// Clear validation errors and recalculate VAT exempt when billing or shipping country changes
 	useEffect(() => {
-		console.log('Country changed to:', customer.billingAddress.country);
-
 		// Clear ARES errors when switching away from Czech Republic
 		if (customer.billingAddress.country !== 'CZ') {
 			setAresError(null);
 			setAresStatus(null);
-			console.log('Cleared ARES error for non-Czech country');
 		}
 
 		// Clear VIES errors when country changes
@@ -199,13 +234,15 @@ const App = () => {
 		const currentDic = customer.billingAddress.country === 'SK'
 			? (updatedFields['wpify/dic-dph'] || '')
 			: (updatedFields['wpify/dic'] || '');
-		
+
 		// Reset VAT exempt on country change with current DIC state
+		// Include both billing and shipping country for PHP to determine which to use based on sale_type
 		extensionCartUpdate({
 			namespace: 'wpify_ic_dic',
 			data: {
 				validation: 'country_change',
 				country: customer.billingAddress.country,
+				shipping_country: customer.shippingAddress.country,
 				dic: currentDic
 			}
 		});
@@ -219,7 +256,7 @@ const App = () => {
 			}, 300);
 		}
 
-	}, [customer.billingAddress.country]);
+	}, [customer.billingAddress.country, customer.shippingAddress.country]);
 
 
 	useEffect(() => {
@@ -260,17 +297,19 @@ const App = () => {
 
 		const handleIcInputChange = (e) => {
 			clearTimeout(typingTimeout);
-			typingTimeout = setTimeout(() => {
-				const normalizedValue = normalizeIc(e.target.value);
-				e.target.value = normalizedValue;
-				additionalFields['wpify/ic'] = normalizedValue;
-				setAdditionalFields(additionalFields);
+			const inputValue = e.target.value; // Store value before setTimeout
+			const targetElement = e.target; // Store target element
 
-				console.log('IC field change:', {
-					country: customer.billingAddress.country,
-					value: normalizedValue,
-					willCallAres: customer.billingAddress.country === 'CZ'
-				});
+			typingTimeout = setTimeout(() => {
+				const normalizedValue = normalizeIc(inputValue);
+
+				// Update DOM to make normalization visible
+				targetElement.value = normalizedValue;
+
+				// Read fresh values from ref and update only IC field
+				const currentFields = additionalFieldsRef.current;
+				const newFields = {...currentFields, 'wpify/ic': normalizedValue};
+				setAdditionalFields(newFields);
 
 				// Only call ARES autofill for Czech companies and if ic_entered validation is enabled
 				if (customer.billingAddress.country === 'CZ') {
@@ -296,39 +335,100 @@ const App = () => {
 		};
 	}, [icField, customer.billingAddress.country]);
 
+	// Separate useEffect for DIC field - only updates 'wpify/dic'
 	useEffect(() => {
-		if (!dicField && !dicDphField) {
+		if (!dicField) {
 			return;
 		}
 
-		const activeField = customer.billingAddress.country === 'SK' ? dicDphField : dicField;
-		let typingTimeout;
+		let timeout;
 
-		const handleDicInputChange = (e) => {
-			clearTimeout(typingTimeout);
+		const handleInput = (e) => {
+			clearTimeout(timeout);
+			const inputValue = e.target.value; // Store value before setTimeout
+			const targetElement = e.target; // Store target element
 
-			typingTimeout = setTimeout(() => {
-				const normalizedValue = normalizeDic(e.target.value);
-				// Only validate if there's actually a meaningful value (at least country + some digits)
+			timeout = setTimeout(() => {
+				// For Slovakia: DIC is just a number, for others: has country prefix
+				const isSlovakia = customer.billingAddress.country === 'SK';
+				const normalizedValue = isSlovakia ? normalizeIc(inputValue) : normalizeDic(inputValue);
+
+				// Update DOM to make normalization visible
+				targetElement.value = normalizedValue;
+
+				// Read fresh values from ref and update only DIC field
+				const currentFields = additionalFieldsRef.current;
+				const newFields = {...currentFields, 'wpify/dic': normalizedValue};
+				setAdditionalFields(newFields);
+
+				// Only validate for non-Slovakia countries
+				if (!isSlovakia && normalizedValue && normalizedValue.length >= 4) {
+					validateDic(normalizedValue);
+				} else if (!normalizedValue || normalizedValue.length < 4) {
+					extensionCartUpdate({
+						namespace: 'wpify_ic_dic',
+						data: {
+							validation: 'dic_cleared',
+							country: customer.billingAddress.country,
+							shipping_country: customer.shippingAddress.country
+						}
+					});
+				}
+			}, 1500);
+		};
+
+		dicField.addEventListener('input', handleInput);
+		return () => {
+			clearTimeout(timeout);
+			dicField.removeEventListener('input', handleInput);
+		};
+	}, [dicField, customer.billingAddress.country]);
+
+	// Separate useEffect for DIC DPH field - only updates 'wpify/dic-dph'
+	useEffect(() => {
+		if (!dicDphField) {
+			return;
+		}
+
+		let timeout;
+
+		const handleInput = (e) => {
+			clearTimeout(timeout);
+			const inputValue = e.target.value; // Store value before setTimeout
+			const targetElement = e.target; // Store target element
+
+			timeout = setTimeout(() => {
+				const normalizedValue = normalizeDic(inputValue);
+
+				// Update DOM to make normalization visible
+				targetElement.value = normalizedValue;
+
+				// Read fresh values from ref and update only DIC DPH field
+				const currentFields = additionalFieldsRef.current;
+				const newFields = {...currentFields, 'wpify/dic-dph': normalizedValue};
+				setAdditionalFields(newFields);
+
 				if (normalizedValue && normalizedValue.length >= 4) {
 					validateDic(normalizedValue);
 				} else {
-					// DIC field is empty or too short - reset VAT exempt
 					extensionCartUpdate({
 						namespace: 'wpify_ic_dic',
-						data: {validation: 'dic_cleared'}
+						data: {
+							validation: 'dic_cleared',
+							country: customer.billingAddress.country,
+							shipping_country: customer.shippingAddress.country
+						}
 					});
 				}
-			}, 1500); // Reduced from 2000ms to 1500ms
+			}, 1500);
 		};
 
-		activeField?.addEventListener('input', handleDicInputChange);
-
+		dicDphField.addEventListener('input', handleInput);
 		return () => {
-			clearTimeout(typingTimeout);
-			activeField?.removeEventListener('input', handleDicInputChange);
+			clearTimeout(timeout);
+			dicDphField.removeEventListener('input', handleInput);
 		};
-	}, [dicField, dicDphField, customer.billingAddress.country]);
+	}, [dicDphField]);
 
 
 	function fetchJson(url, options) {
@@ -388,6 +488,7 @@ const App = () => {
 						data: {
 							validation: validation,
 							country: dicCountry,
+							shipping_country: customer.shippingAddress.country,
 							dic: dic
 						}
 					})
@@ -405,13 +506,14 @@ const App = () => {
 					// Final validation will happen server-side
 					setViesError(error);
 					setViesStatus('error');
-					
+
 					// Reset VAT exempt when VIES validation fails
 					extensionCartUpdate({
 						namespace: 'wpify_ic_dic',
 						data: {
 							validation: 'failed',
 							country: customer.billingAddress.country,
+							shipping_country: customer.shippingAddress.country,
 							dic: dic
 						}
 					});
@@ -431,14 +533,19 @@ const App = () => {
 		setAresError(null);
 		setAresStatus(null);
 		setIsAresLoading(true);
-		const ic = normalizeIc(additionalFields['wpify/ic']);
+		const ic = normalizeIc(additionalFieldsRef.current['wpify/ic']);
 		fetchJson(window.wpifyWooIcDic.restUrl + '/icdic?in=' + ic)
 			.then(({details = {}}) => {
-				additionalFields['wpify/company'] = details.billing_company;
-				additionalFields['wpify/ic'] = details.billing_ic;
-				additionalFields['wpify/dic'] = details.billing_dic;
+				// Read fresh values from ref and only update ARES fields
+				const currentFields = additionalFieldsRef.current;
+				const newFields = {
+					...currentFields,
+					'wpify/company': details.billing_company,
+					'wpify/ic': details.billing_ic,
+					'wpify/dic': details.billing_dic
+				};
 
-				setAdditionalFields(additionalFields);
+				setAdditionalFields(newFields);
 
 				// Only validate DIC if we have one and VIES validation is enabled
 				if (details.billing_dic && window.wpifyWooIcDic.validateVies) {
@@ -569,7 +676,7 @@ const App = () => {
 						aresButtonWrapper.className = 'wpify-ares-button-wrapper';
 						icFieldWrap.insertAdjacentElement('afterend', aresButtonWrapper);
 					}
-					
+
 					return createPortal(
 						<div style={{marginTop: '8px'}}>
 							<input type="button" className="button wp-element-button" onClick={() => autofillAres()}

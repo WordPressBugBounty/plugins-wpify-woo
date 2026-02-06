@@ -21,6 +21,6 @@ class StatusBusinessSubjectsTransformer
                 $address->castObce = rtrim($address->castObce);
             }
         }
-        return new Subject($exists, $data->{$attributes}->typSubjektu, $data->{$attributes}->dic, ($exists && $isVatPayer) ? $data->{$attributes}->nespolehlivyPlatce !== 'ANO' : null, $isVatPayer, $data->{$attributes}->cisloFu ?? '', $address);
+        return new Subject($exists, $data->{$attributes}->typSubjektu, $data->{$attributes}->dic, $exists && $isVatPayer ? $data->{$attributes}->nespolehlivyPlatce !== 'ANO' : null, $isVatPayer, $data->{$attributes}->cisloFu ?? '', $address);
     }
 }

@@ -183,7 +183,7 @@ final class ReedSolomonCodec
         $omega = clone $numRootsPlusOne;
         $root = clone $numRoots;
         $loc = clone $numRoots;
-        $numErasures = (null !== $erasures) ? count($erasures) : 0;
+        $numErasures = null !== $erasures ? count($erasures) : 0;
         // Form the Syndromes; i.e., evaluate data(x) at roots of g(x)
         $syndromes = SplFixedArray::fromArray(array_fill(0, $this->numRoots, $data[0]), \false);
         for ($i = 1; $i < $this->blockSize - $this->padding; ++$i) {
@@ -253,7 +253,7 @@ final class ReedSolomonCodec
             if (2 * $el <= $r + $numErasures - 1) {
                 $el = $r + $numErasures - $el;
                 for ($i = 0; $i <= $this->numRoots; ++$i) {
-                    $b[$i] = ($lambda[$i] === 0) ? $this->blockSize : $this->modNn($this->indexOf[$lambda[$i]] - $discrepancyR + $this->blockSize);
+                    $b[$i] = $lambda[$i] === 0 ? $this->blockSize : $this->modNn($this->indexOf[$lambda[$i]] - $discrepancyR + $this->blockSize);
                 }
             } else {
                 $tmp = $b->toArray();

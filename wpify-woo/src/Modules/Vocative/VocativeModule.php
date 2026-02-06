@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\Vocative;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWoo\WooCommerceIntegration;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
@@ -30,7 +32,17 @@ class VocativeModule extends AbstractModule {
 	}
 
 	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/vocative';
+	}
+
+	/**
 	 * Module settings
+	 *
 	 * @return array[]
 	 */
 	public function settings(): array {
@@ -54,8 +66,8 @@ class VocativeModule extends AbstractModule {
 				'label'   => __( 'Allowed languages', 'wpify-woo' ),
 				'desc'    => sprintf( __( 'Select languages where you want to use the vocative in emails. If you don`t select any language, the vocative will be used in all languages.',
 					'wpify-woo' ) ),
-				'options'      => function () {
-					return $this->woocommerce_integration->get_language_select();
+				'options'      => function ($args) {
+					return $this->woocommerce_integration->get_language_select($args);
 				},
 				'async'        => true,
 				'async_params' => array(

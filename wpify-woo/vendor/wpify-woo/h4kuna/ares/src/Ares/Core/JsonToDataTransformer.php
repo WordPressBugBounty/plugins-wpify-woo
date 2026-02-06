@@ -16,15 +16,16 @@ class JsonToDataTransformer
         $data->original = $json;
         $data->in = (string) $json->ico;
         $tinGroup = Strings::trimNull($json->dicSkDph ?? null);
-        $tinGroup = ($tinGroup === 'N/A') ? null : $tinGroup;
+        $tinGroup = $tinGroup === 'N/A' ? null : $tinGroup;
         $data->tin = Strings::trimNull($tinGroup ?? $json->dic ?? null);
         $data->sources = Helper::services((array) ($json->seznamRegistraci ?? []));
         $data->vat_payer = $data->sources[Sources::SER_NO_DPH] === \true;
         $data->company = Strings::trimNull($json->obchodniJmeno ?? null);
         self::resolveAddress($data, $json);
         $data->nace = (array) ($json->czNace ?? []);
-        $data->legal_form_code = (int) $json->pravniForma;
-        $data->is_person = Helper::isPerson($data->legal_form_code);
+        $data->legal_form_code = isset($json->pravniForma) ? (int) $json->pravniForma : null;
+        $data->legal_form_code_ros = isset($json->pravniFormaRos) ? (int) $json->pravniFormaRos : null;
+        $data->is_person = self::resolveIsPerson($data->legal_form_code, $data->legal_form_code_ros);
         $data->created = Strings::createDateTime($json->datumVzniku ?? null);
         $data->dissolved = Strings::createDateTime($json->datumZaniku ?? null);
         $data->active = $data->dissolved === null;
@@ -51,7 +52,7 @@ class JsonToDataTransformer
             $additionalData = isset($json->dalsiUdaje) ? self::prepareForAddress($json->dalsiUdaje) : [];
             if ($additionalData !== []) {
                 foreach (self::RegisterPriority as $register) {
-                    $key = self::keyForAddress($register, $json->pravniForma);
+                    $key = self::keyForAddress($register, $json);
                     if (isset($additionalData[$key])) {
                         $addressExists = self::updateAddress($data, $additionalData[$key]);
                         if ($addressExists === \true) {
@@ -80,19 +81,31 @@ class JsonToDataTransformer
     private static function prepareForAddress(array $dalsiUdaje): array
     {
         $out = [];
-        foreach ($dalsiUdaje as $record) {
-            $x = self::keyForAddress($record->datovyZdroj, $record->pravniForma);
-            foreach ($record->sidlo ?? [] as $sidlo) {
+        foreach ($dalsiUdaje as $json) {
+            $key = self::keyForAddress($json->datovyZdroj, $json);
+            foreach ($json->sidlo ?? [] as $sidlo) {
                 if ($sidlo?->primarniZaznam === \true && isset($sidlo->sidlo)) {
-                    $out[$x] = $sidlo->sidlo;
+                    $out[$key] = $sidlo->sidlo;
                     break;
                 }
             }
         }
         return $out;
     }
-    private static function keyForAddress(string $datovyZdroj, string $pravniForma): string
+    private static function keyForAddress(string $datovyZdroj, stdClass $json): string
     {
+        $pravniForma = $json->pravniForma ?? (isset($json->pravniFormaRos) ? $json->pravniFormaRos . 'ROS' : '0');
         return "{$datovyZdroj}|{$pravniForma}";
+    }
+    private static function resolveIsPerson(?int $pravniForma, ?int $pravniFormaRos): bool
+    {
+        if ($pravniForma === null && $pravniFormaRos === null) {
+            return \false;
+        } elseif ($pravniForma !== null && $pravniFormaRos !== null) {
+            return Helper::isPerson($pravniForma);
+        } elseif ($pravniForma !== null) {
+            return Helper::isPerson($pravniForma);
+        }
+        return Helper::isPerson($pravniFormaRos);
     }
 }

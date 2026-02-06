@@ -215,7 +215,7 @@ class System_Command
      */
     protected function get_action_status_date($status, $date_type = 'oldest')
     {
-        $order = ('oldest' === $date_type) ? 'ASC' : 'DESC';
+        $order = 'oldest' === $date_type ? 'ASC' : 'DESC';
         $args = array('status' => $status, 'per_page' => 1, 'order' => $order);
         $action = $this->store->query_actions($args);
         if (!empty($action)) {

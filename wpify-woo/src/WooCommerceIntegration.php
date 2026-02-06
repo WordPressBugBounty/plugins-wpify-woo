@@ -67,7 +67,8 @@ class WooCommerceIntegration {
 	 *
 	 * @return array
 	 */
-	public function get_shipping_methods_option(): array {
+	public function get_shipping_methods_option( array $args = [] ): array {
+		$search           = sanitize_title( $args['search'] ?? '' );
 		$shipping_methods = [];
 
 		foreach ( $this->get_all_zones() as $zone ) {
@@ -75,8 +76,16 @@ class WooCommerceIntegration {
 
 			foreach ( $zone['shipping_methods'] as $shipping ) {
 				/** @var $shipping \WC_Shipping_Flat_Rate */
+				$label = sprintf( '%s: %s', $name, $shipping->get_title() );
+
+				if ( ! empty( $search ) ) {
+					if ( strpos( sanitize_title( $label ), $search ) === false ) {
+						continue;
+					}
+				}
+
 				$shipping_methods[] = array(
-					'label' => sprintf( '%s: %s', $name, $shipping->get_title() ),
+					'label' => $label,
 					'value' => $shipping->get_rate_id(),
 				);
 			}
@@ -101,10 +110,17 @@ class WooCommerceIntegration {
 		return $shipping_methods;
 	}
 
-	public function get_gateways() {
+	public function get_gateways( array $args = [] ) {
+		$search             = sanitize_title( $args['search'] ?? '' );
 		$gateways           = array();
 		$available_gateways = WC()->payment_gateways()->payment_gateways();
 		foreach ( $available_gateways as $key => $gateway ) {
+			if ( ! empty( $search ) ) {
+				if ( strpos( sanitize_title( $gateway->title ), $search ) === false ) {
+					continue;
+				}
+			}
+
 			$gateways[] = array(
 				'label' => $gateway->title,
 				'value' => $key,
@@ -114,10 +130,17 @@ class WooCommerceIntegration {
 		return $gateways;
 	}
 
-	public function get_order_statuses() {
+	public function get_order_statuses( array $args = [] ) {
+		$search   = sanitize_title( $args['search'] ?? '' );
 		$statuses = wc_get_order_statuses();
 		$result   = [];
 		foreach ( $statuses as $id => $label ) {
+			if ( ! empty( $search ) ) {
+				if ( strpos( sanitize_title( $label ), $search ) === false ) {
+					continue;
+				}
+			}
+
 			$result[] = [
 				'label' => $label,
 				'value' => str_replace( 'wc-', '', $id ),
@@ -127,11 +150,19 @@ class WooCommerceIntegration {
 		return $result;
 	}
 
-	public function get_emails_select() {
+	public function get_emails_select( array $args = [] ) {
+		$search = sanitize_title( $args['search'] ?? '' );
 		$emails = [];
 		foreach ( WC()->mailer()->get_emails() as $wc_email ) {
+			$label = $wc_email->title . ' - ' . esc_html( $wc_email->is_customer_email() ? __( 'Customer', 'wpify-woo' ) : $wc_email->get_recipient() );
+			if ( ! empty( $search ) ) {
+				if ( strpos( sanitize_title( $label ), $search ) === false ) {
+					continue;
+				}
+			}
+
 			$emails[] = [
-				'label' => $wc_email->title . ' - ' . esc_html( $wc_email->is_customer_email() ? __( 'Customer', 'wpify-woo' ) : $wc_email->get_recipient() ),
+				'label' => $label,
 				'value' => $wc_email->id,
 			];
 		}
@@ -139,21 +170,57 @@ class WooCommerceIntegration {
 		return $emails;
 	}
 
-	public function get_countries_select() {
-		$countries = [];
-		foreach ( WC()->countries->get_allowed_countries() as $key => $val ) {
-			$countries[] = [
+	public function get_countries_select( array $args = [] ) {
+		$countries = WC()->countries->get_allowed_countries();
+		$search    = sanitize_title( $args['search'] ?? '' );
+		$options   = [];
+
+		foreach ( $countries as $key => $val ) {
+			if ( ! empty( $search ) ) {
+				if ( strpos( sanitize_title( $val ), $search ) === false ) {
+					continue;
+				}
+			}
+
+			$options[] = [
 				'label' => $val,
 				'value' => $key,
 			];
 		}
 
-		return $countries;
+		if ( isset( $args['qr_type'] ) && ! empty( $args['qr_type'] ) ) {
+			switch ( $args['qr_type'] ) {
+				case 'cz':
+					$options = array_filter( $options, function ( $country ) {
+						return $country['value'] == 'CZ';
+					} );
+					break;
+				case 'sk':
+					$options = array_filter( $options, function ( $country ) {
+						return $country['value'] == 'SK';
+					} );
+					break;
+				case 'hu':
+					$options = array_filter( $options, function ( $country ) {
+						return $country['value'] == 'HU';
+					} );
+					break;
+			};
+		}
+
+		return $options;
 	}
 
-	public function get_currencies_select() {
+	public function get_currencies_select( array $args = [] ) {
+		$search     = sanitize_title( $args['search'] ?? '' );
 		$currencies = [];
 		foreach ( get_woocommerce_currencies() as $key => $val ) {
+			if ( ! empty( $search ) ) {
+				if ( strpos( sanitize_title( $val ), $search ) === false ) {
+					continue;
+				}
+			}
+
 			$currencies[] = [
 				'label' => $val,
 				'value' => $key,
@@ -163,9 +230,16 @@ class WooCommerceIntegration {
 		return $currencies;
 	}
 
-	public function get_language_select() {
+	public function get_language_select( array $args = [] ) {
+		$search    = sanitize_title( $args['search'] ?? '' );
 		$languages = [];
 		foreach ( get_available_languages() as $val ) {
+			if ( ! empty( $search ) ) {
+				if ( strpos( sanitize_title( $val ), $search ) === false ) {
+					continue;
+				}
+			}
+
 			$languages[] = [
 				'label' => $val,
 				'value' => $val,

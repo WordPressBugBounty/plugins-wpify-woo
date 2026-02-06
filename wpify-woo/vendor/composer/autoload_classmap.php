@@ -29,6 +29,8 @@ return array(
     'WpifyWoo\\Modules\\HeurekaMereniKonverzi\\HeurekaMereniKonverziModule' => $baseDir . '/src/Modules/HeurekaMereniKonverzi/HeurekaMereniKonverziModule.php',
     'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\BlockSupport' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/BlockSupport.php',
     'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\HeurekaOverenoZakaznikyModule' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/HeurekaOverenoZakaznikyModule.php',
+    'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\HeurekaReviewModel' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/HeurekaReviewModel.php',
+    'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\HeurekaReviewRepository' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/HeurekaReviewRepository.php',
     'WpifyWoo\\Modules\\HeurekaOverenoZakazniky\\WpRequester' => $baseDir . '/src/Modules/HeurekaOverenoZakazniky/WpRequester.php',
     'WpifyWoo\\Modules\\IcDic\\Api\\IcDicApi' => $baseDir . '/src/Modules/IcDic/Api/IcDicApi.php',
     'WpifyWoo\\Modules\\IcDic\\BlockSupport' => $baseDir . '/src/Modules/IcDic/BlockSupport.php',

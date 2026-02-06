@@ -43,6 +43,6 @@ class ValidatorSE extends ValidatorAbstract
         for ($i = 1; $i < 10; $i++) {
             $checkVal += $this->crossSum((int) $vatNumber[9 - $i] * ($this->isEven($i) ? 1 : 2));
         }
-        return $checksum == (($checkVal % 10 == 0) ? 0 : (10 - $checkVal % 10));
+        return $checksum == ($checkVal % 10 == 0 ? 0 : 10 - $checkVal % 10);
     }
 }

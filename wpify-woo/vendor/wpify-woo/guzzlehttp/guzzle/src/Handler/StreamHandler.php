@@ -163,7 +163,7 @@ class StreamHandler
         // that number of bytes has been read. This can prevent infinitely
         // reading from a stream when dealing with servers that do not honor
         // Connection: Close headers.
-        Psr7\Utils::copyToStream($source, $sink, (\strlen($contentLength) > 0 && (int) $contentLength > 0) ? (int) $contentLength : -1);
+        Psr7\Utils::copyToStream($source, $sink, \strlen($contentLength) > 0 && (int) $contentLength > 0 ? (int) $contentLength : -1);
         $sink->seek(0);
         $source->close();
         return $sink;
@@ -251,9 +251,9 @@ class StreamHandler
         return $this->createResource(function () use ($uri, $contextResource, $context, $options, $request) {
             $resource = @\fopen((string) $uri, 'r', \false, $contextResource);
             // See https://wiki.php.net/rfc/deprecations_php_8_5#deprecate_the_http_response_header_predefined_variable
-            if (function_exists('WpifyWooDeps\http_get_last_response_headers')) {
+            if (function_exists('http_get_last_response_headers')) {
                 /** @var array|null */
-                $http_response_header = \WpifyWooDeps\http_get_last_response_headers();
+                $http_response_header = \http_get_last_response_headers();
             }
             $this->lastHeaders = $http_response_header ?? [];
             if (\false === $resource) {

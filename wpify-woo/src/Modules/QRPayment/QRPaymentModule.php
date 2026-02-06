@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\QRPayment;
 
+defined( 'ABSPATH' ) || exit;
+
 use DateTime;
 use Exception;
 use WC_Email;
@@ -11,12 +13,23 @@ use WpifyWoo\Plugin;
 use WpifyWoo\WooCommerceIntegration;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooDeps\Rikudou\CzQrPayment\Options\QrPaymentOptions;
+use WpifyWooDeps\rikudou\EuQrPayment\Sepa\CharacterSet as EuCharacterSet;
+use WpifyWooDeps\rikudou\EuQrPayment\Sepa\Purpose as EuPurpose;
+use WpifyWooDeps\hubipe\HuQrPayment\Enums\CharacterSet as HuCharacterSet;
+use WpifyWooDeps\hubipe\HuQrPayment\Enums\IdCode as HuIdCode;
+use WpifyWooDeps\hubipe\HuQrPayment\Enums\Purpose as HuPurpose;
 use WpifyWooDeps\Rikudou\CzQrPayment\QrPayment;
 use WpifyWooDeps\Rikudou\Iban\Iban\CzechIbanAdapter;
 use WpifyWooDeps\Rikudou\Iban\Iban\IBAN;
 use WpifyWooDeps\Wpify\Log\RotatingFileLog;
 
 class QRPaymentModule extends AbstractModule {
+	/**
+	 * QRPaymentModule constructor
+	 *
+	 * @param WooCommerceIntegration $woocommerce_integration WooCommerce integration instance
+	 * @param RotatingFileLog        $log                     Logger instance
+	 */
 	public function __construct(
 		private WooCommerceIntegration $woocommerce_integration,
 		private RotatingFileLog $log
@@ -35,8 +48,15 @@ class QRPaymentModule extends AbstractModule {
 
 		$email_position_hook = $this->get_setting( 'email_position' ) ?: 'woocommerce_email_before_order_table';
 		add_action( $email_position_hook, [ $this, 'display_qr_code_in_email' ], 20, 4 );
+
+		add_action( 'wpo_wcpdf_after_order_details', array( $this, 'display_qr_code_in_wcpdf' ), 10, 2 );
 	}
 
+	/**
+	 * Display QR code on thank you page based on position setting
+	 *
+	 * @return void
+	 */
 	public function display_qr_code_on_thankyou() {
 		if ( is_checkout() && ! empty( is_wc_endpoint_url( 'order-received' ) ) ) {
 			$position = $this->get_setting( 'thankyou_position' );
@@ -73,8 +93,22 @@ class QRPaymentModule extends AbstractModule {
 		return __( 'QR Payment', 'wpify-woo' );
 	}
 
+	/**
+	 * Plugin slug
+	 *
+	 * @return string
+	 */
 	public function plugin_slug(): string {
 		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/qr-payment';
 	}
 
 	/**
@@ -96,8 +130,8 @@ class QRPaymentModule extends AbstractModule {
 						'id'           => 'payment_method',
 						'type'         => 'select',
 						'label'        => __( 'Payment method', 'wpify-woo' ),
-						'options'      => function () {
-							return $this->woocommerce_integration->get_gateways();
+						'options'      => function ( $args ) {
+							return $this->woocommerce_integration->get_gateways( $args );
 						},
 						'async'        => true,
 						'async_params' => array(
@@ -110,8 +144,8 @@ class QRPaymentModule extends AbstractModule {
 						'id'           => 'enabled_emails',
 						'type'         => 'multi_select',
 						'label'        => __( 'Show in emails', 'wpify-woo' ),
-						'options'      => function () {
-							return $this->woocommerce_integration->get_emails_select();
+						'options'      => function ( $args ) {
+							return $this->woocommerce_integration->get_emails_select( $args );
 						},
 						'async'        => true,
 						'async_params' => array(
@@ -129,41 +163,11 @@ class QRPaymentModule extends AbstractModule {
 						),
 						'items'   => [
 							[
-								'id'    => 'number',
-								'type'  => 'text',
-								'label' => __( 'Account number', 'wpify-woo' ),
-							],
-							[
-								'id'    => 'bank_code',
-								'type'  => 'text',
-								'label' => __( 'Bank Code', 'wpify-woo' ),
-							],
-							[
-								'id'    => 'iban',
-								'type'  => 'text',
-								'label' => __( 'IBAN - required for SK payments', 'wpify-woo' ),
-							],
-							[
-								'id'      => 'type',
-								'type'    => 'select',
-								'label'   => __( 'QR Type', 'wpify-woo' ),
-								'options' => [
-									[
-										'label' => 'CZ - QR Platba',
-										'value' => 'cz',
-									],
-									[
-										'label' => 'SK - Pay BY Square',
-										'value' => 'sk',
-									],
-								],
-							],
-							[
-								'id'           => 'enabled_currencies',
-								'type'         => 'multi_select',
-								'label'        => __( 'Enabled currencies', 'wpify-woo' ),
-								'options'      => function () {
-									return $this->woocommerce_integration->get_currencies_select();
+								'id'           => 'source',
+								'type'         => 'select',
+								'label'        => __( 'Account data source', 'wpify-woo' ),
+								'options'      => function ( $args ) {
+									return $this->get_bacs_accounts_options();
 								},
 								'async'        => true,
 								'async_params' => array(
@@ -171,19 +175,116 @@ class QRPaymentModule extends AbstractModule {
 									'section'   => $this->id(),
 									'module_id' => $this->id(),
 								),
+								'default'      => '',
+							],
+							[
+								'id'         => 'iban',
+								'type'       => 'text',
+								'label'      => __( 'IBAN', 'wpify-woo' ),
+								'conditions' => array(
+									array(
+										'field'     => '#.source',
+										'condition' => 'empty'
+									),
+								),
+							],
+							[
+								'id'         => 'number',
+								'type'       => 'text',
+								'label'      => __( 'Account number (CZ only)', 'wpify-woo' ),
+								'conditions' => array(
+									array(
+										'field'     => '#.source',
+										'condition' => 'empty'
+									),
+								),
+							],
+							[
+								'id'         => 'bank_code',
+								'type'       => 'text',
+								'label'      => __( 'Bank Code (CZ only)', 'wpify-woo' ),
+								'conditions' => array(
+									array(
+										'field'     => '#.source',
+										'condition' => 'empty'
+									),
+								),
+							],
+							[
+								'id'         => 'bic',
+								'type'       => 'text',
+								'label'      => __( 'BIC (SWIFT)', 'wpify-woo' ),
+								'conditions' => array(
+									array(
+										'field'     => '#.source',
+										'condition' => 'empty'
+									),
+								),
+							],
+							[
+								'id'          => 'recipient_name',
+								'type'        => 'text',
+								'label'       => __( 'Recipient name', 'wpify-woo' ),
+								'description' => __( 'Full name of the account owner or company business name.', 'wpify-woo' ),
+							],
+							[
+								'id'       => 'type',
+								'type'     => 'select',
+								'label'    => __( 'QR Type', 'wpify-woo' ),
+								'required' => true,
+								'default'  => 'auto',
+								'options'  => [
+									[
+										'label' => __( 'Auto detect by order', 'wpify-woo' ),
+										'value' => 'auto',
+									],
+									[
+										'label' => 'QR Platba – CZ + CZK',
+										'value' => 'cz',
+									],
+									[
+										'label' => 'Pay BY Square – SK + EUR',
+										'value' => 'sk',
+									],
+									[
+										'label' => 'Hungary standard – HU + HUF',
+										'value' => 'hu',
+									],
+									[
+										'label' => 'EPC standard (SEPA) – DE, NL, AT, BE, FI + EUR',
+										'value' => 'epc',
+									],
+								],
+							],
+							[
+								'id'         => 'enabled_currencies',
+								'type'       => 'multi_select',
+								'label'      => __( 'Enabled currencies', 'wpify-woo' ),
+								'options'    => [
+									[ 'label' => 'CZK', 'value' => 'CZK' ],
+									[ 'label' => 'EUR', 'value' => 'EUR' ],
+									[ 'label' => 'HUF', 'value' => 'HUF' ],
+								],
+								'conditions' => array(
+									array(
+										'field' => '#.type',
+										'value' => 'auto'
+									),
+								),
 							],
 							[
 								'id'           => 'enabled_countries',
 								'type'         => 'multi_select',
 								'label'        => __( 'Enabled countries', 'wpify-woo' ),
-								'options'      => function () {
-									return $this->woocommerce_integration->get_countries_select();
+								'options'      => function ( $args ) {
+									return $this->woocommerce_integration->get_countries_select( $args );
 								},
 								'async'        => true,
 								'async_params' => array(
 									'tab'       => 'wpify-woo-settings',
 									'section'   => $this->id(),
 									'module_id' => $this->id(),
+									'qr_type'   => '{{#.type}}'
 								),
 							],
 							[
@@ -263,7 +364,7 @@ class QRPaymentModule extends AbstractModule {
 				'id'    => 'compatibility_mode',
 				'label' => __( 'Compatibility mode', 'wpify-woo' ),
 				'desc'  => __( 'The SK version requires XZ utils (https://tukaani.org/xz/). If your serevr does not support this, you can enable the compatibility mode, in which the QR code will be generated using the external API QR-Platba.cz and QRGenerator.sk. This is not recommended for performance reasons, as an unnecessary API call is done on thankyou page.',
-					'wpify-woo' ),
+						'wpify-woo' ) . __( 'Only for CZ and SK QR standards.', 'wpify-woo' ),
 				'type'  => 'toggle',
 			],
 			[
@@ -274,6 +375,15 @@ class QRPaymentModule extends AbstractModule {
 			],
 
 		);
+
+		if ( function_exists( 'wcpdf_get_document' ) ) {
+			$settings[] = [
+				'id'    => 'in_wcpdf',
+				'label' => __( 'Insert into WCPDF invoice', 'wpify-woo' ),
+				'desc'  => __( 'Insert QR payment into PDF Invoices from PDF Invoices & Packing Slips for WooCommerce plugin.', 'wpify-woo' ),
+				'type'  => 'toggle',
+			];
+		}
 
 		return $settings;
 	}
@@ -302,6 +412,7 @@ class QRPaymentModule extends AbstractModule {
 		}
 
 		$payment_details = [
+			'order'          => $order->get_order_number(),
 			'total'          => $order->get_total(),
 			'vs'             => preg_replace( '/[^0-9]/', '', $order->get_order_number() ),
 			'currency'       => $order->get_currency(),
@@ -309,7 +420,9 @@ class QRPaymentModule extends AbstractModule {
 			'account_number' => $account['number'] ?? '',
 			'bank_code'      => $account['bank_code'] ?? '',
 			'iban'           => isset( $account['iban'] ) ? str_replace( ' ', '', $account['iban'] ) : '',
+			'bic'            => isset( $account['bic'] ) ? str_replace( ' ', '', $account['bic'] ) : '',
 			'note'           => $note_text,
+			'recipient_name' => $account['recipient_name'] ?? '',
 		];
 
 		/**
@@ -320,59 +433,7 @@ class QRPaymentModule extends AbstractModule {
 		 */
 		$payment_details = apply_filters( 'wpify_woo_qr_payment_details', $payment_details, $order );
 
-		if ( ! $this->get_setting( 'compatibility_mode' ) ) {
-			if ( 'cz' === $account['type'] ) {
-				$payment = new QrPayment( new CzechIbanAdapter( $payment_details['account_number'], $payment_details['bank_code'] ), [
-					QrPaymentOptions::VARIABLE_SYMBOL => $payment_details['vs'],
-					QrPaymentOptions::AMOUNT          => $payment_details['total'],
-					QrPaymentOptions::CURRENCY        => $payment_details['currency'],
-					QrPaymentOptions::DUE_DATE        => new DateTime( $payment_details['due_date'] ),
-					QrPaymentOptions::COMMENT         => $payment_details['note'],
-				] );
-				try {
-					$qrCode = $payment->getQrCode()->getDataUri();
-				} catch ( Exception $e ) {
-					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
-						array(
-							'data' => array(
-								'order_id'        => $order->get_id(),
-								'message'         => $e->getMessage(),
-								'payment_details' => $payment_details,
-							),
-						)
-					);
-
-					return new WP_Error( 'error', 'QR ERROR: ' . $e->getMessage() );
-				}
-			} elseif ( 'sk' === $account['type'] ) {
-				$payment = new \WpifyWooDeps\rikudou\SkQrPayment\QrPayment();
-				$payment->setOptions( [
-					QrPaymentOptions::AMOUNT                                          => $payment_details['total'],
-					QrPaymentOptions::CURRENCY                                        => $payment_details['currency'],
-					QrPaymentOptions::DUE_DATE                                        => new DateTime( $payment_details['due_date'] ),
-					QrPaymentOptions::VARIABLE_SYMBOL                                 => $payment_details['vs'],
-					QrPaymentOptions::COMMENT                                         => $payment_details['note'],
-					\WpifyWooDeps\rikudou\SkQrPayment\Payment\QrPaymentOptions::IBANS => [
-						new IBAN( $payment_details['iban'] ),
-					],
-				] );
-				try {
-					$qrCode = $payment->getQrCode()->getDataUri();
-				} catch ( Exception $e ) {
-					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
-						array(
-							'data' => array(
-								'order_id'        => $order->get_id(),
-								'message'         => $e->getMessage(),
-								'payment_details' => $payment_details,
-							),
-						)
-					);
-
-					return new WP_Error( 'error', 'QR ERROR: ' . $e->getMessage() );
-				}
-			}
-		} else {
+		if ( $this->get_setting( 'compatibility_mode' ) && in_array( $account['type'], [ 'cz', 'sk' ], true ) ) {
 			if ( 'cz' === $account['type'] ) {
 				$account_prefix = '';
 				$account_number = $payment_details['account_number'];
@@ -394,17 +455,133 @@ class QRPaymentModule extends AbstractModule {
 				$qrCode = "data:image/png;base64,{$qrCode}";
 			} elseif ( 'sk' === $account['type'] ) {
 				$url    = add_query_arg( [
-					'currency'     => (string) $payment_details['currency'],
-					'iban'         => (string) $payment_details['iban'],
-					'bankCode'     => str_pad( (int) $payment_details['bank_code'], 4, '0', STR_PAD_LEFT ),
-					'amount'       => floatval( $payment_details['total'] ),
-					'vs'           => (int) $payment_details['vs'],
-					'payment_note' => (string) $payment_details['note'],
-					'format'       => 'png',
-					'size'         => 256,
+					'currency'         => (string) $payment_details['currency'],
+					'iban'             => (string) $payment_details['iban'],
+					'bankCode'         => str_pad( (int) $payment_details['bank_code'], 4, '0', STR_PAD_LEFT ),
+					'amount'           => floatval( $payment_details['total'] ),
+					'vs'               => (int) $payment_details['vs'],
+					'payment_note'     => (string) $payment_details['note'],
+					'beneficiary_name' => (string) $payment_details['recipient_name'],
+					'format'           => 'png',
+					'size'             => 256,
 				], 'https://api.qrgenerator.sk/by-square/pay/base64' );
 				$qrCode = json_decode( wp_remote_retrieve_body( wp_remote_get( $url ) ) );
 				$qrCode = "data:{$qrCode->mime};base64,{$qrCode->data}";
+			}
+		} else {
+			if ( 'cz' === $account['type'] ) {
+				try {
+					$iban    = $payment_details['iban'] ? new IBAN( $payment_details['iban'] ) : new CzechIbanAdapter( $payment_details['account_number'], $payment_details['bank_code'] );
+					$payment = new QrPayment( $iban, [
+						QrPaymentOptions::VARIABLE_SYMBOL => $payment_details['vs'],
+						QrPaymentOptions::AMOUNT          => $payment_details['total'],
+						QrPaymentOptions::CURRENCY        => $payment_details['currency'],
+						QrPaymentOptions::DUE_DATE        => new DateTime( $payment_details['due_date'] ),
+						QrPaymentOptions::COMMENT         => $payment_details['note'],
+						QrPaymentOptions::PAYEE_NAME      => $payment_details['recipient_name'],
+					] );
+					$qrCode  = $payment->getQrCode()->getDataUri();
+				} catch ( Exception $e ) {
+					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
+						array(
+							'data' => array(
+								'order_id'        => $order->get_id(),
+								'message'         => $e->getMessage(),
+								'payment_details' => $payment_details,
+							),
+						)
+					);
+
+					return new WP_Error( 'error', 'QR ERROR: ' . $e->getMessage() );
+				}
+			} elseif ( 'sk' === $account['type'] ) {
+				try {
+					$payment = new \WpifyWooDeps\rikudou\SkQrPayment\QrPayment();
+					$payment->setOptions( [
+						QrPaymentOptions::AMOUNT                                          => $payment_details['total'],
+						QrPaymentOptions::CURRENCY                                        => $payment_details['currency'],
+						QrPaymentOptions::DUE_DATE                                        => new DateTime( $payment_details['due_date'] ),
+						QrPaymentOptions::VARIABLE_SYMBOL                                 => $payment_details['vs'],
+						QrPaymentOptions::COMMENT                                         => $payment_details['note'],
+						QrPaymentOptions::PAYEE_NAME                                      => $payment_details['recipient_name'],
+						\WpifyWooDeps\rikudou\SkQrPayment\Payment\QrPaymentOptions::IBANS => [
+							new IBAN( $payment_details['iban'] ),
+						],
+					] );
+					$qrCode = $payment->getQrCode()->getDataUri();
+				} catch ( Exception $e ) {
+					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
+						array(
+							'data' => array(
+								'order_id'        => $order->get_id(),
+								'message'         => $e->getMessage(),
+								'payment_details' => $payment_details,
+							),
+						)
+					);
+
+					return new WP_Error( 'error', 'QR ERROR: ' . $e->getMessage() );
+				}
+			} elseif ( 'hu' === $account['type'] ) {
+				try {
+					$iban    = new IBAN( $payment_details['iban'] );
+					$payment = new \WpifyWooDeps\hubipe\HuQrPayment\QrPayment( $iban );
+
+					$payment
+						->setIdCode( HuIdCode::TRANSFER_ORDER )
+						->setCharacterSet( HuCharacterSet::UTF_8 )
+						->setName( $payment_details['recipient_name'] )
+						->setBic( $payment_details['bic'] )
+						->setAmount( floatval( $payment_details['total'] ) )
+						->setCurrency( $payment_details['currency'] )
+						->setDueDate( new DateTime( $payment_details['due_date'] ) )
+						->setPaymentSituationIdentifier( HuPurpose::PURCHASE_SALE_OF_GOODS )
+						->setPayeeInternalId( $payment_details['vs'] )
+						->setRemittance( $payment_details['note'] );
+
+
+					$qrCode = $payment->getQrCode()->getDataUri();
+				} catch ( Exception $e ) {
+					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
+						array(
+							'data' => array(
+								'order_id'        => $order->get_id(),
+								'message'         => $e->getMessage(),
+								'payment_details' => $payment_details,
+							),
+						)
+					);
+
+					return new WP_Error( 'error', 'QR ERROR: ' . $e->getMessage() );
+				}
+			} elseif ( 'epc' === $account['type'] ) {
+				try {
+					$payment = new \WpifyWooDeps\rikudou\EuQrPayment\QrPayment( $payment_details['iban'] );
+
+					$payment
+						->setCharacterSet( EuCharacterSet::UTF_8 )
+						->setBic( $payment_details['bic'] )
+						->setBeneficiaryName( $payment_details['recipient_name'] )
+						->setAmount( $payment_details['total'] )
+						->setPurpose( EuPurpose::ACCOUNT_MANAGEMENT )
+						->setCreditorReference( $payment_details['vs'] )
+						->setInformation( $payment_details['note'] )
+						->setCurrency( $payment_details['currency'] );
+
+					$qrCode = $payment->getQrCode()->getDataUri();
+				} catch ( Exception $e ) {
+					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
+						array(
+							'data' => array(
+								'order_id'        => $order->get_id(),
+								'message'         => $e->getMessage(),
+								'payment_details' => $payment_details,
+							),
+						)
+					);
+
+					return new WP_Error( 'error', 'QR ERROR: ' . $e->getMessage() );
+				}
 			}
 		}
 
@@ -432,16 +609,21 @@ class QRPaymentModule extends AbstractModule {
 	 * Display QR code
 	 *
 	 * @param int|WC_Order $order
+	 * @param array        $qr_method
 	 *
 	 * @return void|WP_Error|null
 	 * @throws Exception
 	 */
-	public function display_qr_code( $order ) {
+	public function display_qr_code( $order, $qr_method = [] ) {
 		if ( is_numeric( $order ) ) {
 			$order = wc_get_order( $order );
 		}
 
-		$payment_methods = $this->get_setting( 'payment_methods' );
+		if ( $qr_method ) {
+			$payment_methods = [ $qr_method ];
+		} else {
+			$payment_methods = $this->get_setting( 'payment_methods' );
+		}
 
 		if ( ! is_array( $payment_methods ) || empty( $payment_methods ) ) {
 			return null;
@@ -458,7 +640,7 @@ class QRPaymentModule extends AbstractModule {
 			}
 
 			foreach ( $item['accounts'] as $account ) {
-				if ( ! empty( $account['enabled_currencies'] ) && ! in_array( $currency, $account['enabled_currencies'] ) ) {
+				if ( 'auto' === $account['type'] && ! empty( $account['enabled_currencies'] ) && ! in_array( $currency, $account['enabled_currencies'] ) ) {
 					continue;
 				}
 				$enabled_countries = ! empty( $account['enabled_countries'] ) ? $account['enabled_countries'] : array_keys( WC()->countries->get_allowed_countries() );
@@ -484,6 +666,12 @@ class QRPaymentModule extends AbstractModule {
 			 * @param array    $account bank account data
 			 */
 			if ( apply_filters( 'wpify_woo_skip_qr_payment', false, $order, $account ) ) {
+				continue;
+			}
+
+			$account = $this->validate_account_data( $account, $order );
+
+			if ( is_wp_error( $account ) ) {
 				continue;
 			}
 
@@ -530,6 +718,7 @@ class QRPaymentModule extends AbstractModule {
 			$title_before = str_replace( array_keys( $replaces ), array_values( $replaces ), $this->get_setting( 'title_before' ) );
 			$title_after  = str_replace( array_keys( $replaces ), array_values( $replaces ), $this->get_setting( 'title_after' ) );
 
+			echo '<style>.wpify-woo-qr-payment_code {max-width: 120px;}</style>';
 			echo '<div class="wpify-woo-qr-payment">';
 			echo sprintf( '<div class="wpify-woo-qr-payment_title-before">%s</div>', $title_before );
 			foreach ( $qrCodes as $qrKey => $qrCode ) {
@@ -585,7 +774,7 @@ class QRPaymentModule extends AbstractModule {
 				continue;
 			}
 
-			$this->display_qr_code( $order );
+			$this->display_qr_code( $order, $item );
 		}
 	}
 
@@ -640,5 +829,136 @@ class QRPaymentModule extends AbstractModule {
 		$this->display_qr_code( $order_id );
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Validate and prepare account data for QR code generation
+	 *
+	 * @param array    $account Account configuration data
+	 * @param WC_Order $order   WooCommerce order object
+	 *
+	 * @return array|WP_Error Validated account data or WP_Error on failure
+	 */
+	public function validate_account_data( $account, $order ) {
+		$country  = $order->get_billing_country();
+		$currency = $order->get_currency();
+
+		if ( 'auto' === $account['type'] ) {
+			if ( 'CZ' === $country ) {
+				$account['type'] = 'cz';
+			} elseif ( 'SK' === $country ) {
+				$account['type'] = 'sk';
+			} elseif ( 'HU' === $country ) {
+				$account['type'] = 'hu';
+			} else {
+				$account['type'] = 'epc';
+			}
+		}
+
+		if (
+			( 'cz' === $account['type'] && 'CZK' !== $currency ) ||
+			( 'sk' === $account['type'] && 'EUR' !== $currency ) ||
+			( 'hu' === $account['type'] && 'HUF' !== $currency ) ||
+			( 'epc' === $account['type'] && 'EUR' !== $currency )
+		) {
+			$message = __( 'QR payment: Unsupported currency for QR standard.', 'wpify-woo' );
+			$this->log->error( sprintf( $message ),
+				array(
+					'data' => array(
+						'order_id' => $order->get_id(),
+						'country'  => $country,
+						'standard' => $account['type'],
+						'currency' => $currency,
+					),
+				)
+			);
+
+			return new WP_Error( 'error', $message );
+		}
+
+		$source = $account['source'] ?? '';
+		if ( ! empty( $source ) || '0' == $source ) {
+			$bacs_data = $this->get_bacs_account_data( $source );
+
+			if ( ! empty( $bacs_data ) ) {
+
+				if ( ! empty( $bacs_data['account_number'] ) ) {
+					$numbers              = explode( '/', $bacs_data['account_number'] );
+					$account['number']    = $numbers[0] ?: '';
+					$account['bank_code'] = $numbers[1] ?: '';
+				}
+
+				if ( ! empty( $bacs_data['iban'] ) ) {
+					$account['iban'] = $bacs_data['iban'];
+				}
+
+				if ( ! empty( $bacs_data['bic'] ) ) {
+					$account['bic'] = $bacs_data['bic'];
+				}
+
+				if ( ! empty( $bacs_data['account_name'] ) ) {
+					$account['recipient_name'] = $account['recipient_name'] ?: $bacs_data['account_name'];
+				}
+
+			}
+		}
+
+		return apply_filters( 'wpify_woo_qr_account_data', $account, $order );
+	}
+
+	/**
+	 * Display QR code in WCPDF invoices
+	 *
+	 * @param string   $invoice_type Type of WCPDF document
+	 * @param WC_Order $order        WooCommerce order object
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function display_qr_code_in_wcpdf( $invoice_type, $order ) {
+		$render = $this->get_setting( 'in_wcpdf' ) ?: false;
+
+		if ( 'invoice' !== $invoice_type || ! $render ) {
+			return;
+		}
+
+		$this->display_qr_code( $order );
+	}
+
+	/**
+	 * Get BACS account data by key
+	 *
+	 * @param int|string $key Account index from BACS settings
+	 *
+	 * @return array|null Account data or null if not found
+	 */
+	public function get_bacs_account_data( $key ) {
+		$bacs_accounts_info = get_option( 'woocommerce_bacs_accounts' );
+
+		return $bacs_accounts_info[ $key ] ?: null;
+	}
+
+	/**
+	 * Get BACS accounts as select options for settings
+	 *
+	 * @return array[] Array of options with value and label keys
+	 */
+	public function get_bacs_accounts_options() {
+		$bacs_accounts_info = get_option( 'woocommerce_bacs_accounts' );
+		$options            = [
+			[
+				'value' => '',
+				'label' => __( 'Manual', 'wpify-woo' ),
+			]
+		];
+		foreach ( $bacs_accounts_info as $key => $value ) {
+			$options[] = [
+				'value' => $key,
+				'label' => $value['account_name']
+			];
+		}
+
+		return $options;
+
 	}
 }

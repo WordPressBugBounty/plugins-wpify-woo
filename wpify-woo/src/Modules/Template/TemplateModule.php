@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\Template;
 
+defined( 'ABSPATH' ) || exit;
+
 use WP_Error;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
@@ -30,6 +32,15 @@ class TemplateModule extends AbstractModule {
 
 	public function plugin_slug(): string {
 		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/template';
 	}
 
 	/**

@@ -104,7 +104,7 @@ class Promise implements PromiseInterface
             if ($state === $this->state && $value === $this->result) {
                 return;
             }
-            throw ($this->state === $state) ? new \LogicException("The promise is already {$state}.") : new \LogicException("Cannot change a {$this->state} promise to {$state}");
+            throw $this->state === $state ? new \LogicException("The promise is already {$state}.") : new \LogicException("Cannot change a {$this->state} promise to {$state}");
         }
         if ($value === $this) {
             throw new \LogicException('Cannot fulfill or reject a promise with itself');
@@ -122,7 +122,7 @@ class Promise implements PromiseInterface
         // If the value was not a settled promise or a thenable, then resolve
         // it in the task queue using the correct ID.
         if (!is_object($value) || !method_exists($value, 'then')) {
-            $id = ($state === self::FULFILLED) ? 1 : 2;
+            $id = $state === self::FULFILLED ? 1 : 2;
             // It's a success, so resolve the handlers in the queue.
             Utils::queue()->add(static function () use ($id, $value, $handlers): void {
                 foreach ($handlers as $handler) {

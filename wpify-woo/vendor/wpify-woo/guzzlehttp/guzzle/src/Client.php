@@ -79,7 +79,7 @@ class Client implements ClientInterface, \WpifyWooDeps\Psr\Http\Client\ClientInt
         }
         $uri = $args[0];
         $opts = $args[1] ?? [];
-        return (\substr($method, -5) === 'Async') ? $this->requestAsync(\substr($method, 0, -5), $uri, $opts) : $this->request($method, $uri, $opts);
+        return \substr($method, -5) === 'Async' ? $this->requestAsync(\substr($method, 0, -5), $uri, $opts) : $this->request($method, $uri, $opts);
     }
     /**
      * Asynchronously send an HTTP request.
@@ -180,7 +180,7 @@ class Client implements ClientInterface, \WpifyWooDeps\Psr\Http\Client\ClientInt
      */
     public function getConfig(?string $option = null)
     {
-        return ($option === null) ? $this->config : ($this->config[$option] ?? null);
+        return $option === null ? $this->config : $this->config[$option] ?? null;
     }
     private function buildUri(UriInterface $uri, array $config): UriInterface
     {
@@ -188,10 +188,10 @@ class Client implements ClientInterface, \WpifyWooDeps\Psr\Http\Client\ClientInt
             $uri = Psr7\UriResolver::resolve(Psr7\Utils::uriFor($config['base_uri']), $uri);
         }
         if (isset($config['idn_conversion']) && $config['idn_conversion'] !== \false) {
-            $idnOptions = ($config['idn_conversion'] === \true) ? \IDNA_DEFAULT : $config['idn_conversion'];
+            $idnOptions = $config['idn_conversion'] === \true ? \IDNA_DEFAULT : $config['idn_conversion'];
             $uri = Utils::idnUriConvert($uri, $idnOptions);
         }
-        return ($uri->getScheme() === '' && $uri->getHost() !== '') ? $uri->withScheme('http') : $uri;
+        return $uri->getScheme() === '' && $uri->getHost() !== '' ? $uri->withScheme('http') : $uri;
     }
     /**
      * Configures the default options for a client.

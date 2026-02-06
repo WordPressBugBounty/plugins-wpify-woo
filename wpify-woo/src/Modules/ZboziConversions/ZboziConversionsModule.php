@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\ZboziConversions;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWoo\WooCommerceIntegration;
@@ -47,7 +49,17 @@ class ZboziConversionsModule extends AbstractModule {
 	}
 
 	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/zbozi-conversions';
+	}
+
+	/**
 	 * Module settings
+	 *
 	 * @return array[]
 	 */
 	public function settings(): array {
@@ -90,7 +102,8 @@ class ZboziConversionsModule extends AbstractModule {
 				array(
 						'id'      => 'wpify_pro_notice',
 						'type'    => 'html',
-						'content' => sprintf( '<div class="notice notice-warning"><p>%s</p></div>', sprintf( __( 'This module sends only limited conversion measurements using frontend code. For a more detailed standard measurement with also backend sending data for Zboží.cz, please install the premium extension <a href="%s" target="_blank">WPify Woo Zbozi.cz Conversion tracking </a>. This premium extension also allows you to send a customer satisfaction survey.', 'wpify-woo' ), __( 'https://wpify.io/product/wpify-woo-zbozi-cz-conversion-tracking/', 'wpify-woo' ) ) ),
+						/* translators: %s: URL to premium extension */
+				'content' => sprintf( '<div class="notice notice-warning"><p>%s</p></div>', sprintf( __( 'This module sends only limited conversion measurements using frontend code. For a more detailed standard measurement with also backend sending data for Zboží.cz, please install the premium extension <a href="%s" target="_blank">WPify Woo Zbozi.cz Conversion tracking </a>. This premium extension also allows you to send a customer satisfaction survey.', 'wpify-woo' ), __( 'https://wpify.io/product/wpify-woo-zbozi-cz-conversion-tracking/', 'wpify-woo' ) ) ),
 				)
 		);
 

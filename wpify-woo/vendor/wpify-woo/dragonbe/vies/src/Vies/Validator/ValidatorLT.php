@@ -66,7 +66,7 @@ class ValidatorLT extends ValidatorAbstract
         if ($checkVal % 11 == 10) {
             $weights = [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4];
             $checkVal = $this->sumWeights($weights, $vatNumber);
-            $checkVal = ($checkVal % 11 == 10) ? 0 : ($checkVal % 11);
+            $checkVal = $checkVal % 11 == 10 ? 0 : $checkVal % 11;
             return $checkVal == $checksum;
         }
         return $checkVal % 11 == $checksum;
@@ -89,7 +89,7 @@ class ValidatorLT extends ValidatorAbstract
         if ($checkVal % 11 == 10) {
             $weights = [3, 4, 5, 6, 7, 8, 9, 1];
             $checkVal = $this->sumWeights($weights, $vatNumber);
-            $checkVal = ($checkVal % 11 == 10) ? 0 : ($checkVal % 11);
+            $checkVal = $checkVal % 11 == 10 ? 0 : $checkVal % 11;
             return $checkVal == $checksum;
         }
         return $checkVal % 11 == $checksum;

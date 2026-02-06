@@ -39,7 +39,7 @@ class ValidatorHU extends ValidatorAbstract
         $checksum = (int) $vatNumber[7];
         $checkVal = $this->sumWeights($weights, $vatNumber);
         $checkVal = (int) substr((string) $checkVal, -1);
-        $checkVal = ($checkVal > 0) ? 10 - $checkVal : 0;
+        $checkVal = $checkVal > 0 ? 10 - $checkVal : 0;
         return $checksum == $checkVal;
     }
 }

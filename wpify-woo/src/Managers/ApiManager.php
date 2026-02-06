@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Managers;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Api\FeedApi;
 use WpifyWoo\Api\SettingsApi;
 use WpifyWoo\Plugin;

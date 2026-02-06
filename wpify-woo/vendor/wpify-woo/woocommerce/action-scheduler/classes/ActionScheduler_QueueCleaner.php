@@ -84,8 +84,8 @@ class ActionScheduler_QueueCleaner
      */
     public function clean_actions(array $statuses_to_purge, \DateTime $cutoff_date, $batch_size = null, $context = 'old')
     {
-        $batch_size = (!\is_null($batch_size)) ? $batch_size : $this->batch_size;
-        $cutoff = (!\is_null($cutoff_date)) ? $cutoff_date : \as_get_datetime_object($this->month_in_seconds . ' seconds ago');
+        $batch_size = !\is_null($batch_size) ? $batch_size : $this->batch_size;
+        $cutoff = !\is_null($cutoff_date) ? $cutoff_date : \as_get_datetime_object($this->month_in_seconds . ' seconds ago');
         $lifespan = \time() - $cutoff->getTimestamp();
         if (empty($statuses_to_purge)) {
             $statuses_to_purge = $this->default_statuses_to_purge;

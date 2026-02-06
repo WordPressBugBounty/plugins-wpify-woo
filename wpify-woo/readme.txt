@@ -1,14 +1,14 @@
 === WPify Woo Czech ===
 Contributors: wpify, vasikgreif, mejta, martinsvoboda
-Tags: WooCommerce, Czech, WPify, Zásilkovna, Heureka, IČ DIČ
+Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.1.3
+Stable tag: 5.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A free plugin that adds (mainly) Czech and Slovak specific features to WooCommerce. The free version includes Packeta Shipping, Heureka Ověřeno Zákazníky, Extra CRN and VAT fields on checkout, Notification to get free shipping, Asynchronous emails sending and QR Code payments.
+Adds Czech and Slovak features to WooCommerce: Heureka, CRN/VAT fields, free shipping notice, QR payments, async emails and more.
 
 == Description ==
 
@@ -112,15 +112,16 @@ The plugin includes the following modules:
 
 ### QR Code Payment
 
-* Display the QR code on the selected position on the thank you page.
-* Display the QR code in the selected email notification.
-* QR codes according to the QR Platba standard for CZ and Pay By Square pr SK.
-* Rendering QR using an integrated library or external API.
-* Supports any payment method.
-* Supports any currency.
-* Option to insert a note into the QR payment with the order number and store name.
-* Option to add any text before and after the QR code.
-* Option to limit QR code display by billing country.
+* Support for multiple QR standards - QR Platba (CZ), Pay BY Square (SK), Hungarian standard (HU), EPC/SEPA (EU)
+* Auto-detection of QR standard based on order billing country
+* Configure multiple bank accounts for different payment methods
+* Load bank account details from WooCommerce BACS settings or enter manually
+* Display QR code on thank you page, email notifications and PDF invoices
+* Shortcode `[wpify_woo_render_qr_code]` to display QR code anywhere
+* Filter QR code display by payment method, currency and billing country
+* Customize message and titles with placeholders for order details
+* Compatibility mode for servers without XZ utils
+* Developer hooks and filters for customization
 
 ### Sklik retargeting
 
@@ -201,7 +202,7 @@ We believe it shouldn't be hard to get WooCommerce store up and running in the C
 
 We take advantage of the new WP features, and we strive to use modern development practices, which was not possible in the previous versions of WordPress.
 
-= Why do you support PHP 8.0 and higher only? =
+= Why do you support PHP 8.1 and higher only? =
 
 We support only actively supported versions to be sure, that our code is secure from the bottom up. It's also essential to have the PHP version regularly updated, co you can be sure that your e-shop is safe and fast.
 
@@ -218,6 +219,62 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+= 5.3.0 =
+* Add locale-aware documentation links with new docs site content
+* Add async rendering option for Delivery Dates (REST-based, cache-friendly)
+* Improve IČ/DIČ VAT exemption logic (EU reverse charge, third-country export, better VIES/ARES handling, admin info, block checkout recalculation)
+* Fix Heureka reviews widget slug resolution
+* Fix Heureka XML feed product name fallback
+* Fix QR payment currency filtering for auto accounts only
+* Hide the "show label on frontend" setting in Prices module
+* Fix security hardening (CSRF, XSS, direct file access protection)
+* Update deps and core
+
+= 5.2.2 =
+* Fix QR payment source option warning
+
+= 5.2.1 =
+* Add search filtering for async select fields in module settings
+* Add dynamic country filtering based on QR type selection
+* Fix duplicate QR codes displayed in emails
+* Improve QR payment module settings UX
+
+= 5.2.0 =
+* Add Auto detection for QR payment standard
+* Add validation for QR payments and QR generators
+* Add option to load bank account data from BACS payment method
+* Add support inserting QR payment codes into WCPDF invoies
+* Update dependencies
+
+= 5.1.10 =
+* Add HU QR payment standard
+* Add EU (EPC) QR payment standard
+
+= 5.1.9 =
+* Add filter `wpify_woo_heureka_disable_send` to disable send Heureka ověřeno zákazníky
+* Fix Heureka ověřeno zákazníky item id to correct product id
+
+= 5.1.8 =
+* Handle product not found in prices log
+
+= 5.1.7 =
+* Fixed a bug that deleted the VAT number when invalid check was performed on block checkout
+* Fix SK VAT numbers normalizations on block checkout
+
+= 5.1.6 =
+* Add `wpify_woo_heureka_overeno_data` filter to edit sending data for Heureka ověřeno zákazníky
+* Change order id in Heureka ověřeno zákazníky from DB id to order number
+* Add settings to restrict the display of custom prices
+* Add `wpify_woo_prices_should_display_price` filter whether to display the custom price
+
+= 5.1.5 =
+* Add recipient name for SK QR payment (pay by square)
+* Add normalization VAT number on block checkout
+* Fix validation VAT number for is_vat_exempt meta-value
+
+= 5.1.4 =
+* Add Heureka ověřeno zákazníky review options and import
+* Add Heureka ověřeno zákazníky display reviews shortcode [wpify_woo_heureka_reviews count="6"]
 
 = 5.1.3 =
 * Fix Subscription form

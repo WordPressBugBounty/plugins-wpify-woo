@@ -24,7 +24,7 @@ final class TransportProvider
      */
     public function response(RequestInterface|string $url): ResponseInterface
     {
-        $request = ($url instanceof RequestInterface) ? $url : $this->createRequest($url);
+        $request = $url instanceof RequestInterface ? $url : $this->createRequest($url);
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $e) {

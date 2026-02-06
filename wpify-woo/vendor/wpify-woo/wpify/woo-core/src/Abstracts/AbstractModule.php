@@ -84,12 +84,29 @@ abstract class AbstractModule
         return add_query_arg(array('page' => $this->get_menu_slug()), admin_url('admin.php'));
     }
     /**
+     * Module documentation path
+     * @return string
+     */
+    public function get_documentation_path(): string
+    {
+        return '';
+    }
+    /**
      * Module documentation url
      * @return string
      */
-    public function get_documentation_url()
+    public function get_documentation_url(): string
     {
-        return '';
+        $path = $this->get_documentation_path();
+        // Pokud modul nemá vlastní path, fallback na plugin URL
+        if ($path === '') {
+            return apply_filters('wpify_woo_plugin_documentation_url_' . $this->plugin_slug(), '');
+        }
+        $domain = 'https://docs.wpify.cz/';
+        if (in_array(get_locale(), array('cs_CZ', 'sk_SK'), \true)) {
+            $domain = 'https://docs.wpify.cz/cs/';
+        }
+        return esc_url($domain . $path);
     }
     /**
      * Display module in admin menu bar
@@ -180,7 +197,7 @@ abstract class AbstractModule
     }
     public function is_settings_page()
     {
-        $page = $_GET['page'] ?? '';
+        $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
         if (str_contains($page, 'wpify/')) {
             $section = explode('/', $page)[1] ?? '';
             if ($section === $this->id()) {
@@ -188,11 +205,16 @@ abstract class AbstractModule
             }
         }
         $option_name = sprintf('%s-%s', Settings::OPTION_NAME, $this->id());
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- This is a simple presence check, not processing data
         if (isset($_POST[$option_name])) {
             return \true;
         }
         // Load items only in admin (for settings pages) or rest (for async lists)
-        return (wp_is_json_request() || is_admin()) && !empty($_GET['section']) && $_GET['section'] === $this->id();
+        $section_param = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
+        if ((wp_is_json_request() || is_admin()) && !empty($section_param) && $section_param === $this->id()) {
+            return \true;
+        }
+        return apply_filters('wpify_woo_is_settings_page', \false, $this->id());
     }
     public function is_enabled()
     {

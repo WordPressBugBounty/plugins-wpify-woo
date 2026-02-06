@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Admin;
 
+defined( 'ABSPATH' ) || exit;
+
 use WC_Admin_Settings;
 use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Managers\ModulesManager;
@@ -127,9 +129,24 @@ class Settings {
 			'label' => __( 'Settings', 'wpify-woo' ),
 			'link'  => add_query_arg( array( 'page' => sprintf( 'wpify/%s', $this::MAIN_SETTINGS_ID ) ), admin_url( 'admin.php' ) )
 		);
-		$data['doc_link'] = 'https://wpify.io/dokumentace/wpify-woo/';
+		$data['doc_link'] = $this->get_documentation_url();
 
 		return $data;
+	}
+
+	/**
+	 * Get documentation URL with locale awareness
+	 *
+	 * @return string
+	 */
+	private function get_documentation_url(): string {
+		$domain = 'https://docs.wpify.cz/';
+
+		if ( in_array( get_locale(), array( 'cs_CZ', 'sk_SK' ), true ) ) {
+			$domain = 'https://docs.wpify.cz/cs/';
+		}
+
+		return esc_url( $domain . 'wpify-woo' );
 	}
 
 	public function maybe_hyde_newsletter_notice() {
@@ -190,7 +207,7 @@ class Settings {
 					<?php if ( $icon ) {
 						?>
 						<div style="margin-top: 20px">
-							<img src="<?php echo $icon; ?>" alt="ICO" width="100" height="100">
+							<img src="<?php echo esc_url( $icon ); ?>" alt="ICO" width="100" height="100">
 						</div>
 						<?php
 					} ?>
@@ -296,7 +313,7 @@ class Settings {
 			echo sprintf( '<div class="wpify-notice wpify-notice-info"><p>%s</p></div>', __( 'The email address is already on the subscription list.', 'wpify-woo' ) );
 		} else {
 			$response_body = wp_remote_retrieve_body( $response );
-			echo sprintf( '<div class="wpify-notice wpify-notice-error"><p>%s</p><code>%s</code></div>', __( 'Error while sending.', 'wpify-woo' ), $response_body );
+			echo sprintf( '<div class="wpify-notice wpify-notice-error"><p>%s</p><code>%s</code></div>', esc_html__( 'Error while sending.', 'wpify-woo' ), esc_html( $response_body ) );
 		}
 	}
 }

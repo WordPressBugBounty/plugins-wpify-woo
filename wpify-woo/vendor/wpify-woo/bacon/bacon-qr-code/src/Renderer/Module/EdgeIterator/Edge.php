@@ -68,8 +68,8 @@ final class Edge
         $points = [];
         $length = count($this->points);
         for ($i = 0; $i < $length; ++$i) {
-            $previousPoint = $this->points[((0 === $i) ? $length : $i) - 1];
-            $nextPoint = $this->points[(($length - 1 === $i) ? -1 : $i) + 1];
+            $previousPoint = $this->points[(0 === $i ? $length : $i) - 1];
+            $nextPoint = $this->points[($length - 1 === $i ? -1 : $i) + 1];
             $currentPoint = $this->points[$i];
             if ($previousPoint[0] === $currentPoint[0] && $currentPoint[0] === $nextPoint[0] || $previousPoint[1] === $currentPoint[1] && $currentPoint[1] === $nextPoint[1]) {
                 continue;

@@ -192,7 +192,7 @@ class Builder implements BuilderInterface
         $constructor = $reflectionClass->getConstructor();
         $constructorParameters = $constructor->getParameters();
         foreach ($constructorParameters as $parameter) {
-            $optionName = (null === $optionsPrefix) ? $parameter->getName() : ($optionsPrefix . ucfirst($parameter->getName()));
+            $optionName = null === $optionsPrefix ? $parameter->getName() : $optionsPrefix . ucfirst($parameter->getName());
             if (isset($this->options[$optionName])) {
                 $hasBuilderOptions = \true;
                 $arguments[] = $this->options[$optionName];

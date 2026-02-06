@@ -22,7 +22,7 @@ class Plugin extends AbstractPlugin {
 	protected bool $requires_activation = false;
 
 	/** Plugin version */
-	public const VERSION = '5.1.3';
+	public const VERSION = '5.3.0';
 
 	/** Plugin slug name */
 	public const PLUGIN_SLUG = 'wpify-woo';
@@ -61,16 +61,16 @@ class Plugin extends AbstractPlugin {
 	}
 
 	/**
-	 * Plugin documentation url
+	 * Plugin documentation path
 	 *
 	 * @return string
 	 */
-	public function documentation_url(): string {
-		return 'https://wpify.io/dokumentace/wpify-woo/';
+	public function get_documentation_path(): string {
+		return 'wpify-woo';
 	}
 
 	/**
-	 * Plugin documentation url
+	 * Plugin support url
 	 *
 	 * @return string
 	 */

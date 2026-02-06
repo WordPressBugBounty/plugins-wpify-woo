@@ -230,7 +230,7 @@ class HandlerStack
             return "callable({$fn})";
         }
         if (\is_array($fn)) {
-            return \is_string($fn[0]) ? "callable({$fn[0]}::{$fn[1]})" : ("callable(['" . \get_class($fn[0]) . "', '{$fn[1]}'])");
+            return \is_string($fn[0]) ? "callable({$fn[0]}::{$fn[1]})" : "callable(['" . \get_class($fn[0]) . "', '{$fn[1]}'])";
         }
         /** @var object $fn */
         return 'callable(' . \spl_object_hash($fn) . ')';

@@ -2,6 +2,8 @@
 
 namespace WpifyWoo;
 
+defined( 'ABSPATH' ) || exit;
+
 
 use WP_CLI;
 use WP_CLI_Command;

@@ -24,7 +24,7 @@ class ActionScheduler_ActionFactory
     {
         // The 6th parameter ($priority) is not formally declared in the method signature to maintain compatibility with
         // third-party subclasses created before this param was added.
-        $priority = (\func_num_args() >= 6) ? (int) \func_get_arg(5) : 10;
+        $priority = \func_num_args() >= 6 ? (int) \func_get_arg(5) : 10;
         switch ($status) {
             case \ActionScheduler_Store::STATUS_PENDING:
                 $action_class = 'ActionScheduler_Action';

@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\DeliveryDates;
 
+defined( 'ABSPATH' ) || exit;
+
 use WC_Shipping_Zones;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
@@ -57,6 +59,15 @@ class DeliveryDatesModule extends AbstractModule {
 
 	public function plugin_slug(): string {
 		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/delivery-dates';
 	}
 
 	/**
@@ -204,6 +215,12 @@ class DeliveryDatesModule extends AbstractModule {
 				'async_params' => [
 					'module_id' => $this->id(),
 				],
+			),
+			array(
+				'id'    => 'render_async',
+				'type'  => 'toggle',
+				'label' => __( 'Render delivery details asynchronously (cache-friendly)', 'wpify-woo' ),
+				'desc'  => __( 'When enabled, delivery details are fetched via REST API after page load.', 'wpify-woo' ),
 			),
 
 		);
@@ -601,15 +618,31 @@ class DeliveryDatesModule extends AbstractModule {
 	}
 
 	/**
-	 * Render html
+	 * Get html for delivery dates
+	 *
+	 * @param bool $force_sync Skip async placeholder rendering.
+	 *
+	 * @return string
 	 */
-	public function display_delivery_date() {
+	public function get_delivery_date_html( bool $force_sync = false ): string {
 		global $product;
 
 		$delivery_days = $this->get_setting( 'delivery_days' );
 
 		if ( ! $product || empty( $delivery_days ) || empty( WC()->countries ) ) {
-			return;
+			return '';
+		}
+
+		if ( $this->get_setting( 'render_async' ) && ! $force_sync ) {
+			$product_id = $product->get_id();
+			if ( ! $product_id ) {
+				return '';
+			}
+
+			return sprintf(
+				'<div class="wpify-woo-delivery-date wpify-woo-delivery-date--async" data-product-id="%d"></div>',
+				(int) $product_id
+			);
 		}
 
 		$shipping_countries = WC()->countries->get_shipping_countries();
@@ -620,6 +653,8 @@ class DeliveryDatesModule extends AbstractModule {
 		if ( ! $actual_zone_id ) {
 			$actual_zone_id = array_key_first( $shipping_zones );
 		}
+
+		ob_start();
 		?>
 		<div class="wpify-woo-delivery-date">
 			<?php
@@ -773,6 +808,15 @@ class DeliveryDatesModule extends AbstractModule {
 			?>
 		</div>
 		<?php
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render html
+	 */
+	public function display_delivery_date() {
+		echo $this->get_delivery_date_html();
 	}
 
 	/**
@@ -781,10 +825,7 @@ class DeliveryDatesModule extends AbstractModule {
 	 * @return string
 	 */
 	public function delivery_date_shortcode(): string {
-		ob_start();
-		$this->display_delivery_date();
-
-		return ob_get_clean();
+		return $this->get_delivery_date_html();
 	}
 
 	/**
@@ -793,7 +834,10 @@ class DeliveryDatesModule extends AbstractModule {
 	public function convert_old_product_data() {
 		if ( ! isset( $_GET['wpify-delivery-dates-convert-data'] ) ) {
 			return;
-		};
+		}
+		if ( ! wp_verify_nonce( $_GET['_wpnonce'] ?? '', 'wpify-delivery-dates-convert-data' ) ) {
+			return;
+		}
 
 		$delivery_days = $this->get_setting( 'delivery_days' ) ?? [];
 
@@ -880,17 +924,22 @@ class DeliveryDatesModule extends AbstractModule {
 	 * Show admin notices
 	 */
 	public function maybe_show_notice() {
-		$process = $_GET['wpf-delivery-dates-data-migrated'] ?? null;
+		$process = isset( $_GET['wpf-delivery-dates-data-migrated'] )
+			? sanitize_text_field( wp_unslash( $_GET['wpf-delivery-dates-data-migrated'] ) )
+			: null;
 
 		if ( ! empty( $process ) ) {
-			$success = $_GET['success'] ?? '';
+			$success = isset( $_GET['success'] )
+				? sanitize_text_field( wp_unslash( $_GET['success'] ) )
+				: '';
 			if ( $process === 'migrate-data' ) {
-				$string = sprintf( __( 'Wpify Woo delivery date data migration is success for %s products.', 'wpify-woo' ), (int) $success );
+				/* translators: %s: number of products migrated */
+			$string = sprintf( __( 'Wpify Woo delivery date data migration is success for %s products.', 'wpify-woo' ), (int) $success );
 			} else {
 				$string = sprintf( __( 'Wpify Woo delivery date data migration failed.', 'wpify-woo' ), (int) $success );
 			}
 
-			printf( '<div class="notice-success notice"><p>%s</p></div>', $string );
+			printf( '<div class="notice-success notice"><p>%s</p></div>', esc_html( $string ) );
 		}
 	}
 

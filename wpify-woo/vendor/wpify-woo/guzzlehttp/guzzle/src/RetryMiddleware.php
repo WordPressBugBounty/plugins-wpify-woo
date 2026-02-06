@@ -40,7 +40,7 @@ class RetryMiddleware
     {
         $this->decider = $decider;
         $this->nextHandler = $nextHandler;
-        $this->delay = $delay ?: (__CLASS__ . '::exponentialDelay');
+        $this->delay = $delay ?: __CLASS__ . '::exponentialDelay';
     }
     /**
      * Default exponential backoff delay function.

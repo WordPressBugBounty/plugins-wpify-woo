@@ -99,7 +99,7 @@ class Feed extends AbstractFeed {
 	 */
 	public function get_data( $product, $parent_product = null ) {
 		$feed_product_name = $product->get_meta( '_wpify_woo_heureka_product_name', true ) ?: $product->get_name();
-		$feed_product      = $product->get_meta( '_wpify_woo_heureka_product', true ) ?: $product->get_name();
+		$feed_product      = $product->get_meta( '_wpify_woo_heureka_product', true ) ?: $feed_product_name;
 
 		$data = array(
 			'ITEM_ID'       => $this->get_item_id( $product ),

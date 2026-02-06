@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\HeurekaOverenoZakazniky;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Block checkout support for Heureka Ověřeno Zákazníky
  */
@@ -93,6 +95,7 @@ class BlockSupport {
 		} else {
 			// Save agreement status
 			$order->update_meta_data( '_wpify_woo_heureka_optout_agreement', 'no' );
+			/* translators: %s: Yes or No answer */
 			$order->add_order_note( sprintf( __( 'Heureka: Agree with the satisfaction questionnaire: %s', 'wpify-woo' ), __( 'No', 'wpify-woo' ) ) );
 			$order->save();
 		}

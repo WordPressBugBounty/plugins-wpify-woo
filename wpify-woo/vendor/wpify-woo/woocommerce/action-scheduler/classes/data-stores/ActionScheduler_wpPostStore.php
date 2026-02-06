@@ -301,7 +301,7 @@ class ActionScheduler_wpPostStore extends \ActionScheduler_Store
          * @var wpdb $wpdb
          */
         global $wpdb;
-        $sql = ('count' === $select_or_count) ? 'SELECT count(p.ID)' : 'SELECT p.ID ';
+        $sql = 'count' === $select_or_count ? 'SELECT count(p.ID)' : 'SELECT p.ID ';
         $sql .= "FROM {$wpdb->posts} p";
         $sql_params = array();
         if (empty($query['group']) && 'group' === $query['orderby']) {
@@ -420,7 +420,7 @@ class ActionScheduler_wpPostStore extends \ActionScheduler_Store
          */
         global $wpdb;
         $sql = $this->get_query_actions_sql($query, $query_type);
-        return ('count' === $query_type) ? $wpdb->get_var($sql) : $wpdb->get_col($sql);
+        return 'count' === $query_type ? $wpdb->get_var($sql) : $wpdb->get_col($sql);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
     }
     /**
@@ -572,7 +572,7 @@ class ActionScheduler_wpPostStore extends \ActionScheduler_Store
     protected function claim_actions($claim_id, $limit, ?\DateTime $before_date = null, $hooks = array(), $group = '')
     {
         // Set up initial variables.
-        $date = (null === $before_date) ? \as_get_datetime_object() : clone $before_date;
+        $date = null === $before_date ? \as_get_datetime_object() : clone $before_date;
         $limit_ids = !empty($group);
         $ids = $limit_ids ? $this->get_actions_by_group($group, $limit, $date) : array();
         // If limiting by IDs and no posts found, then return early since we have nothing to update.
@@ -909,7 +909,7 @@ class ActionScheduler_wpPostStore extends \ActionScheduler_Store
             $dependencies_met = $found_action ? 'no' : 'yes';
             \set_transient(self::DEPENDENCIES_MET, $dependencies_met, \WpifyWooDeps\DAY_IN_SECONDS);
         }
-        return ('yes' === $dependencies_met) ? $setting : \false;
+        return 'yes' === $dependencies_met ? $setting : \false;
     }
     /**
      * InnoDB indexes have a maximum size of 767 bytes by default, which is only 191 characters with utf8mb4.

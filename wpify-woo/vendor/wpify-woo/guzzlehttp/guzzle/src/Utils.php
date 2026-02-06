@@ -278,7 +278,7 @@ EOT
      */
     public static function currentTime(): float
     {
-        return ((float) \function_exists('hrtime')) ? \hrtime(\true) / 1000000000.0 : \microtime(\true);
+        return (float) \function_exists('hrtime') ? \hrtime(\true) / 1000000000.0 : \microtime(\true);
     }
     /**
      * @throws InvalidArgumentException

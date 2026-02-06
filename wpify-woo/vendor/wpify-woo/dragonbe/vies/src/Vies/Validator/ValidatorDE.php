@@ -49,10 +49,10 @@ class ValidatorDE extends ValidatorAbstract
         $prod = 10;
         for ($i = 0; $i < 8; $i++) {
             $checkVal = ((int) $vatNumber[$i] + $prod) % 10;
-            $checkVal = ($checkVal == 0) ? 10 : $checkVal;
+            $checkVal = $checkVal == 0 ? 10 : $checkVal;
             $prod = $checkVal * 2 % 11;
         }
-        $prod = ($prod == 1) ? 11 : $prod;
+        $prod = $prod == 1 ? 11 : $prod;
         return 11 - $prod == (int) substr($vatNumber, -1);
     }
 }

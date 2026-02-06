@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\PricesLog;
 
+defined( 'ABSPATH' ) || exit;
+
 use WP_Error;
 use WP_Post;
 use WpifyWoo\Plugin;
@@ -46,6 +48,15 @@ class PricesLogModule extends AbstractModule {
 	}
 
 	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/prices-log';
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public function settings(): array {
@@ -71,6 +82,9 @@ class PricesLogModule extends AbstractModule {
 	 */
 	public function handle_save_log( $product_id ) {
 		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return;
+		}
 
 		if ( $product->is_type( 'variable' ) ) {
 			/** @var \WC_Product_Variable $product */
@@ -82,7 +96,6 @@ class PricesLogModule extends AbstractModule {
 				$this->save_log( $variation );
 			}
 		} else {
-
 			$this->save_log( $product );
 		}
 	}
@@ -149,11 +162,9 @@ class PricesLogModule extends AbstractModule {
 				$variations = $product->get_available_variations();
 
 				foreach ( $variations as $variation ) {
-
 					$this->display_log_table( $variation['variation_id'] );
 				}
 			} else {
-
 				$this->display_log_table( $product->get_id() );
 			}
 			?>

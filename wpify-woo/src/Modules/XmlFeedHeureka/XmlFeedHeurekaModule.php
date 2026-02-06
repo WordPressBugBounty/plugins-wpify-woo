@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\XmlFeedHeureka;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWoo\Managers\ApiManager;
@@ -42,6 +44,15 @@ class XmlFeedHeurekaModule extends AbstractModule {
 
 	public function plugin_slug(): string {
 		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/xml-feed-heureka';
 	}
 
 	function add_product_tabs( $tabs ) {
@@ -267,13 +278,14 @@ class XmlFeedHeurekaModule extends AbstractModule {
 
 
 		$settings[] = array(
-			'id'    => 'update_categories_button',
-			'type'  => 'button',
-			'desc'  => __( 'Click to update the Heureka categories.', 'wpify-woo' ),
-			'label' => __( 'Update Heureka categories', 'wpify-woo' ),
-			'title' => __( 'Update categories', 'wpify-woo' ),
-			'url'   => add_query_arg( array( 'wpify-woo-action' => 'update-heureka-categories' ), $this->get_settings_url() ),
-			'tab'   => 'categories',
+			'id'     => 'update_categories_button',
+			'type'   => 'button',
+			'desc'   => __( 'Click to update the Heureka categories.', 'wpify-woo' ),
+			'label'  => __( 'Update Heureka categories', 'wpify-woo' ),
+			'title'  => __( 'Update categories', 'wpify-woo' ),
+			'url'    => wp_nonce_url( add_query_arg( array( 'wpify-woo-action' => 'update-heureka-categories' ), $this->get_settings_url() ), 'wpify-woo-update-heureka-categories' ),
+			'tab'    => 'categories',
+			'target' => '_self'
 		);
 
 		$categories = get_terms( apply_filters( 'wpify_heureka_categories_assignment', array(
@@ -285,6 +297,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 			foreach ( $categories as $category ) {
 				$settings[] = array(
 					'id'           => 'heureka_category_' . $category->term_id,
+					/* translators: %s: category name */
 					'label'        => sprintf( __( 'Heureka category for %s', 'wpify-woo' ), $category->name ),
 					'type'         => 'select',
 					'options'      => array( $this, 'get_heureka_categories_list' ),
@@ -303,6 +316,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		$settings[] = array(
 			'id'             => 'generate_button',
 			'type'           => 'generate_feed',
+			/* translators: %1$s: feed URL, %2$s: REST API endpoint for cron job */
 			'desc'           => sprintf(
 				__( 'Click to regenerate feed. Make sure to save the settings before generating the feed.<br/>The feed will be available at <a href="%1$s" target="_blank"><code style="-webkit-user-select: all;user-select: all;">%1$s</code></a>.<br/>You can also setup cron job to <code style="-webkit-user-select: all;user-select: all;">%2$s</code> to regenerate the feed automatically.', 'wpify-woo' ),
 				$this->feed->get_xml_url(),
@@ -328,26 +342,29 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	}
 
 	public function can_write_feed_file(): string {
-		$dir = $this->feed->get_dir_path();
-		$file = $this->feed->get_xml_path();
-		$temp_dir = $this->feed->get_tmp_dir_path();
+		$dir       = $this->feed->get_dir_path();
+		$file      = $this->feed->get_xml_path();
+		$temp_dir  = $this->feed->get_tmp_dir_path();
 		$temp_file = $this->feed->get_tmp_file_path();
 
 		if ( ! file_exists( $dir ) ) {
 			$parent_dir = dirname( $dir );
 			if ( ! is_writable( $parent_dir ) ) {
+				/* translators: %s: parent directory path */
 				return sprintf(
 					__( 'Nelze vytvořit složku – nadřazená složka není zapisovatelná: %s', 'wpify-woo' ),
 					$parent_dir
 				);
 			}
 			if ( ! mkdir( $dir, 0777, true ) ) {
+				/* translators: %s: directory path */
 				return sprintf(
 					__( 'Nepodařilo se vytvořit složku: %s', 'wpify-woo' ),
 					$dir
 				);
 			}
 		} elseif ( ! is_writable( $dir ) ) {
+			/* translators: %s: directory path */
 			return sprintf(
 				__( 'Složka existuje, ale není zapisovatelná: %s', 'wpify-woo' ),
 				$dir
@@ -355,6 +372,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		}
 
 		if ( file_exists( $file ) && ! is_writable( $file ) ) {
+			/* translators: %s: file path */
 			return sprintf(
 				__( 'Soubor existuje, ale není zapisovatelný: %s', 'wpify-woo' ),
 				$file
@@ -364,18 +382,21 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		if ( ! file_exists( $temp_dir ) ) {
 			$parent_dir = dirname( $temp_dir );
 			if ( ! is_writable( $parent_dir ) ) {
+				/* translators: %s: parent directory path */
 				return sprintf(
 					__( 'Nelze vytvořit temp složku – nadřazená složka není zapisovatelná: %s', 'wpify-woo' ),
 					$parent_dir
 				);
 			}
 			if ( ! mkdir( $temp_dir, 0777, true ) ) {
+				/* translators: %s: temporary directory path */
 				return sprintf(
 					__( 'Nepodařilo se vytvořit temp složku: %s', 'wpify-woo' ),
 					$temp_dir
 				);
 			}
 		} elseif ( ! is_writable( $temp_dir ) ) {
+			/* translators: %s: temporary directory path */
 			return sprintf(
 				__( 'Složka temp existuje, ale není zapisovatelná: %s', 'wpify-woo' ),
 				$temp_dir
@@ -383,6 +404,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		}
 
 		if ( file_exists( $temp_file ) && ! is_writable( $temp_file ) ) {
+			/* translators: %s: temporary file path */
 			return sprintf(
 				__( 'Soubor temp existuje, ale není zapisovatelný: %s', 'wpify-woo' ),
 				$temp_file
@@ -499,7 +521,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	}
 
 	public function handle_actions() {
-		if ( isset( $_GET['wpify-woo-action'] ) && 'update-heureka-categories' === $_GET['wpify-woo-action'] ) {
+		if ( isset( $_GET['wpify-woo-action'] ) && 'update-heureka-categories' === $_GET['wpify-woo-action'] && wp_verify_nonce( $_GET['_wpnonce'] ?? '', 'wpify-woo-update-heureka-categories' ) ) {
 			$this->update_heureka_categories();
 		}
 	}

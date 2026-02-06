@@ -149,7 +149,7 @@ final class Message
             return $path;
         }
         $host = $headers[reset($hostKey)][0];
-        $scheme = (substr($host, -4) === ':443') ? 'https' : 'http';
+        $scheme = substr($host, -4) === ':443' ? 'https' : 'http';
         return $scheme . '://' . $host . '/' . ltrim($path, '/');
     }
     /**
@@ -166,8 +166,8 @@ final class Message
         }
         $parts = explode(' ', $data['start-line'], 3);
         $version = isset($parts[2]) ? explode('/', $parts[2])[1] : '1.1';
-        $request = new Request($parts[0], ($matches[1] === '/') ? self::parseRequestUri($parts[1], $data['headers']) : $parts[1], $data['headers'], $data['body'], $version);
-        return ($matches[1] === '/') ? $request : $request->withRequestTarget($parts[1]);
+        $request = new Request($parts[0], $matches[1] === '/' ? self::parseRequestUri($parts[1], $data['headers']) : $parts[1], $data['headers'], $data['body'], $version);
+        return $matches[1] === '/' ? $request : $request->withRequestTarget($parts[1]);
     }
     /**
      * Parses a response message string into a response object.

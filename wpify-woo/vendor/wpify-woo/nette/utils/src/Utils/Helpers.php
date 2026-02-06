@@ -43,7 +43,7 @@ class Helpers
      */
     public static function falseToNull(mixed $value): mixed
     {
-        return ($value === \false) ? null : $value;
+        return $value === \false ? null : $value;
     }
     /**
      * Returns value clamped to the inclusive range of min and max.
@@ -87,5 +87,13 @@ class Helpers
             '!==' => $left !== $right,
             default => throw new Nette\InvalidArgumentException("Unknown operator '{$operator}'"),
         };
+    }
+    /**
+     * Splits a class name into namespace and short class name.
+     * @return array{string, string}
+     */
+    public static function splitClassName(string $name): array
+    {
+        return ($pos = strrpos($name, '\\')) === \false ? ['', $name] : [substr($name, 0, $pos), substr($name, $pos + 1)];
     }
 }

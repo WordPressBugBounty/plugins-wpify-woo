@@ -346,11 +346,14 @@ class GutenbergBlock extends BaseIntegration
             return $content;
         }
         $attributes = $this->normalize_attributes($attributes);
-        $content = call_user_func($this->render_callback, $attributes, $content, $block);
-        if (empty($content) || !is_string($content)) {
-            return '';
+        $rendered_content = call_user_func($this->render_callback, $attributes, $content, $block);
+        if (empty($rendered_content) || !is_string($rendered_content)) {
+            return $content;
         }
-        return $content;
+        if (preg_match('/<!--\s*inner_blocks[\s\/]*-->/', $rendered_content)) {
+            $rendered_content = preg_replace('/<!--\s*inner_blocks[\s\/]*-->/', $content, $rendered_content);
+        }
+        return $rendered_content;
     }
     /**
      * Registers the REST API routes for the block.

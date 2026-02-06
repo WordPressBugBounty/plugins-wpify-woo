@@ -34,7 +34,7 @@ final class FileInfo extends \SplFileInfo
      */
     public function getRelativePathname(): string
     {
-        return (($this->relativePath === '') ? '' : ($this->relativePath . DIRECTORY_SEPARATOR)) . $this->getBasename();
+        return ($this->relativePath === '' ? '' : $this->relativePath . DIRECTORY_SEPARATOR) . $this->getBasename();
     }
     /**
      * Returns the contents of the file.

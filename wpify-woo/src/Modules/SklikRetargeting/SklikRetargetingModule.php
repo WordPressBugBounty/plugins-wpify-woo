@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\SklikRetargeting;
 
+defined( 'ABSPATH' ) || exit;
+
 use WC_Product;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
@@ -28,7 +30,17 @@ class SklikRetargetingModule extends AbstractModule {
 	}
 
 	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/sklik-retargeting';
+	}
+
+	/**
 	 * Module name
+	 *
 	 * @return string
 	 */
 	public function name(): string {
@@ -37,6 +49,7 @@ class SklikRetargetingModule extends AbstractModule {
 
 	/**
 	 * Module settings
+	 *
 	 * @return array[]
 	 */
 	public function settings(): array {
@@ -73,7 +86,8 @@ class SklikRetargetingModule extends AbstractModule {
 				'id'    => 'item_id',
 				'type'  => 'toggle',
 				'label' => __( 'Add E-shop offer identifier', 'wpify-woo' ),
-				'desc'  => sprintf( __( 'Check if <code>itemId</code> should be added to the code. More information about this parameter can be found in <a href="%1$s" target="_blank">Sklik Help</a>.', 'wpify-woo' ), 'https://napoveda.sklik.cz/cileni/retargeting/pokrocily-retargetingovy-kod/pokrocile-nastaveni-rtg-kodu-item_id/' ),
+				/* translators: %1$s: URL to Sklik Help about itemId parameter */
+			'desc'  => sprintf( __( 'Check if <code>itemId</code> should be added to the code. More information about this parameter can be found in <a href="%1$s" target="_blank">Sklik Help</a>.', 'wpify-woo' ), 'https://napoveda.sklik.cz/cileni/retargeting/pokrocily-retargetingovy-kod/pokrocile-nastaveni-rtg-kodu-item_id/' ),
 			),
 			array(
 				'id'    => 'custom_item_id',
@@ -91,7 +105,8 @@ class SklikRetargetingModule extends AbstractModule {
 				'desc'  => __( 'Check if you want use category identifier from Wpify Woo Feeds plugin.', 'wpify-woo' ),
 			);
 		} else {
-			$notice     = sprintf( __( 'If you want add automatically category identifier from feed settings. Install and use <a href="%s" target="_blank">Wpify Woo Feeds</a> plugin.', 'wpify-woo' ), __( 'https://wpify.io/product/wpify-woo-feeds/', 'wpify-woo' ) );
+			/* translators: %s: URL to Wpify Woo Feeds plugin */
+		$notice     = sprintf( __( 'If you want add automatically category identifier from feed settings. Install and use <a href="%s" target="_blank">Wpify Woo Feeds</a> plugin.', 'wpify-woo' ), __( 'https://wpify.io/product/wpify-woo-feeds/', 'wpify-woo' ) );
 			$settings[] = array(
 				'id'      => 'wpify_feed_notice',
 				'type'    => 'html',
@@ -104,6 +119,7 @@ class SklikRetargetingModule extends AbstractModule {
 			'id'    => 'custom_category',
 			'type'  => 'text',
 			'label' => __( 'Custom category identifier', 'wpify-woo' ),
+			/* translators: %1$s: URL to Sklik Help about category parameter */
 			'desc'  => sprintf( __( 'Enter the meta data key of category you use to fill in the category for the Zbozi.cz XML feed. More information about <code>category</code> parameter can be found in <a href="%1$s" target="_blank">Sklik Help</a>.', 'wpify-woo' ), 'https://napoveda.sklik.cz/cileni/retargeting/pokrocily-retargetingovy-kod/pokrocile-nastaveni-rtg-kodu-category/' ),
 		);
 

@@ -318,7 +318,7 @@ class Finder implements \IteratorAggregate
             }
             $relativePathname = FileSystem::unixSlashes($file->getRelativePathname());
             foreach ($searches as $search) {
-                if ($file->{'is' . $search->mode}() && preg_match($search->pattern, $relativePathname) && $this->proveFilters($this->filters, $file, $cache)) {
+                if (("is_{$search->mode}")(Helpers::IsWindows && $file->isLink() ? $file->getLinkTarget() : $file->getPathname()) && preg_match($search->pattern, $relativePathname) && $this->proveFilters($this->filters, $file, $cache)) {
                     yield $pathName => $file;
                     break;
                 }
@@ -368,7 +368,7 @@ class Finder implements \IteratorAggregate
                 }
             }
             foreach ($splits as [$base, $rest, $recursive]) {
-                $base = ($base === '') ? '.' : $base;
+                $base = $base === '' ? '.' : $base;
                 $dirs = $dirCache[$base] ??= strpbrk($base, '*?[') ? glob($base, GLOB_NOSORT | GLOB_ONLYDIR | GLOB_NOESCAPE) : [strtr($base, ['[[]' => '[', '[]]' => ']'])];
                 // unescape [ and ]
                 if (!$dirs) {

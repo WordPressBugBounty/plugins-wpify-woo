@@ -140,7 +140,7 @@ class ActionScheduler_DBStore extends \ActionScheduler_Store
         $columns = \array_keys($data);
         $values = \array_values($data);
         $placeholders = \array_map(array($this, 'get_placeholder_for_column'), $columns);
-        $table_name = (!empty($wpdb->actionscheduler_actions)) ? $wpdb->actionscheduler_actions : ($wpdb->prefix . 'actionscheduler_actions');
+        $table_name = !empty($wpdb->actionscheduler_actions) ? $wpdb->actionscheduler_actions : $wpdb->prefix . 'actionscheduler_actions';
         $column_sql = '`' . \implode('`, `', $columns) . '`';
         $placeholder_sql = \implode(', ', $placeholders);
         $where_clause = $this->build_where_clause_for_insert($data, $table_name, $unique);
@@ -367,11 +367,11 @@ class ActionScheduler_DBStore extends \ActionScheduler_Store
         global $wpdb;
         $db_server_info = \is_callable(array($wpdb, 'db_server_info')) ? $wpdb->db_server_info() : $wpdb->db_version();
         if (\false !== \strpos($db_server_info, 'MariaDB')) {
-            $supports_json = \version_compare((\PHP_VERSION_ID >= 80016) ? $wpdb->db_version() : \preg_replace('/[^0-9.].*/', '', \str_replace('5.5.5-', '', $db_server_info)), '10.2', '>=');
+            $supports_json = \version_compare(\PHP_VERSION_ID >= 80016 ? $wpdb->db_version() : \preg_replace('/[^0-9.].*/', '', \str_replace('5.5.5-', '', $db_server_info)), '10.2', '>=');
         } else {
             $supports_json = \version_compare($wpdb->db_version(), '5.7', '>=');
         }
-        $sql = ('count' === $select_or_count) ? 'SELECT count(a.action_id)' : 'SELECT a.action_id';
+        $sql = 'count' === $select_or_count ? 'SELECT count(a.action_id)' : 'SELECT a.action_id';
         $sql .= " FROM {$wpdb->actionscheduler_actions} a";
         $sql_params = array();
         if (!empty($query['group']) || 'group' === $query['orderby']) {
@@ -527,7 +527,7 @@ class ActionScheduler_DBStore extends \ActionScheduler_Store
          */
         global $wpdb;
         $sql = $this->get_query_actions_sql($query, $query_type);
-        return ('count' === $query_type) ? $wpdb->get_var($sql) : $wpdb->get_col($sql);
+        return 'count' === $query_type ? $wpdb->get_var($sql) : $wpdb->get_col($sql);
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.NoSql, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
     /**

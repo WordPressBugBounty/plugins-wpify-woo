@@ -417,7 +417,7 @@ class Inflection
     protected function match($pattern, $word)
     {
         if (\substr($pattern, 0, 1) !== '-') {
-            return (\strcasecmp($pattern, $word) === 0) ? 0 : -1;
+            return \strcasecmp($pattern, $word) === 0 ? 0 : -1;
         }
         $matches = [];
         if (\preg_match('/' . \substr($pattern, 1) . '$/iu', $word, $matches)) {

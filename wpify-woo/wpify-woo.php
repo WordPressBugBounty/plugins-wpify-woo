@@ -1,10 +1,12 @@
 <?php // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
+defined( 'ABSPATH' ) || exit;
+
 /*
- * Plugin Name:          WPify Woo
+ * Plugin Name:          WPify Woo Czech
  * Description:          Custom functionality for WooCommerce
- * Version:              5.1.3
- * Requires PHP:         8.1.0
+ * Version:              5.3.0
+ * Requires PHP:         8.1
  * Requires at least:    6.2
  * Author:               WPify s.r.o.
  * Author URI:           https://www.wpify.io/
@@ -13,7 +15,7 @@
  * Text Domain:          wpify-woo
  * Domain Path:          /languages
  * WC requires at least: 7.0
- * WC tested up to:      9.7
+ * WC tested up to:      10.1
  * Requires Plugins:     woocommerce
 */
 
@@ -167,8 +169,17 @@ if ( version_compare( PHP_VERSION, WPIFY_WOO_MIN_PHP_VERSION ) < 0 ) {
 	add_action( 'admin_notices', 'wpify_woo_woocommerce_not_active' );
 } else {
 	if ( file_exists( __DIR__ . '/vendor/wpify-woo/scoper-autoload.php' ) ) {
+		$core_bootstrap = __DIR__ . '/vendor/wpify-woo/wpify/woo-core/bootstrap.php';
+		if ( file_exists( $core_bootstrap ) ) {
+			require_once $core_bootstrap;
+		}
+
 		include_once __DIR__ . '/vendor/wpify-woo/scoper-autoload.php';
 		include_once __DIR__ . '/vendor/autoload.php';
+
+		if ( function_exists( 'wpify_woo_core_prefer_latest' ) ) {
+			wpify_woo_core_prefer_latest();
+		}
 
 		add_action( 'plugins_loaded', 'wpify_woo_init', 11 );
 		register_activation_hook( __FILE__, 'wpify_woo_activate' );

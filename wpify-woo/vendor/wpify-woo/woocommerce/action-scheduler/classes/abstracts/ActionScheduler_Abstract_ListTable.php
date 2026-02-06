@@ -328,7 +328,7 @@ abstract class ActionScheduler_Abstract_ListTable extends \WP_List_Table
      */
     protected function get_request_status()
     {
-        $status = (!empty($_GET['status'])) ? \sanitize_text_field(\wp_unslash($_GET['status'])) : '';
+        $status = !empty($_GET['status']) ? \sanitize_text_field(\wp_unslash($_GET['status'])) : '';
         //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return $status;
     }
@@ -339,7 +339,7 @@ abstract class ActionScheduler_Abstract_ListTable extends \WP_List_Table
      */
     protected function get_request_search_query()
     {
-        $search_query = (!empty($_GET['s'])) ? \sanitize_text_field(\wp_unslash($_GET['s'])) : '';
+        $search_query = !empty($_GET['s']) ? \sanitize_text_field(\wp_unslash($_GET['s'])) : '';
         //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return $search_query;
     }
@@ -458,14 +458,14 @@ abstract class ActionScheduler_Abstract_ListTable extends \WP_List_Table
         }
         echo '<div class="alignleft actions">';
         foreach ($this->filter_by as $id => $options) {
-            $default = (!empty($_GET['filter_by'][$id])) ? \sanitize_text_field(\wp_unslash($_GET['filter_by'][$id])) : '';
+            $default = !empty($_GET['filter_by'][$id]) ? \sanitize_text_field(\wp_unslash($_GET['filter_by'][$id])) : '';
             //phpcs:ignore WordPress.Security.NonceVerification.Recommended
             if (empty($options[$default])) {
                 $default = '';
             }
             echo '<select name="filter_by[' . \esc_attr($id) . ']" class="first" id="filter-by-' . \esc_attr($id) . '">';
             foreach ($options as $value => $label) {
-                echo '<option value="' . \esc_attr($value) . '" ' . \esc_html(($value === $default) ? 'selected' : '') . '>' . \esc_html($label) . '</option>';
+                echo '<option value="' . \esc_attr($value) . '" ' . \esc_html($value === $default ? 'selected' : '') . '>' . \esc_html($label) . '</option>';
             }
             echo '</select>';
         }
@@ -519,9 +519,9 @@ abstract class ActionScheduler_Abstract_ListTable extends \WP_List_Table
             if (!\method_exists($this, 'row_action_' . $action_key)) {
                 continue;
             }
-            $action_link = (!empty($action['link'])) ? $action['link'] : \add_query_arg(array('row_action' => $action_key, 'row_id' => $row_id, 'nonce' => \wp_create_nonce($action_key . '::' . $row_id)));
-            $span_class = (!empty($action['class'])) ? $action['class'] : $action_key;
-            $separator = ($action_count < \count($this->row_actions[$column_name])) ? ' | ' : '';
+            $action_link = !empty($action['link']) ? $action['link'] : \add_query_arg(array('row_action' => $action_key, 'row_id' => $row_id, 'nonce' => \wp_create_nonce($action_key . '::' . $row_id)));
+            $span_class = !empty($action['class']) ? $action['class'] : $action_key;
+            $separator = $action_count < \count($this->row_actions[$column_name]) ? ' | ' : '';
             $actions .= \sprintf('<span class="%s">', \esc_attr($span_class));
             $actions .= \sprintf('<a href="%1$s" title="%2$s">%3$s</a>', \esc_url($action_link), \esc_attr($action['desc']), \esc_html($action['name']));
             $actions .= \sprintf('%s</span>', $separator);
@@ -626,7 +626,7 @@ abstract class ActionScheduler_Abstract_ListTable extends \WP_List_Table
                 $status_list_item = '<li class="%1$s"><a href="%2$s">%3$s</a> (%4$d)</li>';
             }
             $status_name = isset($status_labels[$status_slug]) ? $status_labels[$status_slug] : \ucfirst($status_slug);
-            $status_filter_url = ('all' === $status_slug) ? \remove_query_arg('status') : \add_query_arg('status', $status_slug);
+            $status_filter_url = 'all' === $status_slug ? \remove_query_arg('status') : \add_query_arg('status', $status_slug);
             $status_filter_url = \remove_query_arg(array('paged', 's'), $status_filter_url);
             $status_list_items[] = \sprintf($status_list_item, \esc_attr($status_slug), \esc_url($status_filter_url), \esc_html($status_name), \absint($count));
         }

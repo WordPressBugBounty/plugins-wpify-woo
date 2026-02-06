@@ -65,7 +65,7 @@ final class UriResolver
             $targetAuthority = $base->getAuthority();
             if ($rel->getPath() === '') {
                 $targetPath = $base->getPath();
-                $targetQuery = ($rel->getQuery() != '') ? $rel->getQuery() : $base->getQuery();
+                $targetQuery = $rel->getQuery() != '' ? $rel->getQuery() : $base->getQuery();
             } else {
                 if ($rel->getPath()[0] === '/') {
                     $targetPath = $rel->getPath();
@@ -137,7 +137,7 @@ final class UriResolver
             $segments = explode('/', $target->getPath());
             /** @var string $lastSegment */
             $lastSegment = end($segments);
-            return $emptyPathUri->withPath(($lastSegment === '') ? './' : $lastSegment);
+            return $emptyPathUri->withPath($lastSegment === '' ? './' : $lastSegment);
         }
         return $emptyPathUri;
     }

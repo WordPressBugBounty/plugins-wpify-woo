@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\HeurekaMereniKonverzi;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWoo\Models\WooOrderModel;
@@ -61,7 +63,17 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 	}
 
 	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/heureka-conversions';
+	}
+
+	/**
 	 *  Get the settings
+	 *
 	 * @return array[]
 	 */
 	public function settings(): array {

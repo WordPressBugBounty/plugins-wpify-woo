@@ -25,7 +25,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
     {
         $obj = new static();
         foreach ($array as $key => $value) {
-            $obj->{$key} = ($recursive && is_array($value)) ? static::from($value) : $value;
+            $obj->{$key} = $recursive && is_array($value) ? static::from($value) : $value;
         }
         return $obj;
     }

@@ -59,17 +59,17 @@
         },
         {
             "name": "dasprid\/enum",
-            "version": "1.0.6",
-            "version_normalized": "1.0.6.0",
+            "version": "1.0.7",
+            "version_normalized": "1.0.7.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/DASPRiD\/Enum.git",
-                "reference": "8dfd07c6d2cf31c8da90c53b83c026c7696dda90"
+                "reference": "b5874fa9ed0043116c72162ec7f4fb50e02e7cce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/DASPRiD\/Enum\/zipball\/8dfd07c6d2cf31c8da90c53b83c026c7696dda90",
-                "reference": "8dfd07c6d2cf31c8da90c53b83c026c7696dda90",
+                "url": "https:\/\/api.github.com\/repos\/DASPRiD\/Enum\/zipball\/b5874fa9ed0043116c72162ec7f4fb50e02e7cce",
+                "reference": "b5874fa9ed0043116c72162ec7f4fb50e02e7cce",
                 "shasum": ""
             },
             "require": {
@@ -79,7 +79,7 @@
                 "phpunit\/phpunit": "^7 || ^8 || ^9 || ^10 || ^11",
                 "squizlabs\/php_codesniffer": "*"
             },
-            "time": "2024-08-09T14:30:48+00:00",
+            "time": "2025-09-16T12:23:56+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -106,7 +106,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/DASPRiD\/Enum\/issues",
-                "source": "https:\/\/github.com\/DASPRiD\/Enum\/tree\/1.0.6"
+                "source": "https:\/\/github.com\/DASPRiD\/Enum\/tree\/1.0.7"
             },
             "install-path": "..\/dasprid\/enum"
         },
@@ -588,17 +588,17 @@
         },
         {
             "name": "h4kuna\/ares",
-            "version": "v3.0.13",
-            "version_normalized": "3.0.13.0",
+            "version": "v3.0.14",
+            "version_normalized": "3.0.14.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/h4kuna\/ares.git",
-                "reference": "d695e8b57b0410738d8eb9d7157bb8c7ec340d72"
+                "reference": "94655a8b374798eebf49698883f1a0108ae5ae36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/h4kuna\/ares\/zipball\/d695e8b57b0410738d8eb9d7157bb8c7ec340d72",
-                "reference": "d695e8b57b0410738d8eb9d7157bb8c7ec340d72",
+                "url": "https:\/\/api.github.com\/repos\/h4kuna\/ares\/zipball\/94655a8b374798eebf49698883f1a0108ae5ae36",
+                "reference": "94655a8b374798eebf49698883f1a0108ae5ae36",
                 "shasum": ""
             },
             "require": {
@@ -620,7 +620,7 @@
             "suggest": {
                 "guzzlehttp\/guzzle": "As default implementation for PSR-7, PSR-17 and PSR-18 standards."
             },
-            "time": "2025-05-30T15:51:00+00:00",
+            "time": "2025-12-05T08:01:10+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -646,7 +646,7 @@
             "homepage": "https:\/\/github.com\/h4kuna\/ares",
             "support": {
                 "issues": "https:\/\/github.com\/h4kuna\/ares\/issues",
-                "source": "https:\/\/github.com\/h4kuna\/ares\/tree\/v3.0.13"
+                "source": "https:\/\/github.com\/h4kuna\/ares\/tree\/v3.0.14"
             },
             "funding": [
                 {
@@ -776,6 +776,66 @@
             "install-path": "..\/heureka\/overeno-zakazniky"
         },
         {
+            "name": "hubipe\/huqrpayment",
+            "version": "v1.1.1",
+            "version_normalized": "1.1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https:\/\/github.com\/hubipe\/QrPaymentHU.git",
+                "reference": "a1d493dfd21a5a76798dd6629ac2bdae2da2b535"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https:\/\/api.github.com\/repos\/hubipe\/QrPaymentHU\/zipball\/a1d493dfd21a5a76798dd6629ac2bdae2da2b535",
+                "reference": "a1d493dfd21a5a76798dd6629ac2bdae2da2b535",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7.3|^8.0",
+                "rikudou\/iban": "^1.2",
+                "rikudou\/qr-payment-interface": "^1.1",
+                "rikudou\/qr-payment-qr-code-provider": "^1.1"
+            },
+            "require-dev": {
+                "endroid\/qr-code": "^3.2",
+                "phpstan\/phpstan": "^1.10"
+            },
+            "suggest": {
+                "endroid\/qr-code": "For generating QR code image"
+            },
+            "time": "2023-08-31T11:56:00+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "WpifyWooDeps\\hubipe\\HuQrPayment\\": "src\/"
+                }
+            },
+            "notification-url": "https:\/\/packagist.org\/downloads\/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Petr Hub\u00edk",
+                    "homepage": "http:\/\/hubik.net"
+                }
+            ],
+            "description": "QR payment library for Hungary (according to the Magyar Nemzeti Bank standard version 001)",
+            "homepage": "https:\/\/github.com\/hubipe\/QrPaymentHU",
+            "keywords": [
+                "hungary",
+                "payment",
+                "qr"
+            ],
+            "support": {
+                "issues": "https:\/\/github.com\/hubipe\/QrPaymentHU\/issues",
+                "source": "https:\/\/github.com\/hubipe\/QrPaymentHU\/tree\/v1.1.1"
+            },
+            "install-path": "..\/hubipe\/huqrpayment"
+        },
+        {
             "name": "laravel\/serializable-closure",
             "version": "v1.3.7",
             "version_normalized": "1.3.7.0",
@@ -840,123 +900,18 @@
             "install-path": "..\/laravel\/serializable-closure"
         },
         {
-            "name": "monolog\/monolog",
-            "version": "2.10.0",
-            "version_normalized": "2.10.0.0",
-            "source": {
-                "type": "git",
-                "url": "https:\/\/github.com\/Seldaek\/monolog.git",
-                "reference": "5cf826f2991858b54d5c3809bee745560a1042a7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/Seldaek\/monolog\/zipball\/5cf826f2991858b54d5c3809bee745560a1042a7",
-                "reference": "5cf826f2991858b54d5c3809bee745560a1042a7",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2",
-                "psr\/log": "^1.0.1 || ^2.0 || ^3.0"
-            },
-            "provide": {
-                "psr\/log-implementation": "1.0.0 || 2.0.0 || 3.0.0"
-            },
-            "require-dev": {
-                "aws\/aws-sdk-php": "^2.4.9 || ^3.0",
-                "doctrine\/couchdb": "~1.0@dev",
-                "elasticsearch\/elasticsearch": "^7 || ^8",
-                "ext-json": "*",
-                "graylog2\/gelf-php": "^1.4.2 || ^2@dev",
-                "guzzlehttp\/guzzle": "^7.4",
-                "guzzlehttp\/psr7": "^2.2",
-                "mongodb\/mongodb": "^1.8",
-                "php-amqplib\/php-amqplib": "~2.4 || ^3",
-                "phpspec\/prophecy": "^1.15",
-                "phpstan\/phpstan": "^1.10",
-                "phpunit\/phpunit": "^8.5.38 || ^9.6.19",
-                "predis\/predis": "^1.1 || ^2.0",
-                "rollbar\/rollbar": "^1.3 || ^2 || ^3",
-                "ruflin\/elastica": "^7",
-                "swiftmailer\/swiftmailer": "^5.3|^6.0",
-                "symfony\/mailer": "^5.4 || ^6",
-                "symfony\/mime": "^5.4 || ^6"
-            },
-            "suggest": {
-                "aws\/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
-                "doctrine\/couchdb": "Allow sending log messages to a CouchDB server",
-                "elasticsearch\/elasticsearch": "Allow sending log messages to an Elasticsearch server via official client",
-                "ext-amqp": "Allow sending log messages to an AMQP server (1.0+ required)",
-                "ext-curl": "Required to send log messages using the IFTTTHandler, the LogglyHandler, the SendGridHandler, the SlackWebhookHandler or the TelegramBotHandler",
-                "ext-mbstring": "Allow to work properly with unicode symbols",
-                "ext-mongodb": "Allow sending log messages to a MongoDB server (via driver)",
-                "ext-openssl": "Required to send log messages using SSL",
-                "ext-sockets": "Allow sending log messages to a Syslog server (via UDP driver)",
-                "graylog2\/gelf-php": "Allow sending log messages to a GrayLog2 server",
-                "mongodb\/mongodb": "Allow sending log messages to a MongoDB server (via library)",
-                "php-amqplib\/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
-                "rollbar\/rollbar": "Allow sending log messages to Rollbar",
-                "ruflin\/elastica": "Allow sending log messages to an Elastic Search server"
-            },
-            "time": "2024-11-12T12:43:37+00:00",
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "2.x-dev"
-                }
-            },
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "WpifyWooDeps\\Monolog\\": "src\/Monolog"
-                }
-            },
-            "notification-url": "https:\/\/packagist.org\/downloads\/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jordi Boggiano",
-                    "email": "j.boggiano@seld.be",
-                    "homepage": "https:\/\/seld.be"
-                }
-            ],
-            "description": "Sends your logs to files, sockets, inboxes, databases and various web services",
-            "homepage": "https:\/\/github.com\/Seldaek\/monolog",
-            "keywords": [
-                "log",
-                "logging",
-                "psr-3"
-            ],
-            "support": {
-                "issues": "https:\/\/github.com\/Seldaek\/monolog\/issues",
-                "source": "https:\/\/github.com\/Seldaek\/monolog\/tree\/2.10.0"
-            },
-            "funding": [
-                {
-                    "url": "https:\/\/github.com\/Seldaek",
-                    "type": "github"
-                },
-                {
-                    "url": "https:\/\/tidelift.com\/funding\/github\/packagist\/monolog\/monolog",
-                    "type": "tidelift"
-                }
-            ],
-            "install-path": "..\/monolog\/monolog"
-        },
-        {
             "name": "nette\/utils",
-            "version": "v4.0.8",
-            "version_normalized": "4.0.8.0",
+            "version": "v4.0.10",
+            "version_normalized": "4.0.10.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/nette\/utils.git",
-                "reference": "c930ca4e3cf4f17dcfb03037703679d2396d2ede"
+                "reference": "2778deb6aab136c8db4ed1f4d6e9f465ca2dbee3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/nette\/utils\/zipball\/c930ca4e3cf4f17dcfb03037703679d2396d2ede",
-                "reference": "c930ca4e3cf4f17dcfb03037703679d2396d2ede",
+                "url": "https:\/\/api.github.com\/repos\/nette\/utils\/zipball\/2778deb6aab136c8db4ed1f4d6e9f465ca2dbee3",
+                "reference": "2778deb6aab136c8db4ed1f4d6e9f465ca2dbee3",
                 "shasum": ""
             },
             "require": {
@@ -980,7 +935,7 @@
                 "ext-mbstring": "to use Strings::lower() etc...",
                 "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()"
             },
-            "time": "2025-08-06T21:43:34+00:00",
+            "time": "2025-12-01T17:30:42+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1032,23 +987,23 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/nette\/utils\/issues",
-                "source": "https:\/\/github.com\/nette\/utils\/tree\/v4.0.8"
+                "source": "https:\/\/github.com\/nette\/utils\/tree\/v4.0.10"
             },
             "install-path": "..\/nette\/utils"
         },
         {
             "name": "php-di\/invoker",
-            "version": "2.3.6",
-            "version_normalized": "2.3.6.0",
+            "version": "2.3.7",
+            "version_normalized": "2.3.7.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/PHP-DI\/Invoker.git",
-                "reference": "59f15608528d8a8838d69b422a919fd6b16aa576"
+                "reference": "3c1ddfdef181431fbc4be83378f6d036d59e81e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/PHP-DI\/Invoker\/zipball\/59f15608528d8a8838d69b422a919fd6b16aa576",
-                "reference": "59f15608528d8a8838d69b422a919fd6b16aa576",
+                "url": "https:\/\/api.github.com\/repos\/PHP-DI\/Invoker\/zipball\/3c1ddfdef181431fbc4be83378f6d036d59e81e1",
+                "reference": "3c1ddfdef181431fbc4be83378f6d036d59e81e1",
                 "shasum": ""
             },
             "require": {
@@ -1058,9 +1013,9 @@
             "require-dev": {
                 "athletic\/athletic": "~0.1.8",
                 "mnapoli\/hard-mode": "~0.3.0",
-                "phpunit\/phpunit": "^9.0"
+                "phpunit\/phpunit": "^9.0 || ^10 || ^11 || ^12"
             },
-            "time": "2025-01-17T12:49:27+00:00",
+            "time": "2025-08-30T10:22:22+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1084,7 +1039,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/PHP-DI\/Invoker\/issues",
-                "source": "https:\/\/github.com\/PHP-DI\/Invoker\/tree\/2.3.6"
+                "source": "https:\/\/github.com\/PHP-DI\/Invoker\/tree\/2.3.7"
             },
             "funding": [
                 {
@@ -1440,33 +1395,33 @@
         },
         {
             "name": "psr\/log",
-            "version": "1.1.4",
-            "version_normalized": "1.1.4.0",
+            "version": "3.0.2",
+            "version_normalized": "3.0.2.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/php-fig\/log.git",
-                "reference": "d49695b909c3b7628b6289db5479a1c204601f11"
+                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/php-fig\/log\/zipball\/d49695b909c3b7628b6289db5479a1c204601f11",
-                "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
+                "url": "https:\/\/api.github.com\/repos\/php-fig\/log\/zipball\/f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
+                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=8.0.0"
             },
-            "time": "2021-05-03T11:20:27+00:00",
+            "time": "2024-09-11T13:17:53+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "3.x-dev"
                 }
             },
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "WpifyWooDeps\\Psr\\Log\\": "Psr\/Log\/"
+                    "WpifyWooDeps\\Psr\\Log\\": "src"
                 }
             },
             "notification-url": "https:\/\/packagist.org\/downloads\/",
@@ -1487,7 +1442,7 @@
                 "psr-3"
             ],
             "support": {
-                "source": "https:\/\/github.com\/php-fig\/log\/tree\/1.1.4"
+                "source": "https:\/\/github.com\/php-fig\/log\/tree\/3.0.2"
             },
             "install-path": "..\/psr\/log"
         },
@@ -1609,6 +1564,68 @@
                 }
             ],
             "install-path": "..\/rikudou\/czqrpayment"
+        },
+        {
+            "name": "rikudou\/euqrpayment",
+            "version": "v1.4.0",
+            "version_normalized": "1.4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https:\/\/github.com\/RikudouSage\/QrPaymentEU.git",
+                "reference": "4587cc8fed131939e5bf2ee0898b89ab2b1d346d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https:\/\/api.github.com\/repos\/RikudouSage\/QrPaymentEU\/zipball\/4587cc8fed131939e5bf2ee0898b89ab2b1d346d",
+                "reference": "4587cc8fed131939e5bf2ee0898b89ab2b1d346d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7.3|^8.0",
+                "rikudou\/qr-payment-interface": "^1.0",
+                "rikudou\/qr-payment-qr-code-provider": "^1.0"
+            },
+            "require-dev": {
+                "endroid\/qr-code": "^3.2",
+                "friendsofphp\/php-cs-fixer": "^2.13",
+                "php-coveralls\/php-coveralls": "^2.1",
+                "phpoffice\/phpspreadsheet": "^1.5",
+                "phpstan\/phpstan": "^0.12.40",
+                "phpunit\/phpunit": "^9.5"
+            },
+            "suggest": {
+                "endroid\/qr-code": "For generating QR code image"
+            },
+            "time": "2021-09-27T22:19:20+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "WpifyWooDeps\\rikudou\\EuQrPayment\\": "src\/"
+                }
+            },
+            "notification-url": "https:\/\/packagist.org\/downloads\/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dominik Chr\u00e1steck\u00fd",
+                    "email": "dominik@chrastecky.cz"
+                }
+            ],
+            "description": "QR payment library for European Union according to EPC standard version 2",
+            "homepage": "https:\/\/github.com\/RikudouSage\/QrPaymentEU",
+            "keywords": [
+                "payment",
+                "qr"
+            ],
+            "support": {
+                "issues": "https:\/\/github.com\/RikudouSage\/QrPaymentEU\/issues",
+                "source": "https:\/\/github.com\/RikudouSage\/QrPaymentEU\/tree\/v1.4.0"
+            },
+            "install-path": "..\/rikudou\/euqrpayment"
         },
         {
             "name": "rikudou\/iban",
@@ -1771,17 +1788,17 @@
         },
         {
             "name": "rikudou\/skqrpayment",
-            "version": "v4.2.2",
-            "version_normalized": "4.2.2.0",
+            "version": "v4.2.3",
+            "version_normalized": "4.2.3.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/RikudouSage\/QrPaymentSK.git",
-                "reference": "777fa98caaff3f10fb43f3cf67a8464c547e0550"
+                "reference": "857ab3707dd7effc2050c7ef152c61aef7c33d92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/RikudouSage\/QrPaymentSK\/zipball\/777fa98caaff3f10fb43f3cf67a8464c547e0550",
-                "reference": "777fa98caaff3f10fb43f3cf67a8464c547e0550",
+                "url": "https:\/\/api.github.com\/repos\/RikudouSage\/QrPaymentSK\/zipball\/857ab3707dd7effc2050c7ef152c61aef7c33d92",
+                "reference": "857ab3707dd7effc2050c7ef152c61aef7c33d92",
                 "shasum": ""
             },
             "require": {
@@ -1800,7 +1817,7 @@
                 "endroid\/qr-code": "For getting QR code image",
                 "rikudou\/pay-by-square-decoder": "If you want to decode Pay By Square encoded data"
             },
-            "time": "2024-12-20T23:34:26+00:00",
+            "time": "2025-10-10T08:54:11+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1826,7 +1843,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/RikudouSage\/QrPaymentSK\/issues",
-                "source": "https:\/\/github.com\/RikudouSage\/QrPaymentSK\/tree\/v4.2.2"
+                "source": "https:\/\/github.com\/RikudouSage\/QrPaymentSK\/tree\/v4.2.3"
             },
             "funding": [
                 {
@@ -2064,17 +2081,17 @@
         },
         {
             "name": "wpify\/custom-fields",
-            "version": "4.0.70",
-            "version_normalized": "4.0.70.0",
+            "version": "4.4.2",
+            "version_normalized": "4.4.2.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/custom-fields.git",
-                "reference": "28de2558e29942e353f7a0e1a31a1113089ebee6"
+                "reference": "5d12eacd8d69a28d17882a3a51cd157388b59c34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/28de2558e29942e353f7a0e1a31a1113089ebee6",
-                "reference": "28de2558e29942e353f7a0e1a31a1113089ebee6",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/5d12eacd8d69a28d17882a3a51cd157388b59c34",
+                "reference": "5d12eacd8d69a28d17882a3a51cd157388b59c34",
                 "shasum": ""
             },
             "require": {
@@ -2087,7 +2104,7 @@
                 "squizlabs\/php_codesniffer": "^3.10",
                 "wp-coding-standards\/wpcs": "^3.0"
             },
-            "time": "2025-08-28T20:48:03+00:00",
+            "time": "2026-02-05T11:55:19+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2105,23 +2122,23 @@
             "description": "WPify Custom Fields",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/custom-fields\/issues",
-                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.0.70"
+                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.4.2"
             },
             "install-path": "..\/wpify\/custom-fields"
         },
         {
             "name": "wpify\/license",
-            "version": "2.0.7",
-            "version_normalized": "2.0.7.0",
+            "version": "2.0.9",
+            "version_normalized": "2.0.9.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/gitlab.com\/wpify\/license.git",
-                "reference": "7f8e7fe16a1bb77cdfcd29c694c5a489fc8db1b1"
+                "reference": "da3a92f868b9d4ff94b5f1f5f1ce4b240e76afb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/gitlab.com\/api\/v4\/projects\/wpify%2Flicense\/repository\/archive.zip?sha=7f8e7fe16a1bb77cdfcd29c694c5a489fc8db1b1",
-                "reference": "7f8e7fe16a1bb77cdfcd29c694c5a489fc8db1b1",
+                "url": "https:\/\/gitlab.com\/api\/v4\/projects\/wpify%2Flicense\/repository\/archive.zip?sha=da3a92f868b9d4ff94b5f1f5f1ce4b240e76afb9",
+                "reference": "da3a92f868b9d4ff94b5f1f5f1ce4b240e76afb9",
                 "shasum": ""
             },
             "require": {
@@ -2131,7 +2148,7 @@
             "require-dev": {
                 "symfony\/var-dumper": "^5.2"
             },
-            "time": "2025-06-05T15:52:55+00:00",
+            "time": "2026-01-16T12:20:28+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2151,30 +2168,29 @@
             ],
             "support": {
                 "issues": "https:\/\/gitlab.com\/wpify\/license\/-\/issues",
-                "source": "https:\/\/gitlab.com\/wpify\/license\/-\/tree\/2.0.7"
+                "source": "https:\/\/gitlab.com\/wpify\/license\/-\/tree\/2.0.9"
             },
             "install-path": "..\/wpify\/license"
         },
         {
             "name": "wpify\/log",
-            "version": "1.1.1",
-            "version_normalized": "1.1.1.0",
+            "version": "1.2.1",
+            "version_normalized": "1.2.1.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/log.git",
-                "reference": "5b856a623a574d3ba4f2138d5f4d94c0625329ff"
+                "reference": "acd58dc5a8fb38e58c167adc2f9b2c588a7a2d87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/log\/zipball\/5b856a623a574d3ba4f2138d5f4d94c0625329ff",
-                "reference": "5b856a623a574d3ba4f2138d5f4d94c0625329ff",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/log\/zipball\/acd58dc5a8fb38e58c167adc2f9b2c588a7a2d87",
+                "reference": "acd58dc5a8fb38e58c167adc2f9b2c588a7a2d87",
                 "shasum": ""
             },
             "require": {
-                "monolog\/monolog": "^2.3",
-                "psr\/log": "1.1.4"
+                "psr\/log": "^1.1 || ^2.0 || ^3.0"
             },
-            "time": "2025-06-04T15:03:26+00:00",
+            "time": "2025-10-01T11:36:46+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2195,7 +2211,7 @@
             "description": "WPify Log",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/log\/issues",
-                "source": "https:\/\/github.com\/wpify\/log\/tree\/1.1.1"
+                "source": "https:\/\/github.com\/wpify\/log\/tree\/1.2.1"
             },
             "install-path": "..\/wpify\/log"
         },
@@ -2284,17 +2300,17 @@
         },
         {
             "name": "wpify\/woo-core",
-            "version": "5.1.20",
-            "version_normalized": "5.1.20.0",
+            "version": "5.3.1",
+            "version_normalized": "5.3.1.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/woo-core.git",
-                "reference": "2d2032c6da6b538079d8e152618b1e5493319409"
+                "reference": "3d8a0e8cc2f701e5c10cab24b0ab0d1ec2b7f066"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/2d2032c6da6b538079d8e152618b1e5493319409",
-                "reference": "2d2032c6da6b538079d8e152618b1e5493319409",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/3d8a0e8cc2f701e5c10cab24b0ab0d1ec2b7f066",
+                "reference": "3d8a0e8cc2f701e5c10cab24b0ab0d1ec2b7f066",
                 "shasum": ""
             },
             "require": {
@@ -2302,7 +2318,7 @@
                 "wpify\/custom-fields": "^4.0",
                 "wpify\/license": "^2"
             },
-            "time": "2025-06-20T09:51:05+00:00",
+            "time": "2026-02-05T17:13:19+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2322,7 +2338,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/woo-core\/issues",
-                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.1.20"
+                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.3.1"
             },
             "install-path": "..\/wpify\/woo-core"
         }

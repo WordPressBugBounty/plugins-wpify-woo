@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\IcDic;
 
+defined( 'ABSPATH' ) || exit;
+
 use Automattic\WooCommerce\Blocks\Package;
 use Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields;
 use WP_Error;
@@ -98,7 +100,7 @@ class BlockSupport {
 				'type'              => 'text',
 				'meta_key'          => '_billing_dic',
 				'sanitize_callback' => function ( $field_value ) {
-					return str_replace( ' ', '', $field_value );
+					return strtoupper( str_replace( ' ', '', $field_value ) );
 				},
 			),
 		);
@@ -110,7 +112,7 @@ class BlockSupport {
 				'type'              => 'text',
 				'meta_key'          => '_billing_dic_dph',
 				'sanitize_callback' => function ( $field_value ) {
-					return str_replace( ' ', '', $field_value );
+					return strtoupper( str_replace( ' ', '', $field_value ) );
 				},
 			),
 		);
@@ -265,74 +267,51 @@ class BlockSupport {
 	}
 
 	public function set_customer_vat_extempt( $data ) {
-		// Default: always reset VAT exempt first
-		WC()->customer->set_is_vat_exempt( false );
+		$customer = WC()->customer;
+		$customer->set_is_vat_exempt( false );
 
-		// Handle different validation states first
-		if ( isset( $data['validation'] ) && ( $data['validation'] === 'dic_cleared' || $data['validation'] === 'failed' ) ) {
-			// DIC was cleared or validation failed - ensure VAT exempt is false
-			if ( $data['validation'] === 'dic_cleared' ) {
-				// Clear meta data only when explicitly cleared, not when validation fails
-				WC()->customer->delete_meta_data( 'billing_dic' );
-				WC()->customer->delete_meta_data( 'billing_dic_dph' );
-				WC()->customer->save();
+		// Handle dic_cleared - clear stored DIC but still recalculate VAT (for export scenarios)
+		if ( isset( $data['validation'] ) && $data['validation'] === 'dic_cleared' ) {
+			$customer->delete_meta_data( 'billing_dic' );
+			$customer->delete_meta_data( 'billing_dic_dph' );
+			$customer->save();
+			// Continue to recalculate VAT exempt (export may still apply without DIC)
+		}
+
+		// Handle failed validation - skip VAT exempt (no valid DIC)
+		if ( isset( $data['validation'] ) && $data['validation'] === 'failed' ) {
+			// Recalculate cart to reflect no VAT exempt
+			if ( WC()->cart ) {
+				WC()->cart->calculate_totals();
 			}
 			return;
 		}
 
-		// Get current checkout data to determine if VAT exempt should be applied
-		$vies_fails            = $this->module->get_setting( 'vies_fails' );
-		$vat_extempt_countries = $this->module->get_setting( 'zero_tax_for_vat_countries' );
-
-		// Check if VAT exempt countries are configured
-		if ( empty( $vat_extempt_countries ) ) {
+		if ( ! $this->module->is_vat_exempt_enabled() ) {
 			return;
 		}
 
-		// Get country and DIC from multiple sources to ensure we have the latest data
-		$country = $data['country'] ?? WC()->customer->get_billing_country();
-		$dic = null;
+		$billing_country  = $data['country'] ?? $customer->get_billing_country();
+		// Use shipping_country from JS data if available, otherwise fallback to customer/billing
+		$shipping_country = $data['shipping_country'] ?? $this->module->get_shipping_country_with_fallback( $customer, $billing_country );
+		// For dic_cleared, DIC should be empty
+		$dic = ( isset( $data['validation'] ) && $data['validation'] === 'dic_cleared' )
+			? ''
+			: ( $data['dic'] ?? $this->module->get_vat_id_from_source( $customer, $billing_country ) );
 
-		// Try to get DIC from the data passed, otherwise from customer meta
-		if ( isset( $data['dic'] ) ) {
-			// DIC explicitly provided in data (including empty string)
-			$dic = $data['dic'];
-		} else {
-			// Get DIC from customer meta based on country only if not provided in data
-			if ( $country === 'SK' ) {
-				$dic = WC()->customer->get_meta( 'billing_dic_dph' );
-			} else {
-				$dic = WC()->customer->get_meta( 'billing_dic' );
-			}
+		$result = $this->module->should_exempt_vat( $billing_country, $shipping_country, $dic ?: '' );
+		$customer->set_is_vat_exempt( $result['exempt'] );
+		$customer->save();
+
+		// Force cart recalculation to reflect VAT exempt change
+		if ( WC()->cart ) {
+			// Clear all session cart data to force fresh calculation
+			WC()->cart->set_totals( array() );
+			WC()->cart->calculate_totals();
+
+			// Invalidate Store API cart cache
+			do_action( 'woocommerce_cart_item_removed', '', WC()->cart );
 		}
-
-		// If we have a DIC, check if VAT exempt should be applied
-		if ( ! empty( $dic ) ) {
-			// If VIES validation is strict (vies_fails is false) and validation hasn't passed, don't set VAT exempt
-			if ( isset( $data['validation'] ) && $data['validation'] === 'passed' ) {
-				// Validation explicitly passed - proceed with VAT exempt check
-				$this->apply_vat_exempt_if_valid( $dic, $country );
-			} elseif ( empty( $vies_fails ) || $vies_fails !== false ) {
-				// VIES validation is lenient (vies_fails is true) OR not configured - check VAT exempt anyway
-				$this->apply_vat_exempt_if_valid( $dic, $country );
-			}
-			// If VIES is strict and validation hasn't passed, keep VAT exempt false
-		}
-		// If no DIC, VAT exempt stays false (already set at the beginning)
-
-	}
-
-	private function apply_vat_exempt_if_valid( $dic, $country ) {
-		// For block checkout, use the billing country from DIC validation as shipping country
-		// since the customer session might not be updated yet with the current country
-		$shipping_country = WC()->customer->get_shipping_country();
-		if ( empty( $shipping_country ) || $shipping_country === 'CZ' ) {
-			// Fallback to the country from DIC validation
-			$shipping_country = $country;
-		}
-
-		$is_vat_exempt = $this->module->is_vat_extempt( $dic, $shipping_country );
-		WC()->customer->set_is_vat_exempt( $is_vat_exempt );
 	}
 
 
@@ -345,52 +324,20 @@ class BlockSupport {
 	}
 
 	public function ensure_vat_exempt_from_checkout_data( $customer, $request ) {
-		// This runs during final checkout processing to ensure VAT exempt is correctly applied
-		$data = $request->get_json_params();
-		$billing_country = $data['billing_address']['country'] ?? '';
-		$additional_fields = $data['additional_fields'] ?? array();
-
-		// Get DIC based on country
-		$dic = null;
-		if ( $billing_country === 'SK' && ! empty( $additional_fields['wpify/dic-dph'] ) ) {
-			$dic = $additional_fields['wpify/dic-dph'];
-		} elseif ( $billing_country !== 'SK' && ! empty( $additional_fields['wpify/dic'] ) ) {
-			$dic = $additional_fields['wpify/dic'];
-		}
-
-		// Always reset VAT exempt first
 		WC()->customer->set_is_vat_exempt( false );
 
-		// Apply VAT exempt only if we have a valid DIC and VAT exempt countries are configured
-		$vat_extempt_countries = $this->module->get_setting( 'zero_tax_for_vat_countries' );
-		if ( ! empty( $dic ) && ! empty( $vat_extempt_countries ) ) {
-			$is_vat_exempt = $this->module->is_vat_extempt( $dic, $billing_country );
-			WC()->customer->set_is_vat_exempt( $is_vat_exempt );
+		if ( ! $this->module->is_vat_exempt_enabled() ) {
+			return;
 		}
-	}
 
-	public function ensure_vat_exempt_before_totals( $customer, $request ) {
-		// This runs late in the checkout process to ensure VAT exempt is applied before final totals
-		$data = $request->get_json_params();
-		$billing_country = $data['billing_address']['country'] ?? '';
+		$data              = $request->get_json_params();
+		$billing_country   = $data['billing_address']['country'] ?? '';
+		$shipping_country  = $data['shipping_address']['country'] ?? $billing_country;
 		$additional_fields = $data['additional_fields'] ?? array();
+		$dic               = $this->module->get_vat_id_from_block_checkout( $additional_fields, $billing_country );
 
-		// Get DIC based on country
-		$dic = null;
-		if ( $billing_country === 'SK' && ! empty( $additional_fields['wpify/dic-dph'] ) ) {
-			$dic = $additional_fields['wpify/dic-dph'];
-		} elseif ( $billing_country !== 'SK' && ! empty( $additional_fields['wpify/dic'] ) ) {
-			$dic = $additional_fields['wpify/dic'];
-		}
-
-		// Always reset VAT exempt first
-		WC()->customer->set_is_vat_exempt( false );
-
-		// Apply VAT exempt only if we have a valid DIC and VAT exempt countries are configured
-		$vat_extempt_countries = $this->module->get_setting( 'zero_tax_for_vat_countries' );
-		if ( ! empty( $dic ) && ! empty( $vat_extempt_countries ) ) {
-			$this->apply_vat_exempt_if_valid( $dic, $billing_country );
-		}
+		$result = $this->module->should_exempt_vat( $billing_country, $shipping_country, $dic );
+		WC()->customer->set_is_vat_exempt( $result['exempt'] );
 	}
 
 	public function validate_cart( $cart_errors, $cart ) {
@@ -419,94 +366,103 @@ class BlockSupport {
 			return $result;
 		}
 
-		// Only validate if VIES validation is enabled and vies_fails is false (strict mode)
-		if ( ! $this->module->get_setting( 'validate_vies' ) || $this->module->get_setting( 'vies_fails' ) === true ) {
+		$body              = $request->get_json_params();
+		$additional_fields = $body['additional_fields'] ?? array();
+		$billing_country   = $body['billing_address']['country'] ?? '';
+		$dic               = $this->module->get_vat_id_from_block_checkout( $additional_fields, $billing_country );
+
+		// Track skipped cases for logging
+		if ( ! $this->module->get_setting( 'validate_vies' ) ) {
+			$this->module->set_last_vies_result( 'skipped' );
 			return $result;
 		}
 
-		$body = $request->get_json_params();
-		$additional_fields = $body['additional_fields'] ?? array();
-		$billing_country = $body['billing_address']['country'] ?? '';
-
-		$validation_errors = array();
-
-		// Validate DIC fields based on country
-		if ( $billing_country === 'SK' ) {
-			// For Slovakia, validate dic-dph field
-			$dic_dph = $additional_fields['wpify/dic-dph'] ?? '';
-			if ( ! empty( $dic_dph ) && ! $this->module->is_valid_dic( $dic_dph ) ) {
-				$validation_errors[] = array(
-					'code'    => 'dic_dph_invalid',
-					'message' => __( 'The entered IN VAT Number has not been found in VIES, please enter valid IN VAT number.', 'wpify-woo' ),
-					'data'    => array( 'field' => 'wpify/dic-dph' )
-				);
-			}
-		} else {
-			// For other countries, validate dic field
-			$dic = $additional_fields['wpify/dic'] ?? '';
-			if ( ! empty( $dic ) && ! $this->module->is_valid_dic( $dic ) ) {
-				$validation_errors[] = array(
-					'code'    => 'dic_invalid',
-					'message' => __( 'The entered VAT Number has not been found in VIES, please enter valid VAT number.', 'wpify-woo' ),
-					'data'    => array( 'field' => 'wpify/dic' )
-				);
-			}
+		if ( empty( $dic ) ) {
+			$this->module->set_last_vies_result( 'skipped' );
+			return $result;
 		}
 
-		if ( ! empty( $validation_errors ) ) {
-			$combined_messages = array_column( $validation_errors, 'message' );
-
-			return new \WP_Error(
-				'vies_validation_failed',
-				implode( '<br>', $combined_messages ),
-				array(
-					'status'            => 400,
-					'validation_errors' => $validation_errors
-				)
-			);
+		// is_valid_dic() sets last_vies_result internally
+		if ( $this->module->is_valid_dic( $dic ) ) {
+			return $result;
 		}
 
+		// vies_fails = true means allow order even if VIES fails (but no VAT exempt)
+		if ( $this->module->get_setting( 'vies_fails' ) === true ) {
+			return $result;
+		}
 
-		return $result;
+		$field_key = $billing_country === 'SK' ? 'wpify/dic-dph' : 'wpify/dic';
+		$message   = $billing_country === 'SK'
+			? __( 'The entered IN VAT Number has not been found in VIES, please enter valid IN VAT number.', 'wpify-woo' )
+			: __( 'The entered VAT Number has not been found in VIES, please enter valid VAT number.', 'wpify-woo' );
+
+		return new \WP_Error(
+			'vies_validation_failed',
+			$message,
+			array(
+				'status'            => 400,
+				'validation_errors' => array(
+					array(
+						'code'    => 'dic_invalid',
+						'message' => $message,
+						'data'    => array( 'field' => $field_key ),
+					),
+				),
+			)
+		);
 	}
 
 	public function log_order_vat_exempt_decision( $order ) {
-		// Only log if DIC was provided
-		$billing_country = $order->get_billing_country();
-		$dic = $billing_country === 'SK'
-			? $order->get_meta('_billing_dic_dph')
-			: $order->get_meta('_billing_dic');
+		$billing_country  = $order->get_billing_country();
+		$shipping_country = $this->module->get_shipping_country_with_fallback( $order, $billing_country );
+		$shop_country     = wc_get_base_location()['country'];
+		$dic              = $this->module->get_vat_id_from_source( $order, $billing_country );
 
-		if ( empty( $dic ) ) {
-			return; // No DIC provided, skip logging
-		}
+		// Calculate VAT exempt using new logic
+		$vat_exempt_result = $this->module->should_exempt_vat(
+			$billing_country,
+			$shipping_country,
+			$dic ?: '',
+			false // Will validate via VIES if needed
+		);
 
-		// Detect VAT exempt from order - if tax_total is 0 but order has taxable items, likely VAT exempt
-		$customer_vat_exempt = ($order->get_total_tax() == 0 && $order->get_total() > 0);
-		$vat_exempt_countries = $this->module->get_setting( 'zero_tax_for_vat_countries' );
-		$shop_country = wc_get_base_location()['country'];
-		$shipping_country = $order->get_shipping_country();
+		// Save VAT exempt metadata to order
+		$this->module->save_vat_exempt_meta( $order, $vat_exempt_result );
 
-		// Determine if VAT should be exempt based on current logic
-		$should_be_vat_exempt = false;
-		if ( ! empty( $vat_exempt_countries ) ) {
-			$should_be_vat_exempt = $this->module->is_vat_extempt( $dic, $shipping_country );
-		}
+		// Detect actual VAT exempt from order totals
+		$actual_vat_exempt = ( $order->get_total_tax() == 0 && $order->get_total() > 0 );
 
-		$this->module->log->info('Order VAT Exempt Decision', [
-			'order_id' => $order->get_id(),
-			'order_number' => $order->get_order_number(),
-			'billing_country' => $billing_country,
-			'shipping_country' => $shipping_country,
-			'shop_country' => $shop_country,
-			'submitted_dic' => $dic,
-			'customer_vat_exempt' => $customer_vat_exempt,
-			'should_be_vat_exempt' => $should_be_vat_exempt,
-			'vat_exempt_countries' => $vat_exempt_countries,
-			'order_total' => $order->get_total(),
-			'tax_total' => $order->get_total_tax(),
-			'context' => 'Order created - Block checkout'
-		]);
+		// Log the decision
+		$this->module->log->info( 'Order VAT Exempt Decision', [
+			'order_id'              => $order->get_id(),
+			'order_number'          => $order->get_order_number(),
+			'billing_country'       => $billing_country,
+			'shipping_country'      => $shipping_country,
+			'shop_country'          => $shop_country,
+			'submitted_ic'          => $order->get_meta( '_billing_ic' ) ?: null,
+			'submitted_dic'         => $dic,
+			'actual_vat_exempt'     => $actual_vat_exempt,
+			'calculated_vat_exempt' => $vat_exempt_result['exempt'],
+			'vat_exempt_reason'     => $vat_exempt_result['reason'],
+			'order_total'           => $order->get_total(),
+			'tax_total'             => $order->get_total_tax(),
+			'context'               => 'Order created - Block checkout',
+			// Validation results
+			'validations'           => [
+				'ares_result' => $this->module->get_last_ares_result() ?? 'frontend_only',
+				'vies_result' => $this->module->get_last_vies_result(),
+			],
+			// Settings for debugging
+			'settings'              => [
+				'woo_tax_based_on'            => get_option( 'woocommerce_tax_based_on', 'shipping' ),
+				'validate_ares'               => $this->module->get_setting( 'validate_ares' ),
+				'validate_vies'               => $this->module->get_setting( 'validate_vies' ),
+				'vies_fails'                  => $this->module->get_setting( 'vies_fails' ),
+				'enable_eu_reverse_charge'    => $this->module->get_setting( 'enable_eu_reverse_charge' ),
+				'enable_third_country_export' => $this->module->get_setting( 'enable_third_country_export' ),
+			],
+		] );
 	}
 
 	/**

@@ -111,7 +111,7 @@ class Arrays
     public static function first(array $array, ?callable $predicate = null, ?callable $else = null): mixed
     {
         $key = self::firstKey($array, $predicate);
-        return ($key === null) ? $else ? $else() : null : $array[$key];
+        return $key === null ? $else ? $else() : null : $array[$key];
     }
     /**
      * Returns the last item (matching the specified predicate if given). If there is no such item, it returns result of invoking $else or null.
@@ -124,7 +124,7 @@ class Arrays
     public static function last(array $array, ?callable $predicate = null, ?callable $else = null): mixed
     {
         $key = self::lastKey($array, $predicate);
-        return ($key === null) ? $else ? $else() : null : $array[$key];
+        return $key === null ? $else ? $else() : null : $array[$key];
     }
     /**
      * Returns the key of first item (matching the specified predicate if given) or null if there is no such item.
@@ -164,7 +164,7 @@ class Arrays
      */
     public static function insertBefore(array &$array, string|int|null $key, array $inserted): void
     {
-        $offset = ($key === null) ? 0 : (int) self::getKeyOffset($array, $key);
+        $offset = $key === null ? 0 : (int) self::getKeyOffset($array, $key);
         $array = array_slice($array, 0, $offset, preserve_keys: \true) + $inserted + array_slice($array, $offset, count($array), preserve_keys: \true);
     }
     /**
@@ -224,7 +224,7 @@ class Arrays
      */
     public static function isList(mixed $value): bool
     {
-        return is_array($value) && ((PHP_VERSION_ID < 80100) ? !$value || array_keys($value) === range(0, count($value) - 1) : array_is_list($value));
+        return is_array($value) && (PHP_VERSION_ID < 80100 ? !$value || array_keys($value) === range(0, count($value) - 1) : array_is_list($value));
     }
     /**
      * Reformats table to associative tree. Path looks like 'field|field[]field->field=field'.
@@ -236,7 +236,7 @@ class Arrays
         if (!$parts || $parts === ['->'] || $parts[0] === '=' || $parts[0] === '|') {
             throw new Nette\InvalidArgumentException("Invalid path '{$path}'.");
         }
-        $res = ($parts[0] === '->') ? new \stdClass() : [];
+        $res = $parts[0] === '->' ? new \stdClass() : [];
         foreach ($array as $rowOrig) {
             $row = (array) $rowOrig;
             $x =& $res;
@@ -431,7 +431,7 @@ class Arrays
      */
     public static function toKey(mixed $value): int|string
     {
-        return key([$value => null]);
+        return key(@[$value => null]);
     }
     /**
      * Returns copy of the $array where every item is converted to string

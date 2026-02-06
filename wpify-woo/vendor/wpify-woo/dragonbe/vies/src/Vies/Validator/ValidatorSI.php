@@ -47,7 +47,7 @@ class ValidatorSI extends ValidatorAbstract
         if ($mod === 11) {
             return \false;
         }
-        $checkVal = ($mod == 10) ? 0 : $mod;
+        $checkVal = $mod == 10 ? 0 : $mod;
         return $checksum == $checkVal;
     }
 }

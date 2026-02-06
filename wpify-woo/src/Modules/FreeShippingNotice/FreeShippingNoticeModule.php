@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\FreeShippingNotice;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWoo\WooCommerceIntegration;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
@@ -54,9 +56,18 @@ class FreeShippingNoticeModule extends AbstractModule {
 		return Plugin::PLUGIN_SLUG;
 	}
 
+	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/free-shipping-notice';
+	}
 
 	/**
 	 * Settings
+	 *
 	 * @return array[]
 	 */
 	public function settings(): array {
@@ -151,8 +162,8 @@ class FreeShippingNoticeModule extends AbstractModule {
 				'label'        => __( 'Exclude shipping from check', 'wpify-woo-conditional-shipping' ),
 				'type'         => 'multi_select',
 				'desc'         => __( 'If you are showing free shipping if there is any free shipping, this sets the methods to be excluded from this check.', 'wpify-woo-conditional-shipping' ),
-				'options'      => function () {
-					return $this->woocommerce_integration->get_shipping_methods_option();
+				'options'      => function ( $args ) {
+					return $this->woocommerce_integration->get_shipping_methods_option( $args );
 				},
 				'async'        => true,
 				'async_params' => array(
@@ -273,8 +284,6 @@ class FreeShippingNoticeModule extends AbstractModule {
 			?>
 			<div class="wpify-woo-free-shipping-notice__wrapper"></div>
 			<?php
-			var_dump( 'return C' );
-
 			return;
 		}
 

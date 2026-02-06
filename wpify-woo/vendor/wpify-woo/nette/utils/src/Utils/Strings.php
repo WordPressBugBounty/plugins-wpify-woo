@@ -58,7 +58,7 @@ class Strings
         }
         $tmp = iconv('UTF-8', 'UTF-32BE//IGNORE', $c);
         if (!$tmp) {
-            throw new Nette\InvalidArgumentException('Invalid UTF-8 character "' . (($c === '') ? '' : ('\x' . strtoupper(bin2hex($c)))) . '".');
+            throw new Nette\InvalidArgumentException('Invalid UTF-8 character "' . ($c === '' ? '' : '\x' . strtoupper(bin2hex($c))) . '".');
         }
         return unpack('N', $tmp)[1];
     }
@@ -213,7 +213,7 @@ class Strings
         if ($lower) {
             $s = strtolower($s);
         }
-        $s = self::pcre('preg_replace', ['#[^a-z0-9' . (($charlist !== null) ? preg_quote($charlist, '#') : '') . ']+#i', '-', $s]);
+        $s = self::pcre('preg_replace', ['#[^a-z0-9' . ($charlist !== null ? preg_quote($charlist, '#') : '') . ']+#i', '-', $s]);
         $s = trim($s, '-');
         return $s;
     }
@@ -379,7 +379,7 @@ class Strings
     public static function before(string $haystack, string $needle, int $nth = 1): ?string
     {
         $pos = self::pos($haystack, $needle, $nth);
-        return ($pos === null) ? null : substr($haystack, 0, $pos);
+        return $pos === null ? null : substr($haystack, 0, $pos);
     }
     /**
      * Returns part of $haystack after $nth occurence of $needle or returns null if the needle was not found.
@@ -388,7 +388,7 @@ class Strings
     public static function after(string $haystack, string $needle, int $nth = 1): ?string
     {
         $pos = self::pos($haystack, $needle, $nth);
-        return ($pos === null) ? null : substr($haystack, $pos + strlen($needle));
+        return $pos === null ? null : substr($haystack, $pos + strlen($needle));
     }
     /**
      * Returns position in characters of $nth occurence of $needle in $haystack or null if the $needle was not found.
@@ -397,7 +397,7 @@ class Strings
     public static function indexOf(string $haystack, string $needle, int $nth = 1): ?int
     {
         $pos = self::pos($haystack, $needle, $nth);
-        return ($pos === null) ? null : self::length(substr($haystack, 0, $pos));
+        return $pos === null ? null : self::length(substr($haystack, 0, $pos));
     }
     /**
      * Returns position in characters of $nth occurence of $needle in $haystack or null if the needle was not found.
@@ -433,10 +433,10 @@ class Strings
      */
     public static function split(string $subject, #[Language('RegExp')] string $pattern, bool|int $captureOffset = \false, bool $skipEmpty = \false, int $limit = -1, bool $utf8 = \false): array
     {
-        $flags = is_int($captureOffset) ? $captureOffset : (($captureOffset ? PREG_SPLIT_OFFSET_CAPTURE : 0) | ($skipEmpty ? PREG_SPLIT_NO_EMPTY : 0));
+        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_SPLIT_OFFSET_CAPTURE : 0) | ($skipEmpty ? PREG_SPLIT_NO_EMPTY : 0);
         $pattern .= $utf8 ? 'u' : '';
         $m = self::pcre('preg_split', [$pattern, $subject, $limit, $flags | PREG_SPLIT_DELIM_CAPTURE]);
-        return ($utf8 && $captureOffset) ? self::bytesToChars($subject, [$m])[0] : $m;
+        return $utf8 && $captureOffset ? self::bytesToChars($subject, [$m])[0] : $m;
     }
     /**
      * Searches the string for the part matching the regular expression and returns
@@ -444,7 +444,7 @@ class Strings
      */
     public static function match(string $subject, #[Language('RegExp')] string $pattern, bool|int $captureOffset = \false, int $offset = 0, bool $unmatchedAsNull = \false, bool $utf8 = \false): ?array
     {
-        $flags = is_int($captureOffset) ? $captureOffset : (($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0));
+        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
         if ($utf8) {
             $offset = strlen(self::substring($subject, 0, $offset));
             $pattern .= 'u';
@@ -488,9 +488,9 @@ class Strings
         if ($offset > strlen($subject)) {
             return [];
         }
-        $flags = is_int($captureOffset) ? $captureOffset : (($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0) | ($patternOrder ? PREG_PATTERN_ORDER : 0));
-        self::pcre('preg_match_all', [$pattern, $subject, &$m, ($flags & PREG_PATTERN_ORDER) ? $flags : ($flags | PREG_SET_ORDER), $offset]);
-        return ($utf8 && $captureOffset) ? self::bytesToChars($subject, $m) : $m;
+        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0) | ($patternOrder ? PREG_PATTERN_ORDER : 0);
+        self::pcre('preg_match_all', [$pattern, $subject, &$m, $flags & PREG_PATTERN_ORDER ? $flags : $flags | PREG_SET_ORDER, $offset]);
+        return $utf8 && $captureOffset ? self::bytesToChars($subject, $m) : $m;
     }
     /**
      * Replaces all occurrences matching regular expression $pattern which can be string or array in the form `pattern => replacement`.

@@ -46,7 +46,7 @@ final class ObjectHelpers
     {
         $trace = debug_backtrace(0, 3);
         // suppose this method is called from __call()
-        $context = (($trace[1]['function'] ?? null) === '__call') ? $trace[2]['class'] ?? null : null;
+        $context = ($trace[1]['function'] ?? null) === '__call' ? $trace[2]['class'] ?? null : null;
         if ($context && is_a($class, $context, \true) && method_exists($context, $method)) {
             // called parent::$method()
             $class = get_parent_class($context);
@@ -69,7 +69,7 @@ final class ObjectHelpers
     {
         $trace = debug_backtrace(0, 3);
         // suppose this method is called from __callStatic()
-        $context = (($trace[1]['function'] ?? null) === '__callStatic') ? $trace[2]['class'] ?? null : null;
+        $context = ($trace[1]['function'] ?? null) === '__callStatic' ? $trace[2]['class'] ?? null : null;
         if ($context && is_a($class, $context, \true) && method_exists($context, $method)) {
             // called parent::$method()
             $class = get_parent_class($context);
@@ -126,7 +126,7 @@ final class ObjectHelpers
         $best = null;
         $min = (strlen($value) / 4 + 1) * 10 + 0.1;
         foreach (array_unique($possibilities, SORT_REGULAR) as $item) {
-            $item = ($item instanceof \Reflector) ? $item->name : $item;
+            $item = $item instanceof \Reflector ? $item->name : $item;
             if ($item !== $value && (($len = levenshtein($item, $value, 10, 11, 10)) < $min || ($len = levenshtein(preg_replace($re, '*', $item), $norm, 10, 11, 10)) < $min)) {
                 $min = $len;
                 $best = $item;
@@ -160,7 +160,7 @@ final class ObjectHelpers
             try {
                 $rp = new \ReflectionProperty($class, $name);
                 if ($rp->isPublic() && !$rp->isStatic()) {
-                    $prop = ($name >= 'onA' && $name < 'on_') ? 'event' : \true;
+                    $prop = $name >= 'onA' && $name < 'on_' ? 'event' : \true;
                 }
             } catch (\ReflectionException $e) {
             }

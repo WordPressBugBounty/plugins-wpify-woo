@@ -39,7 +39,7 @@ class Floats
         if ($diff < self::Epsilon || $diff / max(abs($a), abs($b)) < self::Epsilon) {
             return 0;
         }
-        return ($a < $b) ? -1 : 1;
+        return $a < $b ? -1 : 1;
     }
     /**
      * Returns true if $a = $b

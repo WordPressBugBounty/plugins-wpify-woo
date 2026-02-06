@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\Prices;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooDeps\Wpify\Asset\AssetFactory;
@@ -55,6 +57,15 @@ class PricesModule extends AbstractModule {
 
 	public function plugin_slug(): string {
 		return Plugin::PLUGIN_SLUG;
+	}
+
+	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/prices';
 	}
 
 	/**
@@ -134,11 +145,11 @@ class PricesModule extends AbstractModule {
 						'type'  => 'text',
 						'label' => __( 'Price label', 'wpify-woo' ),
 					),
-					array(
-						'id'    => 'show_label',
-						'type'  => 'toggle',
-						'label' => __( 'Show label on frontend', 'wpify-woo' ),
-					),
+//					array(
+//						'id'    => 'show_label',
+//						'type'  => 'toggle',
+//						'label' => __( 'Show label on frontend', 'wpify-woo' ),
+//					),
 					array(
 						'id'      => 'type',
 						'type'    => 'select',
@@ -179,6 +190,30 @@ class PricesModule extends AbstractModule {
 						'id'    => 'badge_class',
 						'type'  => 'text',
 						'label' => __( 'Custom badge css class', 'wpify-woo' ),
+					),
+					array(
+						'id'      => 'price_condition',
+						'type'    => 'select',
+						'label'   => __( 'When price display', 'wpify-woo' ),
+						'options' => array(
+							array(
+								'label' => __( 'Always', 'wpify-woo' ),
+								'value' => '',
+							),
+							array(
+								'label' => __( 'If product is in sale', 'wpify-woo' ),
+								'value' => 'in_sale',
+							),
+							array(
+								'label' => __( 'If product is not in sale', 'wpify-woo' ),
+								'value' => 'not_in_sale',
+							),
+							array(
+								'label' => __( 'If product is on backorder', 'wpify-woo' ),
+								'value' => 'on_backorder',
+							),
+						),
+						'default' => '',
 					),
 					array(
 						'type'      => 'hidden',
@@ -331,7 +366,11 @@ class PricesModule extends AbstractModule {
 		if ( is_array( $custom_prices ) ) {
 			foreach ( $custom_prices as $custom_price ) {
 				$custom_prices_meta = get_post_meta( $product->get_id(), '_custom_prices', true );
-				$has_price          = ! empty( $custom_prices_meta ) && isset( $custom_prices_meta[ $custom_price['uuid'] ] );
+				$has_price          = 'lowest' === $custom_price['type'] || ( ! empty( $custom_prices_meta ) && isset( $custom_prices_meta[ $custom_price['uuid'] ] ) );
+
+				if ( ! $this->should_display_custom_price( $custom_price, $product ) ) {
+					continue;
+				}
 
 				if ( $has_price && isset( $custom_price['regular_price_label'] ) && ! empty( $custom_price['regular_price_label'] ) ) {
 					$price = '<span class="wpify-woo-prices__regular-price-label">' . $custom_price['regular_price_label'] . '</span> ' . $price;
@@ -380,6 +419,8 @@ class PricesModule extends AbstractModule {
 		$wrapper = $in_html ? 'span' : 'div';
 		$line    = $in_html ? 'span' : 'p';
 
+		global $product;
+
 		ob_start();
 		?>
 		<<?= $wrapper ?> class="wpify-woo-prices">
@@ -387,6 +428,10 @@ class PricesModule extends AbstractModule {
 		$custom_prices_vales = get_post_meta( get_the_ID(), '_custom_prices', true );
 
 		foreach ( $custom_prices as $price ) {
+			if ( ! $this->should_display_custom_price( $price, $product ) ) {
+				continue;
+			}
+
 			$price['suffix'] = '';
 			if ( ! isset( $price['type'] ) ) {
 				if ( isset( $price['lowest_price'] ) && $price['lowest_price'] ) {
@@ -402,7 +447,6 @@ class PricesModule extends AbstractModule {
 				if ( ! $custom_prices_vales || ! isset( $custom_prices_vales[ $price['uuid'] ] ) ) {
 					continue;
 				}
-				global $product;
 				$unit_data = $custom_prices_vales[ $price['uuid'] ];
 				if ( empty( $unit_data['quantity'] ) ) {
 					continue;
@@ -456,6 +500,21 @@ class PricesModule extends AbstractModule {
 		<?php
 
 		return ob_get_clean();
+	}
+
+	public function should_display_custom_price( $custom_price, $product ) {
+		$condition = ! empty( $custom_price['price_condition'] ) ? $custom_price['price_condition'] : '';
+
+		$display = true;
+		if (
+			'in_sale' === $condition && ! $product->is_on_sale() ||
+			'not_in_sale' === $condition && $product->is_on_sale() ||
+			'on_backorder' === $condition && ! $product->is_on_backorder()
+		) {
+			$display = false;
+		}
+
+		return apply_filters( 'wpify_woo_prices_should_display_price', $display, $custom_price, $product );
 	}
 
 	/**

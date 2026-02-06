@@ -34,7 +34,7 @@ final class UriComparator
         if (null !== $port) {
             return $port;
         }
-        return ('https' === $uri->getScheme()) ? 443 : 80;
+        return 'https' === $uri->getScheme() ? 443 : 80;
     }
     private function __construct()
     {

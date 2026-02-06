@@ -26,7 +26,7 @@ class CachingIterator extends \CachingIterator implements \Countable
     private int $counter = 0;
     public function __construct(iterable|\stdClass $iterable)
     {
-        $iterable = ($iterable instanceof \stdClass) ? new \ArrayIterator($iterable) : Nette\Utils\Iterables::toIterator($iterable);
+        $iterable = $iterable instanceof \stdClass ? new \ArrayIterator((array) $iterable) : Nette\Utils\Iterables::toIterator($iterable);
         parent::__construct($iterable, 0);
     }
     /**

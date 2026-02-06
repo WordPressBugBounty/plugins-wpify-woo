@@ -89,7 +89,7 @@ class ValidatorFR extends ValidatorAbstract
         } else {
             $checkVal = intval($checkVal) % 97;
         }
-        return ($checkVal == 0) ? "00" : (string) $checkVal;
+        return $checkVal == 0 ? "00" : (string) $checkVal;
     }
     /**
      * @param string $vatNumber

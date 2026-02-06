@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\EmailAttachments;
 
+defined( 'ABSPATH' ) || exit;
+
 use WC_Order;
 use WC_Order_Item_Product;
 use WC_Product;
@@ -36,6 +38,15 @@ class EmailAttachmentsModule extends AbstractModule {
 		return Plugin::PLUGIN_SLUG;
 	}
 
+	/**
+	 * Module documentation path
+	 *
+	 * @return string
+	 */
+	public function get_documentation_path(): string {
+		return 'wpify-woo/modules/email-attachments';
+	}
+
 	public function product_attachments_metabox() {
 		$this->custom_fields->create_product_options(
 			[
@@ -65,8 +76,8 @@ class EmailAttachmentsModule extends AbstractModule {
 						'id'           => 'email',
 						'label'        => __( 'Attach to emails', 'wpify-woo' ),
 						'type'         => 'multi_select',
-						'options'      => function () {
-							return $this->woocommerce_integration->get_emails_select();
+						'options'      => function ($args) {
+							return $this->woocommerce_integration->get_emails_select($args);
 						},
 						'async'        => true,
 						'async_params' => array(
@@ -80,8 +91,8 @@ class EmailAttachmentsModule extends AbstractModule {
 						'label'        => __( 'Enabled countries', 'wpify-woo' ),
 						'desc'         => __( 'Select the countries for which the attachment should be added. Leave empty for all.', 'wpify-woo' ),
 						'type'         => 'multi_select',
-						'options'      => function () {
-							return $this->woocommerce_integration->get_countries_select();
+						'options'      => function ($args) {
+							return $this->woocommerce_integration->get_countries_select($args);
 						},
 						'async'        => true,
 						'async_params' => array(
@@ -122,7 +133,7 @@ class EmailAttachmentsModule extends AbstractModule {
 		// Global emails
 		$country     = $data->get_shipping_country() ?: $data->get_billing_country();
 		$items       = $this->get_setting( 'email_attachments' ) ?: [];
-		$attachments = array_merge( $attachments, $this->add_attachments( $items, $email_id, $country ) );
+		$attachments = array_merge( $attachments, $this->add_attachments( $items, $email_id, $country, $data ) );
 
 		// Product emails.
 		foreach ( $data->get_items() as $item ) {
@@ -137,13 +148,13 @@ class EmailAttachmentsModule extends AbstractModule {
 				continue;
 			}
 
-			$attachments = array_merge( $attachments, $this->add_attachments( $items, $email_id, $country ) );
+			$attachments = array_merge( $attachments, $this->add_attachments( $items, $email_id, $country, $data ) );
 		}
 
 		return array_unique( $attachments );
 	}
 
-	public function add_attachments( $items, $email_id, $country ) {
+	public function add_attachments( $items, $email_id, $country, WC_Order $order ) {
 		$attachments = [];
 		foreach ( $items as $item ) {
 			if ( ! in_array( $email_id, $item['email'] ) ) {
@@ -159,20 +170,20 @@ class EmailAttachmentsModule extends AbstractModule {
 				foreach ( $item['attachments'] as $attachment_id ) {
 					$file = get_attached_file( $attachment_id );
 					if ( $file ) {
-						$attachments[] = get_attached_file( $attachment_id );
+						$attachments[] = $file;
 					}
 				}
 			}
 
 			if ( ! empty( $item['custom_fields'] ) ) {
 				foreach ( $item['custom_fields'] as $field ) {
-					if ( file_exists( $field['custom_field'] ) ) {
-						$attachments[] = get_attached_file( $field['custom_field'] );
+					$file_path = $order->get_meta( $field['custom_field'] );
+					if ( $file_path && file_exists( $file_path ) ) {
+						$attachments[] = $file_path;
 					}
 				}
 			}
 		}
-
 		return $attachments;
 	}
 

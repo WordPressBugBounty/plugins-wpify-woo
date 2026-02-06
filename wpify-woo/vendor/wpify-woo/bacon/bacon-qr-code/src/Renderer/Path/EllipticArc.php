@@ -107,7 +107,7 @@ final class EllipticArc implements OperationInterface
         list($centerX, $centerY, $radiusX, $radiusY, $startAngle, $deltaAngle) = $this->calculateCenterPointParameters($fromX, $fromY, $xAngle);
         $s = $startAngle;
         $e = $s + $deltaAngle;
-        $sign = ($e < $s) ? -1 : 1;
+        $sign = $e < $s ? -1 : 1;
         $remain = abs($e - $s);
         $p1 = self::point($centerX, $centerY, $radiusX, $radiusY, $xAngle, $s);
         $curves = [];

@@ -178,7 +178,7 @@ final class Encoder
         $headerAndDataBits = new BitArray();
         $headerAndDataBits->appendBitArray($headerBits);
         // Find "length" of main segment and write it.
-        $numLetters = (Mode::BYTE() === $mode) ? $dataBits->getSizeInBytes() : strlen($content);
+        $numLetters = Mode::BYTE() === $mode ? $dataBits->getSizeInBytes() : strlen($content);
         self::appendLengthInfo($numLetters, $version, $mode, $headerAndDataBits);
         // Put data together into the overall payload.
         $headerAndDataBits->appendBitArray($dataBits);
@@ -322,7 +322,7 @@ final class Encoder
         }
         $numPaddingBytes = $numDataBytes - $bits->getSizeInBytes();
         for ($i = 0; $i < $numPaddingBytes; ++$i) {
-            $bits->appendBits((0 === ($i & 0x1)) ? 0xec : 0x11, 8);
+            $bits->appendBits(0 === ($i & 0x1) ? 0xec : 0x11, 8);
         }
         if ($bits->getSize() !== $capacity) {
             throw new WriterException('Bits size does not equal capacity');

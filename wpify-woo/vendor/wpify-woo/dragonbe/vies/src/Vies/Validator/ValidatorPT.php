@@ -37,7 +37,7 @@ class ValidatorPT extends ValidatorAbstract
         $checksum = (int) $vatNumber[8];
         $weights = [9, 8, 7, 6, 5, 4, 3, 2];
         $checkVal = $this->sumWeights($weights, $vatNumber);
-        $checkVal = (11 - $checkVal % 11 > 9) ? 0 : (11 - $checkVal % 11);
+        $checkVal = 11 - $checkVal % 11 > 9 ? 0 : 11 - $checkVal % 11;
         return $checksum == $checkVal;
     }
 }

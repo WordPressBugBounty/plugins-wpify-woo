@@ -24,7 +24,7 @@ final class PngWriter implements WriterInterface, ValidatingWriterInterface
         }
         $matrixFactory = new MatrixFactory();
         $matrix = $matrixFactory->create($qrCode);
-        $baseBlockSize = ($qrCode->getRoundBlockSizeMode() instanceof RoundBlockSizeModeNone) ? 10 : intval($matrix->getBlockSize());
+        $baseBlockSize = $qrCode->getRoundBlockSizeMode() instanceof RoundBlockSizeModeNone ? 10 : intval($matrix->getBlockSize());
         $baseImage = imagecreatetruecolor($matrix->getBlockCount() * $baseBlockSize, $matrix->getBlockCount() * $baseBlockSize);
         if (!$baseImage) {
             throw new \Exception('Unable to generate image: please check if the GD extension is enabled and configured correctly');

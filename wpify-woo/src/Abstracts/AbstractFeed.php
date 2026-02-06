@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Abstracts;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Spatie\ArrayToXml\ArrayToXml;
 use WpifyWooDeps\Wpify\Core\Abstracts\AbstractComponent;

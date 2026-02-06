@@ -522,7 +522,7 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
      */
     public function insert(?int $index, HtmlStringable|string $child, bool $replace = \false): static
     {
-        $child = ($child instanceof self) ? $child : (string) $child;
+        $child = $child instanceof self ? $child : (string) $child;
         if ($index === null) {
             // append
             $this->children[] = $child;
@@ -638,7 +638,7 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
      */
     final public function endTag(): string
     {
-        return ($this->name && !$this->isEmpty) ? '</' . $this->name . '>' : '';
+        return $this->name && !$this->isEmpty ? '</' . $this->name . '>' : '';
     }
     /**
      * Returns element's attributes.
@@ -666,13 +666,13 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
                         if ($v != null) {
                             // intentionally ==, skip nulls & empty string
                             // composite 'style' vs. 'others'
-                            $tmp[] = ($v === \true) ? $k : (is_string($k) ? $k . ':' . $v : $v);
+                            $tmp[] = $v === \true ? $k : (is_string($k) ? $k . ':' . $v : $v);
                         }
                     }
                     if ($tmp === null) {
                         continue;
                     }
-                    $value = implode(($key === 'style' || !strncmp($key, 'on', 2)) ? ';' : ' ', $tmp);
+                    $value = implode($key === 'style' || !strncmp($key, 'on', 2) ? ';' : ' ', $tmp);
                 }
             } elseif (is_float($value)) {
                 $value = rtrim(rtrim(number_format($value, 10, '.', ''), '0'), '.');
@@ -680,7 +680,7 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
                 $value = (string) $value;
             }
             $q = str_contains($value, '"') ? "'" : '"';
-            $s .= ' ' . $key . '=' . $q . str_replace(['&', $q, '<'], ['&amp;', ($q === '"') ? '&quot;' : '&#39;', '<'], $value) . ((str_contains($value, '`') && strpbrk($value, ' <>"\'') === \false) ? ' ' : '') . $q;
+            $s .= ' ' . $key . '=' . $q . str_replace(['&', $q, '<'], ['&amp;', $q === '"' ? '&quot;' : '&#39;', '<'], $value) . (str_contains($value, '`') && strpbrk($value, ' <>"\'') === \false ? ' ' : '') . $q;
         }
         $s = str_replace('@', '&#64;', $s);
         return $s;
