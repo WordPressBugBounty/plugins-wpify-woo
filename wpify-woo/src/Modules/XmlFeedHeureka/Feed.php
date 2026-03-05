@@ -46,7 +46,7 @@ class Feed extends AbstractFeed {
 				continue;
 			}
 
-			if ( $product->is_type( 'simple' ) ) {
+			if ( $product->is_type( 'simple' ) || $product->is_type( 'grouped' ) || $product->is_type( 'external' ) || $product->is_type( 'bundle' ) ) {
 				if ( ! $product->get_price() ) {
 					continue;
 				}

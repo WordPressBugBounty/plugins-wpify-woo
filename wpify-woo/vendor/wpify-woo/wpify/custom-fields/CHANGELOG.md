@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.6.0] - 2026-02-20
+
+### Added
+- Cloudflare field type for Cloudflare zone connection
+
+## [4.5.1] - 2026-02-18
+
+### Added
+- Custom column widths support for Columns field via array syntax
+
+### Fixed
+- Child normalization in Columns field
+
+## [4.5.0] - 2026-02-17
+
+### Added
+- `collapse` prop for MultiGroup field to control item collapsibility
+- `wrapper` field type for visual grouping of fields without value nesting
+- `columns` field type for multi-column grid layout
+- `FieldFactory` class for programmatic field creation
+- `setTitle` support for all field components
+
+### Changed
+- Removed React portals and render fields inside a single app container
+- Switched field layout to CSS grid
+- Cleaned up CSS/SCSS styles and React classnames
+- Wrapped root fields in container div for layout targeting
+- Applied flex layout to app instance fields wrapper
+- Rewrote README with comprehensive field types, examples, and integration reference
+- Standardized all 57 field type docs with consistent template
+
+### Fixed
+- Active tab now preserved after saving options page
+- Grid layout for fields without label text
+- Explicit props now properly override spread props in Label and FieldComponent
+
 ## [4.4.2] - 2026-02-05
 
 ### Fixed

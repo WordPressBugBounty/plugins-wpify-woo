@@ -482,6 +482,7 @@ return array(
     'WpifyWooDeps\\Wpify\\CustomFields\\CustomFields' => $vendorDir . '/wpify/custom-fields/src/CustomFields.php',
     'WpifyWooDeps\\Wpify\\CustomFields\\Exceptions\\CustomFieldsException' => $vendorDir . '/wpify/custom-fields/src/Exceptions/CustomFieldsException.php',
     'WpifyWooDeps\\Wpify\\CustomFields\\Exceptions\\MissingArgumentException' => $vendorDir . '/wpify/custom-fields/src/Exceptions/MissingArgumentException.php',
+    'WpifyWooDeps\\Wpify\\CustomFields\\FieldFactory' => $vendorDir . '/wpify/custom-fields/src/FieldFactory.php',
     'WpifyWooDeps\\Wpify\\CustomFields\\Fields\\DirectFileField' => $vendorDir . '/wpify/custom-fields/src/Fields/DirectFileField.php',
     'WpifyWooDeps\\Wpify\\CustomFields\\Helpers' => $vendorDir . '/wpify/custom-fields/src/Helpers.php',
     'WpifyWooDeps\\Wpify\\CustomFields\\Integrations\\BaseIntegration' => $vendorDir . '/wpify/custom-fields/src/Integrations/BaseIntegration.php',

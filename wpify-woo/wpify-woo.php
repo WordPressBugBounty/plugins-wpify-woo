@@ -3,20 +3,21 @@
 defined( 'ABSPATH' ) || exit;
 
 /*
- * Plugin Name:          WPify Woo Czech
- * Description:          Custom functionality for WooCommerce
- * Version:              5.3.0
- * Requires PHP:         8.1
- * Requires at least:    6.2
- * Author:               WPify s.r.o.
- * Author URI:           https://www.wpify.io/
- * License:              GPLv2 or later
- * License URI:          https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:          wpify-woo
- * Domain Path:          /languages
+ * Plugin Name: WPify Woo Czech
+ * Description: Custom functionality for WooCommerce
+ * Version: 5.3.1
+ * Requires PHP: 8.1
+ * Requires at least: 6.2
+ * Author: WPify s.r.o.
+ * Author URI: https://www.wpify.io/
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: wpify-woo
+ * Domain Path: /languages
  * WC requires at least: 7.0
- * WC tested up to:      10.1
- * Requires Plugins:     woocommerce
+ * WC tested up to: 10.5
+ * Requires Plugins: woocommerce
+ * Tested up to: 6.9
 */
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
@@ -168,12 +169,12 @@ if ( version_compare( PHP_VERSION, WPIFY_WOO_MIN_PHP_VERSION ) < 0 ) {
 } elseif ( ! wpify_woo_plugin_is_active( 'woocommerce/woocommerce.php' ) ) {
 	add_action( 'admin_notices', 'wpify_woo_woocommerce_not_active' );
 } else {
-	if ( file_exists( __DIR__ . '/vendor/wpify-woo/scoper-autoload.php' ) ) {
-		$core_bootstrap = __DIR__ . '/vendor/wpify-woo/wpify/woo-core/bootstrap.php';
-		if ( file_exists( $core_bootstrap ) ) {
-			require_once $core_bootstrap;
-		}
+	$core_bootstrap = __DIR__ . '/vendor/wpify-woo/wpify/woo-core/bootstrap.php';
+	if ( file_exists( $core_bootstrap ) ) {
+		require_once $core_bootstrap;
+	}
 
+	if ( file_exists( __DIR__ . '/vendor/wpify-woo/scoper-autoload.php' ) ) {
 		include_once __DIR__ . '/vendor/wpify-woo/scoper-autoload.php';
 		include_once __DIR__ . '/vendor/autoload.php';
 

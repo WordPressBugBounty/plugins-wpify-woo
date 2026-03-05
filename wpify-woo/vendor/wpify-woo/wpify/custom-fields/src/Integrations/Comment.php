@@ -156,6 +156,7 @@ class Comment extends ItemsIntegration
     public function register_meta(): void
     {
         $items = $this->normalize_items($this->items);
+        $items = $this->custom_fields->flatten_items($items);
         foreach ($items as $item) {
             register_meta('comment', $item['id'], array('type' => $this->custom_fields->get_wp_type($item), 'description' => $item['label'], 'single' => \true, 'default' => $this->custom_fields->get_default_value($item), 'sanitize_callback' => $this->custom_fields->sanitize_item_value($item), 'show_in_rest' => \false));
         }
@@ -173,11 +174,9 @@ class Comment extends ItemsIntegration
         $items = $this->normalize_items($this->items);
         $this->set_comment($comment->comment_ID);
         $this->enqueue();
-        $this->print_app('comment', $this->tabs);
         wp_nonce_field($this->id, $this->nonce);
-        foreach ($items as $item) {
-            $this->print_field($item);
-        }
+        $prepared = $this->prepare_items_for_js($items);
+        $this->print_app('comment', $this->tabs, array(), $prepared);
     }
     /**
      * Retrieve the value of a specified option.

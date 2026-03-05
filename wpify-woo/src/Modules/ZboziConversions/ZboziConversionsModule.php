@@ -119,23 +119,51 @@ class ZboziConversionsModule extends AbstractModule {
 		if ( ! $this->get_setting( 'shop_id' ) || apply_filters( 'wpify_woo_zbozi_conversion_render_code', true ) === false ) {
 			return;
 		}
-		$parameters = $this->get_parameters( $order_id );
+		$parameters   = $this->get_parameters( $order_id );
+		$cookie_name  = $this->get_setting( 'cookie_name' );
+		$cookie_value = $this->get_setting( 'cookie_value' );
 
 		?>
 		<!-- Zbozi.cz / Sklik conversion Limited -->
 		<script type="text/javascript" src="https://c.seznam.cz/js/rc.js"></script>
 		<script>
-			var conversionConf = {
-				<?php
-				foreach ( $parameters as $key => $parameter ) {
-					echo $key . ': ' . $parameter . ', ';
+			(function() {
+				function getCookie(name) {
+					var nameEQ = name + "=";
+					var ca = document.cookie.split(';');
+					for (var i = 0; i < ca.length; i++) {
+						var c = ca[i];
+						while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+						if (c.indexOf(nameEQ) === 0) {
+							return decodeURIComponent(c.substring(nameEQ.length, c.length));
+						}
+					}
+					return null;
 				}
-				?>
-			};
-			if (window.rc && window.rc.conversionHit) {
-				window.rc.conversionHit(conversionConf);
-			}
-			console.log('conversionConf', conversionConf);
+
+				var consent = 1;
+				<?php if ( $cookie_name && $cookie_value ) : ?>
+				var value = getCookie("<?php echo esc_js( $cookie_name ); ?>");
+				if (value && (value === "<?php echo esc_js( $cookie_value ); ?>" || value.includes("<?php echo esc_js( $cookie_value ); ?>"))) {
+					consent = 1;
+				} else {
+					consent = 0;
+				}
+				<?php endif; ?>
+
+				var conversionConf = {
+					<?php
+					foreach ( $parameters as $key => $parameter ) {
+						echo $key . ': ' . $parameter . ', ';
+					}
+					?>
+					consent: consent
+				};
+				if (window.rc && window.rc.conversionHit) {
+					window.rc.conversionHit(conversionConf);
+				}
+				console.log('conversionConf', conversionConf);
+			})();
 		</script>
 	<?php }
 
@@ -163,12 +191,6 @@ class ZboziConversionsModule extends AbstractModule {
 
 			$parameters['id']    = $sklik_id;
 			$parameters['value'] = $wc_order->get_total();
-		}
-
-		$cookie_name  = $this->get_setting( 'cookie_name' );
-		$cookie_value = $this->get_setting( 'cookie_value' );
-		if ( $cookie_name && $cookie_value ) {
-			$parameters['consent'] = 'document.cookie.includes("' . $cookie_name . '=' . $cookie_value . '") ? 1 : 0';
 		}
 
 		return apply_filters( 'wpify_woo_zbozi_conversion_script_parameters', $parameters );

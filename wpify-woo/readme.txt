@@ -4,9 +4,12 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.3.0
+Stable tag: 5.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+WC requires at least: 7.0
+WC tested up to: 10.5
+Requires Plugins: woocommerce
 
 Adds Czech and Slovak features to WooCommerce: Heureka, CRN/VAT fields, free shipping notice, QR payments, async emails and more.
 
@@ -219,6 +222,14 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+
+= 5.3.1 =
+* Fix cookie consent detection in Zbozi.cz/Sklik Conversions Limited and Sklik Retargeting modules
+* Fix PHP warnings in QR payment module
+* Fix block checkout not pre-filling company data (IC, DIC, company name) for customers with legacy meta key format
+* Fix Auto-enable block checkout "I'm shopping for a company" toggle when customer has existing company data
+* Add support for grouped, external and bundle product types in Heureka XML feed
+
 = 5.3.0 =
 * Add locale-aware documentation links with new docs site content
 * Add async rendering option for Delivery Dates (REST-based, cache-friendly)

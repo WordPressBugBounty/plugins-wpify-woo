@@ -202,11 +202,9 @@ class WooCommerceSettings extends OptionsIntegration
             return;
         }
         $this->enqueue();
-        $this->print_app('woocommerce-options', $this->tabs);
         $items = $this->normalize_items($this->items);
-        foreach ($items as $item) {
-            $this->print_field($item);
-        }
+        $prepared = $this->prepare_items_for_js($items);
+        $this->print_app('woocommerce-options', $this->tabs, array(), $prepared);
     }
     /**
      * Save the settings for the specified tab and section.

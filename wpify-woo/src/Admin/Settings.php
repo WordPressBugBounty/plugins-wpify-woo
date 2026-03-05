@@ -69,6 +69,7 @@ class Settings {
 					'options'   => $this->modules_manager->get_modules(),
 					'desc'      => __( 'Select the modules you want to enable', 'wpify-woo' ),
 					'className' => 'wpify__modules-toggle',
+					'render_options' => ['noFieldWrapper' => true],
 				),
 			)
 		);

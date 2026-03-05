@@ -28,13 +28,24 @@ class BlockSupport {
 			return $wc_object->get_billing_company();
 		}, 10, 3 );
 		add_filter( 'woocommerce_get_default_value_for_wpify/ic', function ( $value, $group, $wc_object ) {
-			return $wc_object->get_meta( '_billing_ic' );
+			return $wc_object->get_meta( '_billing_ic' ) ?: $wc_object->get_meta( 'billing_ic' );
 		}, 10, 3 );
 		add_filter( 'woocommerce_get_default_value_for_wpify/dic', function ( $value, $group, $wc_object ) {
-			return $wc_object->get_meta( '_billing_dic' );
+			return $wc_object->get_meta( '_billing_dic' ) ?: $wc_object->get_meta( 'billing_dic' );
 		}, 10, 3 );
 		add_filter( 'woocommerce_get_default_value_for_wpify/dic-dph', function ( $value, $group, $wc_object ) {
-			return $wc_object->get_meta( '_billing_dic_dph' );
+			return $wc_object->get_meta( '_billing_dic_dph' ) ?: $wc_object->get_meta( 'billing_dic_dph' );
+		}, 10, 3 );
+		add_filter( 'woocommerce_get_default_value_for_wpify/ic_dic_toggle', function ( $value, $group, $wc_object ) {
+			if ( $value ) {
+				return $value;
+			}
+			// Auto-enable toggle if customer has any company data
+			$ic      = $wc_object->get_meta( '_billing_ic' ) ?: $wc_object->get_meta( 'billing_ic' );
+			$dic     = $wc_object->get_meta( '_billing_dic' ) ?: $wc_object->get_meta( 'billing_dic' );
+			$company = $wc_object->get_billing_company();
+
+			return ( $ic || $dic || $company ) ? '1' : $value;
 		}, 10, 3 );
 		add_action( 'woocommerce_validate_additional_field', [ $this, 'validate_ic_dic_fields' ], 10, 3 );
 		// Hook to capture current country from checkout data during validation

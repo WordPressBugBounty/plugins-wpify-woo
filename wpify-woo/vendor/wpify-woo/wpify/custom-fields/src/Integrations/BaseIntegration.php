@@ -101,7 +101,8 @@ abstract class BaseIntegration
             }
         }
         if (isset($item['items'])) {
-            $item['items'] = $this->normalize_items($item['items'], $item['global_id']);
+            $child_global_id = in_array($item['type'] ?? '', array('columns', 'wrapper'), \true) ? $global_id : $item['global_id'];
+            $item['items'] = $this->normalize_items($item['items'], $child_global_id);
         }
         if (isset($item['options'])) {
             if (is_callable($item['options']) && isset($item['async']) && \false === $item['async']) {

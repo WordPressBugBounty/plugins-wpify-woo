@@ -134,20 +134,51 @@ class SklikRetargetingModule extends AbstractModule {
 			return;
 		}
 
+		$parameters   = $this->get_parameters();
+		$cookie_name  = $this->get_setting( 'cookie_name' );
+		$cookie_value = $this->get_setting( 'cookie_value' );
+
 		?>
 		<!-- Sklik retargeting -->
 		<script type="text/javascript" src="https://c.seznam.cz/js/rc.js"></script>
 		<script>
-			var retargetingConf = {
-				<?php $parameters = $this->get_parameters();
-				foreach ( $parameters as $key => $parameter ) {
-					echo $key . ': ' . $parameter . ', ';
+			(function() {
+				function getCookie(name) {
+					var nameEQ = name + "=";
+					var ca = document.cookie.split(';');
+					for (var i = 0; i < ca.length; i++) {
+						var c = ca[i];
+						while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+						if (c.indexOf(nameEQ) === 0) {
+							return decodeURIComponent(c.substring(nameEQ.length, c.length));
+						}
+					}
+					return null;
 				}
-				?> };
-			if (window.rc && window.rc.retargetingHit) {
-				window.rc.retargetingHit(retargetingConf);
-			}
-			console.log('retargetingConf', retargetingConf);
+
+				var consent = 1;
+				<?php if ( $cookie_name && $cookie_value ) : ?>
+				var value = getCookie("<?php echo esc_js( $cookie_name ); ?>");
+				if (value && (value === "<?php echo esc_js( $cookie_value ); ?>" || value.includes("<?php echo esc_js( $cookie_value ); ?>"))) {
+					consent = 1;
+				} else {
+					consent = 0;
+				}
+				<?php endif; ?>
+
+				var retargetingConf = {
+					<?php
+					foreach ( $parameters as $key => $parameter ) {
+						echo $key . ': ' . $parameter . ', ';
+					}
+					?>
+					consent: consent
+				};
+				if (window.rc && window.rc.retargetingHit) {
+					window.rc.retargetingHit(retargetingConf);
+				}
+				console.log('retargetingConf', retargetingConf);
+			})();
 		</script>
 		<?php
 	}
@@ -182,12 +213,6 @@ class SklikRetargetingModule extends AbstractModule {
 				$parameters['category'] = '"' . $category . '"';
 				$parameters['pageType'] = '"category"';
 			}
-		}
-
-		$cookie_name  = $this->get_setting( 'cookie_name' );
-		$cookie_value = $this->get_setting( 'cookie_value' );
-		if ( $cookie_name && $cookie_value ) {
-			$parameters['consent'] = 'document.cookie.includes("' . $cookie_name . '=' . $cookie_value . '") ? 1 : 0';
 		}
 
 		return apply_filters( 'wpify_woo_sklik_retargeting_parameters', $parameters );

@@ -884,8 +884,8 @@ class QRPaymentModule extends AbstractModule {
 
 				if ( ! empty( $bacs_data['account_number'] ) ) {
 					$numbers              = explode( '/', $bacs_data['account_number'] );
-					$account['number']    = $numbers[0] ?: '';
-					$account['bank_code'] = $numbers[1] ?: '';
+					$account['number']    = $numbers[0] ?? '';
+					$account['bank_code'] = $numbers[1] ?? '';
 				}
 
 				if ( ! empty( $bacs_data['iban'] ) ) {

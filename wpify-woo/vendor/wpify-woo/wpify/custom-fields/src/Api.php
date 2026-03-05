@@ -44,6 +44,7 @@ class Api
         $this->register_rest_route('mapycz-api-key', WP_REST_Server::READABLE, fn() => get_option('mapy_cz_api_key'));
         $this->register_rest_route('direct-file-upload', WP_REST_Server::CREATABLE, array($this, 'handle_direct_file_upload'), array('field_id' => array('required' => \false)));
         $this->register_rest_route('direct-file-info', WP_REST_Server::READABLE, array($this, 'handle_direct_file_info'), array('file_path' => array('required' => \true)));
+        $this->register_rest_route('cloudflare/zones', WP_REST_Server::CREATABLE, array($this, 'handle_cloudflare_zones'), array('email' => array('required' => \true), 'api_key' => array('required' => \true), 'page' => array('required' => \false)));
     }
     /**
      * Registers a REST API route with specified parameters.
@@ -147,5 +148,37 @@ class Api
         $filesize = filesize($file_path);
         $filetype = wp_check_filetype($file_path);
         return array('size' => $filesize, 'type' => $filetype['type'], 'filename' => basename($file_path));
+    }
+    /**
+     * Handles fetching Cloudflare zones for the given credentials.
+     *
+     * @param WP_REST_Request $request The REST API request object.
+     *
+     * @return array|\WP_Error Zones list or error.
+     */
+    public function handle_cloudflare_zones(WP_REST_Request $request)
+    {
+        $email = sanitize_email($request->get_param('email'));
+        $api_key = sanitize_text_field($request->get_param('api_key'));
+        $page = absint($request->get_param('page') ? $request->get_param('page') : 1);
+        $response = wp_remote_get(add_query_arg(array('per_page' => 50, 'page' => $page), 'https://api.cloudflare.com/client/v4/zones'), array('headers' => array('X-Auth-Email' => $email, 'X-Auth-Key' => $api_key, 'Content-Type' => 'application/json')));
+        if (is_wp_error($response)) {
+            return new \WP_Error('cloudflare_request_failed', $response->get_error_message(), array('status' => 502));
+        }
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = json_decode(wp_remote_retrieve_body($response), \true);
+        if (200 !== $status_code || empty($body['success'])) {
+            $message = __('Cloudflare API error.', 'wpify-custom-fields');
+            if (!empty($body['errors']) && is_array($body['errors'])) {
+                $message = sanitize_text_field($body['errors'][0]['message'] ?? $message);
+            }
+            return new \WP_Error('cloudflare_api_error', $message, array('status' => $status_code ? $status_code : 502));
+        }
+        $zones = array();
+        foreach ($body['result'] ?? array() as $zone) {
+            $zones[] = array('zone_id' => sanitize_text_field($zone['id'] ?? ''), 'zone_name' => sanitize_text_field($zone['name'] ?? ''), 'account_id' => sanitize_text_field($zone['account']['id'] ?? ''), 'account_name' => sanitize_text_field($zone['account']['name'] ?? ''));
+        }
+        $result_info = $body['result_info'] ?? array();
+        return array('zones' => $zones, 'page' => intval($result_info['page'] ?? $page), 'total_pages' => intval($result_info['total_pages'] ?? 1), 'total_count' => intval($result_info['total_count'] ?? count($zones)));
     }
 }

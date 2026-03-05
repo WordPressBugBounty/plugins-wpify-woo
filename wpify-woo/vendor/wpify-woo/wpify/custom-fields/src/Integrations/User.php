@@ -107,6 +107,7 @@ class User extends ItemsIntegration
     public function register_meta(): void
     {
         $items = $this->normalize_items($this->items);
+        $items = $this->custom_fields->flatten_items($items);
         foreach ($items as $item) {
             register_meta('user', $item['id'], array('type' => $this->custom_fields->get_wp_type($item), 'description' => $item['label'], 'single' => \true, 'default' => $this->custom_fields->get_default_value($item), 'sanitize_callback' => $this->custom_fields->sanitize_item_value($item)));
         }
@@ -134,35 +135,8 @@ class User extends ItemsIntegration
             ?></h3>
 			<?php 
         }
-        $this->print_app('user', $this->tabs);
-        ?>
-		<table class="form-table" role="presentation">
-			<tbody>
-			<?php 
-        foreach ($items as $item) {
-            ?>
-				<tr>
-					<th scope="row">
-						<label for="<?php 
-            echo esc_attr($item['id']);
-            ?>">
-							<?php 
-            echo esc_html($item['label']);
-            ?>
-						</label>
-					</th>
-					<td>
-						<?php 
-            $this->print_field($item);
-            ?>
-					</td>
-				</tr>
-				<?php 
-        }
-        ?>
-			</tbody>
-		</table>
-		<?php 
+        $prepared = $this->prepare_items_for_js($items);
+        $this->print_app('user', $this->tabs, array(), $prepared);
     }
     /**
      * Saves the custom field values for a user.

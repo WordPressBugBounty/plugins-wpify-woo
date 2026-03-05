@@ -214,7 +214,7 @@ abstract class AbstractModule
         if ((wp_is_json_request() || is_admin()) && !empty($section_param) && $section_param === $this->id()) {
             return \true;
         }
-        return apply_filters('wpify_woo_is_settings_page', \false, $this->id());
+        return apply_filters('wpify_woo_is_settings_page', \false, $this->id(), $page, $this->plugin_slug());
     }
     public function is_enabled()
     {
@@ -230,6 +230,10 @@ abstract class AbstractModule
     public function add_admin_menu_bar_data($data)
     {
         if (!$this->is_settings_page()) {
+            return $data;
+        }
+        $allow_menu_bar_item = apply_filters('wpify_woo_allow_module_menu_bar_item', \true, $this->plugin_slug(), $this->id(), $data);
+        if (!$allow_menu_bar_item) {
             return $data;
         }
         $data['parent'] = $this->parent_settings_id();

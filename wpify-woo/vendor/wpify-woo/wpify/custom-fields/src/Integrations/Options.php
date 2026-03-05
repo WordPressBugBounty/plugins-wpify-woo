@@ -141,18 +141,6 @@ class Options extends OptionsIntegration
      */
     public readonly array $items;
     /**
-     * List of the sections to be defined.
-     *
-     * @var array
-     */
-    public readonly array $sections;
-    /**
-     * Default section name.
-     *
-     * @var string
-     */
-    public readonly string $default_section;
-    /**
      * Tabs used for the custom fields.
      *
      * @var array
@@ -214,25 +202,7 @@ class Options extends OptionsIntegration
         $this->option_group = empty($this->option_name) ? sanitize_title(join('_', array_filter(array($this->parent_slug, $this->menu_slug)))) : $this->option_name;
         $this->tabs = $args['tabs'] ?? array();
         $this->success_message = empty($args['success_message']) ? __('Settings saved', 'wpify-custom-fields') : $args['success_message'];
-        if (empty($args['sections'])) {
-            $args['sections'] = array();
-        }
-        $sections = array();
-        foreach ($args['sections'] as $key => $section) {
-            if (empty($section['id']) && is_string($key)) {
-                $section['id'] = $key;
-            }
-            $sections[$section['id']] = $section;
-        }
-        if (empty($sections)) {
-            $sections = array('default' => array('id' => 'default', 'title' => '', 'callback' => '__return_true', 'page' => $this->menu_slug));
-        }
-        $this->sections = $sections;
         $this->id = sanitize_title(join('-', array('options', $this->type, $this->menu_slug, $this->parent_slug, $this->position)));
-        foreach ($this->sections as $section) {
-            $this->default_section = $section['id'];
-            break;
-        }
         if (!defined('WpifyWooDeps\WP_CLI') || \false === WP_CLI) {
             if (!empty($this->option_name)) {
                 add_filter("wpifycf_{$this->type}_{$this->option_name}_items", array($this, 'get_items_for_option_name'));
@@ -326,11 +296,12 @@ class Options extends OptionsIntegration
         if ($this->type === $this::TYPE_NETWORK) {
             wp_nonce_field($this->get_network_save_action());
         }
-        $this->print_app('options', $this->tabs);
         if ($this->type !== $this::TYPE_NETWORK) {
             settings_fields($this->option_group);
         }
-        do_settings_sections($this->menu_slug);
+        $items = $this->normalize_items($this->items);
+        $prepared = $this->prepare_items_for_js($items);
+        $this->print_app('options', $this->tabs, array(), $prepared);
         if (\false !== $this->submit_button) {
             if (is_array($this->submit_button)) {
                 submit_button($this->submit_button['text'] ?? null, $this->submit_button['type'] ?? null, $this->submit_button['name'] ?? null, $this->submit_button['wrap'] ?? \true, $this->submit_button['other_attributes'] ?? array());
@@ -422,19 +393,13 @@ class Options extends OptionsIntegration
     public function register_settings(): void
     {
         $items = $this->normalize_items($this->items);
+        $items = $this->custom_fields->flatten_items($items);
         if (empty($this->option_name)) {
             foreach ($items as $item) {
                 register_setting($this->option_group, $item['id'], array('type' => $this->custom_fields->get_wp_type($item), 'label' => $item['label'] ?? '', 'sanitize_callback' => $this->custom_fields->sanitize_item_value($item), 'show_in_rest' => \false, 'default' => $this->custom_fields->get_default_value($item)));
             }
         } else {
             register_setting($this->option_group, $this->option_name, array('type' => 'object', 'label' => $this->page_title, 'sanitize_callback' => $this->custom_fields->sanitize_option_value(apply_filters("wpifycf_{$this->type}_{$this->option_name}_items", array()), $this->get_option_value($this->option_name, array())), 'show_in_rest' => \false, 'default' => array()));
-        }
-        foreach ($this->sections as $id => $section) {
-            add_settings_section($id, $section['title'] ?? '', $section['callback'] ?? '__return_true', $this->menu_slug, $section['args'] ?? array());
-        }
-        foreach ($items as $item) {
-            $section = $this->sections[$item['section']]['id'] ?? $this->default_section;
-            add_settings_field($item['id'], $item['label'], array($this, 'print_field'), $this->menu_slug, $section, array('label_for' => $item['id'], ...$item));
         }
     }
     /**

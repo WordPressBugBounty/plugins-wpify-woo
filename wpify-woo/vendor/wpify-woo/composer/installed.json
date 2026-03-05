@@ -2081,17 +2081,17 @@
         },
         {
             "name": "wpify\/custom-fields",
-            "version": "4.4.2",
-            "version_normalized": "4.4.2.0",
+            "version": "4.6.3",
+            "version_normalized": "4.6.3.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/custom-fields.git",
-                "reference": "5d12eacd8d69a28d17882a3a51cd157388b59c34"
+                "reference": "d21d950bbfa653980725d474159339e724b42b42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/5d12eacd8d69a28d17882a3a51cd157388b59c34",
-                "reference": "5d12eacd8d69a28d17882a3a51cd157388b59c34",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/d21d950bbfa653980725d474159339e724b42b42",
+                "reference": "d21d950bbfa653980725d474159339e724b42b42",
                 "shasum": ""
             },
             "require": {
@@ -2104,7 +2104,7 @@
                 "squizlabs\/php_codesniffer": "^3.10",
                 "wp-coding-standards\/wpcs": "^3.0"
             },
-            "time": "2026-02-05T11:55:19+00:00",
+            "time": "2026-03-02T14:35:20+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2122,7 +2122,7 @@
             "description": "WPify Custom Fields",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/custom-fields\/issues",
-                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.4.2"
+                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.6.3"
             },
             "install-path": "..\/wpify\/custom-fields"
         },
@@ -2217,23 +2217,23 @@
         },
         {
             "name": "wpify\/model",
-            "version": "4.1.27",
-            "version_normalized": "4.1.27.0",
+            "version": "4.1.28",
+            "version_normalized": "4.1.28.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/model.git",
-                "reference": "e6c6a6421ade5498be4f5fd1580770bd8dbd2fd6"
+                "reference": "2c71dbb6fb6a5346acf86efd752aed2e3a9940d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/model\/zipball\/e6c6a6421ade5498be4f5fd1580770bd8dbd2fd6",
-                "reference": "e6c6a6421ade5498be4f5fd1580770bd8dbd2fd6",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/model\/zipball\/2c71dbb6fb6a5346acf86efd752aed2e3a9940d0",
+                "reference": "2c71dbb6fb6a5346acf86efd752aed2e3a9940d0",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.0.0"
             },
-            "time": "2025-07-11T12:58:54+00:00",
+            "time": "2026-02-10T14:06:14+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2254,7 +2254,7 @@
             "description": "WPify Model",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/model\/issues",
-                "source": "https:\/\/github.com\/wpify\/model\/tree\/4.1.27"
+                "source": "https:\/\/github.com\/wpify\/model\/tree\/4.1.28"
             },
             "install-path": "..\/wpify\/model"
         },
@@ -2300,25 +2300,25 @@
         },
         {
             "name": "wpify\/woo-core",
-            "version": "5.3.1",
-            "version_normalized": "5.3.1.0",
+            "version": "5.4.3",
+            "version_normalized": "5.4.3.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/woo-core.git",
-                "reference": "3d8a0e8cc2f701e5c10cab24b0ab0d1ec2b7f066"
+                "reference": "6779a0b2362e5eb7f1558659cf7c648630c36e46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/3d8a0e8cc2f701e5c10cab24b0ab0d1ec2b7f066",
-                "reference": "3d8a0e8cc2f701e5c10cab24b0ab0d1ec2b7f066",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/woo-core\/zipball\/6779a0b2362e5eb7f1558659cf7c648630c36e46",
+                "reference": "6779a0b2362e5eb7f1558659cf7c648630c36e46",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.1",
-                "wpify\/custom-fields": "^4.0",
+                "wpify\/custom-fields": "^4",
                 "wpify\/license": "^2"
             },
-            "time": "2026-02-05T17:13:19+00:00",
+            "time": "2026-03-02T14:40:33+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2338,7 +2338,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/woo-core\/issues",
-                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.3.1"
+                "source": "https:\/\/github.com\/wpify\/woo-core\/tree\/5.4.3"
             },
             "install-path": "..\/wpify\/woo-core"
         }

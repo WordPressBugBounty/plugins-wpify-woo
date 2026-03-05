@@ -325,6 +325,7 @@ class GutenbergBlock extends BaseIntegration
     public function get_attributes(): array
     {
         $items = $this->normalize_items($this->items);
+        $items = $this->custom_fields->flatten_items($items);
         $attributes = array();
         foreach ($items as $item) {
             $attributes[$item['id']] = array('type' => $this->custom_fields->get_wp_type($item), 'default' => $this->custom_fields->get_default_value($item));
@@ -342,7 +343,7 @@ class GutenbergBlock extends BaseIntegration
      */
     public function render(array $attributes, string $content, WP_Block $block): string
     {
-        if (defined('WpifyWooDeps\REST_REQUEST') && REST_REQUEST && filter_input(\INPUT_GET, 'context') !== 'edit' || null === $this->render_callback) {
+        if (null === $this->render_callback || defined('WpifyWooDeps\REST_REQUEST') && REST_REQUEST || wp_doing_ajax() || is_admin() || filter_input(\INPUT_GET, 'meta-box-loader')) {
             return $content;
         }
         $attributes = $this->normalize_attributes($attributes);

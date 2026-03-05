@@ -243,16 +243,8 @@ class CouponOptions extends ItemsIntegration
         ?>
 		<div class="options_group">
 			<?php 
-        $this->print_app('coupon-options', $this->tabs);
-        foreach ($items as $item) {
-            ?>
-				<div class="form-field">
-					<?php 
-            $this->print_field($item);
-            ?>
-				</div>
-				<?php 
-        }
+        $prepared = $this->prepare_items_for_js($items);
+        $this->print_app('coupon-options', $this->tabs, array(), $prepared);
         ?>
 		</div>
 		<?php 
@@ -295,6 +287,7 @@ class CouponOptions extends ItemsIntegration
     public function register_meta(): void
     {
         $items = $this->normalize_items($this->items);
+        $items = $this->custom_fields->flatten_items($items);
         foreach ($items as $item) {
             register_post_meta('coupon', $item['id'], array('type' => $this->custom_fields->get_wp_type($item), 'description' => $item['label'], 'single' => \true, 'default' => $this->custom_fields->get_default_value($item), 'sanitize_callback' => $this->custom_fields->sanitize_item_value($item), 'show_in_rest' => \false));
         }

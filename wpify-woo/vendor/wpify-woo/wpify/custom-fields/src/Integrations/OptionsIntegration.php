@@ -21,8 +21,9 @@ abstract class OptionsIntegration extends BaseIntegration
      * @param string $context The context in which the app is used.
      * @param array  $tabs Tabs data to be used in the app.
      * @param array  $data_attributes Optional. Additional data attributes.
+     * @param array  $items Optional. Prepared field items to embed as data-fields.
      */
-    public function print_app(string $context, array $tabs, array $data_attributes = array()): void
+    public function print_app(string $context, array $tabs, array $data_attributes = array(), array $items = array()): void
     {
         if (!apply_filters('wpifycf_print_app', \true, $this, $context, $tabs, $data_attributes)) {
             return;
@@ -44,6 +45,9 @@ abstract class OptionsIntegration extends BaseIntegration
 			data-context="<?php 
         echo esc_attr($context);
         ?>"
+			data-fields="<?php 
+        echo esc_attr($this->custom_fields->helpers->json_encode($items));
+        ?>"
 			<?php 
         foreach ($data_attributes as $key => $value) {
             printf(' data-%s="%s"', esc_attr($key), esc_attr($value));
@@ -51,6 +55,57 @@ abstract class OptionsIntegration extends BaseIntegration
         ?>
 		></div>
 		<?php 
+    }
+    /**
+     * Prepares items for embedding as JSON in the app container.
+     *
+     * Extracts name-building and value-fetching logic from print_field() into a reusable method.
+     *
+     * @param array $items Normalized items to prepare.
+     * @param array $data_attributes Optional. Additional data attributes (e.g. loop).
+     *
+     * @return array Prepared items with name, value, and loop set.
+     */
+    public function prepare_items_for_js(array $items, array $data_attributes = array()): array
+    {
+        $prepared = array();
+        foreach ($items as $item) {
+            if (in_array($item['type'] ?? '', array('wrapper', 'columns'), \true) && !empty($item['items'])) {
+                $item['items'] = $this->prepare_items_for_js($item['items'], $data_attributes);
+                $prepared[] = $item;
+            } else {
+                $name = $this->build_field_name($item['id'], $data_attributes);
+                $item['name'] = $name;
+                $item['value'] = $this->get_field($item['id'], $item);
+                $item['loop'] = $data_attributes['loop'] ?? '';
+                $prepared[] = $item;
+            }
+        }
+        return $prepared;
+    }
+    /**
+     * Builds the input name attribute for a field.
+     *
+     * @param string $field_id The field ID.
+     * @param array  $data_attributes Optional. Additional data attributes (e.g. loop).
+     *
+     * @return string The constructed field name.
+     */
+    private function build_field_name(string $field_id, array $data_attributes = array()): string
+    {
+        if (empty($this->option_name)) {
+            $name = $field_id;
+            if (isset($data_attributes['loop'])) {
+                $name .= '[' . $data_attributes['loop'] . ']';
+            }
+        } else {
+            $name = $this->option_name;
+            if (isset($data_attributes['loop'])) {
+                $name .= '[' . $data_attributes['loop'] . ']';
+            }
+            $name .= '[' . $field_id . ']';
+        }
+        return $name;
     }
     /**
      * Prints a field element with specific data attributes.
@@ -62,18 +117,7 @@ abstract class OptionsIntegration extends BaseIntegration
      */
     public function print_field(array $item, array $data_attributes = array(), string $tag = 'div', string $class_name = ''): void
     {
-        if (empty($this->option_name)) {
-            $name = $item['id'];
-            if (isset($data_attributes['loop'])) {
-                $name .= '[' . $data_attributes['loop'] . ']';
-            }
-        } else {
-            $name = $this->option_name;
-            if (isset($data_attributes['loop'])) {
-                $name .= '[' . $data_attributes['loop'] . ']';
-            }
-            $name .= '[' . $item['id'] . ']';
-        }
+        $name = $this->build_field_name($item['id'], $data_attributes);
         $item['name'] = $name;
         $item['value'] = $this->get_field($item['id'], $item);
         $item['loop'] = $data_attributes['loop'] ?? '';
@@ -154,6 +198,7 @@ abstract class OptionsIntegration extends BaseIntegration
      */
     public function set_fields(string $option_name, array $sanitized_values, array $items): void
     {
+        $items = $this->custom_fields->flatten_items($items);
         $data = array();
         foreach ($items as $item) {
             if (isset($sanitized_values[$item['id']])) {
@@ -194,6 +239,7 @@ abstract class OptionsIntegration extends BaseIntegration
         // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         // Nonce verification not needed here, is verified by caller.
         // phpcs:disable WordPress.Security.NonceVerification.Missing
+        $items = $this->custom_fields->flatten_items($items);
         if (!empty($this->option_name)) {
             if (is_null($loop_id)) {
                 $post_data = isset($_POST[$this->option_name]) ? wp_unslash($_POST[$this->option_name]) : array();

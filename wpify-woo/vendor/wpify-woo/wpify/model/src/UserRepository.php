@@ -97,7 +97,12 @@ class UserRepository extends Repository
                 $data[$key] = $model->{$prop['name']};
             } elseif ($source instanceof Meta) {
                 $key = $source->meta_key ?? $prop['name'];
-                $data['meta_input'][$key] = $model->{$prop['name']};
+                $value = $model->{$prop['name']};
+                // WordPress stores boolean user meta as string 'true'/'false'
+                if (is_bool($value)) {
+                    $value = $value ? 'true' : 'false';
+                }
+                $data['meta_input'][$key] = $value;
             }
         }
         if ($data['ID'] > 0) {

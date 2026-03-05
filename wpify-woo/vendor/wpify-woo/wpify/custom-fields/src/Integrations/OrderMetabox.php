@@ -192,16 +192,8 @@ class OrderMetabox extends ItemsIntegration
             call_user_func($this->callback);
         }
         wp_nonce_field($this->id, $this->nonce);
-        $this->print_app('order-meta', $this->tabs);
-        foreach ($items as $item) {
-            ?>
-			<div class="form-field">
-				<?php 
-            $this->print_field($item);
-            ?>
-			</div>
-			<?php 
-        }
+        $prepared = $this->prepare_items_for_js($items);
+        $this->print_app('order-meta', $this->tabs, array(), $prepared);
     }
     /**
      * Retrieves the order associated with the current order ID.

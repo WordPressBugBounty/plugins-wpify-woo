@@ -218,13 +218,12 @@ class ProductVariationOptions extends ItemsIntegration
         if (is_callable($this->callback)) {
             call_user_func($this->callback);
         }
+        $data_attributes = array('loop' => $loop);
         ?>
 		<div class="options_group">
 			<?php 
-        $this->print_app('product-variation', $this->tabs, array('loop' => $loop));
-        foreach ($items as $item) {
-            $this->print_field($item, array('loop' => $loop), 'div', 'form-field');
-        }
+        $prepared = $this->prepare_items_for_js($items, $data_attributes);
+        $this->print_app('product-variation', $this->tabs, $data_attributes, $prepared);
         ?>
 		</div>
 		<?php 
@@ -275,6 +274,7 @@ class ProductVariationOptions extends ItemsIntegration
     public function register_meta(): void
     {
         $items = $this->normalize_items($this->items);
+        $items = $this->custom_fields->flatten_items($items);
         foreach ($items as $item) {
             register_post_meta('product_variation', $item['id'], array('type' => $this->custom_fields->get_wp_type($item), 'description' => $item['label'], 'single' => \true, 'default' => $this->custom_fields->get_default_value($item), 'sanitize_callback' => $this->custom_fields->sanitize_item_value($item), 'show_in_rest' => \false));
         }

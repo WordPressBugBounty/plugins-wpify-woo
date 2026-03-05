@@ -53,6 +53,12 @@ class CustomFields
      */
     public readonly DirectFileField $direct_file_field;
     /**
+     * FieldFactory class.
+     *
+     * @var FieldFactory
+     */
+    public readonly FieldFactory $field_factory;
+    /**
      * Custom fields constructor.
      */
     public function __construct()
@@ -60,6 +66,7 @@ class CustomFields
         $this->helpers = new Helpers();
         $this->api = new Api($this, $this->helpers);
         $this->direct_file_field = new DirectFileField($this);
+        $this->field_factory = new FieldFactory();
         $this->init_temp_cleanup();
     }
     /**
@@ -333,6 +340,28 @@ class CustomFields
         return 'wpifycf_' . str_replace('/', '_', $this->get_api_basename());
     }
     /**
+     * Recursively flattens wrapper items, hoisting their children to the parent level.
+     *
+     * Wrapper fields are purely visual containers and do not nest values.
+     * This method is used by storage operations to iterate over actual data fields.
+     *
+     * @param array $items The items array, potentially containing wrapper items.
+     *
+     * @return array Flattened items with wrapper children promoted to the parent level.
+     */
+    public function flatten_items(array $items): array
+    {
+        $result = array();
+        foreach ($items as $item) {
+            if (in_array($item['type'] ?? '', array('wrapper', 'columns'), \true) && !empty($item['items'])) {
+                $result = array_merge($result, $this->flatten_items($item['items']));
+            } else {
+                $result[] = $item;
+            }
+        }
+        return $result;
+    }
+    /**
      * Sanitizes a given item's value based on its type using a closure.
      *
      * @param array $item The item array which contains the type and other relevant information.
@@ -368,7 +397,7 @@ class CustomFields
             } elseif ('group' === $item['type']) {
                 $value = is_string($value) ? json_decode($value, \true) : (array) $value;
                 $sanitized_value = $value;
-                foreach ($item['items'] as $sub_item) {
+                foreach ($this->flatten_items($item['items']) as $sub_item) {
                     $sanitized_value[$sub_item['id']] = $this->sanitize_item_value($sub_item)($value[$sub_item['id']] ?? null);
                 }
             } elseif ('link' === $item['type']) {
@@ -391,6 +420,15 @@ class CustomFields
                 $sanitized_value['city'] = sanitize_text_field($value['city'] ?? '');
                 $sanitized_value['cityPart'] = sanitize_text_field($value['cityPart'] ?? '');
                 $sanitized_value['country'] = sanitize_text_field($value['country'] ?? '');
+            } elseif ('cloudflare' === $item['type']) {
+                $value = is_string($value) ? json_decode($value, \true) : (array) $value;
+                $sanitized_value = array();
+                $sanitized_value['email'] = sanitize_email($value['email'] ?? '');
+                $sanitized_value['api_key'] = sanitize_text_field($value['api_key'] ?? '');
+                $sanitized_value['zone_id'] = sanitize_text_field($value['zone_id'] ?? '');
+                $sanitized_value['zone_name'] = sanitize_text_field($value['zone_name'] ?? '');
+                $sanitized_value['account_id'] = sanitize_text_field($value['account_id'] ?? '');
+                $sanitized_value['account_name'] = sanitize_text_field($value['account_name'] ?? '');
             } elseif ('date_range' === $item['type']) {
                 $value = is_string($value) ? json_decode($value, \true) : $value;
                 if (!is_array($value) || empty($value[0]) && empty($value[1])) {
@@ -441,6 +479,7 @@ class CustomFields
      */
     public function sanitize_option_value(array $items = array(), mixed $previous_value = array()): Closure
     {
+        $items = $this->flatten_items($items);
         return function (array $value = array()) use ($items, $previous_value): array {
             $next_value = is_array($previous_value) ? $previous_value : array();
             foreach ($items as $item) {
@@ -471,7 +510,7 @@ class CustomFields
             $type = 'number';
         } elseif (in_array($item['type'], array('checkbox', 'toggle'), \true)) {
             $type = 'boolean';
-        } elseif (in_array($item['type'], array('group', 'link', 'mapycz'), \true)) {
+        } elseif (in_array($item['type'], array('cloudflare', 'group', 'link', 'mapycz'), \true)) {
             $type = 'object';
         } elseif ('date_range' === $item['type']) {
             $type = 'array';
@@ -491,6 +530,9 @@ class CustomFields
      */
     public function get_default_value(array $item): mixed
     {
+        if (in_array($item['type'] ?? '', array('wrapper', 'columns'), \true)) {
+            return null;
+        }
         if (isset($item['default'])) {
             $default_value = $item['default'];
         } elseif ('date_range' === $item['type']) {

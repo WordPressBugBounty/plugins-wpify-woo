@@ -674,6 +674,7 @@ class ComposerStaticInit3e0932dcb0c4d04c48847e6e8434136e
         'WpifyWooDeps\\Wpify\\CustomFields\\CustomFields' => __DIR__ . '/..' . '/wpify/custom-fields/src/CustomFields.php',
         'WpifyWooDeps\\Wpify\\CustomFields\\Exceptions\\CustomFieldsException' => __DIR__ . '/..' . '/wpify/custom-fields/src/Exceptions/CustomFieldsException.php',
         'WpifyWooDeps\\Wpify\\CustomFields\\Exceptions\\MissingArgumentException' => __DIR__ . '/..' . '/wpify/custom-fields/src/Exceptions/MissingArgumentException.php',
+        'WpifyWooDeps\\Wpify\\CustomFields\\FieldFactory' => __DIR__ . '/..' . '/wpify/custom-fields/src/FieldFactory.php',
         'WpifyWooDeps\\Wpify\\CustomFields\\Fields\\DirectFileField' => __DIR__ . '/..' . '/wpify/custom-fields/src/Fields/DirectFileField.php',
         'WpifyWooDeps\\Wpify\\CustomFields\\Helpers' => __DIR__ . '/..' . '/wpify/custom-fields/src/Helpers.php',
         'WpifyWooDeps\\Wpify\\CustomFields\\Integrations\\BaseIntegration' => __DIR__ . '/..' . '/wpify/custom-fields/src/Integrations/BaseIntegration.php',

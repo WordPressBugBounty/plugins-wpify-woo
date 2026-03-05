@@ -108,11 +108,9 @@ class Taxonomy extends ItemsIntegration
     {
         $this->term_id = 0;
         $this->enqueue();
-        $this->print_app('add_term', $this->tabs);
         $items = $this->normalize_items($this->items);
-        foreach ($items as $item) {
-            $this->print_field($item, array(), 'div', 'form-field');
-        }
+        $prepared = $this->prepare_items_for_js($items);
+        $this->print_app('add_term', $this->tabs, array(), $prepared);
     }
     /**
      * Renders the edit form for a given term.
@@ -125,19 +123,17 @@ class Taxonomy extends ItemsIntegration
     {
         $this->term_id = $term->term_id;
         $this->enqueue();
+        $items = $this->normalize_items($this->items);
+        $prepared = $this->prepare_items_for_js($items);
         ?>
 		<tr class="form-field">
 			<td colspan="2">
 				<?php 
-        $this->print_app('edit_term', $this->tabs);
+        $this->print_app('edit_term', $this->tabs, array(), $prepared);
         ?>
 			</td>
 		</tr>
 		<?php 
-        $items = $this->normalize_items($this->items);
-        foreach ($items as $item) {
-            $this->print_field($item, array(), 'tr');
-        }
     }
     /**
      * Registers custom metadata for the specified taxonomy using the provided items.
@@ -150,6 +146,7 @@ class Taxonomy extends ItemsIntegration
     public function register_meta(): void
     {
         $items = $this->normalize_items($this->items);
+        $items = $this->custom_fields->flatten_items($items);
         foreach ($items as $item) {
             register_term_meta($this->taxonomy, $item['id'], array('type' => $this->custom_fields->get_wp_type($item), 'description' => $item['label'], 'single' => \true, 'default' => $this->custom_fields->get_default_value($item), 'sanitize_callback' => $this->custom_fields->sanitize_item_value($item), 'show_in_rest' => \false));
         }
