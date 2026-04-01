@@ -455,7 +455,9 @@ class DeliveryDatesModule extends AbstractModule {
 					ENT_QUOTES | ENT_HTML5,
 					'UTF-8'
 				),
-				'score'   => $group['score'],
+				'date'          => (string) ( $group['data']['date'] ?? '' ),
+				'specific_date' => (string) ( $group['data']['date'] ?? '' ),
+				'score'         => $group['score'],
 			);
 		}
 
