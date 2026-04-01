@@ -4,6 +4,7 @@ namespace WpifyWoo\Modules\DeliveryDates;
 
 defined( 'ABSPATH' ) || exit;
 
+use WC_Product;
 use WC_Shipping_Zones;
 use WpifyWoo\Plugin;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
@@ -438,6 +439,29 @@ class DeliveryDatesModule extends AbstractModule {
 		return $date;
 	}
 
+	public function get_delivery_date_data( WC_Product $product ): array {
+		$delivery_groups = $this->resolve_delivery_date_groups( $product );
+
+		foreach ( $delivery_groups as $group ) {
+			if ( empty( $group['is_visible'] ) ) {
+				continue;
+			}
+
+			return array(
+				'status'  => $this->get_product_delivery_status( $product ),
+				'title'   => (string) $this->get_setting( 'title' ),
+				'message' => html_entity_decode(
+					wp_strip_all_tags( str_replace( '{date}', $group['data']['date'], $group['data']['message'] ) ),
+					ENT_QUOTES | ENT_HTML5,
+					'UTF-8'
+				),
+				'score'   => $group['score'],
+			);
+		}
+
+		return array();
+	}
+
 	/**
 	 * Return table of delivery methods
 	 *
@@ -665,94 +689,15 @@ class DeliveryDatesModule extends AbstractModule {
 
 			$this->display_country_select( $shipping_countries, $shipping_zones, $actual_zone_id );
 
-			$custom_dates = $product->get_meta( '_wpify_woo_delivery_dates' );
-			foreach ( $delivery_days as $key => $days_group ) {
-				if ( $product->is_on_backorder() ) {
-					$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_backorder'] ?? null;
-					$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_backorder'];
-				} elseif ( $product->is_in_stock() ) {
-					$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_in_stock'] ?? null;
-					$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_in_stock'];
-				} else {
-					$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_out_of_stock'] ?? null;
-					$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_out_of_stock'];
-				}
-
-				/**
-				 * Filter to change delivery date days
-				 *
-				 * @param string $data current group data
-				 */
-				$days = apply_filters( 'wpify_woo_delivery_dates_days', $days, $product, $days_group );
-
-				if ( empty( $days ) && $days !== '0' || $days === '-' ) {
-					continue;
-				}
-
-				// set data
-				$data = array(
-					'date' => $days,
-				);
-				if ( is_numeric( $days ) ) {
-					$data['date'] = $this->get_formatted_date( $days, $days_group );
-				}
-
-				if ( str_contains( $days, '-' ) ) {
-					$range = explode( '-', $days );
-					$days  = [];
-					foreach ( $range as $day ) {
-						$days[] = $this->get_formatted_date( $day, $days_group );
-					}
-					$data['date'] = implode( '–', $days );
-				}
-
-				$data['message']          = $days_group['delivery_date_message'] ?? '';
-				$data['more_info_label']  = $this->get_setting( 'more_info_label' );
-				$data['more_info_text']   = $days_group['delivery_date_info'] ?? null;
-				$data['shipping_methods'] = $days_group['shipping_methods'] ?? [];
-
-				/**
-				 * Filter to change delivery date group data
-				 *
-				 * @param array $data current group data
-				 */
-				$data = apply_filters( 'wpify_woo_delivery_dates_data', $data );
-
-				// don't render date line if message not exist
-				if ( empty( $data['message'] ) ) {
-					continue;
-				}
-
+			foreach ( $this->resolve_delivery_date_groups( $product ) as $group ) {
+				$key            = $group['key'];
+				$data           = $group['data'];
+				$allowed_zones  = $group['allowed_zones'];
+				$selected       = $group['selected_zone_id'];
+				$shipping_zones = $group['shipping_zones'];
 				$more_info      = $data['more_info_label'] && ( $data['more_info_text'] || $data['shipping_methods'] );
 				$message        = str_replace( '{date}', '<span class="date">' . $data['date'] . '</span>', $data['message'] );
 				$more_info_text = str_replace( '{date}', '<span class="date">' . $data['date'] . '</span>', $data['more_info_text'] );
-
-				// save all shipping zones
-				$all_shipping_zones = $shipping_zones;
-
-				// Get array of zones in current day group
-				$allowed_zones = [];
-				foreach ( $shipping_zones as $zone_key => $zone ) {
-					// Skip methods only if is set
-					if ( ! empty( $data['shipping_methods'] ) ) {
-						// Remove unassigned shipping methods
-						foreach ( $zone['shipping_methods'] as $shipping_key => $method ) {
-							if ( ! in_array( $method->get_rate_id(), $data['shipping_methods'] ) ) {
-								unset( $shipping_zones[ $zone_key ]['shipping_methods'][ $shipping_key ] );
-							}
-						}
-
-						// Skip zones without shipping methods
-						if ( empty( $shipping_zones[ $zone_key ]['shipping_methods'] ) ) {
-							continue;
-						}
-					}
-
-					$allowed_zones[] = '"zone-' . $zone_key . '"';
-				}
-
-				// get selected zone
-				$selected = $actual_zone_id;
 				?>
 				<div class="wpify-woo-delivery-date__line"
 					 data-zones='[<?= implode( ',', $allowed_zones ) ?>]'
@@ -775,8 +720,6 @@ class DeliveryDatesModule extends AbstractModule {
 					<?php } ?>
 				</div>
 				<?php
-				// reset shipping zones
-				$shipping_zones = $all_shipping_zones;
 			} ?>
 
 			<?php
@@ -826,6 +769,143 @@ class DeliveryDatesModule extends AbstractModule {
 	 */
 	public function delivery_date_shortcode(): string {
 		return $this->get_delivery_date_html();
+	}
+
+	private function resolve_delivery_date_groups( WC_Product $product ): array {
+		$delivery_days = $this->get_setting( 'delivery_days' );
+
+		if ( empty( $delivery_days ) || empty( WC()->countries ) ) {
+			return array();
+		}
+
+		$actual_country = ! empty( WC()->customer ) && WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->countries->get_base_country();
+		$shipping_zones = $this->get_all_zones();
+		$actual_zone_id = $this->get_zone_id_for_country( $actual_country, $shipping_zones );
+
+		if ( ! $actual_zone_id ) {
+			$actual_zone_id = array_key_first( $shipping_zones );
+		}
+
+		$custom_dates = $product->get_meta( '_wpify_woo_delivery_dates' );
+
+		if ( empty( $custom_dates ) && $product->is_type( 'variation' ) ) {
+			$parent_product = wc_get_product( $product->get_parent_id() );
+			if ( $parent_product instanceof WC_Product ) {
+				$custom_dates = $parent_product->get_meta( '_wpify_woo_delivery_dates' );
+			}
+		}
+
+		$groups = array();
+
+		foreach ( $delivery_days as $key => $days_group ) {
+			if ( $product->is_on_backorder() ) {
+				$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_backorder'] ?? null;
+				$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_backorder'];
+			} elseif ( $product->is_in_stock() ) {
+				$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_in_stock'] ?? null;
+				$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_in_stock'];
+			} else {
+				$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_out_of_stock'] ?? null;
+				$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_out_of_stock'];
+			}
+
+			$days = apply_filters( 'wpify_woo_delivery_dates_days', $days, $product, $days_group );
+
+			if ( ( empty( $days ) && $days !== '0' ) || $days === '-' ) {
+				continue;
+			}
+
+			$data = array(
+				'date' => $days,
+			);
+
+			if ( is_numeric( $days ) ) {
+				$data['date'] = $this->get_formatted_date( $days, $days_group );
+			}
+
+			if ( is_string( $days ) && str_contains( $days, '-' ) ) {
+				$range = explode( '-', $days );
+				$dates = array();
+
+				foreach ( $range as $day ) {
+					$dates[] = $this->get_formatted_date( $day, $days_group );
+				}
+
+				$data['date'] = implode( '–', $dates );
+			}
+
+			$data['message']          = $days_group['delivery_date_message'] ?? '';
+			$data['more_info_label']  = $this->get_setting( 'more_info_label' );
+			$data['more_info_text']   = $days_group['delivery_date_info'] ?? null;
+			$data['shipping_methods'] = $days_group['shipping_methods'] ?? [];
+			$data                     = apply_filters( 'wpify_woo_delivery_dates_data', $data );
+
+			if ( empty( $data['message'] ) ) {
+				continue;
+			}
+
+			$group_shipping_zones = $shipping_zones;
+			$allowed_zones        = array();
+
+			foreach ( $group_shipping_zones as $zone_key => $zone ) {
+				if ( ! empty( $data['shipping_methods'] ) ) {
+					foreach ( $zone['shipping_methods'] as $shipping_key => $method ) {
+						if ( ! in_array( $method->get_rate_id(), $data['shipping_methods'] ) ) {
+							unset( $group_shipping_zones[ $zone_key ]['shipping_methods'][ $shipping_key ] );
+						}
+					}
+
+					if ( empty( $group_shipping_zones[ $zone_key ]['shipping_methods'] ) ) {
+						continue;
+					}
+				}
+
+				$allowed_zones[] = '"zone-' . $zone_key . '"';
+			}
+
+			$groups[] = array(
+				'key'              => $key,
+				'data'             => $data,
+				'allowed_zones'    => $allowed_zones,
+				'selected_zone_id' => $actual_zone_id,
+				'shipping_zones'   => $group_shipping_zones,
+				'is_visible'       => in_array( '"zone-' . $actual_zone_id . '"', $allowed_zones, true ),
+				'score'            => $this->get_delivery_days_score( $days ),
+			);
+		}
+
+		return $groups;
+	}
+
+	private function get_delivery_days_score( $days ): int {
+		if ( is_numeric( $days ) ) {
+			return (int) $days;
+		}
+
+		if ( is_string( $days ) && str_contains( $days, '-' ) ) {
+			$range = array_filter(
+				array_map( 'trim', explode( '-', $days ) ),
+				'is_numeric'
+			);
+
+			if ( ! empty( $range ) ) {
+				return max( array_map( 'intval', $range ) );
+			}
+		}
+
+		return 0;
+	}
+
+	private function get_product_delivery_status( WC_Product $product ): string {
+		if ( $product->is_on_backorder() ) {
+			return 'onbackorder';
+		}
+
+		if ( $product->is_in_stock() ) {
+			return 'instock';
+		}
+
+		return 'outofstock';
 	}
 
 	/**
@@ -934,7 +1014,7 @@ class DeliveryDatesModule extends AbstractModule {
 				: '';
 			if ( $process === 'migrate-data' ) {
 				/* translators: %s: number of products migrated */
-			$string = sprintf( __( 'Wpify Woo delivery date data migration is success for %s products.', 'wpify-woo' ), (int) $success );
+				$string = sprintf( __( 'Wpify Woo delivery date data migration is success for %s products.', 'wpify-woo' ), (int) $success );
 			} else {
 				$string = sprintf( __( 'Wpify Woo delivery date data migration failed.', 'wpify-woo' ), (int) $success );
 			}
