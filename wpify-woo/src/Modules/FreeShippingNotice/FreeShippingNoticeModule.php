@@ -4,14 +4,19 @@ namespace WpifyWoo\Modules\FreeShippingNotice;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\WooCommerce\StoreApi\Schemas\V1\CartSchema;
 use WpifyWoo\Plugin;
 use WpifyWoo\WooCommerceIntegration;
+use WpifyWooDeps\Wpify\Asset\AssetFactory;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
+use WpifyWooDeps\Wpify\PluginUtils\PluginUtils;
 
 class FreeShippingNoticeModule extends AbstractModule {
 
 	public function __construct(
 		private WooCommerceIntegration $woocommerce_integration,
+		private AssetFactory $asset_factory,
+		private PluginUtils $plugin_utils,
 	) {
 		parent::__construct();
 		$this->setup();
@@ -32,16 +37,63 @@ class FreeShippingNoticeModule extends AbstractModule {
 		add_shortcode( 'wpify_woo_amount_for_free_shipping', array( $this, 'render_amount_for_free_shipping' ) );
 		add_filter( 'woocommerce_add_to_cart_fragments', array( $this, 'add_to_fragments' ) );
 		add_filter( 'woocommerce_update_order_review_fragments', array( $this, 'add_to_fragments' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10000 );
+		add_action( 'init', array( $this, 'register_store_api_extensions' ), 20 );
 
 		if ( $this->get_setting( 'free_shipping_if_any_method_free' ) ) {
 			add_filter( 'wpify_woo_free_shipping_is_free', [ $this, 'maybe_set_free_shipping_notice' ] );
 		}
 
-		add_action( 'wp_enqueue_scripts', function () {
-			if ( ! wp_script_is( 'wc-cart-fragments', 'enqueued' ) && wp_script_is( 'wc-cart-fragments', 'registered' ) ) {
-				wp_enqueue_script( 'wc-cart-fragments' );
-			}
-		}, 10000 );
+	}
+
+	public function enqueue_scripts() {
+		if ( ! wp_script_is( 'wc-cart-fragments', 'enqueued' ) && wp_script_is( 'wc-cart-fragments', 'registered' ) ) {
+			wp_enqueue_script( 'wc-cart-fragments' );
+		}
+
+		if ( ! is_cart() && ! is_checkout() ) {
+			return;
+		}
+
+		$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/free-shipping-notice.js' ), array(
+			'handle'       => 'wpify-woo-free-shipping-notice',
+			'in_footer'    => true,
+			'dependencies' => array(
+				'wc-blocks-data-store',
+				'wp-data',
+			),
+		) );
+	}
+
+	public function register_store_api_extensions() {
+		if ( ! function_exists( 'woocommerce_store_api_register_endpoint_data' ) || ! class_exists( CartSchema::class ) ) {
+			return;
+		}
+
+		woocommerce_store_api_register_endpoint_data(
+			array(
+				'endpoint'        => CartSchema::IDENTIFIER,
+				'namespace'       => 'wpifyWoo',
+				'data_callback'   => array( $this, 'get_store_api_data' ),
+				'schema_callback' => array( $this, 'get_store_api_schema' ),
+				'schema_type'     => ARRAY_A,
+			),
+		);
+	}
+
+	public function get_store_api_data() {
+		return array(
+			'freeShippingNoticeHtml' => $this->free_shipping_notice_shortcode(),
+		);
+	}
+
+	public function get_store_api_schema() {
+		return array(
+			'freeShippingNoticeHtml' => array(
+				'description' => __( 'Rendered free shipping notice HTML for the current cart.', 'wpify-woo' ),
+				'type'        => 'string',
+			),
+		);
 	}
 
 	/**
