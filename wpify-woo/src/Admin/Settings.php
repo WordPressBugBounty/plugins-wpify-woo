@@ -78,7 +78,7 @@ class Settings {
 	}
 
 	public function enqueue_admin_scripts() {
-		$page = $_GET['page'] ?? '';
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 		if ( ! $page || ! str_contains( $page, 'wpify/' ) ) {
 			return;
 		}

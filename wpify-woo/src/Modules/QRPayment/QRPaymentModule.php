@@ -362,14 +362,14 @@ class QRPaymentModule extends AbstractModule {
 			),
 			[
 				'id'    => 'compatibility_mode',
-				'label' => __( 'Compatibility mode', 'wpify-woo' ),
+				'title' => __( 'Compatibility mode', 'wpify-woo' ),
 				'desc'  => __( 'The SK version requires XZ utils (https://tukaani.org/xz/). If your serevr does not support this, you can enable the compatibility mode, in which the QR code will be generated using the external API QR-Platba.cz and QRGenerator.sk. This is not recommended for performance reasons, as an unnecessary API call is done on thankyou page.',
 						'wpify-woo' ) . __( 'Only for CZ and SK QR standards.', 'wpify-woo' ),
 				'type'  => 'toggle',
 			],
 			[
 				'id'    => 'save_img',
-				'label' => __( 'Save as image', 'wpify-woo' ),
+				'title' => __( 'Save as image', 'wpify-woo' ),
 				'desc'  => __( 'Some email clients have a problem with displaying images in base64. If you enable this, the QR code will be saved as a file and then linked to.', 'wpify-woo' ),
 				'type'  => 'toggle',
 			],
@@ -379,7 +379,7 @@ class QRPaymentModule extends AbstractModule {
 		if ( function_exists( 'wcpdf_get_document' ) ) {
 			$settings[] = [
 				'id'    => 'in_wcpdf',
-				'label' => __( 'Insert into WCPDF invoice', 'wpify-woo' ),
+				'title' => __( 'Insert into WCPDF invoice', 'wpify-woo' ),
 				'desc'  => __( 'Insert QR payment into PDF Invoices from PDF Invoices & Packing Slips for WooCommerce plugin.', 'wpify-woo' ),
 				'type'  => 'toggle',
 			];
@@ -883,6 +883,7 @@ class QRPaymentModule extends AbstractModule {
 			if ( ! empty( $bacs_data ) ) {
 
 				if ( ! empty( $bacs_data['account_number'] ) ) {
+					$bacs_data['account_number'] = preg_replace( '/[\s\x{00a0}]+/u', '', $bacs_data['account_number'] );
 					$numbers              = explode( '/', $bacs_data['account_number'] );
 					$account['number']    = $numbers[0] ?? '';
 					$account['bank_code'] = $numbers[1] ?? '';
@@ -900,6 +901,12 @@ class QRPaymentModule extends AbstractModule {
 					$account['recipient_name'] = $account['recipient_name'] ?: $bacs_data['account_name'];
 				}
 
+			}
+		}
+
+		foreach ( array( 'number', 'bank_code', 'iban', 'bic' ) as $key ) {
+			if ( ! empty( $account[ $key ] ) ) {
+				$account[ $key ] = preg_replace( '/[\s\x{00a0}]+/u', '', $account[ $key ] );
 			}
 		}
 

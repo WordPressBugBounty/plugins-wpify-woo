@@ -2,6 +2,8 @@
 
 namespace WpifyWoo;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Admin\Settings;
 
 /**

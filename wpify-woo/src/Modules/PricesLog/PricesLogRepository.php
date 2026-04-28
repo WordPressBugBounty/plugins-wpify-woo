@@ -3,6 +3,8 @@
 namespace WpifyWoo\Modules\PricesLog;
 
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWooDeps\Wpify\Model\CustomTableRepository;
 
 /**

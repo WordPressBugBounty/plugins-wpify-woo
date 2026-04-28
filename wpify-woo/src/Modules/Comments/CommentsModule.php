@@ -58,7 +58,7 @@ class CommentsModule extends AbstractModule {
 		$this->custom_fields->create_comment_metabox(
 			[
 				'id'    => 'wpify_woo_comments',
-				'title' => __( 'WPify Woo Details', '' ),
+				'title' => __( 'WPify Woo Details', 'wpify-woo' ),
 				'items' => array(
 					array(
 						'type'  => 'group',

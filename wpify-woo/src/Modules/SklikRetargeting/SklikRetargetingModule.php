@@ -85,7 +85,7 @@ class SklikRetargetingModule extends AbstractModule {
 			array(
 				'id'    => 'item_id',
 				'type'  => 'toggle',
-				'label' => __( 'Add E-shop offer identifier', 'wpify-woo' ),
+				'title' => __( 'Add E-shop offer identifier', 'wpify-woo' ),
 				/* translators: %1$s: URL to Sklik Help about itemId parameter */
 			'desc'  => sprintf( __( 'Check if <code>itemId</code> should be added to the code. More information about this parameter can be found in <a href="%1$s" target="_blank">Sklik Help</a>.', 'wpify-woo' ), 'https://napoveda.sklik.cz/cileni/retargeting/pokrocily-retargetingovy-kod/pokrocile-nastaveni-rtg-kodu-item_id/' ),
 			),
@@ -101,7 +101,7 @@ class SklikRetargetingModule extends AbstractModule {
 			$settings[] = array(
 				'id'    => 'feed_category',
 				'type'  => 'toggle',
-				'label' => __( 'Use category identifier from Wpify Woo Feed', 'wpify-woo' ),
+				'title' => __( 'Use category identifier from Wpify Woo Feed', 'wpify-woo' ),
 				'desc'  => __( 'Check if you want use category identifier from Wpify Woo Feeds plugin.', 'wpify-woo' ),
 			);
 		} else {

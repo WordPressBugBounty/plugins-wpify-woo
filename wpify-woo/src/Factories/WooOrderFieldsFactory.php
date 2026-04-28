@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Factories;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWooDeps\Wpify\Core\Abstracts\AbstractCustomFieldsFactory;
 use WpifyWooDeps\Wpify\Core\Abstracts\AbstractWooOrderModel;
 

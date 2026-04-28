@@ -19,10 +19,11 @@ class Settings
 {
     const OPTION_NAME = 'wpify-woo-settings';
     private array $pages = [];
+    private ?array $plugins_cache = null;
+    private array $sections_cache = [];
     private CustomFields $custom_fields;
     private ModulesManager $modules_manager;
     private AssetFactory $asset_factory;
-    private bool $initialized;
     private ?DashboardPage $dashboard_page = null;
     private ?SupportPage $support_page = null;
     private ?MenuBar $menu_bar = null;
@@ -35,22 +36,50 @@ class Settings
         if (!$allow_initialization) {
             return;
         }
-        // Check if the WpifyWoo Core settings have been initialized already
-        $this->initialized = apply_filters('wpify_core_settings_initialized', \false);
-        if (!$this->initialized) {
-            add_filter('wpify_core_settings_initialized', '__return_true');
-            add_action('init', [$this, 'load_textdomain']);
-            add_action('init', [$this, 'register_settings']);
-            add_action('admin_init', [$this, 'hide_admin_notices']);
-            add_filter('admin_body_class', [$this, 'add_admin_body_class'], 9999);
-            add_action('activated_plugin', [$this, 'maybe_set_redirect']);
-            add_action('deactivated_plugin', [$this, 'maybe_set_redirect']);
-            add_action('admin_init', [$this, 'maybe_redirect']);
-            // Initialize page components (they register themselves)
-            $this->get_dashboard_page();
-            $this->get_support_page();
-            $this->get_menu_bar();
+        // Block old core (filter-based) from initializing.
+        // Use own callback (not __return_true) so we can detect old core in initialize_core().
+        add_filter('wpify_core_settings_initialized', [$this, 'is_initialized']);
+        // Version-aware initialization: highest woo-core version wins
+        $my_version = $this->get_core_version();
+        global $wpify_woo_core_active_version, $wpify_woo_core_active_instance;
+        if (!isset($wpify_woo_core_active_version) || version_compare($my_version, $wpify_woo_core_active_version, '>')) {
+            $wpify_woo_core_active_version = $my_version;
+            $wpify_woo_core_active_instance = $this;
         }
+        // Register deferred init once — runs after all plugins have loaded (priority 99)
+        // so we know which version is the highest
+        global $wpify_woo_core_init_registered;
+        if (!$wpify_woo_core_init_registered) {
+            $wpify_woo_core_init_registered = \true;
+            add_action('plugins_loaded', function () {
+                global $wpify_woo_core_active_instance;
+                $wpify_woo_core_active_instance->initialize_core();
+            }, 99);
+        }
+    }
+    /**
+     * Initialize core hooks and page components.
+     * Called once from deferred plugins_loaded (priority 99) on the highest-version instance.
+     *
+     * @return void
+     */
+    public function initialize_core(): void
+    {
+        // If old core already initialized (it uses __return_true on this filter), skip
+        if (has_filter('wpify_core_settings_initialized', '__return_true')) {
+            return;
+        }
+        add_action('init', [$this, 'load_textdomain']);
+        add_action('init', [$this, 'register_settings']);
+        add_action('admin_init', [$this, 'hide_admin_notices']);
+        add_filter('admin_body_class', [static::class, 'add_admin_body_class'], 9999);
+        add_action('activated_plugin', [$this, 'maybe_set_redirect']);
+        add_action('deactivated_plugin', [$this, 'maybe_set_redirect']);
+        add_action('admin_init', [$this, 'maybe_redirect']);
+        // Initialize page components (they register themselves)
+        $this->get_dashboard_page();
+        $this->get_support_page();
+        $this->get_menu_bar();
     }
     /**
      * Get dashboard page instance (lazy loaded)
@@ -87,6 +116,16 @@ class Settings
             $this->menu_bar = new MenuBar($this);
         }
         return $this->menu_bar;
+    }
+    /**
+     * Filter callback to signal that new core is present.
+     * Used instead of __return_true so we can detect old core separately.
+     *
+     * @return bool
+     */
+    public function is_initialized(): bool
+    {
+        return \true;
     }
     /**
      * Maybe set redirect transient after plugin activation/deactivation
@@ -174,7 +213,7 @@ class Settings
      */
     public function register_settings(): void
     {
-        if (!is_admin() && !$this->is_wpifycf_rest_request()) {
+        if (!$this->should_register_settings()) {
             return;
         }
         $plugins = $this->get_plugins();
@@ -215,6 +254,9 @@ class Settings
      */
     public function get_plugins(): array
     {
+        if ($this->plugins_cache !== null) {
+            return $this->plugins_cache;
+        }
         $all_plugins = get_plugins();
         $active = apply_filters('wpify_installed_plugins', []);
         $wpify_plugins = [];
@@ -229,7 +271,8 @@ class Settings
                 $wpify_plugins[$slug] = ['title' => $plugin_data['Name'], 'desc' => $plugin_data['Description'], 'icon' => '', 'version' => $plugin_data['Version'], 'doc_link' => '', 'support_url' => '', 'menu_slug' => '', 'option_id' => '', 'settings_url' => '', 'plugin_file' => $plugin_file, 'tabs' => [], 'settings' => []];
             }
         }
-        return $wpify_plugins;
+        $this->plugins_cache = $wpify_plugins;
+        return $this->plugins_cache;
     }
     /**
      * Get plugin slug from file path
@@ -259,7 +302,12 @@ class Settings
             }
             $subpage = explode('/', $current_page)[1] ?? '';
         }
-        return apply_filters('wpify_get_sections_' . sanitize_key($subpage), []);
+        $subpage = sanitize_key($subpage);
+        if (isset($this->sections_cache[$subpage])) {
+            return $this->sections_cache[$subpage];
+        }
+        $this->sections_cache[$subpage] = apply_filters('wpify_get_sections_' . $subpage, []);
+        return $this->sections_cache[$subpage];
     }
     /**
      * Get an array of enabled modules
@@ -380,6 +428,35 @@ class Settings
         }
         $page_attributes = explode('/', $current_page);
         return end($page_attributes);
+    }
+    /**
+     * Get woo-core version from composer installed.php
+     *
+     * @return string
+     */
+    private function get_core_version(): string
+    {
+        // From src/Admin/ go up to the composer dir: woo-core -> wpify -> deps|vendor -> composer
+        $installed_php = dirname(__DIR__, 4) . '/composer/installed.php';
+        if (file_exists($installed_php)) {
+            $data = @include $installed_php;
+            if (is_array($data) && isset($data['versions']['wpify/woo-core']['pretty_version'])) {
+                return $data['versions']['wpify/woo-core']['pretty_version'];
+            }
+        }
+        return '0';
+    }
+    private function should_register_settings(): bool
+    {
+        if ($this->is_wpifycf_rest_request()) {
+            return \true;
+        }
+        /*
+         * Settings pages must be registered on every admin request.
+         * Restricting this to WPify pages breaks menu/submenu registration and makes
+         * settings pages disappear until a WPify page initializes the tree first.
+         */
+        return is_admin();
     }
     /**
      * Add custom class to admin body on wpify pages

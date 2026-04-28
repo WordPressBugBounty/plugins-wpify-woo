@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\PostTypes;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Factories\WooOrderFieldsFactory;
 use WpifyWoo\Models\WooOrderModel;
 use WpifyWoo\Plugin;

@@ -95,7 +95,7 @@ class DeliveryDatesModule extends AbstractModule {
 				'type'    => 'multi_group',
 				'title'   => 'Delivery days',
 				'buttons' => array(
-					'add' => __( 'Add delivery days', 'wpify-woo-conditional-payment' ),
+					'add' => __( 'Add delivery days', 'wpify-woo' ),
 				),
 				'items'   => array(
 					array(
@@ -130,7 +130,7 @@ class DeliveryDatesModule extends AbstractModule {
 					array(
 						'id'    => 'skip_weekends',
 						'type'  => 'toggle',
-						'label' => __( 'Skip weekends', 'wpify-woo' ),
+						'title' => __( 'Skip weekends', 'wpify-woo' ),
 					),
 					array(
 						'id'         => 'delivery_date_message',
@@ -148,10 +148,10 @@ class DeliveryDatesModule extends AbstractModule {
 					),
 					array(
 						'id'      => 'shipping_methods',
-						'label'   => __( 'Display shipping methods', 'wpify-woo-conditional-shipping' ),
+						'label'   => __( 'Display shipping methods', 'wpify-woo' ),
 						'type'    => 'multiselect',
 						'multi'   => true,
-						'desc'    => __( 'Select the shipping methods that appear in more information.', 'wpify-woo-conditional-shipping' ),
+						'desc'    => __( 'Select the shipping methods that appear in more information.', 'wpify-woo' ),
 						'options' => $this->get_shipping_methods_option(),
 					),
 					array(
@@ -171,7 +171,7 @@ class DeliveryDatesModule extends AbstractModule {
 			array(
 				'id'    => 'date_as_text',
 				'type'  => 'toggle',
-				'label' => __( 'Today and tomorrow as text', 'wpify-woo' ),
+				'title' => __( 'Today and tomorrow as text', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'title',
@@ -220,7 +220,7 @@ class DeliveryDatesModule extends AbstractModule {
 			array(
 				'id'    => 'render_async',
 				'type'  => 'toggle',
-				'label' => __( 'Render delivery details asynchronously (cache-friendly)', 'wpify-woo' ),
+				'title' => __( 'Render delivery details asynchronously (cache-friendly)', 'wpify-woo' ),
 				'desc'  => __( 'When enabled, delivery details are fetched via REST API after page load.', 'wpify-woo' ),
 			),
 

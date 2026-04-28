@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Managers;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Plugin;
 use WpifyWoo\PostTypes\WooOrderPostType;
 

@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Modules\XmlFeedHeureka;
 
+defined( 'ABSPATH' ) || exit;
+
 use WC_Product_Variable;
 use WpifyWoo\Abstracts\AbstractFeed;
 
@@ -98,8 +100,25 @@ class Feed extends AbstractFeed {
 	 * @param $product \WC_Product
 	 */
 	public function get_data( $product, $parent_product = null ) {
-		$feed_product_name = $product->get_meta( '_wpify_woo_heureka_product_name', true ) ?: $product->get_name();
-		$feed_product      = $product->get_meta( '_wpify_woo_heureka_product', true ) ?: $feed_product_name;
+		$feed_product_name = $product->get_meta( '_wpify_woo_heureka_product_name', true );
+		if ( ! $feed_product_name && $parent_product ) {
+			$parent_name = $parent_product->get_meta( '_wpify_woo_heureka_product_name', true );
+			if ( $parent_name ) {
+				$variant_suffix    = wc_get_formatted_variation( $product, true, false );
+				$feed_product_name = $variant_suffix ? $parent_name . ' - ' . $variant_suffix : $parent_name;
+			}
+		}
+		if ( ! $feed_product_name ) {
+			$feed_product_name = $product->get_name();
+		}
+
+		$feed_product = $product->get_meta( '_wpify_woo_heureka_product', true );
+		if ( ! $feed_product && $parent_product ) {
+			$feed_product = $parent_product->get_meta( '_wpify_woo_heureka_product', true );
+		}
+		if ( ! $feed_product ) {
+			$feed_product = $feed_product_name;
+		}
 
 		$data = array(
 			'ITEM_ID'       => $this->get_item_id( $product ),
@@ -200,15 +219,19 @@ class Feed extends AbstractFeed {
 	}
 
 	public function get_heureka_category( $product, $parent_product = null ) {
-		if ( $parent_product ) {
-			$product = $parent_product;
-		}
-		$category        = null;
 		$custom_category = $product->get_meta( '_wpify_woo_heureka_category', true );
+		if ( ! $custom_category && $parent_product ) {
+			$custom_category = $parent_product->get_meta( '_wpify_woo_heureka_category', true );
+		}
 		if ( $custom_category ) {
 			return $custom_category;
 		}
-		foreach ( $product->get_category_ids() as $id ) {
+
+		// Variations don't have their own product_cat terms — read from parent.
+		$source_for_terms = $parent_product ?: $product;
+
+		$category = null;
+		foreach ( $source_for_terms->get_category_ids() as $id ) {
 			$cat_id = $this->module->get_setting( 'heureka_category_' . $id );
 			if ( ! $cat_id && function_exists( 'icl_object_id' ) ) {
 				$default_lang = apply_filters( 'wpml_default_language', null );

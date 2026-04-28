@@ -1,21 +1,21 @@
-=== WPify Woo Czech ===
+=== WPify Woo - Withdrawal, CRN/VAT, QR payments, Heureka and more for WooCommerce ===
 Contributors: wpify, vasikgreif, mejta, martinsvoboda
 Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.3.4
+Stable tag: 5.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
 WC tested up to: 10.6
 Requires Plugins: woocommerce
 
-Adds Czech and Slovak features to WooCommerce: Heureka, CRN/VAT fields, free shipping notice, QR payments, async emails and more.
+Compliance and convenience features for WooCommerce — withdrawal and claim, Heureka, CRN/VAT, QR payments, Delivery dates, async emails and more. Optimized for CZ/SK e-shops.
 
 == Description ==
 
-A free plugin that adds (mainly) Czech and Slovak specific features to WooCommerce. The free plugin includes:
+A free plugin extending WooCommerce with essential features for the Czech, Slovak and EU market. The free plugin includes:
 
 * Heureka XML Feed
 * Heureka Ověřeno Zákazníky
@@ -32,6 +32,7 @@ A free plugin that adds (mainly) Czech and Slovak specific features to WooCommer
 * Prices log
 * Comments
 * Delivery dates
+* Withdrawal & Claim
 
 There are also premium modules available:
 
@@ -175,6 +176,16 @@ The plugin includes the following modules:
 * Option to add more information on the delivery date.
 * Option to display specific shipping methods for delivery dates.
 
+### Withdrawal & Claim
+
+* Compliant "Withdraw from contract" button required by EU Directive 2023/2673 (effective 19 June 2026).
+* Optional warranty claim form sharing the same UI.
+* Two-step AJAX submission flow with guest access via order_key links from emails or 2-factor (order number + billing email match) for direct visits.
+* Per-product overrides — exclude items from withdrawal/warranty, custom periods (extended warranty, longer return window).
+* Native WooCommerce emails (4 types) — customizable subject, heading and content in WC email settings.
+* Admin list table, order metabox and My Account integration (buttons + submitted-requests history).
+* HPOS compatible, bot and spam protection, filters and actions for extensibility.
+
 
 == Installation ==
 
@@ -222,6 +233,15 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+= 5.4.0 =
+* Add new module Withdrawal & Claim — compliant "Withdraw from contract" button (EU Directive 2023/2673) + optional warranty claim form, AJAX flow, guest access, per-product overrides, native WC emails, admin overview, HPOS compatible.
+* Fix input sanitization in admin settings.
+* Fix nonce handling in Heureka reviews import and categories update buttons.
+* Fix Heureka XML feed not applying custom Heureka fields on product variations.
+* Strip whitespace from account number, bank code, IBAN and BIC in QR payment module.
+* Move bundled scoped dependencies from deps to vendor.
+* Add direct file access protection to PHP files.
+
 = 5.3.4 =
 * Add Store API updates for the free shipping notice in WooCommerce cart and checkout blocks.
 

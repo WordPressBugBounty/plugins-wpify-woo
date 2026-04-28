@@ -2,6 +2,8 @@
 
 namespace WpifyWoo\Managers;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Modules\AsyncEmails\AsyncEmailsModule;
 use WpifyWoo\Modules\Comments\CommentsModule;
 use WpifyWoo\Modules\DeliveryDates\DeliveryDatesModule;
@@ -17,6 +19,7 @@ use WpifyWoo\Modules\SklikRetargeting\SklikRetargetingModule;
 use WpifyWoo\Modules\Template\TemplateModule;
 use WpifyWoo\Modules\ZboziConversions\ZboziConversionsModule;
 use WpifyWoo\Modules\Vocative\VocativeModule;
+use WpifyWoo\Modules\WithdrawalClaims\WithdrawalClaimsModule;
 use WpifyWoo\Modules\XmlFeedHeureka\XmlFeedHeurekaModule;
 use WpifyWoo\Plugin;
 use WpifyWoo\WooCommerceIntegration;
@@ -56,6 +59,7 @@ class ModulesManager {
 	private $prices_log = PricesLogModule::class;
 	private $comments = CommentsModule::class;
 	private $delivery_dates = DeliveryDatesModule::class;
+	private $withdrawal_claims = WithdrawalClaimsModule::class;
 
 
 	private array $modules_ids = [
@@ -75,6 +79,7 @@ class ModulesManager {
 		'prices_log',
 		'comments',
 		'delivery_dates',
+		'withdrawal_claims',
 	];
 
 	public function get_module_by_id( $module ) {
@@ -121,6 +126,7 @@ class ModulesManager {
 			'prices_log'               => 'prices-log',
 			'comments'                 => 'comments',
 			'delivery_dates'           => 'delivery-dates',
+			'withdrawal_claims'        => 'withdrawal-claims',
 		);
 
 		$slug   = $path_map[ $module_id ] ?? str_replace( '_', '-', $module_id );
@@ -199,6 +205,10 @@ class ModulesManager {
 			array(
 				'title' => __( 'Delivery dates', 'wpify-woo' ),
 				'value' => 'delivery_dates',
+			),
+			array(
+				'title' => __( 'Withdrawal & Claim', 'wpify-woo' ),
+				'value' => 'withdrawal_claims',
 			),
 		);
 

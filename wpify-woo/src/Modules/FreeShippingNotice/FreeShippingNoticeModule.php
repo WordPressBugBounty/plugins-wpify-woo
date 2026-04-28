@@ -140,8 +140,8 @@ class FreeShippingNoticeModule extends AbstractModule {
 			),
 			array(
 				'id'    => 'woo_free_shipping_amount',
-				'type'  => 'switch',
-				'label' => __( 'Load amount from Free shipping settings', 'wpify-woo' ),
+				'type'  => 'toggle',
+				'title' => __( 'Load amount from Free shipping settings', 'wpify-woo' ),
 				'desc'  => __( 'Check to load amount from WooCommerce free shipping settings.', 'wpify-woo' ),
 			),
 			array(
@@ -198,22 +198,22 @@ class FreeShippingNoticeModule extends AbstractModule {
 			),
 			array(
 				'id'      => 'always_show',
-				'type'    => 'switch',
-				'label'   => __( 'Always show', 'wpify-woo' ),
+				'type'    => 'toggle',
+				'title'   => __( 'Always show', 'wpify-woo' ),
 				'desc'    => __( 'If not checked, the notification bar will only be displayed if some item in cart needs shipping. Check to always show the notification, even if the cart is empty. ', 'wpify-woo' ),
 				'default' => '0',
 			),
 			array(
 				'id'    => 'free_shipping_if_any_method_free',
-				'type'  => 'switch',
-				'label' => __( 'Set free shipping if any shipping method is free', 'wpify-woo' ),
+				'type'  => 'toggle',
+				'title' => __( 'Set free shipping if any shipping method is free', 'wpify-woo' ),
 				'desc'  => __( 'Check if you wish to display Free shipping confirmation message if any of the shipping methods is free.', 'wpify-woo' ),
 			),
 			array(
 				'id'           => 'excluded_shipping',
-				'label'        => __( 'Exclude shipping from check', 'wpify-woo-conditional-shipping' ),
+				'label'        => __( 'Exclude shipping from check', 'wpify-woo' ),
 				'type'         => 'multi_select',
-				'desc'         => __( 'If you are showing free shipping if there is any free shipping, this sets the methods to be excluded from this check.', 'wpify-woo-conditional-shipping' ),
+				'desc'         => __( 'If you are showing free shipping if there is any free shipping, this sets the methods to be excluded from this check.', 'wpify-woo' ),
 				'options'      => function ( $args ) {
 					return $this->woocommerce_integration->get_shipping_methods_option( $args );
 				},
@@ -269,8 +269,8 @@ class FreeShippingNoticeModule extends AbstractModule {
 			),
 			array(
 				'id'    => 'show_icon',
-				'type'  => 'switch',
-				'label' => __( 'Show icon', 'wpify-woo' ),
+				'type'  => 'toggle',
+				'title' => __( 'Show icon', 'wpify-woo' ),
 				'desc'  => __( 'Check to display the icon', 'wpify-woo' ),
 			),
 			array(

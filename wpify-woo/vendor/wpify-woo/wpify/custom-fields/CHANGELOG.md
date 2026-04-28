@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.6.8] - 2026-03-27
+
+### Fixed
+- Fix initial values not loading for fields inside `group` and `multi_group` containers
+- Fix WYSIWYG editors inside groups overwriting each other's content when switching between editors
+
+## [4.6.7] - 2026-03-26
+
+### Fixed
+- Fix fields inside wrapper/columns not receiving saved values on initial render (initialValues extraction now recurses into nested items)
+- Inconsistent `classname` attribute naming in wrapper and columns fields — now consistently uses `className` (camelCase) in JS like all other fields, with backward-compatible support for `classname` and `class_name` variants in PHP
+
+## [4.6.6] - 2026-03-19
+
+### Fixed
+- Fixed multiple TinyMCE instances failing to initialize in non-iframe Gutenberg mode when multiple blocks of the same type contain a Wysiwyg field
+
+## [4.6.5] - 2026-03-05
+
+### Fixed
+- Properly set up global `$post` in `render_from_api` for Gutenberg block editor previews
+- Pass `postId` context to `WP_Block` in `render_from_api`
+
+## [4.6.4] - 2026-03-04
+
+### Fixed
+- Option value sanitization now handles non-array values gracefully instead of throwing a type error
+
+## [4.6.3] - 2026-03-04
+
+### Fixed
+- Do not render Gutenberg block in REST requests
+
 ## [4.6.0] - 2026-02-20
 
 ### Added

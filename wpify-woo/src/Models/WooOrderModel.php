@@ -3,6 +3,8 @@
 namespace WpifyWoo\Models;
 
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWooDeps\Wpify\Model\Attributes\Meta;
 use WpifyWooDeps\Wpify\Model\Order;
 

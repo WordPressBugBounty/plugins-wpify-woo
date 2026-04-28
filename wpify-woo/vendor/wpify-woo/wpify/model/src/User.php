@@ -37,31 +37,37 @@ class User extends Model
      * User has enabled rich editing or not.
      */
     #[Meta('rich_editing')]
+    #[ReadOnlyProperty]
     public bool $rich_editing = \true;
     /**
      * User has enabled syntax highlighting when writing code.
      */
     #[Meta('syntax_highlighting')]
+    #[ReadOnlyProperty]
     public bool $syntax_highlighting = \true;
     /**
      * User has enabled comment shortcuts or not.
      */
     #[Meta('comment_shortcuts')]
+    #[ReadOnlyProperty]
     public bool $comment_shortcuts = \false;
     /**
      * User's admin color scheme.
      */
     #[Meta('admin_color')]
+    #[ReadOnlyProperty]
     public string $admin_color = '';
     /**
      * User is forced to use SSL to access the admin.
      */
     #[Meta('use_ssl')]
+    #[ReadOnlyProperty]
     public bool $use_ssl = \false;
     /**
      * Show admin bar on the frontend for the user.
      */
     #[Meta('show_admin_bar_front')]
+    #[ReadOnlyProperty]
     public bool $show_admin_bar_front = \true;
     /**
      * User's locale.
@@ -78,6 +84,7 @@ class User extends Model
      * User's level.
      */
     #[Meta('wp_user_level')]
+    #[ReadOnlyProperty]
     public int $user_level = 0;
     /**
      * Comma-separated list of dismissed pointers.

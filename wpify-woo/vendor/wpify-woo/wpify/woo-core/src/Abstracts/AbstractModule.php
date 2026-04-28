@@ -13,6 +13,9 @@ abstract class AbstractModule
     /** @var string $id */
     private $id = '';
     private $license = null;
+    private ?array $settings_cache = null;
+    private array $option_key_cache = [];
+    private ?bool $requires_activation_cache = null;
     /**
      * Setup
      * @return void
@@ -135,7 +138,8 @@ abstract class AbstractModule
      */
     public function get_setting($id)
     {
-        $setting = isset($this->get_settings()[$id]) ? $this->get_settings()[$id] : null;
+        $settings = $this->get_settings();
+        $setting = $settings[$id] ?? null;
         $setting = apply_filters('wpify_woo_setting', $setting, $id, $this->id());
         return apply_filters("wpify_woo_setting_{$id}", $setting, $id, $this->id());
     }
@@ -145,22 +149,32 @@ abstract class AbstractModule
      */
     public function get_settings(): array
     {
+        if ($this->settings_cache !== null) {
+            return $this->settings_cache;
+        }
         if (defined('ICL_LANGUAGE_CODE')) {
             $default_lang = apply_filters('wpml_default_language', null);
             if ($default_lang !== ICL_LANGUAGE_CODE && get_option($this->get_option_key()) === \false) {
                 // Fallback to default language settings if the translated option does not exist at all.
                 $default = get_option($this->get_option_key(\true));
-                return is_array($default) ? $default : array();
+                $this->settings_cache = is_array($default) ? $default : array();
+                return $this->settings_cache;
             }
         }
         $settings = get_option($this->get_option_key());
-        return is_array($settings) ? $settings : array();
+        $this->settings_cache = is_array($settings) ? $settings : array();
+        return $this->settings_cache;
     }
     public function get_option_key($raw = \false)
     {
+        $cache_key = $raw ? 'raw' : 'localized';
+        if (isset($this->option_key_cache[$cache_key])) {
+            return $this->option_key_cache[$cache_key];
+        }
         $key = \sprintf('%s-%s', Settings::OPTION_NAME, $this->id());
         if ($raw) {
-            return $key;
+            $this->option_key_cache[$cache_key] = $key;
+            return $this->option_key_cache[$cache_key];
         }
         if (defined('ICL_LANGUAGE_CODE')) {
             $default_lang = apply_filters('wpml_default_language', null);
@@ -168,7 +182,8 @@ abstract class AbstractModule
                 $key = sprintf('%s_%s', $key, ICL_LANGUAGE_CODE);
             }
         }
-        return $key;
+        $this->option_key_cache[$cache_key] = $key;
+        return $this->option_key_cache[$cache_key];
     }
     /**
      * Module Settings tabs
@@ -188,12 +203,17 @@ abstract class AbstractModule
     }
     public function requires_activation()
     {
+        if ($this->requires_activation_cache !== null) {
+            return $this->requires_activation_cache;
+        }
         foreach ($this->settings() as $setting) {
             if (!empty($setting['type']) && 'license' === $setting['type']) {
-                return \true;
+                $this->requires_activation_cache = \true;
+                return $this->requires_activation_cache;
             }
         }
-        return \false;
+        $this->requires_activation_cache = \false;
+        return $this->requires_activation_cache;
     }
     public function is_settings_page()
     {

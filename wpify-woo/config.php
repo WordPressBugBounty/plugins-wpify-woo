@@ -1,6 +1,8 @@
 <?php
 
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWooDeps\DI\Definition\Helper\CreateDefinitionHelper;
 use WpifyWooDeps\Wpify\CustomFields\CustomFields;
 use WpifyWooDeps\Wpify\Log\RotatingFileLog;

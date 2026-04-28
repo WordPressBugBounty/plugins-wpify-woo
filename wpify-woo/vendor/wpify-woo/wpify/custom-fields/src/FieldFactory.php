@@ -68,7 +68,7 @@ class FieldFactory
             unset($all_vars[$key]);
         }
         // Remap snake_case PHP parameters to camelCase keys expected by JS.
-        $remap = array('class_name' => 'className', 'force_modal' => 'forceModal');
+        $remap = array('class_name' => 'className', 'classname' => 'className', 'force_modal' => 'forceModal');
         foreach ($remap as $snake => $camel) {
             if (array_key_exists($snake, $all_vars)) {
                 $all_vars[$camel] = $all_vars[$snake];
@@ -846,7 +846,6 @@ class FieldFactory
      *
      * @param array       $items          Child field definitions.
      * @param string|null $tag            HTML tag for the wrapper.
-     * @param string|null $classname      CSS class for the wrapper element.
      * @param string|null $label          Field label.
      * @param string|null $description    Field description.
      * @param bool|null   $required       Whether the field is required.
@@ -862,9 +861,9 @@ class FieldFactory
      *
      * @return array Field definition array.
      */
-    public function wrapper(array $items = array(), ?string $tag = null, ?string $classname = null, ?string $label = null, ?string $description = null, ?bool $required = null, mixed $default = self::UNSET, ?bool $disabled = null, ?string $tab = null, ?string $class_name = null, ?array $conditions = null, ?array $attributes = null, ?bool $unfiltered = null, ?array $render_options = null, ?string $generator = null): array
+    public function wrapper(array $items = array(), ?string $tag = null, ?string $label = null, ?string $description = null, ?bool $required = null, mixed $default = self::UNSET, ?bool $disabled = null, ?string $tab = null, ?string $class_name = null, ?array $conditions = null, ?array $attributes = null, ?bool $unfiltered = null, ?array $render_options = null, ?string $generator = null): array
     {
-        return $this->build_field('wrapper', array('items' => $items, 'tag' => $tag, 'classname' => $classname), $this->extract_common(get_defined_vars(), array('items', 'tag', 'classname')));
+        return $this->build_field('wrapper', array('items' => $items, 'tag' => $tag), $this->extract_common(get_defined_vars(), array('items', 'tag')));
     }
     /**
      * Creates a columns layout field definition.
@@ -872,7 +871,6 @@ class FieldFactory
      * @param array       $items          Child field definitions.
      * @param int|null    $columns        Number of columns (default 2).
      * @param string|null $gap            CSS gap override.
-     * @param string|null $classname      CSS class for the columns element.
      * @param string|null $label          Field label.
      * @param string|null $description    Field description.
      * @param bool|null   $required       Whether the field is required.
@@ -888,9 +886,9 @@ class FieldFactory
      *
      * @return array Field definition array.
      */
-    public function columns(array $items = array(), int|array|null $columns = null, ?string $gap = null, ?string $classname = null, ?string $label = null, ?string $description = null, ?bool $required = null, mixed $default = self::UNSET, ?bool $disabled = null, ?string $tab = null, ?string $class_name = null, ?array $conditions = null, ?array $attributes = null, ?bool $unfiltered = null, ?array $render_options = null, ?string $generator = null): array
+    public function columns(array $items = array(), int|array|null $columns = null, ?string $gap = null, ?string $label = null, ?string $description = null, ?bool $required = null, mixed $default = self::UNSET, ?bool $disabled = null, ?string $tab = null, ?string $class_name = null, ?array $conditions = null, ?array $attributes = null, ?bool $unfiltered = null, ?array $render_options = null, ?string $generator = null): array
     {
-        return $this->build_field('columns', array('items' => $items, 'columns' => $columns, 'gap' => $gap, 'classname' => $classname), $this->extract_common(get_defined_vars(), array('items', 'columns', 'gap', 'classname')));
+        return $this->build_field('columns', array('items' => $items, 'columns' => $columns, 'gap' => $gap), $this->extract_common(get_defined_vars(), array('items', 'columns', 'gap')));
     }
     /**
      * Creates an inner blocks field definition for Gutenberg.

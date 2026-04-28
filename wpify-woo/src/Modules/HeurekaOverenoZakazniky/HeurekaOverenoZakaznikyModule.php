@@ -191,7 +191,13 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 			'desc'   => __( 'Click to import reviews from the configured feed now.', 'wpify-woo' ),
 			'label'  => __( 'Import reviews now', 'wpify-woo' ),
 			'title'  => __( 'Import reviews', 'wpify-woo' ),
-			'url'    => wp_nonce_url( add_query_arg( array( 'wpify-woo-action' => 'import-heureka-reviews' ), $this->get_settings_url() ), 'wpify-woo-import-heureka-reviews' ),
+			'url'    => add_query_arg(
+				array(
+					'wpify-woo-action' => 'import-heureka-reviews',
+					'_wpnonce'         => wp_create_nonce( 'wpify-woo-import-heureka-reviews' ),
+				),
+				$this->get_settings_url()
+			),
 			'target' => '_self',
 		);
 

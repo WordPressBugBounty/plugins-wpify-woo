@@ -112,9 +112,11 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	}
 
 	function save_custom_variation_fields( $post_id ) {
-		update_post_meta( $post_id, '_wpify_woo_heureka_product_name', sanitize_text_field( $_POST['_wpify_woo_heureka_product_name'][ $post_id ] ) );
-		update_post_meta( $post_id, '_wpify_woo_heureka_product', sanitize_text_field( $_POST['_wpify_woo_heureka_product'][ $post_id ] ) );
-		update_post_meta( $post_id, '_wpify_woo_heureka_category', sanitize_text_field( $_POST['_wpify_woo_heureka_category'][ $post_id ] ) );
+		foreach ( array( '_wpify_woo_heureka_product_name', '_wpify_woo_heureka_product', '_wpify_woo_heureka_category' ) as $key ) {
+			if ( isset( $_POST[ $key ][ $post_id ] ) ) {
+				update_post_meta( $post_id, $key, sanitize_text_field( $_POST[ $key ][ $post_id ] ) );
+			}
+		}
 	}
 
 	public function save_custom_fields( $post_id ) {
@@ -166,7 +168,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 			array(
 				'id'    => 'exclude_outofstock',
 				'type'  => 'toggle',
-				'label' => __( 'Exclude out of stock items', 'wpify-woo' ),
+				'title' => __( 'Exclude out of stock items', 'wpify-woo' ),
 				'desc'  => __( 'Check to exclude out of stock items.', 'wpify-woo' ),
 				'tab'   => 'general',
 			),
@@ -283,7 +285,13 @@ class XmlFeedHeurekaModule extends AbstractModule {
 			'desc'   => __( 'Click to update the Heureka categories.', 'wpify-woo' ),
 			'label'  => __( 'Update Heureka categories', 'wpify-woo' ),
 			'title'  => __( 'Update categories', 'wpify-woo' ),
-			'url'    => wp_nonce_url( add_query_arg( array( 'wpify-woo-action' => 'update-heureka-categories' ), $this->get_settings_url() ), 'wpify-woo-update-heureka-categories' ),
+			'url'    => add_query_arg(
+				array(
+					'wpify-woo-action' => 'update-heureka-categories',
+					'_wpnonce'         => wp_create_nonce( 'wpify-woo-update-heureka-categories' ),
+				),
+				$this->get_settings_url()
+			),
 			'tab'    => 'categories',
 			'target' => '_self'
 		);

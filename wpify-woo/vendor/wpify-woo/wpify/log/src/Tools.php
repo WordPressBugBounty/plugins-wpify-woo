@@ -38,6 +38,9 @@ class Tools
                 width: 100%;
                 gap: 10px;
                 flex-wrap: wrap;
+                border-top: 1px solid var(--wpify-core-light);
+                padding-top: 20px;
+                margin-top: 20px;
 
                 p.submit {
                     width: auto;
@@ -53,7 +56,7 @@ class Tools
         echo $this->menu_args['page_title'] ?? __('WPify Logs', 'wpify-log');
         ?></h2>
 
-            <form action="" style="justify-content: start; margin-bottom: 20px;gap: 10px">
+            <form action="" style="display:flex; flex-wrap:wrap; justify-content: start; margin-bottom: 20px;gap: 10px">
                 <div class="wpifycf-select">
                     <select class="wpifycf-select__control" name="log-file" id="log-file"
                             style="max-width: 500px; padding-right: 30px">
@@ -147,7 +150,7 @@ class Tools
                                         <td style="width: <?php 
                             echo $this->column_width($key);
                             ?>"><?php 
-                            $this->pretty_print_log_item($item);
+                            $this->pretty_print_log_item($item, $key);
                             ?></td>
 										<?php 
                         }
@@ -211,8 +214,30 @@ class Tools
         }
         return $width;
     }
-    public function pretty_print_log_item($item)
+    public function pretty_print_log_item($item, $key)
     {
+        if ('level_name' === $key) {
+            $level_name = esc_html($item);
+            switch ($level_name) {
+                case 'DEBUG':
+                    $style = 'default';
+                    break;
+                case 'INFO':
+                    $style = 'success';
+                    break;
+                case 'NOTICE':
+                    $style = 'primary';
+                    break;
+                case 'WARNING':
+                    $style = 'warning';
+                    break;
+                default:
+                    $style = 'error';
+                    break;
+            }
+            printf('<span class="log-level log-level-%s wpify-badge wpify-badge-%s">%s</span>', esc_attr($level_name), $style, $level_name);
+            return;
+        }
         if (is_string($item) && ($item[0] === '{' && str_ends_with($item, '}') || $item[0] === '[' && str_ends_with($item, ']'))) {
             $decoded = json_decode($item, \true);
             if (json_last_error() === \JSON_ERROR_NONE) {

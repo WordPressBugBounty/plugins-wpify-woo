@@ -381,10 +381,13 @@ class GutenbergBlock extends BaseIntegration
             return '';
         }
         if ($post_id) {
-            setup_postdata($post_id);
+            global $post;
+            $post = get_post($post_id);
+            // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+            setup_postdata($post);
         }
         $attributes = $this->normalize_attributes($attributes);
-        return call_user_func($this->render_callback, $attributes, '', new WP_Block($parsed_block));
+        return call_user_func($this->render_callback, $attributes, '', new WP_Block($parsed_block, array('postId' => $post_id)));
     }
     /**
      * Normalizes the attributes array.

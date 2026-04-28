@@ -56,7 +56,7 @@ class TemplateModule extends AbstractModule {
 			array(
 				'id'    => 'place_order_button_html',
 				'type'  => 'toggle',
-				'label' => __( 'Change order button HTML', 'wpify-woo' ),
+				'title' => __( 'Change order button HTML', 'wpify-woo' ),
 				'desc'  => __( 'Turn on if you want to insert html entities into the button text. The text will be inserted directly into the button\'s HTML code. Warning: unprofessional intervention may affect the checkout page display.', 'wpify-woo' ),
 			),
 

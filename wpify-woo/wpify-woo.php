@@ -3,9 +3,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /*
- * Plugin Name: WPify Woo Czech
+ * Plugin Name: WPify Woo
  * Description: Custom functionality for WooCommerce
- * Version: 5.3.4
+ * Version: 5.4.0
  * Requires PHP: 8.1
  * Requires at least: 6.2
  * Author: WPify s.r.o.
@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Text Domain: wpify-woo
  * Domain Path: /languages
  * WC requires at least: 7.0
- * WC tested up to: 10.5
+ * WC tested up to: 10.6
  * Requires Plugins: woocommerce
  * Tested up to: 6.9
 */
@@ -93,14 +93,17 @@ function wpify_woo_uninstall() {
  * Error for older php
  */
 function wpify_woo_php_upgrade_notice() {
-	$info = get_plugin_data( __FILE__ ); ?>
+	$info = get_plugin_data( __FILE__ );
+	/* translators: 1: Plugin name, 2: Minimal required PHP version, 3: current PHP version. */
+	$string = sprintf(
+		esc_html__( 'Opps! %1$s requires a minimum PHP version of %2$s. Your current version is: %3$s. Please contact your host to upgrade.', 'wpify-woo' ),
+		$info['Name'],
+		WPIFY_WOO_MIN_PHP_VERSION,
+		PHP_VERSION
+	);
+	?>
 	<div class="error notice">
-		<p>
-			<?php
-			/* translators: 1: Plugin name, 2: Minimal required PHP version, 3: current PHP version. */
-			printf( _e( 'Opps! %1$s requires a minimum PHP version of %2$s. Your current version is: %3$s. Please contact your host to upgrade.', 'wpify-woo' ), $info['Name'], WPIFY_WOO_MIN_PHP_VERSION, PHP_VERSION );
-			?>
-		</p>
+		<p><?php echo esc_html( $string ); ?></p>
 	</div>
 	<?php
 }
@@ -110,12 +113,11 @@ function wpify_woo_php_upgrade_notice() {
  */
 function wpify_woo_php_vendor_missing() {
 	$info = get_plugin_data( __FILE__ );
+	/* translators: 1: Plugin name */
+	$string = sprintf( esc_html__( 'Opps! %1$s is corrupted it seems, please re-install the plugin.', 'wpify-woo' ), $info['Name'] );
 	?>
 	<div class="error notice">
-		<p><?php
-			/* translators: 1: Plugin name */
-			printf( __( 'Opps! %s is corrupted it seems, please re-install the plugin.', 'wpify-woo' ), $info['Name'] );
-			?></p>
+		<p><?php echo esc_html( $string ); ?></p>
 	</div>
 	<?php
 }
@@ -169,18 +171,9 @@ if ( version_compare( PHP_VERSION, WPIFY_WOO_MIN_PHP_VERSION ) < 0 ) {
 } elseif ( ! wpify_woo_plugin_is_active( 'woocommerce/woocommerce.php' ) ) {
 	add_action( 'admin_notices', 'wpify_woo_woocommerce_not_active' );
 } else {
-	$core_bootstrap = __DIR__ . '/vendor/wpify-woo/wpify/woo-core/bootstrap.php';
-	if ( file_exists( $core_bootstrap ) ) {
-		require_once $core_bootstrap;
-	}
-
 	if ( file_exists( __DIR__ . '/vendor/wpify-woo/scoper-autoload.php' ) ) {
 		include_once __DIR__ . '/vendor/wpify-woo/scoper-autoload.php';
 		include_once __DIR__ . '/vendor/autoload.php';
-
-		if ( function_exists( 'wpify_woo_core_prefer_latest' ) ) {
-			wpify_woo_core_prefer_latest();
-		}
 
 		add_action( 'plugins_loaded', 'wpify_woo_init', 11 );
 		register_activation_hook( __FILE__, 'wpify_woo_activate' );

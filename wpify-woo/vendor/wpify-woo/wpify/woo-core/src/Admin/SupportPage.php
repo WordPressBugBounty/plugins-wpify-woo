@@ -13,6 +13,7 @@ class SupportPage
 {
     const SLUG = 'wpify/support';
     private DashboardPage $dashboard_page;
+    private ?array $log_files_cache = null;
     public function __construct(DashboardPage $dashboard_page)
     {
         $this->dashboard_page = $dashboard_page;
@@ -70,8 +71,8 @@ class SupportPage
         do_action('wpify_dashboard_before_support_content');
         ?>
 
-				<div class="wpify__cards">
-					<div class="wpify__card wpify__card--50">
+				<div class="wpify__cards grid-layout-2">
+					<div class="wpify__card">
 						<div class="wpify__card-body">
 							<h2><?php 
         _e('Quick debugging checklist', 'wpify-core');
@@ -162,7 +163,7 @@ class SupportPage
 							</p>
 						</div>
 					</div>
-					<div class="wpify__card wpify__card--50">
+					<div class="wpify__card">
 						<div class="wpify__card-body">
 							<h2><?php 
         _e('Frequently Asked Questions', 'wpify-core');
@@ -493,6 +494,9 @@ class SupportPage
     }
     private function get_log_files(): array
     {
+        if ($this->log_files_cache !== null) {
+            return $this->log_files_cache;
+        }
         $logs = apply_filters('wpify_logs', []);
         $files = [];
         foreach ($logs as $log) {
@@ -516,7 +520,8 @@ class SupportPage
         usort($files, static function ($left, $right) {
             return strcmp($right['label'], $left['label']);
         });
-        return $files;
+        $this->log_files_cache = $files;
+        return $this->log_files_cache;
     }
     private function format_log_label(string $file, string $channel): string
     {

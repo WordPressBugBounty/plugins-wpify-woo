@@ -2,8 +2,11 @@
 
 namespace WpifyWoo\Managers;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Modules\PricesLog\PricesLogRepository;
 use WpifyWoo\Modules\HeurekaOverenoZakazniky\HeurekaReviewRepository;
+use WpifyWoo\Modules\WithdrawalClaims\WithdrawalClaimsRepository;
 use WpifyWoo\Plugin;
 use WpifyWoo\Repositories\WooOrderRepository;
 use WpifyWooDeps\Wpify\Model\Manager;
@@ -19,10 +22,12 @@ class RepositoriesManager {
         Manager $manager,
         WooOrderRepository $woo_order_repository,
         PricesLogRepository $prices_log_repository,
-        HeurekaReviewRepository $heureka_review_repository
+        HeurekaReviewRepository $heureka_review_repository,
+        WithdrawalClaimsRepository $withdrawal_claims_repository
     ) {
         $manager->register_repository( $woo_order_repository );
         $manager->register_repository( $prices_log_repository );
         $manager->register_repository( $heureka_review_repository );
+        $manager->register_repository( $withdrawal_claims_repository );
     }
 }

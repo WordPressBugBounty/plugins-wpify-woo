@@ -2,6 +2,8 @@
 
 namespace WpifyWoo;
 
+defined( 'ABSPATH' ) || exit;
+
 use WpifyWoo\Admin\Settings;
 use WpifyWoo\Managers\ApiManager;
 use WpifyWoo\Managers\ModulesManager;
@@ -22,7 +24,7 @@ class Plugin extends AbstractPlugin {
 	protected bool $requires_activation = false;
 
 	/** Plugin version */
-	public const VERSION = '5.3.4';
+	public const VERSION = '5.4.0';
 
 	/** Plugin slug name */
 	public const PLUGIN_SLUG = 'wpify-woo';
