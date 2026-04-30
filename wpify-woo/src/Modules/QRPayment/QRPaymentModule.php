@@ -433,6 +433,20 @@ class QRPaymentModule extends AbstractModule {
 		 */
 		$payment_details = apply_filters( 'wpify_woo_qr_payment_details', $payment_details, $order );
 
+		/**
+		 * Filter to provide custom QR code image data before default generation.
+		 *
+		 * @param string   $qrCode          QR code image data URI
+		 * @param array    $payment_details payment details
+		 * @param array    $account         bank account data
+		 * @param WC_Order $order           Order object
+		 */
+		$qrCode = apply_filters( 'wpify_woo_qr_payment_qr_code', $qrCode, $payment_details, $account, $order );
+
+		if ( ! empty( $qrCode ) ) {
+			return $qrCode;
+		}
+
 		if ( $this->get_setting( 'compatibility_mode' ) && in_array( $account['type'], [ 'cz', 'sk' ], true ) ) {
 			if ( 'cz' === $account['type'] ) {
 				$account_prefix = '';

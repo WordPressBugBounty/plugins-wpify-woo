@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.4.0
+Stable tag: 5.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
@@ -233,6 +233,9 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+= 5.4.1 =
+* Add filter for providing custom QR payment image data before default QR code generation.
+
 = 5.4.0 =
 * Add new module Withdrawal & Claim — compliant "Withdraw from contract" button (EU Directive 2023/2673) + optional warranty claim form, AJAX flow, guest access, per-product overrides, native WC emails, admin overview, HPOS compatible.
 * Fix input sanitization in admin settings.
