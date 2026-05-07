@@ -1927,23 +1927,23 @@
         },
         {
             "name": "symfony\/deprecation-contracts",
-            "version": "v3.6.0",
-            "version_normalized": "3.6.0.0",
+            "version": "v3.7.0",
+            "version_normalized": "3.7.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/deprecation-contracts.git",
-                "reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62"
+                "reference": "50f59d1f3ca46d41ac911f97a78626b6756af35b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/symfony\/deprecation-contracts\/zipball\/63afe740e99a13ba87ec199bb07bbdee937a5b62",
-                "reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62",
+                "url": "https:\/\/api.github.com\/repos\/symfony\/deprecation-contracts\/zipball\/50f59d1f3ca46d41ac911f97a78626b6756af35b",
+                "reference": "50f59d1f3ca46d41ac911f97a78626b6756af35b",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.1"
             },
-            "time": "2024-09-25T14:21:43+00:00",
+            "time": "2026-04-13T15:52:40+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -1951,7 +1951,7 @@
                     "name": "symfony\/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.6-dev"
+                    "dev-main": "3.7-dev"
                 }
             },
             "installation-source": "dist",
@@ -1977,7 +1977,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https:\/\/symfony.com",
             "support": {
-                "source": "https:\/\/github.com\/symfony\/deprecation-contracts\/tree\/v3.6.0"
+                "source": "https:\/\/github.com\/symfony\/deprecation-contracts\/tree\/v3.7.0"
             },
             "funding": [
                 {
@@ -1986,6 +1986,10 @@
                 },
                 {
                     "url": "https:\/\/github.com\/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https:\/\/github.com\/nicolas-grekas",
                     "type": "github"
                 },
                 {
@@ -2082,17 +2086,17 @@
         },
         {
             "name": "wpify\/custom-fields",
-            "version": "4.6.8",
-            "version_normalized": "4.6.8.0",
+            "version": "4.8.0",
+            "version_normalized": "4.8.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/wpify\/custom-fields.git",
-                "reference": "78336b53d37636366fbe9062762b66a2b4937b67"
+                "reference": "6383261ac4e79ed9f2de103d1de61b217948e7b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/78336b53d37636366fbe9062762b66a2b4937b67",
-                "reference": "78336b53d37636366fbe9062762b66a2b4937b67",
+                "url": "https:\/\/api.github.com\/repos\/wpify\/custom-fields\/zipball\/6383261ac4e79ed9f2de103d1de61b217948e7b5",
+                "reference": "6383261ac4e79ed9f2de103d1de61b217948e7b5",
                 "shasum": ""
             },
             "require": {
@@ -2105,7 +2109,7 @@
                 "squizlabs\/php_codesniffer": "^3.10",
                 "wp-coding-standards\/wpcs": "^3.0"
             },
-            "time": "2026-03-27T09:10:22+00:00",
+            "time": "2026-05-07T15:38:21+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2123,23 +2127,23 @@
             "description": "WPify Custom Fields",
             "support": {
                 "issues": "https:\/\/github.com\/wpify\/custom-fields\/issues",
-                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.6.8"
+                "source": "https:\/\/github.com\/wpify\/custom-fields\/tree\/4.8.0"
             },
             "install-path": "..\/wpify\/custom-fields"
         },
         {
             "name": "wpify\/license",
-            "version": "2.0.9",
-            "version_normalized": "2.0.9.0",
+            "version": "2.0.10",
+            "version_normalized": "2.0.10.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/gitlab.com\/wpify\/license.git",
-                "reference": "da3a92f868b9d4ff94b5f1f5f1ce4b240e76afb9"
+                "reference": "9703f5e0987a8c221c4585d36c93b8fa51f29040"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/gitlab.com\/api\/v4\/projects\/wpify%2Flicense\/repository\/archive.zip?sha=da3a92f868b9d4ff94b5f1f5f1ce4b240e76afb9",
-                "reference": "da3a92f868b9d4ff94b5f1f5f1ce4b240e76afb9",
+                "url": "https:\/\/gitlab.com\/api\/v4\/projects\/wpify%2Flicense\/repository\/archive.zip?sha=9703f5e0987a8c221c4585d36c93b8fa51f29040",
+                "reference": "9703f5e0987a8c221c4585d36c93b8fa51f29040",
                 "shasum": ""
             },
             "require": {
@@ -2149,7 +2153,7 @@
             "require-dev": {
                 "symfony\/var-dumper": "^5.2"
             },
-            "time": "2026-01-16T12:20:28+00:00",
+            "time": "2026-04-23T06:50:40+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2169,7 +2173,7 @@
             ],
             "support": {
                 "issues": "https:\/\/gitlab.com\/wpify\/license\/-\/issues",
-                "source": "https:\/\/gitlab.com\/wpify\/license\/-\/tree\/2.0.9"
+                "source": "https:\/\/gitlab.com\/wpify\/license\/-\/tree\/2.0.10"
             },
             "install-path": "..\/wpify\/license"
         },

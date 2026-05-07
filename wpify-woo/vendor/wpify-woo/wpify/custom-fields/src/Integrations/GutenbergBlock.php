@@ -363,7 +363,7 @@ class GutenbergBlock extends BaseIntegration
      */
     public function register_routes(): void
     {
-        $this->custom_fields->api->register_rest_route('render-block/' . $this->name, WP_REST_Server::CREATABLE, array($this, 'render_from_api'));
+        $this->custom_fields->api->register_rest_route('render-block/' . $this->name, WP_REST_Server::CREATABLE, array($this, 'render_from_api'), array(), array($this->custom_fields->api, 'cap_edit_posts'));
     }
     /**
      * Renders a block's content based on provided attributes and a rendering callback.

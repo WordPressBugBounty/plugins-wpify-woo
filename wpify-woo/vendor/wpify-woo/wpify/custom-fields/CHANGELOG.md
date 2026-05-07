@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.8.0] - 2026-05-07
+
+### Security
+- Fix arbitrary file upload via the `direct-file-upload` REST endpoint (CVSS 9.9, CVE-TBD). The endpoint previously accepted any file type from any user with `edit_posts` (Contributor and above) and stored it in a web-accessible directory under `wp-content/uploads/wpifycf-temp/`. A Contributor could upload `.php` and execute it. Now requires `upload_files`, validates uploads via `wp_handle_upload()` (which uses WordPress's built-in MIME allowlist, blocking executables), and writes `.htaccess` + `web.config` hardening files into the temp and target directories on every upload. See [docs/security/CVE-TBD-direct-file-upload.md](docs/security/CVE-TBD-direct-file-upload.md). Affected versions: 4.1.0–4.7.0.
+- Restrict `direct-file-info` REST endpoint to file paths under `WP_CONTENT_DIR` (resolved via `realpath()`) to prevent filesystem information disclosure.
+- Restrict `mapycz-api-key` POST and `cloudflare/zones` REST endpoints to `manage_options`. The `mapycz-api-key` GET stays at `edit_posts` so the map field continues to render for editor users.
+- Restrict `direct_file` field `directory` parameter to paths under `WP_CONTENT_DIR` (with `wpifycf_direct_file_directory_allowed` filter for legitimate exotic cases). Symlink-safe via `realpath()`.
+- Add capability-aware UI: fields requiring a capability the current user lacks (`direct_file`, `multi_direct_file` → `upload_files`; `cloudflare` → `manage_options`) render disabled, and their values are preserved on save. Filterable via `wpifycf_field_required_capability`.
+
+### Changed
+- `Api::register_rest_route()` now requires a per-route `$permission_callback` parameter. The previous global `permissions_callback` is removed. Internal callsites in `BaseIntegration::register_options_route()` and `GutenbergBlock::register_routes()` are updated to pass appropriate per-route capabilities.
+
+### Fixed
+- `direct_file` and `multi_direct_file` fields now correctly move uploaded files from the temp directory to the configured `directory` on the very first save. Previously, when no prior value was stored in the database, the equality short-circuit in `DirectFileField::sanitize_direct_file()` returned the temp-directory path verbatim, leaving the file in `wpifycf-temp/` instead of relocating it.
+
+## [4.7.0] - 2026-04-23
+
+### Added
+- `richtext` and `multi_richtext` field types — a modern rich text editor built on [Lexical](https://lexical.dev/) that coexists with the existing `wysiwyg` field. Highlights:
+  - Configurable toolbar with three presets (`full`, `basic`, `minimal`) or an explicit button-ID array; extensible via the `wpifycf_richtext_toolbar_presets` and `wpifycf_richtext_buttons` filters.
+  - Block format dropdown (paragraph, H1–H6, preformatted, code block, blockquote), inline formatting (bold, italic, strikethrough), lists, alignment, indent/outdent, link with floating popover, horizontal rule, special-character picker, undo/redo, clear formatting, one-shot paste-as-text.
+  - Tables: insert via a grid-size picker with a floating contextual toolbar that adds/removes rows and columns, merges selected cells (respecting pre-existing colspan/rowspan), unmerges merged cells, and deletes the whole table. Drag-to-select highlights cells in blue.
+  - Images: insert from the WordPress media library via the existing `useMediaLibrary` hook (extended non-breakingly with an optional `onSelect` callback); auto-picks the best registered size (`medium_large → large → medium → full`); contextual popover for Replace / Alt text / Delete. Emits clean semantic `<img src alt width height data-id>` with no `[caption]` shortcode or legacy alignment classes.
+  - Visual ↔ code view toggle with an inline normalization notice, word/character counter, and standard keyboard shortcuts inherited from Lexical.
+- `FieldFactory::richtext()` method mirroring `FieldFactory::wysiwyg()` plus `toolbar`, `height`, `word_count`, and `default_view` parameters.
+- Documentation: `docs/field-types/richtext.md` and `docs/field-types/multi_richtext.md`.
+
+## [4.6.9] - 2026-04-20
+
+### Added
+- Clear control on the Color field when `required` is not set — clicking the trash icon resets the stored value to an empty string, and empty swatches render with a checkerboard indicator so "no color" is distinguishable from a solid black value
+
 ## [4.6.8] - 2026-03-27
 
 ### Fixed

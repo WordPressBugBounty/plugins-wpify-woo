@@ -108,6 +108,10 @@ abstract class BaseIntegration
                 $item['type'] = $correct;
             }
         }
+        $required_cap = $this->custom_fields->get_field_required_capability($item['type'] ?? '');
+        if (null !== $required_cap && !current_user_can($required_cap)) {
+            $item['disabled'] = \true;
+        }
         if (isset($item['items'])) {
             $child_global_id = in_array($item['type'] ?? '', array('columns', 'wrapper'), \true) ? $global_id : $item['global_id'];
             $item['items'] = $this->normalize_items($item['items'], $child_global_id);
@@ -243,7 +247,7 @@ abstract class BaseIntegration
                     return $this->normalize_options($options);
                 }
                 return array();
-            });
+            }, array(), array($this->custom_fields->api, 'cap_edit_posts'));
         } elseif (!empty($item['items'])) {
             $this->register_options_routes($item['items']);
         }

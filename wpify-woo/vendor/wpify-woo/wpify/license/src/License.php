@@ -185,7 +185,7 @@ class License
         if (!$data || is_wp_error($data)) {
             return null;
         }
-        if ($data['code'] === 'license-not-found') {
+        if (isset($data['code']) && $data['code'] === 'license-not-found') {
             return new \WP_Error('license-not-found', __('License not found', 'wpify-license'), array('status' => 404));
         }
         return $data['item'];

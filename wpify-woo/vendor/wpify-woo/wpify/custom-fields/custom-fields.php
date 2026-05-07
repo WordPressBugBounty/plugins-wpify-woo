@@ -6,7 +6,7 @@ namespace WpifyWooDeps;
  * Plugin Name: WPify Custom Fields
  * Plugin URI: https://wpify.io
  * Description: Modern custom fields for WordPress
- * Version: 1.0.0
+ * Version: 4.8.0
  * Author: WPify
  * Author URI: https://wpify.io
  * Text Domain: wpify-custom-fields
