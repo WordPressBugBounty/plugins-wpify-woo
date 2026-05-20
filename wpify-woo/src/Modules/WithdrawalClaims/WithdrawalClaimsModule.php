@@ -293,7 +293,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 				'type'    => 'number',
 				'label'   => __( 'Min seconds between requests (Layer A)', 'wpify-woo' ),
 				'desc'    => __( 'Minimum gap between two stored requests on the same order. Prevents accidental double-submits.', 'wpify-woo' ),
-				'default' => '60',
+				'default' => '300',
 				'tab'     => 'security',
 			),
 			array(
@@ -302,6 +302,14 @@ class WithdrawalClaimsModule extends AbstractModule {
 				'label'   => __( 'Max attempts per IP per hour (Layer B)', 'wpify-woo' ),
 				'desc'    => __( 'Maximum submission attempts per IP per hour, including validation failures. Use to throttle brute-force attempts.', 'wpify-woo' ),
 				'default' => '10',
+				'tab'     => 'security',
+			),
+			array(
+				'id'      => 'duplicate_window_hours',
+				'type'    => 'number',
+				'label'   => __( 'Duplicate content window (hours)', 'wpify-woo' ),
+				'desc'    => __( 'Block submission if an identical request (same items + reason) was submitted on the same order within this many hours. Set to 0 to disable.', 'wpify-woo' ),
+				'default' => '24',
 				'tab'     => 'security',
 			),
 		);
@@ -553,7 +561,18 @@ class WithdrawalClaimsModule extends AbstractModule {
 			}
 		}
 
-		// Custom order_number plugins (Sequential Order Numbers, etc.)
+		// Built-in WC search — HPOS-aware. Plugins like Sequential Order Numbers
+		// for WooCommerce extend it via woocommerce_shop_order_search_fields /
+		// woocommerce_cot_shop_order_search_results. Match exactly to avoid
+		// partial-substring hits.
+		foreach ( wc_order_search( $identifier ) as $id ) {
+			$order = wc_get_order( (int) $id );
+			if ( $order instanceof WC_Order && $order->get_order_number() === $identifier ) {
+				return $order;
+			}
+		}
+
+		// Custom order_number plugins not hooked into WC search.
 		return apply_filters( 'wpify_woo_withdrawal_claims_resolve_order', null, $identifier );
 	}
 
@@ -577,9 +596,11 @@ class WithdrawalClaimsModule extends AbstractModule {
 	}
 
 	private function authorize_internal( array $context ) {
-		// Logged-in: WC session + ownership.
-		if ( ! empty( $context['user_id'] ) ) {
-			$order = wc_get_order( (int) ( $context['order_id'] ?? 0 ) );
+		// Logged-in WITH trusted order_id (e.g. My Account flow): ownership check.
+		// Without trusted order_id, fall through to ORDER_KEY / 2FA — a logged-in
+		// admin filling the public form has user_id but no trusted order context.
+		if ( ! empty( $context['user_id'] ) && ! empty( $context['order_id'] ) ) {
+			$order = wc_get_order( (int) $context['order_id'] );
 			if ( ! $order instanceof WC_Order ) {
 				return new WP_Error( 'not_found', __( 'Order not found.', 'wpify-woo' ) );
 			}
@@ -681,9 +702,10 @@ class WithdrawalClaimsModule extends AbstractModule {
 	}
 
 	public function check_layer_b_attempts( bool $count = true ): bool {
-		$ip    = $this->get_client_ip();
-		$key   = $this->rate_limit_key( $ip );
-		$max   = max( 1, (int) $this->get_setting( 'rate_limit_per_ip_hour' ) );
+		$ip        = $this->get_client_ip();
+		$key       = $this->rate_limit_key( $ip );
+		$raw_max   = $this->get_setting( 'rate_limit_per_ip_hour' );
+		$max       = is_numeric( $raw_max ) ? max( 1, (int) $raw_max ) : 10;
 		$count_now = (int) get_transient( $key );
 
 		if ( $count_now >= $max ) {
@@ -703,8 +725,11 @@ class WithdrawalClaimsModule extends AbstractModule {
 	 * @return true|WP_Error
 	 */
 	public function check_layer_a( int $order_id ) {
-		$max = max( 1, (int) $this->get_setting( 'max_requests_per_order' ) );
-		$gap = max( 0, (int) $this->get_setting( 'min_seconds_between_requests' ) );
+		$raw_max = $this->get_setting( 'max_requests_per_order' );
+		$max     = is_numeric( $raw_max ) ? max( 1, (int) $raw_max ) : 5;
+
+		$raw_gap = $this->get_setting( 'min_seconds_between_requests' );
+		$gap     = is_numeric( $raw_gap ) ? max( 0, (int) $raw_gap ) : 300;
 
 		if ( $this->repository->count_by_order( $order_id ) >= $max ) {
 			return new WP_Error( 'too_many', __( 'You have reached the maximum number of requests for this order.', 'wpify-woo' ) );
@@ -721,6 +746,59 @@ class WithdrawalClaimsModule extends AbstractModule {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Reject identical resubmits (same items + reason) on the same order within the
+	 * configured window. Different items/reason → passes (genuine new request).
+	 *
+	 * @return true|WP_Error
+	 */
+	public function check_duplicate_content( int $order_id, string $request_type, string $scope, array $items, string $reason ) {
+		$raw_window = $this->get_setting( 'duplicate_window_hours' );
+		$window     = is_numeric( $raw_window ) ? (int) $raw_window : 24;
+		if ( $window <= 0 ) {
+			return true;
+		}
+
+		$hash   = $this->content_fingerprint( $request_type, $scope, $items, $reason );
+		$recent = $this->repository->find_recent_by_order( $order_id, $window );
+
+		foreach ( $recent as $row ) {
+			$existing_items = json_decode( $row->items_json ?? '[]', true );
+			$existing_hash  = $this->content_fingerprint( (string) $row->request_type, (string) $row->scope, is_array( $existing_items ) ? $existing_items : array(), (string) $row->reason );
+			if ( hash_equals( $hash, $existing_hash ) ) {
+				return new WP_Error( 'duplicate_content', __( 'You have already submitted an identical request for this order. We are processing it.', 'wpify-woo' ) );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Canonical fingerprint — order-independent items, trimmed reason, sorted item rows.
+	 *
+	 * @param array<int, array{line_item_id:int, quantity:int}> $items
+	 */
+	private function content_fingerprint( string $request_type, string $scope, array $items, string $reason ): string {
+		$normalized_items = array();
+		foreach ( $items as $row ) {
+			$normalized_items[] = array(
+				'line_item_id' => (int) ( $row['line_item_id'] ?? 0 ),
+				'quantity'     => (int) ( $row['quantity'] ?? 0 ),
+			);
+		}
+		usort(
+			$normalized_items,
+			static fn( array $a, array $b ): int => $a['line_item_id'] <=> $b['line_item_id']
+		);
+
+		return sha1( wp_json_encode( array(
+			'type'   => $request_type,
+			'scope'  => $scope,
+			'items'  => $normalized_items,
+			'reason' => trim( $reason ),
+		) ) );
 	}
 
 	// =========================================================================
@@ -1108,6 +1186,12 @@ class WithdrawalClaimsModule extends AbstractModule {
 		$reason = (string) ( $input['reason'] ?? '' );
 		if ( $type === 'claim' && trim( $reason ) === '' ) {
 			return new WP_Error( 'reason_required', __( 'Please describe the defect.', 'wpify-woo' ) );
+		}
+
+		// Spam protection — duplicate content guard (after items + reason resolved).
+		$duplicate = $this->check_duplicate_content( $order->get_id(), $type, $scope, $final_items, $reason );
+		if ( is_wp_error( $duplicate ) ) {
+			return $duplicate;
 		}
 
 		// Period_end snapshot — earliest among selected items.

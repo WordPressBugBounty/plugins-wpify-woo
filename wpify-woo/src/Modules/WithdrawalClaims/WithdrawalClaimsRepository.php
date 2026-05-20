@@ -54,4 +54,25 @@ class WithdrawalClaimsRepository extends CustomTableRepository {
 
 		return $items[0] ?? null;
 	}
+
+	/**
+	 * Get all requests for a given order submitted within the last $window_hours.
+	 * Used by duplicate-content guard.
+	 *
+	 * @return WithdrawalClaimsModel[]
+	 */
+	public function find_recent_by_order( int $order_id, int $window_hours ): array {
+		if ( $window_hours <= 0 ) {
+			return array();
+		}
+		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $window_hours * HOUR_IN_SECONDS ) );
+
+		return $this->find( array(
+			'where'    => array(
+				'order_id'        => $order_id,
+				'submitted_at >=' => $cutoff,
+			),
+			'order_by' => 'submitted_at DESC',
+		) );
+	}
 }

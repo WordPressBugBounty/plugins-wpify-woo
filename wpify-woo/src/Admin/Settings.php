@@ -151,23 +151,27 @@ class Settings {
 	}
 
 	public function maybe_hyde_newsletter_notice() {
-		if ( isset( $_POST['submit_wpify_subscription_hide'] ) && check_admin_referer( 'wpify_subscription_form', 'wpify_subscription_nonce' ) ) {
-			$display_notice = get_option( 'wpify-woo-display-subscription', '' );
-
-			if ( 'none' === $display_notice ) {
-				return;
-			};
-
-			if ( empty( $display_notice ) ) {
-				$new_date = strtotime( '+1 week' );
-			} elseif ( is_numeric( $display_notice ) ) {
-				$new_date = strtotime( '+1 month', (int) $display_notice );
-			} else {
-				$new_date = strtotime( '+1 week' );
-			}
-
-			update_option( 'wpify-woo-display-subscription', $new_date );
+		if ( ! isset( $_POST['submit_wpify_subscription_hide'] ) || ! check_admin_referer( 'wpify_subscription_form', 'wpify_subscription_nonce' ) ) {
+			return;
 		}
+
+		$display_notice = get_option( 'wpify-woo-display-subscription', '' );
+		if ( 'none' === $display_notice ) {
+			return;
+		}
+
+		$count = (int) get_option( 'wpify-woo-display-subscription-count', 0 ) + 1;
+
+		if ( $count <= 1 ) {
+			$new_date = strtotime( '+1 month' );
+		} elseif ( 2 === $count ) {
+			$new_date = strtotime( '+3 months' );
+		} else {
+			$new_date = strtotime( '+6 months' );
+		}
+
+		update_option( 'wpify-woo-display-subscription', $new_date );
+		update_option( 'wpify-woo-display-subscription-count', $count );
 	}
 
 	public function render_newsletter_notice() {

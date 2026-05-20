@@ -184,6 +184,13 @@
 		var reasonField = form.querySelector( '.wpify-woo-reason' );
 		if ( reasonField ) {
 			reasonField.hidden = false;
+			// Promote deferred required marker → real HTML5 required (claim type only).
+			// Avoids checkValidity() failing on a hidden field in step 1.
+			var reasonTextarea = reasonField.querySelector( 'textarea[name="reason"]' );
+			if ( reasonTextarea && reasonTextarea.dataset.claimRequired === '1' ) {
+				reasonTextarea.required = true;
+				reasonTextarea.removeAttribute( 'data-claim-required' );
+			}
 		}
 
 		// Swap button text from "Check order" to the configured confirm text.

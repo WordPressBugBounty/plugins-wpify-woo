@@ -40,6 +40,7 @@ return array(
     'WpifyWoo\\Modules\\PricesLog\\PricesLogRepository' => $baseDir . '/src/Modules/PricesLog/PricesLogRepository.php',
     'WpifyWoo\\Modules\\Prices\\PricesModule' => $baseDir . '/src/Modules/Prices/PricesModule.php',
     'WpifyWoo\\Modules\\QRPayment\\QRPaymentModule' => $baseDir . '/src/Modules/QRPayment/QRPaymentModule.php',
+    'WpifyWoo\\Modules\\SklikRetargeting\\CombinationDataBuilder' => $baseDir . '/src/Modules/SklikRetargeting/CombinationDataBuilder.php',
     'WpifyWoo\\Modules\\SklikRetargeting\\SklikRetargetingModule' => $baseDir . '/src/Modules/SklikRetargeting/SklikRetargetingModule.php',
     'WpifyWoo\\Modules\\Template\\TemplateModule' => $baseDir . '/src/Modules/Template/TemplateModule.php',
     'WpifyWoo\\Modules\\Vocative\\VocativeModule' => $baseDir . '/src/Modules/Vocative/VocativeModule.php',

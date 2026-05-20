@@ -11,7 +11,9 @@ use WpifyWooFeeds\Feeds\Zbozi\Settings as ZboziFeedSettings;
 
 class SklikRetargetingModule extends AbstractModule {
 
-	public function __construct() {
+	public function __construct(
+		private CombinationDataBuilder $combination_builder
+	) {
 		parent::__construct();
 
 		add_filter( 'wp_footer', array( $this, 'render_code' ), 20, 2 );
@@ -138,6 +140,18 @@ class SklikRetargetingModule extends AbstractModule {
 		$cookie_name  = $this->get_setting( 'cookie_name' );
 		$cookie_value = $this->get_setting( 'cookie_value' );
 
+		$variation_map_json = null;
+		if ( is_product() ) {
+			$rendered_product = wc_get_product( get_the_ID() );
+			if ( $rendered_product instanceof \WC_Product_Variable ) {
+				$custom_item_id_meta = (string) $this->get_setting( 'custom_item_id' ) ?: null;
+				$variation_map       = $this->combination_builder->build_variation_combo_map( $rendered_product, $custom_item_id_meta );
+				if ( ! empty( $variation_map ) ) {
+					$variation_map_json = wp_json_encode( $variation_map );
+				}
+			}
+		}
+
 		?>
 		<!-- Sklik retargeting -->
 		<script type="text/javascript" src="https://c.seznam.cz/js/rc.js"></script>
@@ -178,6 +192,65 @@ class SklikRetargetingModule extends AbstractModule {
 					window.rc.retargetingHit(retargetingConf);
 				}
 				console.log('retargetingConf', retargetingConf);
+
+				<?php if ( $variation_map_json ) : ?>
+				var wpifyWooSklikVariationMap = <?php echo $variation_map_json; ?>;
+				if (window.jQuery) {
+					jQuery(function ($) {
+						var $form = $('.variations_form').first();
+						if (!$form.length) {
+							return;
+						}
+						$form.on('found_variation', function (event, variation) {
+							var vid = variation && variation.variation_id;
+							if (!vid) {
+								return;
+							}
+							var combos = wpifyWooSklikVariationMap[vid] || [];
+							if (!combos.length) {
+								return;
+							}
+							var slugs = {};
+							$form.find('.variations select').each(function () {
+								var name = $(this).attr('data-attribute_name') || $(this).attr('name');
+								if (!name) {
+									return;
+								}
+								slugs[name.replace(/^attribute_/, '')] = $(this).val() || '';
+							});
+							var matched = null;
+							for (var i = 0; i < combos.length; i++) {
+								var attrs = combos[i].slug_attrs || {};
+								var ok = true;
+								for (var tax in attrs) {
+									if (!Object.prototype.hasOwnProperty.call(attrs, tax)) {
+										continue;
+									}
+									if (slugs[tax] !== attrs[tax]) {
+										ok = false;
+										break;
+									}
+								}
+								if (ok) {
+									matched = combos[i];
+									break;
+								}
+							}
+							if (matched && window.rc && window.rc.retargetingHit) {
+								var hit = {};
+								for (var k in retargetingConf) {
+									if (Object.prototype.hasOwnProperty.call(retargetingConf, k)) {
+										hit[k] = retargetingConf[k];
+									}
+								}
+								hit.itemId = String(matched.id);
+								window.rc.retargetingHit(hit);
+								console.log('retargetingConf (variation)', hit);
+							}
+						});
+					});
+				}
+				<?php endif; ?>
 			})();
 		</script>
 		<?php
@@ -220,30 +293,29 @@ class SklikRetargetingModule extends AbstractModule {
 
 	public function get_item_ids(): string {
 		/** @var $product WC_Product */
-		$product        = wc_get_product( get_the_ID() );
-		$custom_item_id = $this->get_setting( 'custom_item_id' );
+		$product = wc_get_product( get_the_ID() );
+		if ( ! $product ) {
+			return '';
+		}
 
-		$array_of_ids = array(
-			$custom_item_id ? $product->get_meta()[ $custom_item_id ] : get_the_ID(),
-		);
+		$custom_item_id = (string) $this->get_setting( 'custom_item_id' ) ?: null;
 
-		if ( $product->is_type( "variable" ) ) {
-			foreach ( $product->get_children() as $child_id ) {
-				$variation = wc_get_product( $child_id );
-
-				if ( ! $variation || ! $variation->exists() ) {
-					continue;
-				}
-
-				if ( $custom_item_id ) {
-					$array_of_ids[] = $variation->get_meta()[ $custom_item_id ];
-				} else {
-					$array_of_ids[] = $child_id;
-				}
+		if ( $product->is_type( 'variable' ) && $product instanceof \WC_Product_Variable ) {
+			$map     = $this->combination_builder->build_variation_combo_map( $product, $custom_item_id );
+			$initial = $this->combination_builder->resolve_initial_combo_id( $map );
+			if ( null !== $initial ) {
+				return $initial;
 			}
 		}
 
-		return implode( ', ', $array_of_ids );
+		if ( $custom_item_id ) {
+			$meta = $product->get_meta( $custom_item_id );
+			if ( $meta ) {
+				return (string) $meta;
+			}
+		}
+
+		return (string) get_the_ID();
 	}
 
 }

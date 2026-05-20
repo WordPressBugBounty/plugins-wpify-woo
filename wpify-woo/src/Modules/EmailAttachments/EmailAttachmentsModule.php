@@ -11,12 +11,14 @@ use WpifyWoo\Plugin;
 use WpifyWoo\WooCommerceIntegration;
 use WpifyWooDeps\Wpify\WooCore\Abstracts\AbstractModule;
 use WpifyWooDeps\Wpify\CustomFields\CustomFields;
+use WpifyWooDeps\Wpify\Log\RotatingFileLog;
 
 class EmailAttachmentsModule extends AbstractModule {
 
 	public function __construct(
 		private CustomFields $custom_fields,
 		private WooCommerceIntegration $woocommerce_integration,
+		public RotatingFileLog $log,
 	) {
 		parent::__construct();
 		$this->setup();
@@ -127,6 +129,7 @@ class EmailAttachmentsModule extends AbstractModule {
 
 	public function add_attachments_to_emails( $attachments, $email_id, $data ) {
 		if ( ! is_a( $data, WC_Order::class ) ) {
+			$this->log->error( 'NO WC_Order class', array('id' => $email_id) );
 			return $attachments;
 		}
 
@@ -151,6 +154,7 @@ class EmailAttachmentsModule extends AbstractModule {
 			$attachments = array_merge( $attachments, $this->add_attachments( $items, $email_id, $country, $data ) );
 		}
 
+		$this->log->info( 'attachments', array('id' => $email_id, 'att' => $attachments) );
 		return array_unique( $attachments );
 	}
 

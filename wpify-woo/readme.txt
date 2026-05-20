@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.4.2
+Stable tag: 5.4.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
@@ -233,6 +233,20 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+
+= 5.4.4 =
+* Fix missing data builder
+
+= 5.4.3 =
+* Add Sklik retargeting sends the selected variation ID matching the Zboží.cz feed.
+* Add Withdrawal & Claim — apply security setting defaults on existing installations.
+* Add Withdrawal & Claim — support custom order numbers from Sequential Order Numbers and similar plugins.
+* Add Withdrawal & Claim — block identical resubmits and tighten request cooldown defaults.
+* Fix admin newsletter notice not staying hidden after dismissal.
+* Fix Withdrawal & Claim – emails language on multilingual sites.
+* Fix Withdrawal & Claim — "Order not found" error for logged-in users on the public form.
+* Fix Withdrawal & Claim — claim form unsubmittable in the order verification step.
+
 = 5.4.2 =
 * Update wpify/custom-fields to 4.8.0.
 

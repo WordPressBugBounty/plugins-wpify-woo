@@ -50,60 +50,68 @@ abstract class AbstractRequestEmail extends WC_Email {
 	 * Trigger e-mail by request id.
 	 */
 	public function trigger( int $request_id ): void {
-		$requests = $this->repository->find( array( 'where' => array( 'id' => $request_id ) ) );
-		$request  = $requests[0] ?? null;
+		// setup_locale() triggers the woocommerce_email_setup_locale filter, which WPML/WCML
+		// hooks into to switch the language to the order's customer language. Without it,
+		// translatable options (subjects, attachments, …) are read from the wrong language.
+		$this->setup_locale();
+		try {
+			$requests = $this->repository->find( array( 'where' => array( 'id' => $request_id ) ) );
+			$request  = $requests[0] ?? null;
 
-		if ( ! $request instanceof WithdrawalClaimsModel ) {
-			return;
+			if ( ! $request instanceof WithdrawalClaimsModel ) {
+				return;
+			}
+
+			if ( $request->request_type !== $this->type() ) {
+				return;
+			}
+
+			$order = wc_get_order( $request->order_id );
+			if ( ! $order instanceof WC_Order ) {
+				return;
+			}
+
+			$this->request = $request;
+			$this->object  = $order;
+
+			$this->placeholders['{order_number}'] = $order->get_order_number();
+			$this->placeholders['{order_date}']   = wc_format_datetime( $order->get_date_created() );
+
+			if ( $this->is_customer() ) {
+				// Customer emails always go to billing email — see 5.10 (data-leak prevention).
+				$recipient = $order->get_billing_email();
+			} else {
+				// Admin emails go to admin recipient configured in form fields.
+				$recipient = $this->get_option( 'recipient', get_option( 'admin_email' ) );
+			}
+
+			$recipient = apply_filters(
+				'wpify_woo_withdrawal_claims_email_recipient',
+				$recipient,
+				$request_id,
+				$this->is_customer() ? 'customer' : 'admin'
+			);
+
+			$this->recipient = $recipient;
+
+			if ( ! $this->is_enabled() || ! $this->get_recipient() ) {
+				return;
+			}
+
+			do_action( 'wpify_woo_withdrawal_claims_before_email_send', $this, $request_id );
+
+			$success = $this->send(
+				$this->get_recipient(),
+				$this->get_subject(),
+				$this->get_content(),
+				$this->get_headers(),
+				$this->get_attachments()
+			);
+
+			do_action( 'wpify_woo_withdrawal_claims_after_email_send', $this, $request_id, (bool) $success );
+		} finally {
+			$this->restore_locale();
 		}
-
-		if ( $request->request_type !== $this->type() ) {
-			return;
-		}
-
-		$order = wc_get_order( $request->order_id );
-		if ( ! $order instanceof WC_Order ) {
-			return;
-		}
-
-		$this->request = $request;
-		$this->object  = $order;
-
-		$this->placeholders['{order_number}'] = $order->get_order_number();
-		$this->placeholders['{order_date}']   = wc_format_datetime( $order->get_date_created() );
-
-		if ( $this->is_customer() ) {
-			// Customer emails always go to billing email — see 5.10 (data-leak prevention).
-			$recipient = $order->get_billing_email();
-		} else {
-			// Admin emails go to admin recipient configured in form fields.
-			$recipient = $this->get_option( 'recipient', get_option( 'admin_email' ) );
-		}
-
-		$recipient = apply_filters(
-			'wpify_woo_withdrawal_claims_email_recipient',
-			$recipient,
-			$request_id,
-			$this->is_customer() ? 'customer' : 'admin'
-		);
-
-		$this->recipient = $recipient;
-
-		if ( ! $this->is_enabled() || ! $this->get_recipient() ) {
-			return;
-		}
-
-		do_action( 'wpify_woo_withdrawal_claims_before_email_send', $this, $request_id );
-
-		$success = $this->send(
-			$this->get_recipient(),
-			$this->get_subject(),
-			$this->get_content(),
-			$this->get_headers(),
-			$this->get_attachments()
-		);
-
-		do_action( 'wpify_woo_withdrawal_claims_after_email_send', $this, $request_id, (bool) $success );
 	}
 
 	public function get_content_html(): string {

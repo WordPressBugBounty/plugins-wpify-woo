@@ -132,7 +132,11 @@ $can_show_form = $has_order && $is_trusted;
 				?>
 			</label>
 			<textarea id="wcr-reason" name="reason" rows="4"
-					  <?php echo $type === 'claim' ? 'required' : ''; ?>><?php echo esc_textarea( $context['reason'] ); ?></textarea>
+					  <?php
+					  if ( $type === 'claim' ) {
+						  echo $can_show_form ? 'required' : 'data-claim-required="1"';
+					  }
+					  ?>><?php echo esc_textarea( $context['reason'] ); ?></textarea>
 		</p>
 
 		<p class="form-row">
