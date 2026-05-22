@@ -28,7 +28,7 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
 		printf(
 			/* translators: 1: type, 2: customer name */
 			esc_html__( 'A new %1$s request was submitted by %2$s.', 'wpify-woo' ),
-			esc_html( $request->request_type ),
+			esc_html( $request->type_label() ),
 			esc_html( $request->customer_name )
 		);
 		?>
@@ -60,15 +60,7 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
 			</tr>
 			<tr>
 				<th class="td" scope="row" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Scope', 'wpify-woo' ); ?></th>
-				<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>;">
-					<?php
-					echo esc_html(
-						$request->scope === 'whole_order'
-							? __( 'Whole order', 'wpify-woo' )
-							: __( 'Specific items', 'wpify-woo' )
-					);
-					?>
-				</td>
+				<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php echo esc_html( $request->scope_label() ); ?></td>
 			</tr>
 			<tr>
 				<th class="td" scope="row" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Period end (at submission)', 'wpify-woo' ); ?></th>

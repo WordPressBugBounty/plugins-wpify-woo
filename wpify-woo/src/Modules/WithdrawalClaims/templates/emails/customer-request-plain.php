@@ -17,7 +17,7 @@ echo "= " . esc_html( $email_heading ) . " =\n\n";
 if ( $request && $order ) {
 	echo esc_html__( 'We have received your request. This email confirms its receipt as required by Directive (EU) 2023/2673 — keep it as a record.', 'wpify-woo' ) . "\n\n";
 
-	echo esc_html__( 'Type', 'wpify-woo' ) . ': ' . esc_html( $request->request_type ) . "\n";
+	echo esc_html__( 'Type', 'wpify-woo' ) . ': ' . esc_html( $request->type_label() ) . "\n";
 	echo esc_html__( 'Submitted at', 'wpify-woo' ) . ': ' . esc_html( $submitted_at_formatted ) . "\n";
 	echo esc_html__( 'Order number', 'wpify-woo' ) . ': ' . esc_html( $request->order_number ) . "\n";
 	echo esc_html__( 'Customer', 'wpify-woo' ) . ': ' . esc_html( $request->customer_name . ' <' . $request->customer_email . '>' ) . "\n";

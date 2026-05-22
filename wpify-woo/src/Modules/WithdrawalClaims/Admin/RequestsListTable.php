@@ -113,12 +113,7 @@ class RequestsListTable extends WP_List_Table {
 	}
 
 	public function column_request_type( WithdrawalClaimsModel $item ): string {
-		$labels = array(
-			'withdrawal' => __( 'Withdrawal', 'wpify-woo' ),
-			'claim'      => __( 'Claim', 'wpify-woo' ),
-		);
-
-		return esc_html( $labels[ $item->request_type ] ?? $item->request_type );
+		return esc_html( $item->type_label() );
 	}
 
 	public function column_order( WithdrawalClaimsModel $item ): string {

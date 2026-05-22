@@ -32,7 +32,7 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
 			<tbody>
 			<tr>
 				<th class="td" scope="row" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Type', 'wpify-woo' ); ?></th>
-				<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php echo esc_html( $request->request_type ); ?></td>
+				<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php echo esc_html( $request->type_label() ); ?></td>
 			</tr>
 			<tr>
 				<th class="td" scope="row" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Submitted at', 'wpify-woo' ); ?></th>

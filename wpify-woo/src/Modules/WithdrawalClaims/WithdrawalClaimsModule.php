@@ -401,6 +401,25 @@ class WithdrawalClaimsModule extends AbstractModule {
 		return $order->get_date_created() ?: new \DateTimeImmutable();
 	}
 
+	/**
+	 * Resolve the product carrying request-related meta for an order line item.
+	 *
+	 * For variation order items, meta (exclusion flag, period override) is stored
+	 * on the parent product — the variation has no UI for it. Falls back to the
+	 * item's own product if it's not a variation or the parent cannot be loaded.
+	 */
+	private function resolve_meta_product( $item ): ?\WC_Product {
+		$product = $item ? $item->get_product() : null;
+		if ( $product && $product->is_type( 'variation' ) ) {
+			$parent = wc_get_product( $product->get_parent_id() );
+			if ( $parent ) {
+				return $parent;
+			}
+		}
+
+		return $product ?: null;
+	}
+
 	public function withdrawal_period_end_for( WC_Order $order, ?int $line_item_id = null ): \DateTimeInterface {
 		$start    = $this->period_start_for( $order );
 		$days     = (int) $this->get_setting( 'withdrawal_period_days' );
@@ -409,7 +428,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		if ( $line_item_id ) {
 			$item = $order->get_item( $line_item_id );
 			if ( $item ) {
-				$product = $item->get_product();
+				$product = $this->resolve_meta_product( $item );
 				if ( $product ) {
 					$ovr = (int) $product->get_meta( self::META_PERIOD_OVR );
 					if ( $ovr > 0 ) {
@@ -434,7 +453,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		if ( $line_item_id ) {
 			$item = $order->get_item( $line_item_id );
 			if ( $item ) {
-				$product = $item->get_product();
+				$product = $this->resolve_meta_product( $item );
 				if ( $product ) {
 					$ovr = (int) $product->get_meta( self::META_WARRANTY_OVR );
 					if ( $ovr > 0 ) {
@@ -463,7 +482,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		$eligible      = true;
 		$reason        = '';
 		$line_item_id  = $item->get_id();
-		$product       = $item->get_product();
+		$product       = $this->resolve_meta_product( $item );
 		$excluded_meta = $type === 'withdrawal' ? self::META_WITHDRAWAL_EXC : self::META_WARRANTY_EXC;
 
 		if ( $product && $product->get_meta( $excluded_meta ) === 'yes' ) {
@@ -1836,12 +1855,11 @@ class WithdrawalClaimsModule extends AbstractModule {
 		foreach ( $existing as $req ) {
 			$decoded = json_decode( $req->items_json, true );
 			$count   = is_array( $decoded ) ? count( $decoded ) : 0;
-			$label   = $req->request_type === 'withdrawal' ? __( 'Withdrawal', 'wpify-woo' ) : __( 'Claim', 'wpify-woo' );
 			$ts      = strtotime( $req->submitted_at );
 			printf(
 				'<tr><td>%s</td><td>%s</td><td>%d</td></tr>',
 				esc_html( $ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $ts ) : '' ),
-				esc_html( $label ),
+				esc_html( $req->type_label() ),
 				(int) $count
 			);
 		}
@@ -1930,9 +1948,9 @@ class WithdrawalClaimsModule extends AbstractModule {
 		$period_ts    = $req->period_end ? strtotime( $req->period_end ) : 0;
 
 		echo '<table class="form-table"><tbody>';
-		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Type', 'wpify-woo' ), esc_html( $req->request_type ) );
+		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Type', 'wpify-woo' ), esc_html( $req->type_label() ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Submitted at', 'wpify-woo' ), esc_html( $submitted_ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $submitted_ts ) : '' ) );
-		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Status', 'wpify-woo' ), esc_html( $req->status ) );
+		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Status', 'wpify-woo' ), esc_html( $req->status_label() ) );
 		if ( $order ) {
 			printf( '<tr><th>%s</th><td><a href="%s">#%s</a></td></tr>', esc_html__( 'Order', 'wpify-woo' ), esc_url( $order->get_edit_order_url() ), esc_html( $req->order_number ) );
 		} else {
@@ -1940,7 +1958,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		}
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Customer', 'wpify-woo' ), esc_html( $req->customer_name . ' <' . $req->customer_email . '>' ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Period end (at submission)', 'wpify-woo' ), esc_html( $period_ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $period_ts ) : '' ) );
-		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Scope', 'wpify-woo' ), esc_html( $req->scope ) );
+		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Scope', 'wpify-woo' ), esc_html( $req->scope_label() ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Reason', 'wpify-woo' ), nl2br( esc_html( $req->reason ) ) );
 		echo '</tbody></table>';
 
@@ -2024,13 +2042,10 @@ class WithdrawalClaimsModule extends AbstractModule {
 					admin_url( 'admin.php' )
 				);
 				$ts      = strtotime( $req->submitted_at );
-				$label   = $req->request_type === 'withdrawal'
-					? __( 'Withdrawal', 'wpify-woo' )
-					: __( 'Claim', 'wpify-woo' );
 				?>
 				<tr>
 					<td><?php echo esc_html( $ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $ts ) : '' ); ?></td>
-					<td><?php echo esc_html( $label ); ?></td>
+					<td><?php echo esc_html( $req->type_label() ); ?></td>
 					<td style="text-align:center;"><?php echo (int) $count; ?></td>
 					<td><a href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'View', 'wpify-woo' ); ?> →</a></td>
 				</tr>
@@ -2105,15 +2120,12 @@ class WithdrawalClaimsModule extends AbstractModule {
 			);
 			$ts       = strtotime( $req->submitted_at );
 			$date_str = $ts ? wp_date( wc_date_format(), $ts ) : '';
-			$type     = $req->request_type === 'withdrawal'
-				? __( 'Withdrawal', 'wpify-woo' )
-				: __( 'Claim', 'wpify-woo' );
 
 			printf(
 				'<li><a href="%1$s"><strong>#%2$d</strong></a> %3$s · %4$s</li>',
 				esc_url( $url ),
 				(int) $req->id,
-				esc_html( $type ),
+				esc_html( $req->type_label() ),
 				esc_html( $date_str )
 			);
 		}

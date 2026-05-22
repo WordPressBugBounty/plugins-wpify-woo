@@ -98,7 +98,7 @@ class VocativeModule extends AbstractModule {
 	 * @return mixed
 	 */
 	public function change_name_to_vocative( $params, $email ) {
-		if ( ! is_a( $email->object, '\Automattic\WooCommerce\Admin\Overrides\Order' ) ) {
+		if ( ! is_a( $email->object, '\WC_Order' ) ) {
 			return $params;
 		}
 		$allowed_languages = $this->get_setting( 'allowed_languages' ) ?? [];

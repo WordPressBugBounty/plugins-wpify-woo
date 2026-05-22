@@ -18,7 +18,7 @@ if ( $request && $order ) {
 	printf(
 		/* translators: 1: type, 2: customer name */
 		esc_html__( 'A new %1$s request was submitted by %2$s.', 'wpify-woo' ),
-		esc_html( $request->request_type ),
+		esc_html( $request->type_label() ),
 		esc_html( $request->customer_name )
 	);
 	echo "\n\n";
@@ -33,7 +33,7 @@ if ( $request && $order ) {
 	echo esc_html__( 'Submitted at', 'wpify-woo' ) . ': ' . esc_html( $submitted_at_formatted ) . "\n";
 	echo esc_html__( 'Order', 'wpify-woo' ) . ': #' . esc_html( $request->order_number ) . "\n";
 	echo esc_html__( 'Customer', 'wpify-woo' ) . ': ' . esc_html( $request->customer_name . ' <' . $request->customer_email . '>' ) . "\n";
-	echo esc_html__( 'Scope', 'wpify-woo' ) . ': ' . esc_html( $request->scope === 'whole_order' ? __( 'Whole order', 'wpify-woo' ) : __( 'Specific items', 'wpify-woo' ) ) . "\n";
+	echo esc_html__( 'Scope', 'wpify-woo' ) . ': ' . esc_html( $request->scope_label() ) . "\n";
 	echo esc_html__( 'Period end (at submission)', 'wpify-woo' ) . ': ' . esc_html( $period_end_formatted ) . "\n";
 
 	if ( ! empty( $request->reason ) ) {
