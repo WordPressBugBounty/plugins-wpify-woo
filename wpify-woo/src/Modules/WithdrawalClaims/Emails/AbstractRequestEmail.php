@@ -34,6 +34,13 @@ abstract class AbstractRequestEmail extends WC_Email {
 		$this->template_base = $this->utils->get_plugin_path( 'src/Modules/WithdrawalClaims/templates/' );
 
 		parent::__construct();
+
+		// Surface configured recipient in WC > Settings > Emails list table.
+		// trigger() re-reads it just before sending; customer emails are routed
+		// to the order's billing email there.
+		if ( ! $this->is_customer() ) {
+			$this->recipient = $this->get_option( 'recipient', get_option( 'admin_email' ) );
+		}
 	}
 
 	/**

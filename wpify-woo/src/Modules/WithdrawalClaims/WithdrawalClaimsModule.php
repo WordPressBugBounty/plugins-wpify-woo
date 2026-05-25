@@ -492,6 +492,19 @@ class WithdrawalClaimsModule extends AbstractModule {
 				: __( 'Excluded by seller (no warranty)', 'wpify-woo' );
 		}
 
+		// Refund check: if all units of this line item are already refunded, the
+		// customer no longer holds them — exclude from both withdrawal and claim.
+		// $item->get_quantity() reflects the current order state (post manual edits);
+		// get_qty_refunded_for_item() returns a negative count (refund line items).
+		if ( $eligible ) {
+			$ordered_qty  = (int) $item->get_quantity();
+			$refunded_qty = abs( (int) $order->get_qty_refunded_for_item( $line_item_id ) );
+			if ( $ordered_qty > 0 && $refunded_qty >= $ordered_qty ) {
+				$eligible = false;
+				$reason   = __( 'Item already refunded', 'wpify-woo' );
+			}
+		}
+
 		if ( $eligible ) {
 			$end = $type === 'withdrawal'
 				? $this->withdrawal_period_end_for( $order, $line_item_id )
@@ -530,14 +543,18 @@ class WithdrawalClaimsModule extends AbstractModule {
 		$now             = new \DateTimeImmutable( 'now' );
 
 		foreach ( $order->get_items() as $line_item_id => $item ) {
-			$eligibility = $this->is_item_eligible( $order, $item, $type, $now );
-			$items[]     = array(
-				'item'         => $item,
-				'line_item_id' => $line_item_id,
-				'name'         => $item->get_name(),
-				'quantity'     => (int) $item->get_quantity(),
-				'eligible'     => $eligibility['eligible'],
-				'reason'       => $eligibility['reason'],
+			$eligibility   = $this->is_item_eligible( $order, $item, $type, $now );
+			$ordered_qty   = (int) $item->get_quantity();
+			$refunded_qty  = abs( (int) $order->get_qty_refunded_for_item( $line_item_id ) );
+			$available_qty = max( 0, $ordered_qty - $refunded_qty );
+			$items[]       = array(
+				'item'               => $item,
+				'line_item_id'       => $line_item_id,
+				'name'               => $item->get_name(),
+				'quantity'           => $ordered_qty,
+				'available_quantity' => $available_qty,
+				'eligible'           => $eligibility['eligible'],
+				'reason'             => $eligibility['reason'],
 			);
 			if ( $eligibility['eligible'] ) {
 				$eligible_count ++;
@@ -1181,7 +1198,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 				continue;
 			}
 			$line_item_id = (int) $row['line_item_id'];
-			$max_qty      = (int) $row['quantity'];
+			$max_qty      = (int) $row['available_quantity'];
 
 			if ( $scope === 'whole_order' ) {
 				$qty = $max_qty;
@@ -1589,8 +1606,19 @@ class WithdrawalClaimsModule extends AbstractModule {
 			?>
 			<div class="woocommerce-info" role="alert">
 				<?php
-				/* translators: %d: number */
-				printf( esc_html__( '%d item(s) are not eligible and will not be included.', 'wpify-woo' ), (int) $eligible['ineligible_count'] );
+				$inelig_count = (int) $eligible['ineligible_count'];
+				printf(
+					esc_html(
+						/* translators: %d: number of items */
+						_n(
+							'%d item is not eligible and will not be included.',
+							'%d items are not eligible and will not be included.',
+							$inelig_count,
+							'wpify-woo'
+						)
+					),
+					$inelig_count
+				);
 				?>
 			</div>
 			<?php
@@ -1630,10 +1658,12 @@ class WithdrawalClaimsModule extends AbstractModule {
 				</thead>
 				<tbody>
 				<?php foreach ( $eligible['items'] as $row ) :
-					$lid     = (int) $row['line_item_id'];
-					$is_one  = (int) $row['quantity'] === 1;
-					$is_elig = (bool) $row['eligible'];
-					$reason  = (string) $row['reason'];
+					$lid           = (int) $row['line_item_id'];
+					$available_qty = (int) $row['available_quantity'];
+					$ordered_qty   = (int) $row['quantity'];
+					$is_one        = $available_qty === 1;
+					$is_elig       = (bool) $row['eligible'];
+					$reason        = (string) $row['reason'];
 					?>
 					<tr>
 						<td>
@@ -1648,7 +1678,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 									   name="items[<?php echo (int) $lid; ?>]"
 									   value="0"
 									   min="0"
-									   max="<?php echo (int) $row['quantity']; ?>"
+									   max="<?php echo $available_qty; ?>"
 									   <?php disabled( ! $is_elig ); ?>
 									   <?php echo ! $is_elig ? 'aria-describedby="reason-' . esc_attr( $lid ) . '"' : ''; ?>>
 							<?php endif; ?>
@@ -1665,9 +1695,12 @@ class WithdrawalClaimsModule extends AbstractModule {
 							<?php
 							if ( $is_one ) {
 								esc_html_e( '1 (full)', 'wpify-woo' );
+							} elseif ( $available_qty !== $ordered_qty ) {
+								/* translators: %d: number of units still available for return after refunds */
+								printf( esc_html__( 'of %d available', 'wpify-woo' ), $available_qty );
 							} else {
 								/* translators: %d: ordered quantity */
-								printf( esc_html__( 'of %d ordered', 'wpify-woo' ), (int) $row['quantity'] );
+								printf( esc_html__( 'of %d ordered', 'wpify-woo' ), $ordered_qty );
 							}
 							?>
 						</td>
