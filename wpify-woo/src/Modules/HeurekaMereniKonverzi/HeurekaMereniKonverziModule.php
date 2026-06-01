@@ -166,18 +166,25 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 				g.parentNode.insertBefore(n, g)
 			})(window, document, 'script', '<?php echo $url;?>', 'heureka', '<?php echo $country ?>');
 
-			heureka('authenticate', '<?php echo esc_attr( $api_key ); ?>');
+			// Idempotence — woocommerce_thankyou fires on every order-received page visit
+			// (refresh, return from email link), so without this guard Heureka receives the
+			// same conversion multiple times and rejects it with DUPLICATE_ORDER_ID.
+			if (!sessionStorage.getItem('heureka_conversion_sent_<?php echo esc_js( (string) $order->id ); ?>')) {
+				sessionStorage.setItem('heureka_conversion_sent_<?php echo esc_js( (string) $order->id ); ?>', '1');
 
-			heureka('set_order_id', '<?php echo esc_attr( $order->id ); ?>');
-			<?php foreach ( $products as $item ) { ?>
-			heureka(<?php echo implode( ',', array_map( 'json_encode', $item ) ); ?>);
-			<?php }?>
-			<?php foreach ( $additional as $item ) { ?>
-			heureka(<?php echo implode( ',', array_map( 'json_encode', $item ) ); ?>);
-			<?php }?>
-			heureka('set_total_vat', '<?php echo esc_attr( $order->get_wc_order()->get_total() ); ?>');
-			heureka('set_currency', '<?php echo esc_attr( $order->get_wc_order()->get_currency() ); ?>');
-			heureka('send', 'Order');
+				heureka('authenticate', '<?php echo esc_attr( $api_key ); ?>');
+
+				heureka('set_order_id', '<?php echo esc_attr( $order->id ); ?>');
+				<?php foreach ( $products as $item ) { ?>
+				heureka(<?php echo implode( ',', array_map( 'json_encode', $item ) ); ?>);
+				<?php }?>
+				<?php foreach ( $additional as $item ) { ?>
+				heureka(<?php echo implode( ',', array_map( 'json_encode', $item ) ); ?>);
+				<?php }?>
+				heureka('set_total_vat', '<?php echo esc_attr( $order->get_wc_order()->get_total() ); ?>');
+				heureka('set_currency', '<?php echo esc_attr( $order->get_wc_order()->get_currency() ); ?>');
+				heureka('send', 'Order');
+			}
 		</script>
 		<!-- End Heureka.cz THANK YOU PAGE script -->
 		<?php

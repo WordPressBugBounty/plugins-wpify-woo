@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /*
  * Plugin Name: WPify Woo
  * Description: Custom functionality for WooCommerce
- * Version: 5.4.6
+ * Version: 5.4.7
  * Requires PHP: 8.1
  * Requires at least: 6.2
  * Author: WPify s.r.o.
@@ -141,6 +141,7 @@ function wpify_woo_woocommerce_not_active() {
  * Load plugin textdomain.
  */
 add_action( 'init', 'wpify_woo_load_textdomain' );
+add_action( 'change_locale', 'wpify_woo_load_textdomain' );
 function wpify_woo_load_textdomain() {
 	load_plugin_textdomain( 'wpify-woo', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }

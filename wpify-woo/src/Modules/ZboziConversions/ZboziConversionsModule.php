@@ -151,6 +151,13 @@ class ZboziConversionsModule extends AbstractModule {
 				}
 				<?php endif; ?>
 
+				// Idempotence — woocommerce_thankyou fires on every order-received page visit
+				// (refresh, return from email link), so without this guard Sklik/Zbozi receive
+				// the same conversion multiple times.
+				var storageKey = 'zbozi_conversion_sent_<?php echo esc_js( (string) $order_id ); ?>';
+				if (sessionStorage.getItem(storageKey)) { return; }
+				sessionStorage.setItem(storageKey, '1');
+
 				var conversionConf = {
 					<?php
 					foreach ( $parameters as $key => $parameter ) {
