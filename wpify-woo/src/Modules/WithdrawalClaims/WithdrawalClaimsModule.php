@@ -1020,7 +1020,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 	// =========================================================================
 
 	public function maybe_handle_post(): void {
-		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
+		if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) {
 			return;
 		}
 		if ( empty( $_POST['wpify_woo_request_action'] ) ) {

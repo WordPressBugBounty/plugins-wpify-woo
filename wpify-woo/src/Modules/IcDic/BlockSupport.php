@@ -310,8 +310,7 @@ class BlockSupport {
 			? ''
 			: ( $data['dic'] ?? $this->module->get_vat_id_from_source( $customer, $billing_country ) );
 
-		$result = $this->module->should_exempt_vat( $billing_country, $shipping_country, $dic ?: '' );
-		$customer->set_is_vat_exempt( $result['exempt'] );
+		$this->module->apply_vat_exempt_state( $billing_country, $shipping_country, $dic ?: '' );
 		$customer->save();
 
 		// Force cart recalculation to reflect VAT exempt change
@@ -347,8 +346,7 @@ class BlockSupport {
 		$additional_fields = $data['additional_fields'] ?? array();
 		$dic               = $this->module->get_vat_id_from_block_checkout( $additional_fields, $billing_country );
 
-		$result = $this->module->should_exempt_vat( $billing_country, $shipping_country, $dic );
-		WC()->customer->set_is_vat_exempt( $result['exempt'] );
+		$this->module->apply_vat_exempt_state( $billing_country, $shipping_country, $dic );
 	}
 
 	public function validate_cart( $cart_errors, $cart ) {

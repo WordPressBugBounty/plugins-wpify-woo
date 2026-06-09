@@ -96,6 +96,7 @@ class IcDicModule extends AbstractModule {
 //			'display_block_fields_in_admin'
 //		) );
 		add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkout_validation' ), 10, 2 );
+		add_action( 'woocommerce_after_checkout_validation', array( $this, 'apply_vat_exempt_on_classic_checkout' ), 20, 2 );
 		add_action( 'woocommerce_checkout_order_processed', array( $this, 'log_order_vat_exempt_decision' ), 10, 3 );
 		add_action( 'init', array( $this, 'add_rest_api' ) );
 
@@ -720,6 +721,41 @@ class IcDicModule extends AbstractModule {
 	}
 
 	/**
+	 * Apply VAT exempt state on the current customer.
+	 *
+	 * SSOT for the "evaluate decision + set on customer + optionally recalc cart"
+	 * pattern. All entry points (wp hook, classic AJAX, classic submit, block REST,
+	 * block store-api callback) delegate to this method. Input extraction stays
+	 * in callers — they each know their source (POST, JSON, customer meta).
+	 *
+	 * @param string $billing_country
+	 * @param string $shipping_country
+	 * @param string $vat_id
+	 * @param bool   $vat_id_validated Pass true if VIES already validated as valid in same request.
+	 * @param bool   $recalc_cart      Force cart recalculation after applying.
+	 * @return array{exempt: bool, reason: string}
+	 */
+	public function apply_vat_exempt_state(
+		string $billing_country,
+		string $shipping_country,
+		string $vat_id = '',
+		bool $vat_id_validated = false,
+		bool $recalc_cart = false
+	): array {
+		$result = $this->should_exempt_vat( $billing_country, $shipping_country, $vat_id, $vat_id_validated );
+
+		if ( ! empty( WC()->customer ) ) {
+			WC()->customer->set_is_vat_exempt( $result['exempt'] );
+		}
+
+		if ( $recalc_cart && ! empty( WC()->cart ) ) {
+			WC()->cart->calculate_totals();
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Get VAT exempt info from order
 	 *
 	 * @param \WC_Order $order
@@ -1290,8 +1326,7 @@ class IcDicModule extends AbstractModule {
 		$shipping_country = $this->get_shipping_country_with_fallback( $customer, $billing_country );
 		$dic              = $this->get_vat_id_from_source( $customer, $billing_country );
 
-		$result = $this->should_exempt_vat( $billing_country, $shipping_country, $dic );
-		$customer->set_is_vat_exempt( $result['exempt'] );
+		$this->apply_vat_exempt_state( $billing_country, $shipping_country, $dic );
 	}
 
 	public function log_order_vat_exempt_decision( $order_id, $posted_data, $order ) {
@@ -1428,8 +1463,45 @@ class IcDicModule extends AbstractModule {
 			? $data['shipping_country']
 			: $billing_country;
 
-		$result = $this->should_exempt_vat( $billing_country, $shipping_country, $dic );
-		WC()->customer->set_is_vat_exempt( $result['exempt'] );
+		$this->apply_vat_exempt_state( $billing_country, $shipping_country, $dic );
+	}
+
+	/**
+	 * Apply VAT exempt during Classic checkout submit.
+	 *
+	 * Safety net: ensures VAT exempt reflects the actually submitted form data
+	 * before the order is created, regardless of whether the last
+	 * update_order_review AJAX captured the current DIC value (race condition).
+	 * Mirrors BlockSupport::ensure_vat_exempt_from_checkout_data() for Classic.
+	 *
+	 * @param array     $posted_data Sanitized posted checkout data.
+	 * @param \WP_Error $errors      Validation errors.
+	 */
+	public function apply_vat_exempt_on_classic_checkout( $posted_data, $errors ): void {
+		if ( ! $this->is_vat_exempt_enabled() ) {
+			return;
+		}
+
+		if ( $errors->has_errors() ) {
+			return;
+		}
+
+		$billing_country = $posted_data['billing_country'] ?? '';
+		if ( empty( $billing_country ) ) {
+			return;
+		}
+
+		$dic = $this->get_vat_id_from_form_data( $posted_data, $billing_country );
+
+		$ship_to_different = ! empty( $posted_data['ship_to_different_address'] );
+		$shipping_country  = $ship_to_different && ! empty( $posted_data['shipping_country'] )
+			? $posted_data['shipping_country']
+			: $billing_country;
+
+		// checkout_validation (priority 10) already ran VIES; trust its result.
+		$vat_id_validated = $this->last_vies_result === 'valid';
+
+		$this->apply_vat_exempt_state( $billing_country, $shipping_country, $dic, $vat_id_validated, true );
 	}
 
 	public function add_ares_autofill_to_company_field( $field, $key ) {
