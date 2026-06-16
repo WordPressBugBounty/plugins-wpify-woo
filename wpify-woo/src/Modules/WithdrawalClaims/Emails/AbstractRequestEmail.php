@@ -158,9 +158,51 @@ abstract class AbstractRequestEmail extends WC_Email {
 			'request'                => $this->request,
 			'request_items'          => $this->decode_items(),
 			'additional_content'     => $this->get_additional_content(),
+			'intro_content'          => $this->get_intro_content(),
 			'submitted_at_formatted' => $submitted_ts ? wp_date( $datetime_format, $submitted_ts ) : '',
 			'period_end_formatted'   => $period_ts ? wp_date( $datetime_format, $period_ts ) : '',
+			'extra_fields'           => $this->decode_extra_fields( $plain_text ),
 		);
+	}
+
+	/**
+	 * Resolve developer-defined extra fields for the current request, pre-rendered.
+	 *
+	 * Returns a list of `[label, value]` pairs ready for output. Empty values are
+	 * skipped so templates can iterate without an additional empty-check.
+	 *
+	 * @return array<int,array{label:string,value:string}>
+	 */
+	protected function decode_extra_fields( bool $plain_text ): array {
+		if ( ! $this->request instanceof WithdrawalClaimsModel ) {
+			return array();
+		}
+
+		try {
+			$module = wpify_woo_container()->get( \WpifyWoo\Modules\WithdrawalClaims\WithdrawalClaimsModule::class );
+		} catch ( \Throwable $e ) {
+			return array();
+		}
+
+		$schema = $module->get_extra_fields_schema( $this->request->request_type );
+		if ( ! $schema ) {
+			return array();
+		}
+
+		$values = $module->get_request_extra_fields( $this->request );
+		$out    = array();
+		foreach ( $schema as $field ) {
+			$raw = $values[ $field['id'] ] ?? '';
+			if ( $raw === '' || $raw === null || $raw === false ) {
+				continue;
+			}
+			$out[] = array(
+				'label' => (string) $field['label'],
+				'value' => $module->render_extra_field_value( $field, $raw, ! $plain_text ),
+			);
+		}
+
+		return $out;
 	}
 
 	/**
@@ -236,6 +278,15 @@ abstract class AbstractRequestEmail extends WC_Email {
 				'options'     => $this->get_email_type_options(),
 				'desc_tip'    => true,
 			),
+			'intro_content'      => array(
+				'title'       => __( 'Intro content', 'wpify-woo' ),
+				'description' => __( 'Text shown at the top of the email, above the request details table. For admin emails you can use placeholders {type} and {customer_name}.', 'wpify-woo' ),
+				'css'         => 'width:400px; height: 75px;',
+				'placeholder' => __( 'N/A', 'wpify-woo' ),
+				'type'        => 'textarea',
+				'default'     => $this->get_default_intro_content(),
+				'desc_tip'    => true,
+			),
 			'additional_content' => array(
 				'title'       => __( 'Additional content', 'wpify-woo' ),
 				'description' => __( 'Text shown below the mandatory request details. Use it for next-steps instructions (e.g. "Reply to this email with photos of the defect").', 'wpify-woo' ),
@@ -273,5 +324,28 @@ abstract class AbstractRequestEmail extends WC_Email {
 		}
 
 		return __( 'A new request was submitted. Review the details above and process accordingly.', 'wpify-woo' );
+	}
+
+	public function get_default_intro_content(): string {
+		if ( $this->is_customer() ) {
+			return __( 'We have received your request. This email confirms its receipt as required by Directive (EU) 2023/2673 — please keep it as a record.', 'wpify-woo' );
+		}
+
+		return __( 'A new {type} request was submitted by {customer_name}.', 'wpify-woo' );
+	}
+
+	/**
+	 * Read the configured intro content with placeholder resolution.
+	 */
+	public function get_intro_content(): string {
+		$intro = $this->get_option( 'intro_content', $this->get_default_intro_content() );
+		if ( $intro === '' ) {
+			$intro = $this->get_default_intro_content();
+		}
+
+		return strtr( $intro, array(
+			'{type}'          => $this->request ? $this->request->type_label() : '',
+			'{customer_name}' => $this->request ? $this->request->customer_name : '',
+		) );
 	}
 }

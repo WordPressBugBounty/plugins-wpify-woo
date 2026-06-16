@@ -224,6 +224,22 @@ class WithdrawalClaimsModule extends AbstractModule {
 				'default'      => array( 'customer_completed_order' ),
 				'tab'          => 'withdrawal',
 			),
+			array(
+				'id'      => 'inject_link_heading',
+				'type'    => 'text',
+				'label'   => __( 'Heading shown above the withdrawal link in emails', 'wpify-woo' ),
+				'desc'    => __( 'Headline rendered as <code>h2</code>above the "Withdraw from contract" button in the WC emails selected above.', 'wpify-woo' ),
+				'default' => __( 'Need to withdraw from this contract?', 'wpify-woo' ),
+				'tab'     => 'withdrawal',
+			),
+			array(
+				'id'      => 'inject_link_description',
+				'type'    => 'textarea',
+				'label'   => __( 'Description shown above the withdrawal link in emails', 'wpify-woo' ),
+				'desc'    => __( 'Short paragraph rendered between the heading and the button.', 'wpify-woo' ),
+				'default' => __( 'Use the link below to start the withdrawal process online.', 'wpify-woo' ),
+				'tab'     => 'withdrawal',
+			),
 
 			// =====================================================================
 			// Tab: Claim
@@ -375,7 +391,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return;
 		}
 
-		$order->update_meta_data( self::META_PERIOD_START, current_time( 'mysql' ) );
+		$order->update_meta_data( self::META_PERIOD_START, current_time( 'mysql', true ) );
 		$order->save();
 	}
 
@@ -774,7 +790,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		if ( $gap > 0 ) {
 			$last = $this->repository->find_last_by_order( $order_id );
 			if ( $last && ! empty( $last->submitted_at ) ) {
-				$last_ts = strtotime( $last->submitted_at );
+				$last_ts = (int) mysql2date( 'U', $last->submitted_at );
 				if ( $last_ts && ( time() - $last_ts ) < $gap ) {
 					return new WP_Error( 'too_fast', __( 'Please wait a bit before submitting another request.', 'wpify-woo' ) );
 				}
@@ -936,6 +952,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			'has_2fa_locked' => false,
 			'submitted'      => false,
 			'module'         => $this,
+			'extra_fields'   => array(),
 		);
 
 		// Submitted state (from PRG redirect).
@@ -1016,6 +1033,266 @@ class WithdrawalClaimsModule extends AbstractModule {
 	}
 
 	// =========================================================================
+	// Extra fields — schema, sanitization, validation, rendering helpers (SSOT)
+	// =========================================================================
+
+	/**
+	 * Resolve the schema of extra form fields for a given request type.
+	 *
+	 * Developers register fields via:
+	 *     add_filter( 'wpify_woo_withdrawal_claims_form_fields',
+	 *                 function ( array $fields, string $type ) { ... } , 10, 2 );
+	 *
+	 * Each field is an array:
+	 *   - id          (string, required)
+	 *   - type        (text|email|tel|textarea|select|checkbox; default: text)
+	 *   - label       (string, required)
+	 *   - placeholder (string, optional)
+	 *   - required    (bool, default false)
+	 *   - options     (array of [label, value], required for select)
+	 *   - sanitize    (callable, optional — overrides type default)
+	 *   - validate    (callable, optional — returns WP_Error|true)
+	 *
+	 * Invalid entries (missing id/label) are silently dropped.
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function get_extra_fields_schema( string $type ): array {
+		$fields = apply_filters( 'wpify_woo_withdrawal_claims_form_fields', array(), $type );
+		if ( ! is_array( $fields ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) || empty( $field['id'] ) || empty( $field['label'] ) ) {
+				continue;
+			}
+			$normalized[] = array_merge(
+				array(
+					'type'        => 'text',
+					'placeholder' => '',
+					'required'    => false,
+					'options'     => array(),
+					'sanitize'    => null,
+					'validate'    => null,
+				),
+				$field
+			);
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Pick raw values for the schema-defined fields out of a source array
+	 * ($_POST by default, REST request params for the AJAX submit path).
+	 * Sanitization happens per-field in {@see sanitize_extra_field()}.
+	 *
+	 * @return array<string,mixed> id => sanitized value
+	 */
+	private function collect_extra_fields_from_post( array $schema, ?array $source = null ): array {
+		$source    = $source ?? $_POST;
+		$collected = array();
+		foreach ( $schema as $field ) {
+			$id    = (string) $field['id'];
+			$raw   = $source[ $id ] ?? null;
+			$value = $this->sanitize_extra_field( $field, $raw );
+
+			$collected[ $id ] = $value;
+		}
+
+		return $collected;
+	}
+
+	/**
+	 * Sanitize one extra-field value based on its declared type
+	 * (or a custom `sanitize` callable if the schema provides one).
+	 *
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	private function sanitize_extra_field( array $field, $value ) {
+		if ( is_callable( $field['sanitize'] ?? null ) ) {
+			return call_user_func( $field['sanitize'], $value );
+		}
+
+		if ( $value === null ) {
+			return ( $field['type'] ?? 'text' ) === 'checkbox' ? false : '';
+		}
+
+		switch ( $field['type'] ?? 'text' ) {
+			case 'email':
+				return sanitize_email( wp_unslash( (string) $value ) );
+			case 'tel':
+				return preg_replace( '/[^0-9+\s()-]/', '', (string) wp_unslash( $value ) );
+			case 'textarea':
+				return sanitize_textarea_field( wp_unslash( (string) $value ) );
+			case 'checkbox':
+				return ! empty( $value );
+			case 'select':
+				$allowed = array_column( $field['options'] ?? array(), 'value' );
+				$clean   = sanitize_text_field( wp_unslash( (string) $value ) );
+				return in_array( $clean, $allowed, true ) ? $clean : '';
+			case 'text':
+			default:
+				return sanitize_text_field( wp_unslash( (string) $value ) );
+		}
+	}
+
+	/**
+	 * Validate collected extra-field values against the schema.
+	 * Returns WP_Error on first failure, null when everything passes.
+	 *
+	 * @param array<string,mixed> $values
+	 */
+	private function validate_extra_fields( array $schema, array $values ): ?\WP_Error {
+		foreach ( $schema as $field ) {
+			$id    = (string) $field['id'];
+			$value = $values[ $id ] ?? '';
+
+			if ( ! empty( $field['required'] ) ) {
+				$empty = ( $field['type'] ?? 'text' ) === 'checkbox' ? ! $value : ( $value === '' || $value === null );
+				if ( $empty ) {
+					return new \WP_Error(
+						'extra_field_required',
+						sprintf(
+							/* translators: %s: field label */
+							__( '%s is required.', 'wpify-woo' ),
+							$field['label']
+						)
+					);
+				}
+			}
+
+			if ( ( $field['type'] ?? '' ) === 'email' && $value !== '' && ! is_email( $value ) ) {
+				return new \WP_Error(
+					'extra_field_email',
+					sprintf(
+						/* translators: %s: field label */
+						__( '%s must be a valid email address.', 'wpify-woo' ),
+						$field['label']
+					)
+				);
+			}
+
+			if ( is_callable( $field['validate'] ?? null ) ) {
+				$result = call_user_func( $field['validate'], $value, $field );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Render the input HTML for one extra field (used inside the request form).
+	 *
+	 * Returns just the input element (no row wrapper) — the caller decides
+	 * surrounding markup (label, error display, layout class).
+	 *
+	 * @param mixed $value Current value (pre-fill on validation re-render).
+	 */
+	public function render_extra_field_input( array $field, $value = '' ): string {
+		$id          = esc_attr( $field['id'] );
+		$name        = esc_attr( $field['id'] );
+		$type        = $field['type'] ?? 'text';
+		$placeholder = isset( $field['placeholder'] ) ? esc_attr( $field['placeholder'] ) : '';
+		$required    = ! empty( $field['required'] ) ? ' required' : '';
+
+		switch ( $type ) {
+			case 'textarea':
+				return sprintf(
+					'<textarea id="%1$s" name="%2$s" placeholder="%3$s" rows="4"%4$s>%5$s</textarea>',
+					$id, $name, $placeholder, $required, esc_textarea( (string) $value )
+				);
+
+			case 'checkbox':
+				return sprintf(
+					'<input type="checkbox" id="%1$s" name="%2$s" value="1"%3$s%4$s>',
+					$id, $name, checked( ! empty( $value ), true, false ), $required
+				);
+
+			case 'select':
+				$options_html = '';
+				foreach ( (array) ( $field['options'] ?? array() ) as $opt ) {
+					if ( ! isset( $opt['value'], $opt['label'] ) ) {
+						continue;
+					}
+					$options_html .= sprintf(
+						'<option value="%1$s"%2$s>%3$s</option>',
+						esc_attr( $opt['value'] ),
+						selected( (string) $value, (string) $opt['value'], false ),
+						esc_html( $opt['label'] )
+					);
+				}
+				return sprintf(
+					'<select id="%1$s" name="%2$s"%3$s>%4$s</select>',
+					$id, $name, $required, $options_html
+				);
+
+			case 'email':
+			case 'tel':
+			case 'text':
+			default:
+				return sprintf(
+					'<input type="%1$s" id="%2$s" name="%3$s" placeholder="%4$s" value="%5$s"%6$s>',
+					esc_attr( $type ),
+					$id, $name, $placeholder,
+					esc_attr( (string) $value ),
+					$required
+				);
+		}
+	}
+
+	/**
+	 * Render the display value for one extra field (used on admin detail,
+	 * customer my-account, and email templates).
+	 *
+	 * Returns the value as an escaped HTML/text fragment — no row wrapper.
+	 *
+	 * @param mixed $value
+	 * @param bool  $html  true → safe HTML output, false → plain text (for plain emails)
+	 */
+	public function render_extra_field_value( array $field, $value, bool $html = true ): string {
+		$type = $field['type'] ?? 'text';
+
+		if ( $type === 'checkbox' ) {
+			return $value ? __( 'Yes', 'wpify-woo' ) : __( 'No', 'wpify-woo' );
+		}
+
+		if ( $type === 'select' ) {
+			foreach ( (array) ( $field['options'] ?? array() ) as $opt ) {
+				if ( isset( $opt['value'] ) && (string) $opt['value'] === (string) $value ) {
+					return $html ? esc_html( $opt['label'] ?? $value ) : (string) ( $opt['label'] ?? $value );
+				}
+			}
+			return $html ? esc_html( (string) $value ) : (string) $value;
+		}
+
+		if ( $type === 'textarea' ) {
+			return $html ? nl2br( esc_html( (string) $value ) ) : (string) $value;
+		}
+
+		return $html ? esc_html( (string) $value ) : (string) $value;
+	}
+
+	/**
+	 * Decode the JSON column into an array — null/garbage tolerant.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_request_extra_fields( WithdrawalClaimsModel $req ): array {
+		if ( empty( $req->extra_fields_json ) ) {
+			return array();
+		}
+		$decoded = json_decode( $req->extra_fields_json, true );
+		return is_array( $decoded ) ? $decoded : array();
+	}
+
+	// =========================================================================
 	// POST handler
 	// =========================================================================
 
@@ -1083,7 +1360,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 	}
 
 	private function handle_submit( string $type ): void {
-		$input = $this->collect_post_input();
+		$input = $this->collect_post_input( $type );
 
 		// No-JS two-step reveal: when the user submits the initial auth-only form
 		// (no scope/items rendered yet), this POST has no scope/items. We validate
@@ -1135,13 +1412,17 @@ class WithdrawalClaimsModule extends AbstractModule {
 	/**
 	 * Normalize $_POST into a uniform input array used by process_submission().
 	 */
-	private function collect_post_input(): array {
+	private function collect_post_input( ?string $type = null ): array {
 		$items = array();
 		if ( isset( $_POST['items'] ) && is_array( $_POST['items'] ) ) {
 			foreach ( $_POST['items'] as $line_item_id => $qty ) {
 				$items[ (int) $line_item_id ] = (int) $qty;
 			}
 		}
+
+		$type   = $type ?: ( isset( $_POST['wpify_woo_request_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wpify_woo_request_type'] ) ) : '' );
+		$schema = $type !== '' ? $this->get_extra_fields_schema( $type ) : array();
+		$extra  = $schema ? $this->collect_extra_fields_from_post( $schema ) : array();
 
 		return array(
 			'user_id'      => is_user_logged_in() ? get_current_user_id() : 0,
@@ -1153,6 +1434,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			'scope'        => isset( $_POST['scope'] ) ? sanitize_text_field( wp_unslash( $_POST['scope'] ) ) : 'specific_items',
 			'items'        => $items,
 			'reason'       => isset( $_POST['reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reason'] ) ) : '',
+			'extra_fields' => $extra,
 		);
 	}
 
@@ -1224,6 +1506,16 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return new WP_Error( 'reason_required', __( 'Please describe the defect.', 'wpify-woo' ) );
 		}
 
+		// Extra fields (developer-defined via `wpify_woo_withdrawal_claims_form_fields`).
+		$schema       = $this->get_extra_fields_schema( $type );
+		$extra_fields = is_array( $input['extra_fields'] ?? null ) ? $input['extra_fields'] : array();
+		if ( $schema ) {
+			$validation = $this->validate_extra_fields( $schema, $extra_fields );
+			if ( is_wp_error( $validation ) ) {
+				return $validation;
+			}
+		}
+
 		// Spam protection — duplicate content guard (after items + reason resolved).
 		$duplicate = $this->check_duplicate_content( $order->get_id(), $type, $scope, $final_items, $reason );
 		if ( is_wp_error( $duplicate ) ) {
@@ -1241,7 +1533,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			}
 		}
 
-		$now  = current_time( 'mysql' );
+		$now  = current_time( 'mysql', true );
 		$name = (string) ( $input['name'] ?? '' );
 		if ( $name === '' ) {
 			$name = (string) $order->get_formatted_billing_full_name();
@@ -1264,6 +1556,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			'customer_ip'         => $ip,
 			'customer_user_agent' => substr( $ua, 0, 500 ),
 			'created_at'          => $now,
+			'extra_fields_json'   => $schema ? (string) wp_json_encode( $extra_fields ) : '',
 		);
 
 		$data = apply_filters( 'wpify_woo_withdrawal_claims_request_data', $data, $type );
@@ -1480,6 +1773,9 @@ class WithdrawalClaimsModule extends AbstractModule {
 			}
 		}
 
+		$schema = $this->get_extra_fields_schema( $type );
+		$extra  = $schema ? $this->collect_extra_fields_from_post( $schema, $params ) : array();
+
 		$input = array(
 			'user_id'      => is_user_logged_in() ? get_current_user_id() : 0,
 			'order_key'    => sanitize_text_field( (string) ( $params['order_key'] ?? '' ) ),
@@ -1490,6 +1786,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			'scope'        => sanitize_text_field( (string) ( $params['scope'] ?? 'specific_items' ) ),
 			'items'        => $items,
 			'reason'       => sanitize_textarea_field( (string) ( $params['reason'] ?? '' ) ),
+			'extra_fields' => $extra,
 		);
 
 		$result = $this->process_submission( $type, $input );
@@ -1768,6 +2065,8 @@ class WithdrawalClaimsModule extends AbstractModule {
 		) . '#wpify-woo-withdrawal-form';
 
 		$button_text = $this->get_setting( 'withdrawal_button_text' ) ?: __( 'Withdraw from contract', 'wpify-woo' );
+		$heading     = $this->get_setting( 'inject_link_heading' ) ?: __( 'Need to withdraw from this contract?', 'wpify-woo' );
+		$description = $this->get_setting( 'inject_link_description' ) ?: __( 'Use the link below to start the withdrawal process online.', 'wpify-woo' );
 		$base_color  = get_option( 'woocommerce_email_base_color', '#7f54b3' );
 		?>
 		<style>
@@ -1785,8 +2084,8 @@ class WithdrawalClaimsModule extends AbstractModule {
 			}
 		</style>
 		<section class="wpify-woo-withdrawal-link-section">
-			<h2><?php esc_html_e( 'Need to withdraw from this contract?', 'wpify-woo' ); ?></h2>
-			<p><?php esc_html_e( 'Use the link below to start the withdrawal process online.', 'wpify-woo' ); ?></p>
+			<h2><?php echo esc_html( $heading ); ?></h2>
+			<p><?php echo esc_html( $description ); ?></p>
 			<p>
 				<a class="wpify-woo-withdrawal-link woocommerce-button button" href="<?php echo esc_url( $link ); ?>">
 					<?php echo esc_html( $button_text ); ?>
@@ -1888,13 +2187,34 @@ class WithdrawalClaimsModule extends AbstractModule {
 		foreach ( $existing as $req ) {
 			$decoded = json_decode( $req->items_json, true );
 			$count   = is_array( $decoded ) ? count( $decoded ) : 0;
-			$ts      = strtotime( $req->submitted_at );
 			printf(
 				'<tr><td>%s</td><td>%s</td><td>%d</td></tr>',
-				esc_html( $ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $ts ) : '' ),
+				esc_html( $req->submitted_at ? mysql2date( wc_date_format() . ' ' . wc_time_format(), $req->submitted_at ) : '' ),
 				esc_html( $req->type_label() ),
 				(int) $count
 			);
+
+			// Render developer-defined extra fields (e.g., IBAN) as a sub-row.
+			$extra_schema = $this->get_extra_fields_schema( $req->request_type );
+			$extra_values = $this->get_request_extra_fields( $req );
+			$extra_lines  = array();
+			foreach ( $extra_schema as $extra_field ) {
+				$value = $extra_values[ $extra_field['id'] ] ?? '';
+				if ( $value === '' || $value === null || $value === false ) {
+					continue;
+				}
+				$extra_lines[] = sprintf(
+					'<strong>%s:</strong> %s',
+					esc_html( $extra_field['label'] ),
+					$this->render_extra_field_value( $extra_field, $value ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally
+				);
+			}
+			if ( $extra_lines ) {
+				printf(
+					'<tr><td colspan="3"><small>%s</small></td></tr>',
+					implode( ' &nbsp;·&nbsp; ', $extra_lines ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+			}
 		}
 		echo '</tbody></table></section>';
 	}
@@ -1977,12 +2297,11 @@ class WithdrawalClaimsModule extends AbstractModule {
 		echo '<h1>' . esc_html( sprintf( __( 'Request #%d', 'wpify-woo' ), $req->id ) ) . '</h1>';
 		echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) . '">&larr; ' . esc_html__( 'Back to list', 'wpify-woo' ) . '</a></p>';
 
-		$submitted_ts = strtotime( $req->submitted_at );
-		$period_ts    = $req->period_end ? strtotime( $req->period_end ) : 0;
+		$datetime_format = wc_date_format() . ' ' . wc_time_format();
 
 		echo '<table class="form-table"><tbody>';
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Type', 'wpify-woo' ), esc_html( $req->type_label() ) );
-		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Submitted at', 'wpify-woo' ), esc_html( $submitted_ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $submitted_ts ) : '' ) );
+		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Submitted at', 'wpify-woo' ), esc_html( $req->submitted_at ? mysql2date( $datetime_format, $req->submitted_at ) : '' ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Status', 'wpify-woo' ), esc_html( $req->status_label() ) );
 		if ( $order ) {
 			printf( '<tr><th>%s</th><td><a href="%s">#%s</a></td></tr>', esc_html__( 'Order', 'wpify-woo' ), esc_url( $order->get_edit_order_url() ), esc_html( $req->order_number ) );
@@ -1990,9 +2309,25 @@ class WithdrawalClaimsModule extends AbstractModule {
 			printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Order', 'wpify-woo' ), esc_html( $req->order_number ) );
 		}
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Customer', 'wpify-woo' ), esc_html( $req->customer_name . ' <' . $req->customer_email . '>' ) );
-		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Period end (at submission)', 'wpify-woo' ), esc_html( $period_ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $period_ts ) : '' ) );
+		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Period end (at submission)', 'wpify-woo' ), esc_html( $req->period_end ? mysql2date( $datetime_format, $req->period_end ) : '' ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Scope', 'wpify-woo' ), esc_html( $req->scope_label() ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Reason', 'wpify-woo' ), nl2br( esc_html( $req->reason ) ) );
+
+		// Developer-defined extra fields captured at submission.
+		$extra_schema = $this->get_extra_fields_schema( $req->request_type );
+		$extra_values = $this->get_request_extra_fields( $req );
+		foreach ( $extra_schema as $extra_field ) {
+			$value = $extra_values[ $extra_field['id'] ] ?? '';
+			if ( $value === '' || $value === null || $value === false ) {
+				continue;
+			}
+			printf(
+				'<tr><th>%s</th><td>%s</td></tr>',
+				esc_html( $extra_field['label'] ),
+				$this->render_extra_field_value( $extra_field, $value ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally
+			);
+		}
+
 		echo '</tbody></table>';
 
 		// Items
@@ -2074,10 +2409,9 @@ class WithdrawalClaimsModule extends AbstractModule {
 					array( 'page' => self::ADMIN_PAGE_SLUG, 'request_id' => $req->id ),
 					admin_url( 'admin.php' )
 				);
-				$ts      = strtotime( $req->submitted_at );
 				?>
 				<tr>
-					<td><?php echo esc_html( $ts ? wp_date( wc_date_format() . ' ' . wc_time_format(), $ts ) : '' ); ?></td>
+					<td><?php echo esc_html( $req->submitted_at ? mysql2date( wc_date_format() . ' ' . wc_time_format(), $req->submitted_at ) : '' ); ?></td>
 					<td><?php echo esc_html( $req->type_label() ); ?></td>
 					<td style="text-align:center;"><?php echo (int) $count; ?></td>
 					<td><a href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'View', 'wpify-woo' ); ?> →</a></td>
@@ -2151,8 +2485,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 				array( 'page' => self::ADMIN_PAGE_SLUG, 'request_id' => $req->id ),
 				admin_url( 'admin.php' )
 			);
-			$ts       = strtotime( $req->submitted_at );
-			$date_str = $ts ? wp_date( wc_date_format(), $ts ) : '';
+			$date_str = $req->submitted_at ? mysql2date( wc_date_format(), $req->submitted_at ) : '';
 
 			printf(
 				'<li><a href="%1$s"><strong>#%2$d</strong></a> %3$s · %4$s</li>',

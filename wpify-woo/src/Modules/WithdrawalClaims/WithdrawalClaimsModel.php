@@ -32,6 +32,15 @@ class WithdrawalClaimsModel extends Model {
 	#[Column( type: Column::TEXT )]
 	public string $reason;
 
+	/**
+	 * JSON-encoded map of developer-defined extra field values (id => value).
+	 *
+	 * Schema is declared at runtime via the `wpify_woo_withdrawal_claims_form_fields`
+	 * filter; this column stores only the captured values, not the schema itself.
+	 */
+	#[Column( type: Column::TEXT )]
+	public string $extra_fields_json;
+
 	#[Column( type: Column::VARCHAR )]
 	public string $scope;
 

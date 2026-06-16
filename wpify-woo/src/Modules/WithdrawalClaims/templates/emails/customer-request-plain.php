@@ -15,7 +15,9 @@ defined( 'ABSPATH' ) || exit;
 echo "= " . esc_html( $email_heading ) . " =\n\n";
 
 if ( $request && $order ) {
-	echo esc_html__( 'We have received your request. This email confirms its receipt as required by Directive (EU) 2023/2673 — keep it as a record.', 'wpify-woo' ) . "\n\n";
+	if ( ! empty( $intro_content ) ) {
+		echo esc_html( wp_strip_all_tags( wptexturize( $intro_content ) ) ) . "\n\n";
+	}
 
 	echo esc_html__( 'Type', 'wpify-woo' ) . ': ' . esc_html( $request->type_label() ) . "\n";
 	echo esc_html__( 'Submitted at', 'wpify-woo' ) . ': ' . esc_html( $submitted_at_formatted ) . "\n";
@@ -25,6 +27,10 @@ if ( $request && $order ) {
 	if ( ! empty( $request->reason ) ) {
 		echo "\n" . esc_html__( 'Reason / description', 'wpify-woo' ) . ":\n";
 		echo esc_html( $request->reason ) . "\n";
+	}
+
+	foreach ( ( $extra_fields ?? array() ) as $extra ) {
+		echo esc_html( $extra['label'] ) . ': ' . esc_html( $extra['value'] ) . "\n";
 	}
 
 	if ( ! empty( $request_items ) ) {

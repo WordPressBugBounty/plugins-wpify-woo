@@ -15,13 +15,9 @@ defined( 'ABSPATH' ) || exit;
 echo "= " . esc_html( $email_heading ) . " =\n\n";
 
 if ( $request && $order ) {
-	printf(
-		/* translators: 1: type, 2: customer name */
-		esc_html__( 'A new %1$s request was submitted by %2$s.', 'wpify-woo' ),
-		esc_html( $request->type_label() ),
-		esc_html( $request->customer_name )
-	);
-	echo "\n\n";
+	if ( ! empty( $intro_content ) ) {
+		echo esc_html( wp_strip_all_tags( wptexturize( $intro_content ) ) ) . "\n\n";
+	}
 
 	printf(
 		/* translators: %d: request id */
@@ -39,6 +35,10 @@ if ( $request && $order ) {
 	if ( ! empty( $request->reason ) ) {
 		echo "\n" . esc_html__( 'Reason / description', 'wpify-woo' ) . ":\n";
 		echo esc_html( $request->reason ) . "\n";
+	}
+
+	foreach ( ( $extra_fields ?? array() ) as $extra ) {
+		echo esc_html( $extra['label'] ) . ': ' . esc_html( $extra['value'] ) . "\n";
 	}
 
 	if ( ! empty( $request_items ) ) {

@@ -23,7 +23,9 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
 ?>
 
 <?php if ( $request && $order ) : ?>
-	<p><?php esc_html_e( 'We have received your request. This email confirms its receipt as required by Directive (EU) 2023/2673 — please keep it as a record.', 'wpify-woo' ); ?></p>
+	<?php if ( ! empty( $intro_content ) ) : ?>
+		<?php echo wp_kses_post( wpautop( wptexturize( $intro_content ) ) ); ?>
+	<?php endif; ?>
 
 	<h2><?php esc_html_e( 'Request details', 'wpify-woo' ); ?></h2>
 
@@ -52,6 +54,12 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
 					<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php echo nl2br( esc_html( $request->reason ) ); ?></td>
 				</tr>
 			<?php endif; ?>
+			<?php foreach ( ( $extra_fields ?? array() ) as $extra ) : ?>
+				<tr>
+					<th class="td" scope="row" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php echo esc_html( $extra['label'] ); ?></th>
+					<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php echo $extra['value']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-rendered by module ?></td>
+				</tr>
+			<?php endforeach; ?>
 			</tbody>
 		</table>
 	</div>
