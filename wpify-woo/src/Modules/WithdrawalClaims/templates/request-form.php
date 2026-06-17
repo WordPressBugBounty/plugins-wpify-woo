@@ -140,14 +140,16 @@ $can_show_form = $has_order && $is_trusted;
 		</p>
 
 		<?php
-		// Developer-defined extra fields (e.g., IBAN) — hidden in 2FA scenario until validation reveals items.
+		// Developer-defined extra fields (e.g., IBAN) — always rendered hidden,
+		// the form JS reveals them together with the items section (whether after
+		// /validate or on initial page load when items are already visible).
 		$extra_schema = $module->get_extra_fields_schema( $type );
 		if ( $extra_schema ) :
 			$extra_values = is_array( $context['extra_fields'] ?? null ) ? $context['extra_fields'] : array();
 			foreach ( $extra_schema as $extra_field ) :
 				$extra_value = $extra_values[ $extra_field['id'] ] ?? '';
 				?>
-				<p class="form-row form-row-wide wpify-woo-extra-field wpify-woo-extra-field--<?php echo esc_attr( $extra_field['id'] ); ?>"<?php echo $can_show_form ? '' : ' hidden'; ?>>
+				<p class="form-row form-row-wide wpify-woo-extra-field wpify-woo-extra-field--<?php echo esc_attr( $extra_field['id'] ); ?>" hidden>
 					<label for="<?php echo esc_attr( $extra_field['id'] ); ?>">
 						<?php echo esc_html( $extra_field['label'] ); ?>
 						<?php

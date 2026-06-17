@@ -670,6 +670,19 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return $order ?: new WP_Error( 'not_found', __( 'Order not found.', 'wpify-woo' ) );
 		}
 
+		// Logged-in user typed their own order number — ownership grants access
+		// without forcing billing-email re-entry (user already authenticated via WP login,
+		// and their WP account email may differ from the order's billing email).
+		if ( ! empty( $context['user_id'] ) && ! empty( $context['identifier'] ) ) {
+			$order = $this->resolve_order_by_identifier( (string) $context['identifier'] );
+			if ( $order instanceof WC_Order
+				&& (int) $order->get_customer_id() === (int) $context['user_id']
+			) {
+				return $order;
+			}
+			// Not the owner — fall through to 2FA so the user must prove access via billing email.
+		}
+
 		// Guest 2-factor: identifier + billing email match.
 		$identifier = trim( (string) ( $context['identifier'] ?? '' ) );
 		$email      = trim( (string) ( $context['submitted_email'] ?? '' ) );
@@ -1200,7 +1213,10 @@ class WithdrawalClaimsModule extends AbstractModule {
 		$name        = esc_attr( $field['id'] );
 		$type        = $field['type'] ?? 'text';
 		$placeholder = isset( $field['placeholder'] ) ? esc_attr( $field['placeholder'] ) : '';
-		$required    = ! empty( $field['required'] ) ? ' required' : '';
+		// Always defer required to a data attribute; the form JS promotes it to
+		// native `required` once the field row is revealed (whether via /validate
+		// reveal or on initial page load when the items section is already shown).
+		$required    = ! empty( $field['required'] ) ? ' data-extra-required="1"' : '';
 
 		switch ( $type ) {
 			case 'textarea':

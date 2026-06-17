@@ -47,6 +47,22 @@
 
 		// Initial scope toggle state.
 		applyScopeToggle( form );
+
+		// My Account flow: items section is server-rendered, no /validate happens,
+		// so reveal extra fields right away (mirrors what /validate reveal does).
+		if ( form.querySelector( '.wpify-woo-items' ) ) {
+			revealExtraFields( form );
+		}
+	}
+
+	function revealExtraFields( form ) {
+		form.querySelectorAll( '.wpify-woo-extra-field' ).forEach( function ( row ) {
+			row.hidden = false;
+		} );
+		form.querySelectorAll( '[data-extra-required="1"]' ).forEach( function ( el ) {
+			el.required = true;
+			el.removeAttribute( 'data-extra-required' );
+		} );
 	}
 
 	function onChange( e ) {
@@ -192,6 +208,9 @@
 				reasonTextarea.removeAttribute( 'data-claim-required' );
 			}
 		}
+
+		// Reveal developer-defined extra fields and promote their deferred required markers.
+		revealExtraFields( form );
 
 		// Swap button text from "Check order" to the configured confirm text.
 		// Clear dataset.originalText so the trailing hideLoading() doesn't revert.
