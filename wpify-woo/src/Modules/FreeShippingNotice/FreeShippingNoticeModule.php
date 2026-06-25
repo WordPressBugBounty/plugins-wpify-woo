@@ -311,8 +311,7 @@ class FreeShippingNoticeModule extends AbstractModule {
 	 * Render the free shipping notice
 	 */
 	public function render_free_shipping_notice() {
-		if ( empty( $this->get_setting( 'free_shipping_message' ) )
-			 || apply_filters( 'wpify_woo_free_shipping_render_notice', true ) === false ) {
+		if ( apply_filters( 'wpify_woo_free_shipping_render_notice', true ) === false ) {
 			return;
 		}
 
@@ -332,9 +331,56 @@ class FreeShippingNoticeModule extends AbstractModule {
 			return;
 		}
 
-		if ( $this->get_amount_for_free_shipping() < 0 && empty( $this->get_setting( 'free_shipping_confirmation_message' ) ) ) {
+		$amount_for_free_shipping = $this->get_amount_for_free_shipping();
+
+		if ( empty( $this->get_setting( 'free_shipping_message' ) ) ) {
 			?>
 			<div class="wpify-woo-free-shipping-notice__wrapper"></div>
+			<?php
+			return;
+		}
+
+		if ( $amount_for_free_shipping < 0 && empty( $this->get_setting( 'free_shipping_confirmation_message' ) ) ) {
+			?>
+			<div class="wpify-woo-free-shipping-notice__wrapper"></div>
+			<?php
+			return;
+		}
+
+		$is_free_shipping         = apply_filters( 'wpify_woo_free_shipping_is_free', $amount_for_free_shipping <= 0 );
+		$context                  = array(
+			'cart_amount'                   => $this->get_cart_amount(),
+			'free_shipping_amount'          => $this->get_free_shipping_amount(),
+			'amount_for_free_shipping'      => $amount_for_free_shipping,
+			'amount_for_free_shipping_html' => wc_price( $amount_for_free_shipping ),
+			'percentage_for_free_shipping' => min( 100, $this->get_percentage_for_free_shipping() ),
+			'free_shipping_message'         => $this->get_free_shipping_message( $is_free_shipping ),
+			'is_free_shipping'              => $is_free_shipping,
+		);
+
+		/**
+		 * Filters the free shipping notice HTML.
+		 *
+		 * Return a string to replace the default template. The returned value is echoed
+		 * WITHOUT escaping — callers MUST return safe HTML and are responsible for
+		 * escaping any untrusted data from $context (e.g. via esc_html() / wp_kses_post()).
+		 *
+		 * @param string|null                $custom_html Default null. Return a string to override the default template.
+		 * @param array                      $context     Render context: cart_amount, free_shipping_amount, amount_for_free_shipping, amount_for_free_shipping_html, percentage_for_free_shipping, free_shipping_message, is_free_shipping.
+		 * @param FreeShippingNoticeModule   $module      Module instance.
+		 */
+		$filtered_html = apply_filters(
+			'wpify_woo_free_shipping_notice_custom_html',
+			null,
+			$context,
+			$this
+		);
+
+		if ( is_string( $filtered_html ) ) {
+			?>
+			<div class="wpify-woo-free-shipping-notice__wrapper">
+				<?php echo $filtered_html; ?>
+			</div>
 			<?php
 			return;
 		}
@@ -375,7 +421,7 @@ class FreeShippingNoticeModule extends AbstractModule {
 					width: 0;
 				}
 				100% {
-					width: <?php echo $this->get_percentage_for_free_shipping(); ?>%;
+					width: <?php echo $context['percentage_for_free_shipping']; ?>%;
 				}
 			}
 		</style>
@@ -394,7 +440,7 @@ class FreeShippingNoticeModule extends AbstractModule {
 				</div>
 				<div>
 
-					<?php echo $this->get_free_shipping_message(); ?>
+					<?php echo $context[ 'free_shipping_message']; ?>
 					<div class="progress">
 						<div class="progress-value"></div>
 					</div>
@@ -472,11 +518,8 @@ class FreeShippingNoticeModule extends AbstractModule {
 	 * Render free shipping message
 	 * @return string
 	 */
-	public function get_free_shipping_message(): string {
-		$amount        = $this->get_amount_for_free_shipping();
-		$free_shipping = apply_filters( 'wpify_woo_free_shipping_is_free', $amount <= 0 );
-
-		if ( $free_shipping ) {
+	public function get_free_shipping_message( $is_free_shipping ): string {
+		if ( $is_free_shipping ) {
 			return $this->get_setting( 'free_shipping_confirmation_message' );
 		}
 
