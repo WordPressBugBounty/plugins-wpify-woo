@@ -250,10 +250,29 @@ class PricesLogModule extends AbstractModule {
 			return;
 		}
 
-		echo sprintf( '<p class="form-row form-row-full">%s: %s</p>', __( 'The lowest price for the last 30 days', 'wpify-woo' ), wc_price( $price ) );
+		$tax_label = wc_prices_include_tax()
+			? __( 'incl. tax', 'woocommerce' )
+			: __( 'excl. tax', 'woocommerce' );
+
+		echo sprintf(
+			'<p class="form-row form-row-full">%s: %s <small>(%s)</small></p>',
+			__( 'The lowest price for the last 30 days', 'wpify-woo' ),
+			wc_price( $price ),
+			esc_html( $tax_label )
+		);
 	}
 
 	public function display_lowest_price_shortcode() {
-		return wc_price( $this->get_lowest_price( get_the_ID() ) );
+		$id      = get_the_ID();
+		$product = wc_get_product( $id );
+		$price   = $this->get_lowest_price( $id );
+
+		if ( ! $product ) {
+			return wc_price( $price );
+		}
+
+		$display_price = wc_get_price_to_display( $product, array( 'price' => $price ) );
+
+		return wc_price( $display_price ) . $product->get_price_suffix( $display_price );
 	}
 }

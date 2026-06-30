@@ -74,11 +74,12 @@ class AsyncEmailsModule extends AbstractModule {
 	 * @param $headers
 	 * @param $attachments
 	 */
-	public function add_job_to_queue( $to, $subject, $message, $headers, $attachments ) {
+	public function add_job_to_queue( $to, $subject, $message, $headers, $attachments ): bool {
 		$args = array( $to, $subject, $message, $headers, $attachments );
 		$hash = md5( json_encode( $args ) );
 		update_option( $hash, $args );
-		as_schedule_single_action( time(), 'wpify_send_email', array( $hash ) );
+
+		return (bool) as_schedule_single_action( time(), 'wpify_send_email', array( $hash ) );
 	}
 
 	/**

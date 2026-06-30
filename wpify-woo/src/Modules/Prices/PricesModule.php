@@ -441,8 +441,15 @@ class PricesModule extends AbstractModule {
 				}
 			}
 			if ( 'lowest' === $price['type'] ) {
-				$module         = wpify_woo_container()->get( \WpifyWoo\Modules\PricesLog\PricesLogModule::class );
-				$price['value'] = $module->get_lowest_price( get_the_ID() );
+				$module    = wpify_woo_container()->get( \WpifyWoo\Modules\PricesLog\PricesLogModule::class );
+				$raw_price = $module->get_lowest_price( get_the_ID() );
+
+				if ( $product ) {
+					$price['value']  = wc_get_price_to_display( $product, array( 'price' => $raw_price ) );
+					$price['suffix'] = $product->get_price_suffix( $price['value'] );
+				} else {
+					$price['value'] = $raw_price;
+				}
 			} elseif ( 'by_unit' === $price['type'] ) {
 				if ( ! $custom_prices_vales || ! isset( $custom_prices_vales[ $price['uuid'] ] ) ) {
 					continue;

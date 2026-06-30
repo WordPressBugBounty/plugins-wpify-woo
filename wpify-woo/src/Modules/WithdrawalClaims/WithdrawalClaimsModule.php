@@ -391,6 +391,28 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return;
 		}
 
+		// Guard against starting the period today for orders that are already
+		// past any reasonable withdrawal/warranty window. A late status change
+		// on a years-old order (bulk re-save, admin edit, manual import) would
+		// otherwise silently grant a fresh 14-day withdrawal window — letting
+		// the customer act on a contract that is long closed. When skipped,
+		// period_start_for() falls back to date_completed/paid/created and the
+		// item is correctly evaluated as expired.
+		$created = $order->get_date_created();
+		if ( $created ) {
+			$days_w    = max( 1, (int) $this->get_setting( 'withdrawal_period_days' ) );
+			$months_c  = max( 1, (int) $this->get_setting( 'claim_warranty_months' ) );
+			$max_days  = max( $days_w, $months_c * 31 );
+			$cutoff    = ( new \DateTimeImmutable( 'now' ) )->modify( '-' . $max_days . ' days' );
+			$created_i = $created instanceof \DateTimeImmutable
+				? $created
+				: \DateTimeImmutable::createFromInterface( $created );
+
+			if ( $created_i < $cutoff ) {
+				return;
+			}
+		}
+
 		$order->update_meta_data( self::META_PERIOD_START, current_time( 'mysql', true ) );
 		$order->save();
 	}
@@ -407,6 +429,29 @@ class WithdrawalClaimsModule extends AbstractModule {
 				// fall through
 			}
 		}
+
+		$created = $order->get_date_created();
+
+		// Hard guard for the legacy fallback below: when the order itself is
+		// older than any reasonable withdrawal/warranty window, prefer
+		// date_created. Otherwise date_completed / date_paid — which WC
+		// auto-stamps on the actual status transition — would shift the
+		// period to "today" for a years-old order that was just retroactively
+		// completed or paid, silently reopening the window.
+		if ( $created ) {
+			$days_w   = max( 1, (int) $this->get_setting( 'withdrawal_period_days' ) );
+			$months_c = max( 1, (int) $this->get_setting( 'claim_warranty_months' ) );
+			$max_days = max( $days_w, $months_c * 31 );
+			$cutoff   = ( new \DateTimeImmutable( 'now' ) )->modify( '-' . $max_days . ' days' );
+			$created_i = $created instanceof \DateTimeImmutable
+				? $created
+				: \DateTimeImmutable::createFromInterface( $created );
+
+			if ( $created_i < $cutoff ) {
+				return $created_i;
+			}
+		}
+
 		if ( $order->get_date_completed() ) {
 			return $order->get_date_completed();
 		}
@@ -414,7 +459,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return $order->get_date_paid();
 		}
 
-		return $order->get_date_created() ?: new \DateTimeImmutable();
+		return $created ?: new \DateTimeImmutable();
 	}
 
 	/**
@@ -454,9 +499,9 @@ class WithdrawalClaimsModule extends AbstractModule {
 			}
 		}
 
-		$days = $override ?? max( 1, $days );
-		$end  = ( $start instanceof \DateTimeImmutable ? $start : \DateTimeImmutable::createFromInterface( $start ) )
-			->modify( '+' . $days . ' days' );
+		$days  = $override ?? max( 1, $days );
+		$start = $this->clamp_start_for_period( $order, $start, $days, 'days' );
+		$end   = $start->modify( '+' . $days . ' days' );
 
 		return apply_filters( 'wpify_woo_withdrawal_claims_period_end', $end, $order, 'withdrawal' );
 	}
@@ -480,10 +525,42 @@ class WithdrawalClaimsModule extends AbstractModule {
 		}
 
 		$months = $override ?? max( 1, $months );
-		$end    = ( $start instanceof \DateTimeImmutable ? $start : \DateTimeImmutable::createFromInterface( $start ) )
-			->modify( '+' . $months . ' months' );
+		$start  = $this->clamp_start_for_period( $order, $start, $months, 'months' );
+		$end    = $start->modify( '+' . $months . ' months' );
 
 		return apply_filters( 'wpify_woo_withdrawal_claims_period_end', $end, $order, 'claim' );
+	}
+
+	/**
+	 * Per-type guard: if the resolved start sits inside the configured window
+	 * but the underlying order itself is older than that window, fall back to
+	 * date_created. This stops late status changes (e.g. years-old "pending"
+	 * order moved to "completed" today) from reopening a fresh withdrawal /
+	 * claim period that the original contract no longer allows.
+	 *
+	 * @param string $unit "days" or "months"
+	 */
+	private function clamp_start_for_period( WC_Order $order, \DateTimeInterface $start, int $amount, string $unit ): \DateTimeImmutable {
+		$start_i = $start instanceof \DateTimeImmutable
+			? $start
+			: \DateTimeImmutable::createFromInterface( $start );
+
+		$created = $order->get_date_created();
+		if ( ! $created ) {
+			return $start_i;
+		}
+
+		$created_i = $created instanceof \DateTimeImmutable
+			? $created
+			: \DateTimeImmutable::createFromInterface( $created );
+
+		$cutoff = ( new \DateTimeImmutable( 'now' ) )->modify( '-' . $amount . ' ' . $unit );
+
+		if ( $created_i < $cutoff && $start_i > $created_i ) {
+			return $created_i;
+		}
+
+		return $start_i;
 	}
 
 	// =========================================================================

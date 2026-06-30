@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.4.11
+Stable tag: 5.4.12
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
@@ -234,6 +234,12 @@ This plugin is brought to you by the WordPress and WooCommerce experts at [wpify
 
 == Changelog ==
 
+= 5.4.12 =
+* Fix Async emails — checkout error on WooCommerce 10.9 and newer.
+* Fix Vocative — greeting in WooCommerce emails is now correctly inflected again.
+* Fix Prices log — lowest price now respects WooCommerce VAT display settings and shows the "incl./excl. tax" suffix.
+* Fix Withdrawal & Claim — late status changes on years-old orders no longer reopen the withdrawal window.
+
 = 5.4.11 =
 * Add Free shipping notice — developer filter for custom notice HTML.
 
@@ -246,7 +252,7 @@ This plugin is brought to you by the WordPress and WooCommerce experts at [wpify
 * Add support for custom fields in Withdrawal & Claim form (e.g. IBAN).
 * Add editable heading and description for the withdrawal link block in WooCommerce emails.
 * Add editable intro text for Withdrawal & Claim notification emails.
-
+A
 = 5.4.8 =
 * Add second VAT recalculation on classic checkout.
 * Fix PHP warning when running CLI scripts.
