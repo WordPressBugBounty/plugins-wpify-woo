@@ -683,9 +683,16 @@ class WithdrawalClaimsModule extends AbstractModule {
 	}
 
 	public function resolve_order_by_identifier( string $identifier ): ?WC_Order {
+		// Internal ID path — accept only when the resolved order's own
+		// get_order_number() matches the submitted string. Without this guard
+		// a sequential-number plugin's custom number can collide with an
+		// unrelated order's internal DB ID and this call would return the
+		// wrong order (silent email-mismatch failure downstream).
 		if ( ctype_digit( $identifier ) ) {
 			$order = wc_get_order( (int) $identifier );
-			if ( $order instanceof WC_Order ) {
+			if ( $order instanceof WC_Order
+				&& (string) $order->get_order_number() === $identifier
+			) {
 				return $order;
 			}
 		}
@@ -696,7 +703,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		// partial-substring hits.
 		foreach ( wc_order_search( $identifier ) as $id ) {
 			$order = wc_get_order( (int) $id );
-			if ( $order instanceof WC_Order && $order->get_order_number() === $identifier ) {
+			if ( $order instanceof WC_Order && (string) $order->get_order_number() === $identifier ) {
 				return $order;
 			}
 		}
@@ -1081,7 +1088,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			$context['order_number'] = $order_id;
 			$context['has_2fa_locked'] = ! is_user_logged_in() || ! $this->order_belongs_to_current_user( $order_id );
 			if ( ! $context['has_2fa_locked'] ) {
-				$order = wc_get_order( ctype_digit( $order_id ) ? (int) $order_id : 0 );
+				$order = $this->resolve_order_by_identifier( $order_id );
 				if ( $order instanceof WC_Order ) {
 					$context['order'] = $order;
 				}
@@ -1105,10 +1112,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		if ( ! is_user_logged_in() ) {
 			return false;
 		}
-		if ( ! ctype_digit( $identifier ) ) {
-			return false;
-		}
-		$order = wc_get_order( (int) $identifier );
+		$order = $this->resolve_order_by_identifier( $identifier );
 
 		return $order instanceof WC_Order && (int) $order->get_customer_id() === get_current_user_id();
 	}
