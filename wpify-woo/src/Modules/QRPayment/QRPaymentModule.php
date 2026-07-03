@@ -511,7 +511,7 @@ class QRPaymentModule extends AbstractModule {
 			} elseif ( 'sk' === $account['type'] ) {
 				try {
 					$payment = new \WpifyWooDeps\rikudou\SkQrPayment\QrPayment();
-					$payment->setOptions( [
+					$options = [
 						QrPaymentOptions::AMOUNT                                          => $payment_details['total'],
 						QrPaymentOptions::CURRENCY                                        => $payment_details['currency'],
 						QrPaymentOptions::DUE_DATE                                        => new DateTime( $payment_details['due_date'] ),
@@ -521,7 +521,19 @@ class QRPaymentModule extends AbstractModule {
 						\WpifyWooDeps\rikudou\SkQrPayment\Payment\QrPaymentOptions::IBANS => [
 							new IBAN( $payment_details['iban'] ),
 						],
-					] );
+					];
+
+					/**
+					 * Filter options passed to the Slovak QR payment generator.
+					 *
+					 * @param array    $options         Slovak QR payment options
+					 * @param array    $payment_details payment details
+					 * @param array    $account         bank account data
+					 * @param WC_Order $order           Order object
+					 */
+					$options = apply_filters( 'wpify_woo_qr_payment_sk_options', $options, $payment_details, $account, $order );
+
+					$payment->setOptions( $options );
 					$qrCode = $payment->getQrCode()->getDataUri();
 				} catch ( Exception $e ) {
 					$this->log->error( sprintf( 'QR payment: error create QR code.' ),

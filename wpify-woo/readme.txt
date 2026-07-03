@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.4.13
+Stable tag: 5.4.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
@@ -202,6 +202,18 @@ If you have problems installing, activating or setting up modules, please refer 
 
 Yes, the full documentation for the WPify Woo plugin is available on the website [wpify.io](https://wpify.io/documentation/wpify-woo/)
 
+= How can I set a custom xz binary path for Slovak QR payments? =
+
+Use the `wpify_woo_qr_payment_sk_options` filter and pass the `xzBinary` option to the Slovak QR payment generator:
+
+`
+add_filter( 'wpify_woo_qr_payment_sk_options', function ( $options ) {
+	$options['xzBinary'] = '/usr/bin/xz';
+
+	return $options;
+} );
+`
+
 = Why did you create this plugin? =
 
 Our plugin's functionality is (mostly) covered by other plugins, but during the years using these we encountered many issues and bugs.
@@ -233,6 +245,9 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+
+= 5.4.14 =
+* Add QR Payment — developer filter for Slovak QR payment generator options.
 
 = 5.4.13 =
 * Fix Withdrawal & Claim — form now correctly resolves the order by its visible number when a custom order-numbering plugin is used.
