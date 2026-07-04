@@ -125,7 +125,11 @@ class IcDicApi extends \WP_REST_Controller {
 		}
 
 		$is_valid = $this->module->is_valid_dic( $dic );
-		
+
+		if ( ! $is_valid && $this->module->get_last_vies_result() === 'error' ) {
+			return new WP_REST_Response( array( 'validation' => 'unavailable' ), 200 );
+		}
+
 		// If VIES validation fails and vies_fails is disabled, return error (blocks order)
 		if ( ! $is_valid && $this->module->get_setting( 'vies_fails' ) !== true ) {
 			return new \WP_Error( 'not-found', $error_text );

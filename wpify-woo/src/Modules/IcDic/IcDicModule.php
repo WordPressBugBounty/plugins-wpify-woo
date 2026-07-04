@@ -1121,7 +1121,7 @@ class IcDicModule extends AbstractModule {
 
 			if ( empty( $dic_dph ) ) {
 				$this->last_vies_result = 'skipped';
-			} elseif ( ! $this->is_valid_dic( $dic_dph ) ) {
+			} elseif ( ! $this->is_valid_dic( $dic_dph ) && $this->get_last_vies_result() !== 'error' ) {
 				// is_valid_dic already sets last_vies_result
 				if ( $this->get_setting( 'vies_fails' ) !== true ) {
 					$error_msg = $country === 'SK'
@@ -1212,7 +1212,7 @@ class IcDicModule extends AbstractModule {
 		}
 
 		$dic       = strtoupper( $dic );
-		$cache_key = 'wpify_woo_dic_valid_' . $dic;
+		$cache_key = 'wpify_woo_dic_valid_v2_' . $dic;
 
 		/**
 		 * Filter to bypass VIES validation entirely.
@@ -1286,7 +1286,7 @@ class IcDicModule extends AbstractModule {
 		$this->last_vies_result = $is_error ? 'error' : ( $is_valid ? 'valid' : 'invalid' );
 
 		// Cache the result in session
-		if ( ! empty( WC()->session ) ) {
+		if ( ! $is_error && ! empty( WC()->session ) ) {
 			WC()->session->set( $cache_key, $is_valid ? 'valid' : 'invalid' );
 		}
 

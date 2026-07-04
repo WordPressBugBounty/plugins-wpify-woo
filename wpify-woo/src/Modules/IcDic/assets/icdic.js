@@ -332,17 +332,26 @@ window.jQuery(document).ready(function ($) {
 
 	let dicTimeout = null;
 
+	function scheduleValidateDic(delay = 2000) {
+		window.clearTimeout(dicTimeout);
+		dicTimeout = window.setTimeout(validateDic, delay);
+	}
+
 	function validateDic() {
 		if (window.wpifyWooIcDic.restUrl && !state.get('viesLoading')) {
-			window.clearTimeout(dicTimeout);
-
 			const dic = state.get('country') === 'SK' ? normalizeDic(state.get('icDph')) : normalizeDic(state.get('dic'));
 
 			if (state.get('viesLastChecked') !== dic) {
 				state.set({viesResult: '', viesLoading: true, disableSubmit: true});
 
 				fetchJson(window.wpifyWooIcDic.restUrl + '/icdic-vies?in=' + dic)
-					.then(() => {
+					.then(response => {
+						const warning = response.warning || '';
+
+						if (warning) {
+							state.set({viesResult: warning});
+						}
+
 						if (state.get('country') === 'SK') {
 							dom.icDph().value = dic;
 						} else {
@@ -456,17 +465,15 @@ window.jQuery(document).ready(function ($) {
 
 	$(document.body).on('keyup', 'input[name=billing_dic]', e => {
 		if (dom.dicField().classList.contains('wpify-woo-vies--validate') && state.get('country') !== 'SK' && e.target.value.length > 0) {
-			window.clearTimeout(dicTimeout);
 			state.set({disableSubmit: true, dic: e.target.value});
-			window.setTimeout(validateDic, 2000);
+			scheduleValidateDic();
 		}
 	});
 
 	$(document.body).on('keyup', 'input[name=billing_dic_dph]', e => {
-		if (dom.dicField().classList.contains('wpify-woo-vies--validate') && state.get('country') === 'SK' && e.target.value.length > 0) {
-			window.clearTimeout(dicTimeout);
+		if (dom.icDphField().classList.contains('wpify-woo-vies--validate') && state.get('country') === 'SK' && e.target.value.length > 0) {
 			state.set({disableSubmit: true, icDph: e.target.value});
-			window.setTimeout(validateDic, 2000);
+			scheduleValidateDic();
 		}
 	});
 
