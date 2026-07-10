@@ -198,6 +198,11 @@ class IcDicModule extends AbstractModule {
 			),
 		) );
 		add_action( 'wp_enqueue_scripts', function () {
+			// Block checkout assets belong on the checkout page only, not on My Account.
+			if ( ! is_checkout() ) {
+				return;
+			}
+
 			$this->asset_factory->wp_script( $this->plugin_utils->get_plugin_path( 'build/icdic-blocks.js' ), array(
 				'handle'       => 'wpify-woo-ic-dic-blocks',
 				'in_footer'    => true,

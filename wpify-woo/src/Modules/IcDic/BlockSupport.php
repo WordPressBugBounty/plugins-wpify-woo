@@ -130,6 +130,13 @@ class BlockSupport {
 	}
 
 	public function add_placeholder() {
+		// Mount the block checkout app only on the checkout page. Elsewhere (e.g. My
+		// Account) it boots WC Blocks + fires a Store API cart request that creates a
+		// session mid-request, invalidating the login nonce and breaking login.
+		if ( ! is_checkout() ) {
+			return;
+		}
+
 		echo '<div data-app="wpify-ic-dic"></div>';
 	}
 

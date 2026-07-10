@@ -708,8 +708,62 @@ class WithdrawalClaimsModule extends AbstractModule {
 			}
 		}
 
+		// Tolerant fallback — a stray space or a pasted character (NBSP, '#',
+		// dash) shouldn't stop the lookup. Always confirms the order's own number
+		// normalizes to the same value, so the collision guard above stays intact.
+		$order = $this->resolve_order_by_normalized_identifier( $identifier );
+		if ( $order instanceof WC_Order ) {
+			return $order;
+		}
+
 		// Custom order_number plugins not hooked into WC search.
 		return apply_filters( 'wpify_woo_withdrawal_claims_resolve_order', null, $identifier );
+	}
+
+	/**
+	 * Fallback lookup that tolerates formatting differences in the entered number
+	 * (accidental space, NBSP, '#', dash, pasted junk). Safe against collisions:
+	 * a candidate is returned only when its own visible number normalizes to the
+	 * exact same value as the input.
+	 */
+	private function resolve_order_by_normalized_identifier( string $identifier ): ?WC_Order {
+		$normalized = $this->normalize_order_number( $identifier );
+		if ( '' === $normalized ) {
+			return null;
+		}
+
+		$candidates = array();
+
+		// Purely numeric after normalization — may be the raw order ID (e.g. a
+		// formatter that only inserts a space into the DB ID).
+		if ( ctype_digit( $normalized ) ) {
+			$candidates[] = (int) $normalized;
+		}
+
+		// Sequential-number plugins that hook into WC search.
+		foreach ( wc_order_search( $normalized ) as $id ) {
+			$candidates[] = (int) $id;
+		}
+
+		foreach ( array_unique( $candidates ) as $id ) {
+			$order = wc_get_order( $id );
+			if ( $order instanceof WC_Order
+				&& $this->normalize_order_number( (string) $order->get_order_number() ) === $normalized
+			) {
+				return $order;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Strip everything except letters and digits and uppercase the result, so a
+	 * stray separator or pasted character no longer breaks matching. Letters are
+	 * kept on purpose — distinct series like "A123" and "B123" must not collide.
+	 */
+	private function normalize_order_number( string $value ): string {
+		return strtoupper( (string) preg_replace( '/[^\p{L}\p{N}]+/u', '', $value ) );
 	}
 
 	/**

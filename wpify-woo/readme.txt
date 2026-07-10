@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 5.4.15
+Stable tag: 5.4.16
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
@@ -245,6 +245,10 @@ Drop us a message in the support section, or feel free to submit a pull request 
 This plugin is brought to you by the WordPress and WooCommerce experts at [wpify.io](https://wpify.io).
 
 == Changelog ==
+
+= 5.4.16 =
+* Fix VAT fields (IČO/DIČ) — login and registration on the My Account page now work on the first attempt.
+* Fix Withdrawal & Claim — public form now finds the order even when the order number is entered with an extra space or stray character.
 
 = 5.4.15 =
 * Fix CRN/VAT — display VIES warnings on classic checkout, debounce VAT checks while typing, and do not treat VIES service outages as invalid VAT numbers.
