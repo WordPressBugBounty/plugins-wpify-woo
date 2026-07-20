@@ -336,9 +336,9 @@ class PricesModule extends AbstractModule {
 				ob_start();
 				?>
 				<span class="wpify-woo-prices__price-info">
-					<?php _e( '?', 'wpify-woo' ); ?>
+					<?php esc_html_e( '?', 'wpify-woo' ); ?>
 					<span class="wpify-woo-prices__price-info__text">
-						<?php echo $notice['price_notice']; ?>
+						<?php echo wp_kses_post( $notice['price_notice'] ); ?>
 					</span>
 				</span>
 				<?php
@@ -403,6 +403,7 @@ class PricesModule extends AbstractModule {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Method returns trusted price markup.
 		echo $this->get_custom_prices_html( $custom_prices );
 	}
 
@@ -423,7 +424,7 @@ class PricesModule extends AbstractModule {
 
 		ob_start();
 		?>
-		<<?= $wrapper ?> class="wpify-woo-prices">
+		<<?php echo esc_html( $wrapper ); ?> class="wpify-woo-prices">
 		<?php
 		$custom_prices_vales = get_post_meta( get_the_ID(), '_custom_prices', true );
 
@@ -480,30 +481,32 @@ class PricesModule extends AbstractModule {
 			}
 
 			// Get price with multi currency support
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce Multilingual (WCML) core hook.
 			$price['value'] = apply_filters( 'wcml_raw_price_amount', floatval( $price['value'] ) );
 
 			?>
-			<<?= $line ?> class="wpify-woo-prices__price">
+			<<?php echo esc_html( $line ); ?> class="wpify-woo-prices__price">
 			<?php
-			echo ( $price['label'] ?: '' ) . ' ' . wc_price( $price['value'] ) . $price['suffix'];
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains wc_price() HTML and price suffix markup.
+			echo wp_kses_post( ( $price['label'] ?: '' ) . ' ' . wc_price( $price['value'] ) . $price['suffix'] );
 
 			if ( ! empty( $price['price_info'] ) ) {
 				?>
 				<span class="wpify-woo-prices__price-info">
-					 		<?php _e( '?', 'wpify-woo' ); ?>
+					 		<?php esc_html_e( '?', 'wpify-woo' ); ?>
 							<span class="wpify-woo-prices__price-info__text">
-								<?php echo $price['price_info']; ?>
+								<?php echo wp_kses_post( $price['price_info'] ); ?>
 							</span>
 						</span>
 				<?php
 			}
 			?>
-			</<?= $line ?>>
+			</<?php echo esc_html( $line ); ?>>
 			<?php
 		}
 
 		?>
-		</<?= $wrapper ?>>
+		</<?php echo esc_html( $wrapper ); ?>>
 		<?php
 
 		return ob_get_clean();
@@ -579,7 +582,7 @@ class PricesModule extends AbstractModule {
 				'tab'   => array(
 					'id'       => 'general',
 					'priority' => 10,
-					'label'    => __( 'General', 'woocommerce' ),
+					'label'    => __( 'General', 'wpify-woo' ),
 					'target'   => 'general_product_data'
 				),
 				'items' => array(

@@ -78,6 +78,7 @@ class Settings {
 	}
 
 	public function enqueue_admin_scripts() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug to gate admin asset loading; no state change.
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 		if ( ! $page || ! str_contains( $page, 'wpify/' ) ) {
 			return;
@@ -102,7 +103,8 @@ class Settings {
 	}
 
 	public function is_settings_page() {
-		$page = $_GET['page'] ?? '';
+		// phpcs:disable WordPress.Security.NonceVerification -- Read-only settings-page detection from query vars; no state change.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 		if ( str_contains( $page, 'wpify/' ) ) {
 			$subpage = explode( '/', $page )[1] ?? '';
 			if ( $subpage === $this::MAIN_SETTINGS_ID ) {
@@ -114,7 +116,9 @@ class Settings {
 		}
 
 		// Load items only in admin (for settings pages) or rest (for async lists)
-		return ( wp_is_json_request() || is_admin() ) && ! empty( $_GET['section'] ) && $_GET['section'] === $this::GENERAL_SECTION_ID;
+		$section = isset( $_GET['section'] ) ? sanitize_text_field( wp_unslash( $_GET['section'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification
+		return ( wp_is_json_request() || is_admin() ) && '' !== $section && $section === $this::GENERAL_SECTION_ID;
 	}
 
 	public function add_admin_menu_bar_data( $data ) {
@@ -176,7 +180,8 @@ class Settings {
 
 	public function render_newsletter_notice() {
 		$screen       = get_current_screen();
-		$current_page = isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice gating; no state change.
+		$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
 		if ( ! $screen || ! str_contains( $current_page, 'wpify' ) ) {
 			return;
@@ -252,14 +257,14 @@ class Settings {
 		$admin_email = get_option( 'admin_email' );
 
 		?>
-		<h3>🚀 <?php _e( 'Increase sales + 10% discount on your first purchase!', 'wpify-woo' ); ?></h3>
-		<p><?php _e( 'Do you want a faster e-shop, more customers and higher conversions? Sign up for our newsletter and get:', 'wpify-woo' ); ?></p>
+		<h3>🚀 <?php esc_html_e( 'Increase sales + 10% discount on your first purchase!', 'wpify-woo' ); ?></h3>
+		<p><?php esc_html_e( 'Do you want a faster e-shop, more customers and higher conversions? Sign up for our newsletter and get:', 'wpify-woo' ); ?></p>
 		<ul style="list-style: disc;padding-left: 20px">
-			<li><?php _e( 'Tips to speed up your e-shop and improve performance', 'wpify-woo' ); ?></li>
-			<li><?php _e( 'Strategies for more orders and higher profits', 'wpify-woo' ); ?></li>
-			<li><?php _e( '10% discount on your first purchase of premium plugins', 'wpify-woo' ); ?></li>
+			<li><?php esc_html_e( 'Tips to speed up your e-shop and improve performance', 'wpify-woo' ); ?></li>
+			<li><?php esc_html_e( 'Strategies for more orders and higher profits', 'wpify-woo' ); ?></li>
+			<li><?php esc_html_e( '10% discount on your first purchase of premium plugins', 'wpify-woo' ); ?></li>
 		</ul>
-		<p><?php _e( 'Sign up now and get exclusive advice + discount code in your email.', 'wpify-woo' ); ?></p>
+		<p><?php esc_html_e( 'Sign up now and get exclusive advice + discount code in your email.', 'wpify-woo' ); ?></p>
 		<p>
 		<form method="post" class="wpify_subscription_form">
 			<?php wp_nonce_field( 'wpify_subscription_form', 'wpify_subscription_nonce' ); ?>
@@ -271,7 +276,7 @@ class Settings {
 					   value="<?php echo esc_attr( $admin_email ); ?>" required/>
 			</p>
 			<p><input type="submit" name="submit_wpify_subscription" class="button button-primary"
-					  value="<?php _e( 'I want a better e-shop + discount', 'wpify-woo' ); ?>"/></p>
+					  value="<?php esc_attr_e( 'I want a better e-shop + discount', 'wpify-woo' ); ?>"/></p>
 		</form>
 		</p>
 		<?php
@@ -284,9 +289,10 @@ class Settings {
 
 	// Zpracování formuláře a odeslání dat do FluentCRM
 	public function process_fluentcrm_submission() {
-		$email = sanitize_email( $_POST['email'] );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified via check_admin_referer() in newsletter_content() before this runs.
+		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 		if ( ! is_email( $email ) ) {
-			echo sprintf( '<div class="wpify-notice wpify-notice-error"><p>%s</p></div>', __( 'Incorrect email.', 'wpify-woo' ) );
+			echo wp_kses_post( sprintf( '<div class="wpify-notice wpify-notice-error"><p>%s</p></div>', esc_html__( 'Incorrect email.', 'wpify-woo' ) ) );
 
 			return;
 		}
@@ -312,10 +318,10 @@ class Settings {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( $response_code == 200 ) {
-			echo sprintf( '<div class="wpify-notice wpify-notice-success"><p>%s</p></div>', __( 'The email address has been successfully added.', 'wpify-woo' ) );
+			echo wp_kses_post( sprintf( '<div class="wpify-notice wpify-notice-success"><p>%s</p></div>', esc_html__( 'The email address has been successfully added.', 'wpify-woo' ) ) );
 			update_option( 'wpify-woo-display-subscription', 'none' );
 		} elseif ( $response_code == 422 ) {
-			echo sprintf( '<div class="wpify-notice wpify-notice-info"><p>%s</p></div>', __( 'The email address is already on the subscription list.', 'wpify-woo' ) );
+			echo wp_kses_post( sprintf( '<div class="wpify-notice wpify-notice-info"><p>%s</p></div>', esc_html__( 'The email address is already on the subscription list.', 'wpify-woo' ) ) );
 		} else {
 			$response_body = wp_remote_retrieve_body( $response );
 			echo sprintf( '<div class="wpify-notice wpify-notice-error"><p>%s</p><code>%s</code></div>', esc_html__( 'Error while sending.', 'wpify-woo' ), esc_html( $response_body ) );

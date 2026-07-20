@@ -125,6 +125,7 @@ class ZboziConversionsModule extends AbstractModule {
 
 		?>
 		<!-- Zbozi.cz / Sklik conversion Limited -->
+		<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Inline third-party tracking snippet. ?>
 		<script type="text/javascript" src="https://c.seznam.cz/js/rc.js"></script>
 		<script>
 			(function() {
@@ -161,6 +162,7 @@ class ZboziConversionsModule extends AbstractModule {
 				var conversionConf = {
 					<?php
 					foreach ( $parameters as $key => $parameter ) {
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Internally generated conversion parameters (keys and numeric/quoted values) written into an inline tracking script.
 						echo $key . ': ' . $parameter . ', ';
 					}
 					?>
@@ -209,6 +211,6 @@ class ZboziConversionsModule extends AbstractModule {
 	function duplicity_code_notice() {
 		$title  = __( 'Duplicate conversion code may be generated for Zbozi.cz/Sklik', 'wpify-woo' );
 		$string = __( 'The <b>Zbozi.cz/Sklik Conversions Limited</b> module is active at the same time as the premium extension <b>Zbozi.cz/Sklik Conversions</b>. If you have both modules active and there will be duplicate generation of the queue conversion code once for limited and once for standard conversion measurement and measurement errors may occur. Please deactivate one of these modules.', 'wpify-woo' );
-		printf( '<div class="notice notice-warning"><h2>%s</h2><p>%s</p></div>', $title, $string, );
+		printf( '<div class="notice notice-warning"><h2>%s</h2><p>%s</p></div>', esc_html( $title ), wp_kses_post( $string ) );
 	}
 }

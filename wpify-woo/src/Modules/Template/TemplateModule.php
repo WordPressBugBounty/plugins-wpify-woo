@@ -191,7 +191,7 @@ class TemplateModule extends AbstractModule {
 
 		if ( $change_html ) {
 			$custom_text = $this->get_setting( 'place_order_button_text' );
-			$html = '<button type="submit" class="button alt' . esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ) . '" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr( strip_tags( str_replace(['<br>','<br/>','<br />'], ' ', $custom_text ) ) ) . '">' . $custom_text . '</button>';
+			$html = '<button type="submit" class="button alt' . esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ) . '" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr( wp_strip_all_tags( str_replace(['<br>','<br/>','<br />'], ' ', $custom_text ) ) ) . '">' . wp_kses_post( $custom_text ) . '</button>';
 		}
 
 		return $html;
@@ -220,6 +220,7 @@ class TemplateModule extends AbstractModule {
 			$style   = $style ? ' class="' . $style . '"' : '';
 			$content = '<div ' . $style . '>' . $position['content'] . '</div>';
 
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Content is rendered through WordPress core "the_content" filter, which handles escaping.
 			echo apply_filters( 'the_content', $content );
 			$this->rendered[] = $key;
 		}

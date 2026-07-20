@@ -86,7 +86,7 @@ class BlockSupport {
 				'label'             => __( 'Identification no.', 'wpify-woo' ),
 				'location'          => 'contact',
 				'type'              => 'text',
-				'meta_key'          => '_billing_ic',
+				'meta_key'          => '_billing_ic', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Field registration config for WooCommerce checkout, not a database query.
 				'sanitize_callback' => function ( $field_value ) {
 					return str_replace( ' ', '', $field_value );
 				},
@@ -109,7 +109,7 @@ class BlockSupport {
 				'label'             => __( 'VAT no.', 'wpify-woo' ),
 				'location'          => 'contact',
 				'type'              => 'text',
-				'meta_key'          => '_billing_dic',
+				'meta_key'          => '_billing_dic', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Field registration config for WooCommerce checkout, not a database query.
 				'sanitize_callback' => function ( $field_value ) {
 					return strtoupper( str_replace( ' ', '', $field_value ) );
 				},
@@ -121,7 +121,7 @@ class BlockSupport {
 				'label'             => __( 'In VAT no.', 'wpify-woo' ),
 				'location'          => 'contact',
 				'type'              => 'text',
-				'meta_key'          => '_billing_dic_dph',
+				'meta_key'          => '_billing_dic_dph', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Field registration config for WooCommerce checkout, not a database query.
 				'sanitize_callback' => function ( $field_value ) {
 					return strtoupper( str_replace( ' ', '', $field_value ) );
 				},
@@ -185,18 +185,21 @@ class BlockSupport {
 			$country = $this->current_checkout_country;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Read-only country detection during WooCommerce checkout, which handles its own nonce verification.
 		// Try to get country from POST data
 		if ( empty( $country ) && ! empty( $_POST['billing_country'] ) ) {
-			$country = sanitize_text_field( $_POST['billing_country'] );
+			$country = sanitize_text_field( wp_unslash( $_POST['billing_country'] ) );
 		}
 
 		// Try from additional fields (for block checkout)
 		if ( empty( $country ) && ! empty( $_POST['wc-additional-fields-data'] ) ) {
-			$additional_data = json_decode( stripslashes( $_POST['wc-additional-fields-data'] ), true );
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string decoded below; the extracted country value is sanitized individually.
+			$additional_data = json_decode( wp_unslash( $_POST['wc-additional-fields-data'] ), true );
 			if ( ! empty( $additional_data['billing_country'] ) ) {
 				$country = sanitize_text_field( $additional_data['billing_country'] );
 			}
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 
 		// Fallback to customer object
@@ -327,6 +330,7 @@ class BlockSupport {
 			WC()->cart->calculate_totals();
 
 			// Invalidate Store API cart cache
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce core hook name.
 			do_action( 'woocommerce_cart_item_removed', '', WC()->cart );
 		}
 	}

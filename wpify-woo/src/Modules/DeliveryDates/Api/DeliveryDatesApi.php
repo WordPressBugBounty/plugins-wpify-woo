@@ -72,7 +72,11 @@ class DeliveryDatesApi extends \WP_REST_Controller {
 			return new WP_REST_Response( '', 204 );
 		}
 
-		$country = $request->get_param( 'country' );
+		$country = strtoupper( sanitize_text_field( (string) $request->get_param( 'country' ) ) );
+
+		if ( ! preg_match( '/^[A-Z]{2}$/', $country ) ) {
+			return new WP_REST_Response( '', 204 );
+		}
 
 		if ( empty(WC()->customer->get_billing_address())) {
 			WC()->customer->set_billing_country( $country );
@@ -101,7 +105,11 @@ class DeliveryDatesApi extends \WP_REST_Controller {
 			return new \WP_Error( 'product-not-found', __( 'Product not found.', 'wpify-woo' ) );
 		}
 
-		$GLOBALS['product'] = $product;
+		if ( 'publish' !== $product->get_status() && ! current_user_can( 'edit_post', $product_id ) ) {
+			return new \WP_Error( 'product-not-found', __( 'Product not found.', 'wpify-woo' ), array( 'status' => 404 ) );
+		}
+
+		$GLOBALS['product'] = $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Setting the WooCommerce global product so the template renders for the requested product.
 		$html               = $this->module->get_delivery_date_html( true );
 
 		return new WP_REST_Response( array( 'html' => $html ), 200 );

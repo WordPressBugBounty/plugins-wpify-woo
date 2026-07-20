@@ -31,20 +31,6 @@ class SettingsApi extends \WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			ApiManager::REST_NAMESPACE,
-			'option',
-			array(
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'save_option' ),
-					'permission_callback' => function () {
-						return current_user_can( 'manage_woocommerce' );
-					},
-				),
-			)
-		);
-
-		register_rest_route(
-			ApiManager::REST_NAMESPACE,
 			'list',
 			array(
 				array(
@@ -56,17 +42,6 @@ class SettingsApi extends \WP_REST_Controller {
 				),
 			)
 		);
-	}
-
-	/**
-	 * @param \WP_REST_Request $request Full data about the request.
-	 *
-	 * @return \WP_Error|\WP_REST_Request|\WP_REST_Response | bool
-	 */
-	public function save_option( $request ) {
-		update_option( $request->get_param( 'option' ), $request->get_param( 'data' ), isset( $request->get_params()['autoload'] ) ? $request->get_param( 'autoload' ) : true );
-
-		return new WP_REST_Response( array(), 201 );
 	}
 
 	/**

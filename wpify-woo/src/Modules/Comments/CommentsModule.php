@@ -124,7 +124,7 @@ class CommentsModule extends AbstractModule {
 				if ( $comment_type['id'] === $details['type'] ) { ?>
 					<p class="meta">
 						<em class="woocommerce-review__type">
-							<?php esc_html_e( $comment_type['label'] ); ?>
+							<?php echo esc_html( $comment_type['label'] ); ?>
 						</em>
 					</p>
 

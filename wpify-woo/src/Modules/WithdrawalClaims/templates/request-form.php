@@ -10,6 +10,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template-scoped variables provided by the template loader, not globals.
+
 $type   = $context['type'];
 $module = $context['module'];
 
@@ -38,7 +40,9 @@ if ( ! empty( $context['submitted'] ) ) :
 endif;
 
 // Server-side error from PRG fail (no-JS fallback path).
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only prefill of an error message for display; no state change.
 $error_message = isset( $_GET['wcr_err'] ) ? sanitize_text_field( wp_unslash( $_GET['wcr_err'] ) ) : '';
+// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 $is_trusted    = ! empty( $context['is_trusted'] );
 $has_order     = $context['order'] instanceof WC_Order;
@@ -185,3 +189,5 @@ $can_show_form = $has_order && $is_trusted;
 		</p>
 	</form>
 </section>
+<?php
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

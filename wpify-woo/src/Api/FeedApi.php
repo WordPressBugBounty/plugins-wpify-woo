@@ -69,6 +69,10 @@ class FeedApi extends \WP_REST_Controller {
 	 * @throws \ComposePress\Core\Exception\Plugin
 	 */
 	public function generate_feed( $request ) {
+		if ( $this->is_rate_limited( 'generate', 30 ) ) {
+			return new \WP_Error( 'rate-limited', __( 'Too many requests. Please try again later.', 'wpify-woo' ), array( 'status' => 429 ) );
+		}
+
 		$id     = $request->get_param( 'id' );
 		$module = $this->get_module( $id );
 		if ( ! $module ) {
@@ -88,6 +92,10 @@ class FeedApi extends \WP_REST_Controller {
 	 * @throws \ComposePress\Core\Exception\Plugin
 	 */
 	public function chunk_generate_feed( $request ) {
+		if ( $this->is_rate_limited( 'chunk', 600 ) ) {
+			return new \WP_Error( 'rate-limited', __( 'Too many requests. Please try again later.', 'wpify-woo' ), array( 'status' => 429 ) );
+		}
+
 		$id     = $request->get_param( 'id' );
 		$module = $this->get_module( $id );
 		if ( ! $module ) {
@@ -122,6 +130,30 @@ class FeedApi extends \WP_REST_Controller {
 		), 201 );
 	}
 
+
+	/**
+	 * Per-IP throttle for the public feed endpoints. They stay public because
+	 * they are documented as a cron target, so this only caps abusive floods
+	 * of full-catalog rebuilds without breaking cron or admin generation.
+	 *
+	 * @param string $bucket Identifies the endpoint (separate counters).
+	 * @param int    $max    Allowed requests per 10 minutes for this bucket.
+	 *
+	 * @return bool True when the current client has exceeded the limit.
+	 */
+	private function is_rate_limited( string $bucket, int $max ): bool {
+		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
+		$key   = 'wpify_woo_feed_rl_' . $bucket . '_' . md5( $ip );
+		$count = (int) get_transient( $key );
+
+		if ( $count >= $max ) {
+			return true;
+		}
+
+		set_transient( $key, $count + 1, 10 * MINUTE_IN_SECONDS );
+
+		return false;
+	}
 
 	/**
 	 * Check if a given request has access to create items

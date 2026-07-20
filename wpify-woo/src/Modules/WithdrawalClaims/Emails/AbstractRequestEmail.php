@@ -232,10 +232,10 @@ abstract class AbstractRequestEmail extends WC_Email {
 					'item'         => $item,
 				);
 			} else {
-				/* translators: %d: line item id */
 				$result[] = array(
 					'line_item_id' => $line_item_id,
 					'quantity'     => $quantity,
+					/* translators: %d: line item id */
 					'name'         => sprintf( __( 'Item no longer in order (line #%d)', 'wpify-woo' ), $line_item_id ),
 					'item'         => null,
 				);
@@ -257,6 +257,7 @@ abstract class AbstractRequestEmail extends WC_Email {
 				'title'       => __( 'Subject', 'wpify-woo' ),
 				'type'        => 'text',
 				'desc_tip'    => true,
+				/* translators: %s: default email subject */
 				'description' => sprintf( __( 'Default: %s', 'wpify-woo' ), $this->get_default_subject() ),
 				'placeholder' => $this->get_default_subject(),
 				'default'     => '',
@@ -265,6 +266,7 @@ abstract class AbstractRequestEmail extends WC_Email {
 				'title'       => __( 'Email heading', 'wpify-woo' ),
 				'type'        => 'text',
 				'desc_tip'    => true,
+				/* translators: %s: default email heading */
 				'description' => sprintf( __( 'Default: %s', 'wpify-woo' ), $this->get_default_heading() ),
 				'placeholder' => $this->get_default_heading(),
 				'default'     => '',
@@ -305,6 +307,7 @@ abstract class AbstractRequestEmail extends WC_Email {
 					'recipient' => array(
 						'title'       => __( 'Recipient(s)', 'wpify-woo' ),
 						'type'        => 'text',
+						/* translators: %s: default admin email address */
 						'description' => sprintf( __( 'Comma-separated emails. Defaults to %s.', 'wpify-woo' ), '<code>' . esc_attr( get_option( 'admin_email' ) ) . '</code>' ),
 						'placeholder' => '',
 						'default'     => '',

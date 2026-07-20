@@ -82,7 +82,7 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 				'id'    => 'api_key',
 				'type'  => 'text',
 				'label' => __( 'Public key for conversions', 'wpify-woo' ),
-				'desc'  => __( 'Enter the public key for the conversion measurement code.' ),
+				'desc'  => __( 'Enter the public key for the conversion measurement code.', 'wpify-woo' ),
 			),
 			array(
 				'id'      => 'country',
@@ -98,7 +98,7 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 					],
 				],
 				'label'   => __( 'Country', 'wpify-woo' ),
-				'desc'    => __( 'Select country for tracking' ),
+				'desc'    => __( 'Select country for tracking', 'wpify-woo' ),
 				'default' => 'cz'
 			),
 		);
@@ -164,7 +164,7 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 				n.async = 1;
 				n.src = c;
 				g.parentNode.insertBefore(n, g)
-			})(window, document, 'script', '<?php echo $url;?>', 'heureka', '<?php echo $country ?>');
+			})(window, document, 'script', '<?php echo esc_url( $url ); ?>', 'heureka', '<?php echo esc_js( $country ); ?>');
 
 			// Idempotence — woocommerce_thankyou fires on every order-received page visit
 			// (refresh, return from email link), so without this guard Heureka receives the
@@ -217,7 +217,7 @@ class HeurekaMereniKonverziModule extends AbstractModule {
 				n.async = 1;
 				n.src = c;
 				g.parentNode.insertBefore(n, g)
-			})(window, document, 'script', '<?php echo $url;?>', 'heureka', '<?php echo $country ?>');
+			})(window, document, 'script', '<?php echo esc_url( $url ); ?>', 'heureka', '<?php echo esc_js( $country ); ?>');
 		</script>
 		<!-- End Heureka.cz PRODUCT DETAIL script -->
 		<?php

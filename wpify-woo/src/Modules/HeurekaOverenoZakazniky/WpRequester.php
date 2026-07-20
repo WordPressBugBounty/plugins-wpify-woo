@@ -31,7 +31,7 @@ class WpRequester implements IRequester {
 		if ( $postData ) {
 			$json = \json_encode( $postData, \JSON_PRETTY_PRINT );
 			if ( $json === \false ) {
-				throw new Exception( 'Failed to serialize data into JSON. Data: ' . \var_export( $postData, \true ) );
+				throw new Exception( 'Failed to serialize data into JSON.' );
 			}
 		}
 

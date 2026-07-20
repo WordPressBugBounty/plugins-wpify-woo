@@ -75,6 +75,10 @@ class IcDicApi extends \WP_REST_Controller {
 	 * @return \WP_Error|\WP_REST_Request|\WP_REST_Response | bool
 	 */
 	public function get_company_details( $request ) {
+		if ( $this->is_rate_limited() ) {
+			return new \WP_Error( 'rate-limited', __( 'Too many requests. Please try again later.', 'wpify-woo' ), array( 'status' => 429 ) );
+		}
+
 		$ic = $request->get_param( 'in' );
 
 		if ( ! is_numeric( $ic ) ) {
@@ -110,7 +114,11 @@ class IcDicApi extends \WP_REST_Controller {
 	 * @return \WP_Error|\WP_REST_Request|\WP_REST_Response | bool
 	 */
 	public function get_valid_vies( $request ) {
-		$dic                   = $request->get_param( 'in' );
+		if ( $this->is_rate_limited() ) {
+			return new \WP_Error( 'rate-limited', __( 'Too many requests. Please try again later.', 'wpify-woo' ), array( 'status' => 429 ) );
+		}
+
+		$dic                   = strtoupper( preg_replace( '/[^A-Za-z0-9]/', '', (string) $request->get_param( 'in' ) ) );
 		$country               = substr( $dic, 0, 2 );
 		$vat_extempt_countries = $this->module->get_setting( 'zero_tax_for_vat_countries' );
 		$error_text            = __( 'The entered number did not pass the VIES validation. Check if it is correct.', 'wpify-woo' );
@@ -145,6 +153,27 @@ class IcDicApi extends \WP_REST_Controller {
 
 		// Return validation result - BlockSupport will handle VAT exempt logic
 		return new WP_REST_Response( array( 'validation' => 'passed' ), 200 );
+	}
+
+	/**
+	 * Simple per-IP throttle for the public ARES/VIES lookup endpoints.
+	 * These stay unauthenticated (guest checkout), so this caps abuse that
+	 * would otherwise proxy outbound requests to the external registries.
+	 *
+	 * @return bool True when the current client has exceeded the limit.
+	 */
+	private function is_rate_limited(): bool {
+		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
+		$key   = 'wpify_woo_icdic_rl_' . md5( $ip );
+		$count = (int) get_transient( $key );
+
+		if ( $count >= 60 ) {
+			return true;
+		}
+
+		set_transient( $key, $count + 1, MINUTE_IN_SECONDS );
+
+		return false;
 	}
 
 	/**

@@ -21,7 +21,7 @@ abstract class AbstractFeed {
 
 	public function save_feed( $data ) {
 		if ( ! file_exists( $this->get_dir_path() ) ) {
-			mkdir( $this->get_dir_path(), 0777, true );
+			mkdir( $this->get_dir_path(), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Direct file I/O required for streamed feed generation to uploads dir.
 		}
 
 		return file_put_contents( $this->get_xml_path(), $data );
@@ -119,7 +119,7 @@ abstract class AbstractFeed {
 
 	public function save_tmp_data( array $data ) {
 		if ( ! file_exists( $this->get_tmp_dir_path() ) ) {
-			mkdir( $this->get_tmp_dir_path(), 0777, true );
+			mkdir( $this->get_tmp_dir_path(), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Direct file I/O required for streamed feed generation to uploads dir.
 		}
 
 		$tmp_file = $this->get_tmp_file_path();
@@ -132,7 +132,7 @@ abstract class AbstractFeed {
 			return new \WP_Error( 'feed_save_error', json_last_error_msg() );
 		}
 
-		if ( file_exists( $tmp_file ) && ! is_writable( $tmp_file ) ) {
+		if ( file_exists( $tmp_file ) && ! is_writable( $tmp_file ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Direct file I/O required for streamed feed generation to uploads dir.
 			return new \WP_Error( 'feed_save_error', 'TMP soubor existuje, ale není zapisovatelný: ' . $tmp_file );
 		}
 
@@ -184,7 +184,7 @@ abstract class AbstractFeed {
 
 	public function delete_tmp_file() {
 		if ( file_exists( $this->get_tmp_file_path() ) ) {
-			unlink( $this->get_tmp_file_path() );
+			unlink( $this->get_tmp_file_path() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Direct file I/O required for streamed feed generation to uploads dir.
 		}
 	}
 

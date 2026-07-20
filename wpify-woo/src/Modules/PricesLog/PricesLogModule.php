@@ -118,7 +118,7 @@ class PricesLogModule extends AbstractModule {
 		$log->regular_price = $product->get_regular_price();
 		$log->sale_price    = $product->get_sale_price();
 
-		$log->created_at = date( 'Y-m-d H:i:s' );
+		$log->created_at = current_time( 'mysql' );
 		$this->prices_log_repository->save( $log );
 	}
 
@@ -146,9 +146,12 @@ class PricesLogModule extends AbstractModule {
 	public function product_tab_content() {
 		global $product;
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Display-only admin screen reading a WooCommerce post ID.
 		if ( ! $product && isset( $_GET['post'] ) ) {
-			$product = wc_get_product( (int) $_GET['post'] ?? 0 );
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce core global.
+			$product = wc_get_product( absint( wp_unslash( $_GET['post'] ) ) );
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( empty( $product ) ) {
 			return;
@@ -191,10 +194,10 @@ class PricesLogModule extends AbstractModule {
 			<tbody>
 			<?php foreach ( array_reverse( $this->prices_log_repository->find_by_product_id( $id ) ) as $item ) { ?>
 				<tr>
-					<td><?php echo $item->product_id; ?></td>
-					<td><?php echo $item->regular_price; ?></td>
-					<td><?php echo $item->sale_price; ?></td>
-					<td><?php echo $item->created_at; ?></td>
+					<td><?php echo esc_html( $item->product_id ); ?></td>
+					<td><?php echo esc_html( $item->regular_price ); ?></td>
+					<td><?php echo esc_html( $item->sale_price ); ?></td>
+					<td><?php echo esc_html( $item->created_at ); ?></td>
 				</tr>
 			<?php } ?>
 
@@ -237,9 +240,11 @@ class PricesLogModule extends AbstractModule {
 	 * @param $id
 	 */
 	public function display_lowest_price( $id ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Display-only admin screen reading a WooCommerce post ID.
 		if ( ! $id && isset( $_GET['post'] ) ) {
-			$id = (int) $_GET['post'] ?? 0;
+			$id = absint( wp_unslash( $_GET['post'] ) );
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( ! $id ) {
 			return;
@@ -251,14 +256,16 @@ class PricesLogModule extends AbstractModule {
 		}
 
 		$tax_label = wc_prices_include_tax()
-			? __( 'incl. tax', 'woocommerce' )
-			: __( 'excl. tax', 'woocommerce' );
+			? __( 'incl. tax', 'wpify-woo' )
+			: __( 'excl. tax', 'wpify-woo' );
 
-		echo sprintf(
-			'<p class="form-row form-row-full">%s: %s <small>(%s)</small></p>',
-			__( 'The lowest price for the last 30 days', 'wpify-woo' ),
-			wc_price( $price ),
-			esc_html( $tax_label )
+		echo wp_kses_post(
+			sprintf(
+				'<p class="form-row form-row-full">%s: %s <small>(%s)</small></p>',
+				esc_html__( 'The lowest price for the last 30 days', 'wpify-woo' ),
+				wc_price( $price ),
+				esc_html( $tax_label )
+			)
 		);
 	}
 

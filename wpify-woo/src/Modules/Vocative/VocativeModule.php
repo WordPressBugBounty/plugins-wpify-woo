@@ -112,7 +112,8 @@ class VocativeModule extends AbstractModule {
 		}
 
 		$first_name              = $email->object->get_billing_first_name();
-		$original_text           = sprintf( __( 'Hi %s,', 'woocommerce' ), $first_name );
+		/* translators: %s: Customer first name. */
+		$original_text           = sprintf( __( 'Hi %s,', 'woocommerce' ), $first_name ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- Intentionally uses the WooCommerce text domain to match WooCommerce's own translated email greeting for string replacement.
 		$inflection              = new Inflection();
 		$to_inflect              = $first_name;
 		$replace_first_name_text = $this->get_setting( 'replace_first_name' );

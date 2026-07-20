@@ -56,6 +56,7 @@ class RequestsListTable extends WP_List_Table {
 			'order_by' => 'submitted_at DESC',
 		);
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- WP_List_Table display/sort/pagination reads; no state change.
 		// Filter: type
 		$filter_type = isset( $_GET['filter_type'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_type'] ) ) : '';
 		if ( in_array( $filter_type, array( 'withdrawal', 'claim' ), true ) ) {
@@ -90,6 +91,7 @@ class RequestsListTable extends WP_List_Table {
 				return $filter_period === 'expired' ? $expired_at_submission : ! $expired_at_submission;
 			} ) );
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$total       = count( $all );
 		$this->items = array_slice( $all, ( $current_page - 1 ) * $per_page, $per_page );
@@ -180,8 +182,10 @@ class RequestsListTable extends WP_List_Table {
 			return;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- WP_List_Table display/sort/pagination reads; no state change.
 		$current_type   = isset( $_GET['filter_type'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_type'] ) ) : '';
 		$current_period = isset( $_GET['filter_period_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_period_status'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		?>
 		<div class="alignleft actions">
 			<label class="screen-reader-text"

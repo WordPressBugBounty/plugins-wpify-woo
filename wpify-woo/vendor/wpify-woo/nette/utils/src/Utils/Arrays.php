@@ -199,7 +199,12 @@ class Arrays
      * @param  string[]  $array
      * @return string[]
      */
-    public static function grep(array $array, #[Language('RegExp')] string $pattern, bool|int $invert = \false): array
+    public static function grep(
+        array $array,
+        #[Language('RegExp')]
+        string $pattern,
+        bool|int $invert = \false
+    ): array
     {
         $flags = $invert ? PREG_GREP_INVERT : 0;
         return Strings::pcre('preg_grep', [$pattern, $array, $flags]);

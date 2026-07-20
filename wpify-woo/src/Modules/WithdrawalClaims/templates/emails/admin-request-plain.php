@@ -12,6 +12,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template-scoped variables provided by the template loader, not globals.
+
 echo "= " . esc_html( $email_heading ) . " =\n\n";
 
 if ( $request && $order ) {
@@ -57,3 +59,5 @@ if ( ! empty( $additional_content ) ) {
 }
 
 echo "\n" . esc_html( wp_strip_all_tags( get_option( 'blogname' ) ) );
+
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

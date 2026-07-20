@@ -431,7 +431,15 @@ class Strings
     /**
      * Divides the string into arrays according to the regular expression. Expressions in parentheses will be captured and returned as well.
      */
-    public static function split(string $subject, #[Language('RegExp')] string $pattern, bool|int $captureOffset = \false, bool $skipEmpty = \false, int $limit = -1, bool $utf8 = \false): array
+    public static function split(
+        string $subject,
+        #[Language('RegExp')]
+        string $pattern,
+        bool|int $captureOffset = \false,
+        bool $skipEmpty = \false,
+        int $limit = -1,
+        bool $utf8 = \false
+    ): array
     {
         $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_SPLIT_OFFSET_CAPTURE : 0) | ($skipEmpty ? PREG_SPLIT_NO_EMPTY : 0);
         $pattern .= $utf8 ? 'u' : '';
@@ -442,7 +450,15 @@ class Strings
      * Searches the string for the part matching the regular expression and returns
      * an array with the found expression and individual subexpressions, or `null`.
      */
-    public static function match(string $subject, #[Language('RegExp')] string $pattern, bool|int $captureOffset = \false, int $offset = 0, bool $unmatchedAsNull = \false, bool $utf8 = \false): ?array
+    public static function match(
+        string $subject,
+        #[Language('RegExp')]
+        string $pattern,
+        bool|int $captureOffset = \false,
+        int $offset = 0,
+        bool $unmatchedAsNull = \false,
+        bool $utf8 = \false
+    ): ?array
     {
         $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
         if ($utf8) {
@@ -464,7 +480,17 @@ class Strings
      * returns an array of arrays containing the found expression and each subexpression.
      * @return ($lazy is true ? \Generator<int, array> : array[])
      */
-    public static function matchAll(string $subject, #[Language('RegExp')] string $pattern, bool|int $captureOffset = \false, int $offset = 0, bool $unmatchedAsNull = \false, bool $patternOrder = \false, bool $utf8 = \false, bool $lazy = \false): array|\Generator
+    public static function matchAll(
+        string $subject,
+        #[Language('RegExp')]
+        string $pattern,
+        bool|int $captureOffset = \false,
+        int $offset = 0,
+        bool $unmatchedAsNull = \false,
+        bool $patternOrder = \false,
+        bool $utf8 = \false,
+        bool $lazy = \false
+    ): array|\Generator
     {
         if ($utf8) {
             $offset = strlen(self::substring($subject, 0, $offset));
@@ -495,7 +521,16 @@ class Strings
     /**
      * Replaces all occurrences matching regular expression $pattern which can be string or array in the form `pattern => replacement`.
      */
-    public static function replace(string $subject, #[Language('RegExp')] string|array $pattern, string|callable $replacement = '', int $limit = -1, bool $captureOffset = \false, bool $unmatchedAsNull = \false, bool $utf8 = \false): string
+    public static function replace(
+        string $subject,
+        #[Language('RegExp')]
+        string|array $pattern,
+        string|callable $replacement = '',
+        int $limit = -1,
+        bool $captureOffset = \false,
+        bool $unmatchedAsNull = \false,
+        bool $utf8 = \false
+    ): string
     {
         if (is_object($replacement) || is_array($replacement)) {
             if (!is_callable($replacement, \false, $textual)) {

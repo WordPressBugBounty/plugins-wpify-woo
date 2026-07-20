@@ -205,7 +205,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 	}
 
 	public function handle_actions() {
-		if ( isset( $_GET['wpify-woo-action'] ) && 'import-heureka-reviews' === $_GET['wpify-woo-action'] && wp_verify_nonce( $_GET['_wpnonce'] ?? '', 'wpify-woo-import-heureka-reviews' ) ) {
+		if ( isset( $_GET['wpify-woo-action'] ) && 'import-heureka-reviews' === sanitize_text_field( wp_unslash( $_GET['wpify-woo-action'] ) ) && wp_verify_nonce( isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '', 'wpify-woo-import-heureka-reviews' ) ) {
 			$result = $this->import_heureka_reviews();
 			$args   = array( 'wpify-woo-notice' => 'import-heureka-reviews' );
 			if ( is_wp_error( $result ) ) {
@@ -223,7 +223,8 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 	}
 
 	public function render_admin_notices() {
-		if ( ! isset( $_GET['wpify-woo-notice'] ) || 'import-heureka-reviews' !== $_GET['wpify-woo-notice'] ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only admin notice rendered after a nonce-verified redirect.
+		if ( ! isset( $_GET['wpify-woo-notice'] ) || 'import-heureka-reviews' !== sanitize_text_field( wp_unslash( $_GET['wpify-woo-notice'] ) ) ) {
 			return;
 		}
 		$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'success';
@@ -235,8 +236,9 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 		}
 		$imported = isset( $_GET['imported'] ) ? intval( $_GET['imported'] ) : 0;
 		$updated  = isset( $_GET['updated'] ) ? intval( $_GET['updated'] ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		/* translators: %1$d: number of new reviews imported, %2$d: number of updated reviews */
-	echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Heureka Reviews imported: %1$d new, %2$d updated.', 'wpify-woo' ), $imported, $updated ) . '</p></div>';
+		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( sprintf( __( 'Heureka Reviews imported: %1$d new, %2$d updated.', 'wpify-woo' ), $imported, $updated ) ) . '</p></div>';
 	}
 
 	/**
@@ -368,7 +370,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				$shop_id  = $shop_id ?: $cert_id; // fallback to certificate id
 				$shopName = trim( (string) ( $this->get_setting( 'reviews_shop_name' ) ?? '' ) );
 				$shopName = $shopName ?: get_bloginfo( 'name' );
-				$host     = parse_url( home_url(), PHP_URL_HOST );
+				$host     = wp_parse_url( home_url(), PHP_URL_HOST );
 				$slug     = sanitize_title( str_replace( '.', '-', (string) $host ) );
 				$widget   = (string) $atts['widget'];
 				if ( $cert_id ) : ?>
@@ -397,7 +399,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 							<div class="wpify-woo-heureka-review__header">
 								<div class="wpify-woo-heureka-review__rating"
 									 aria-label="<?php echo esc_attr( $item->total_rating ); ?> / 5">
-									<?php echo $this->render_stars( (float) $item->total_rating ); ?>
+									<?php echo wp_kses_post( $this->render_stars( (float) $item->total_rating ) ); ?>
 									<span
 										class="wpify-woo-heureka-review__rating-value"><?php echo esc_html( $item->total_rating ); ?>/5</span>
 								</div>
@@ -605,6 +607,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 
 		$use_optin = $this->get_setting( 'optin_mode' );
 
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checkout submission is nonce-verified by WooCommerce core; only reads the opt-out checkbox presence.
 		// In OPT-IN mode: if checkbox is not checked → do not send
 		if ( $use_optin && empty( $_POST['wpify_woo_heureka_optout'] ) ) {
 			/* translators: %s: Yes or No answer */
@@ -624,6 +627,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 
 			return false;
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		if ( apply_filters( 'wpify_woo_heureka_disable_send', false, $order ) === true ) {
 			$order->add_order_note( __( 'Heureka: Send disabled by custom filter.', 'wpify-woo' ) );
@@ -717,11 +721,11 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				<input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox"
 					   name="wpify_woo_heureka_optout" style="width: auto;"
 					<?php
-					checked( isset( $_POST['wpify_woo_heureka_optout'] ), true ); // WPCS: input var ok, csrf ok.
+					checked( isset( $_POST['wpify_woo_heureka_optout'] ), true ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Checkout field default state, read-only display.
 					?>
 				/>
 				<span
-					class="wpify-woo-heureka-optout-checkbox-text"><?php echo sanitize_text_field( $this->get_setting( 'enable_optout_text' ) ); ?></span>&nbsp;
+					class="wpify-woo-heureka-optout-checkbox-text"><?php echo esc_html( sanitize_text_field( $this->get_setting( 'enable_optout_text' ) ) ); ?></span>&nbsp;
 			</label>
 		</p>        <?php
 	}
@@ -734,7 +738,7 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 			return;
 		}
 
-		echo $this->get_setting( 'widget_code' );
+		echo $this->get_setting( 'widget_code' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Admin-configured Heureka certification widget markup output verbatim.
 	}
 
 	/**

@@ -1029,7 +1029,10 @@ class WithdrawalClaimsModule extends AbstractModule {
 		}
 
 		// Filter: form param controls which shortcode renders content on shared page.
+		// Display-only read; no state change, nonce not applicable.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$requested_form = isset( $_GET['form'] ) ? sanitize_text_field( wp_unslash( $_GET['form'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		// If ?form= is present and doesn't match this type, render an empty wrapper (anchor only).
 		if ( $requested_form !== '' && $requested_form !== $type ) {
 			return sprintf( '<section id="wpify-woo-%s-form" class="wpify-woo-form-empty"></section>', esc_attr( $type ) );
@@ -1106,6 +1109,8 @@ class WithdrawalClaimsModule extends AbstractModule {
 			'extra_fields'   => array(),
 		);
 
+		// Display-only pre-fill from URL params; no state change, nonce not applicable.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// Submitted state (from PRG redirect).
 		if ( isset( $_GET['submitted'] ) && $_GET['submitted'] === '1' ) {
 			$context['step']      = 'submitted';
@@ -1117,6 +1122,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		// Pre-fill from URL.
 		$order_key = isset( $_GET['order_key'] ) ? sanitize_text_field( wp_unslash( $_GET['order_key'] ) ) : '';
 		$order_id  = isset( $_GET['order'] ) ? sanitize_text_field( wp_unslash( $_GET['order'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Logged-in scenario.
 		if ( is_user_logged_in() ) {
@@ -1240,6 +1246,8 @@ class WithdrawalClaimsModule extends AbstractModule {
 	 * @return array<string,mixed> id => sanitized value
 	 */
 	private function collect_extra_fields_from_post( array $schema, ?array $source = null ): array {
+		// Nonce verified in maybe_handle_post() before this runs.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$source    = $source ?? $_POST;
 		$collected = array();
 		foreach ( $schema as $field ) {
@@ -1448,7 +1456,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 	// =========================================================================
 
 	public function maybe_handle_post(): void {
-		if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) {
+		if ( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) !== 'POST' ) {
 			return;
 		}
 		if ( empty( $_POST['wpify_woo_request_action'] ) ) {
@@ -1466,7 +1474,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		$action = sanitize_text_field( wp_unslash( $_POST['wpify_woo_request_action'] ) );
 
 		// Nonce.
-		if ( ! isset( $_POST['_wpify_woo_nonce'] ) || ! wp_verify_nonce( $_POST['_wpify_woo_nonce'], 'wpify_woo_request_' . $type ) ) {
+		if ( ! isset( $_POST['_wpify_woo_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpify_woo_nonce'] ) ), 'wpify_woo_request_' . $type ) ) {
 			wp_die( esc_html__( 'Invalid request — security check failed. Please reload the page and try again.', 'wpify-woo' ) );
 		}
 
@@ -1517,6 +1525,8 @@ class WithdrawalClaimsModule extends AbstractModule {
 		// (no scope/items rendered yet), this POST has no scope/items. We validate
 		// auth and redirect to the form with order_key so the next render shows
 		// the items section. Mirrors the AJAX /validate flow for users without JS.
+		// Nonce verified in maybe_handle_post() before this runs.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['scope'] ) && ! isset( $_POST['items'] ) ) {
 			$auth_context = array(
 				'user_id'         => $input['user_id'],
@@ -1564,9 +1574,12 @@ class WithdrawalClaimsModule extends AbstractModule {
 	 * Normalize $_POST into a uniform input array used by process_submission().
 	 */
 	private function collect_post_input( ?string $type = null ): array {
+		// Nonce verified in maybe_handle_post() before this runs.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$items = array();
 		if ( isset( $_POST['items'] ) && is_array( $_POST['items'] ) ) {
-			foreach ( $_POST['items'] as $line_item_id => $qty ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Keys and values are cast to int in the loop body.
+			foreach ( (array) wp_unslash( $_POST['items'] ) as $line_item_id => $qty ) {
 				$items[ (int) $line_item_id ] = (int) $qty;
 			}
 		}
@@ -1587,6 +1600,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			'reason'       => isset( $_POST['reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reason'] ) ) : '',
 			'extra_fields' => $extra,
 		);
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -2065,7 +2079,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 							'wpify-woo'
 						)
 					),
-					$inelig_count
+					(int) $inelig_count
 				);
 				?>
 			</div>
@@ -2126,7 +2140,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 									   name="items[<?php echo (int) $lid; ?>]"
 									   value="0"
 									   min="0"
-									   max="<?php echo $available_qty; ?>"
+									   max="<?php echo (int) $available_qty; ?>"
 									   <?php disabled( ! $is_elig ); ?>
 									   <?php echo ! $is_elig ? 'aria-describedby="reason-' . esc_attr( $lid ) . '"' : ''; ?>>
 							<?php endif; ?>
@@ -2145,10 +2159,10 @@ class WithdrawalClaimsModule extends AbstractModule {
 								esc_html_e( '1 (full)', 'wpify-woo' );
 							} elseif ( $available_qty !== $ordered_qty ) {
 								/* translators: %d: number of units still available for return after refunds */
-								printf( esc_html__( 'of %d available', 'wpify-woo' ), $available_qty );
+								printf( esc_html__( 'of %d available', 'wpify-woo' ), (int) $available_qty );
 							} else {
 								/* translators: %d: ordered quantity */
-								printf( esc_html__( 'of %d ordered', 'wpify-woo' ), $ordered_qty );
+								printf( esc_html__( 'of %d ordered', 'wpify-woo' ), (int) $ordered_qty );
 							}
 							?>
 						</td>
@@ -2388,6 +2402,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return;
 		}
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress caching-plugin standard constant.
 			define( 'DONOTCACHEPAGE', true );
 		}
 		nocache_headers();
@@ -2413,12 +2428,14 @@ class WithdrawalClaimsModule extends AbstractModule {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'wpify-woo' ) );
 		}
 
-		// Detail view?
+		// Detail view? Display-only admin read; capability checked above, nonce not applicable.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['request_id'] ) ) {
 			$this->render_admin_detail( (int) $_GET['request_id'] );
 
 			return;
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		echo '<div class="wrap">';
 		echo '<h1>' . esc_html__( 'Withdrawals & Claims', 'wpify-woo' ) . '</h1>';
@@ -2445,6 +2462,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 		$order = wc_get_order( $req->order_id );
 
 		echo '<div class="wrap">';
+		/* translators: %d: request ID */
 		echo '<h1>' . esc_html( sprintf( __( 'Request #%d', 'wpify-woo' ), $req->id ) ) . '</h1>';
 		echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) . '">&larr; ' . esc_html__( 'Back to list', 'wpify-woo' ) . '</a></p>';
 
@@ -2489,6 +2507,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			foreach ( $decoded as $row ) {
 				$line_item_id = (int) ( $row['line_item_id'] ?? 0 );
 				$qty          = (int) ( $row['quantity'] ?? 0 );
+				/* translators: %d: order line item number */
 				$name         = sprintf( __( 'Item no longer in order (line #%d)', 'wpify-woo' ), $line_item_id );
 				if ( $order ) {
 					$item = $order->get_item( $line_item_id );
@@ -2496,7 +2515,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 						$name = $item->get_name();
 					}
 				}
-				printf( '<tr><td>%s</td><td>%d</td></tr>', esc_html( $name ), $qty );
+				printf( '<tr><td>%s</td><td>%d</td></tr>', esc_html( $name ), (int) $qty );
 			}
 			echo '</tbody></table>';
 			echo '<p><em>' . esc_html__( 'Item names/prices are read live from the order. Full historical change log is in the WC order notes.', 'wpify-woo' ) . '</em></p>';
@@ -2706,6 +2725,8 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return;
 		}
 
+		// WooCommerce verifies the product-save nonce before woocommerce_process_product_meta fires.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$product->update_meta_data( self::META_WITHDRAWAL_EXC, isset( $_POST[ self::META_WITHDRAWAL_EXC ] ) ? 'yes' : 'no' );
 		$product->update_meta_data( self::META_WARRANTY_EXC, isset( $_POST[ self::META_WARRANTY_EXC ] ) ? 'yes' : 'no' );
 
@@ -2714,6 +2735,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 
 		$ovr_months = isset( $_POST[ self::META_WARRANTY_OVR ] ) ? (int) $_POST[ self::META_WARRANTY_OVR ] : 0;
 		$product->update_meta_data( self::META_WARRANTY_OVR, $ovr_months > 0 ? $ovr_months : '' );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		$product->save();
 	}

@@ -75,7 +75,7 @@ class ApiManager {
 		}
 
 		// Bail early if this is not our request.
-		if ( false === strpos( $_SERVER['REQUEST_URI'], $this->get_rest_namespace() ) ) {
+		if ( false === strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), $this->get_rest_namespace() ) ) {
 			return $is_rest_api_request;
 		}
 

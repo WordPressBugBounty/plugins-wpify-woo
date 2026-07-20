@@ -41,7 +41,7 @@ class BlockSupport {
 				'location' => 'order',
 				'type'     => 'checkbox',
 				'default'  => 0,
-				'meta_key' => '_wpify_woo_heureka_optout_choice',
+				'meta_key' => '_wpify_woo_heureka_optout_choice', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- WooCommerce checkout field registration argument, not a direct DB query.
 			)
 		);
 	}

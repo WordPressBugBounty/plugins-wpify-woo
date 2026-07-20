@@ -57,7 +57,7 @@ class Feed extends AbstractFeed {
 					continue;
 				}
 
-				$items[ '__custom:SHOPITEM:' . rand() ] = $this->get_data( $product );
+				$items[ '__custom:SHOPITEM:' . wp_rand() ] = $this->get_data( $product );
 			} elseif ( $product->is_type( 'variable' ) ) {
 				/** @var $product WC_Product_Variable */
 				foreach ( $product->get_available_variations() as $variation ) {
@@ -74,7 +74,7 @@ class Feed extends AbstractFeed {
 						continue;
 					}
 
-					$items[ '__custom:SHOPITEM:' . rand() ] = $this->get_data( $var, $product );
+					$items[ '__custom:SHOPITEM:' . wp_rand() ] = $this->get_data( $var, $product );
 				}
 			}
 		}
@@ -234,8 +234,8 @@ class Feed extends AbstractFeed {
 		foreach ( $source_for_terms->get_category_ids() as $id ) {
 			$cat_id = $this->module->get_setting( 'heureka_category_' . $id );
 			if ( ! $cat_id && function_exists( 'icl_object_id' ) ) {
-				$default_lang = apply_filters( 'wpml_default_language', null );
-				$cat_id       = $this->module->get_setting( 'heureka_category_' . apply_filters( 'wpml_object_id', $id, 'product_cat', true, $default_lang ) );
+				$default_lang = apply_filters( 'wpml_default_language', null ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Third-party WPML filter, not owned by this plugin.
+				$cat_id       = $this->module->get_setting( 'heureka_category_' . apply_filters( 'wpml_object_id', $id, 'product_cat', true, $default_lang ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Third-party WPML filter, not owned by this plugin.
 			}
 			if ( $cat_id ) {
 				$category = $this->heureka_categories[ $cat_id ]['category_fullname'] ?: $this->heureka_categories[ $cat_id ]['category_name'];

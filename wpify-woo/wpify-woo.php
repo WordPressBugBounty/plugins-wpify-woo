@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /*
  * Plugin Name: WPify Woo
  * Description: Custom functionality for WooCommerce
- * Version: 5.4.16
+ * Version: 5.4.17
  * Requires PHP: 8.1
  * Requires at least: 6.2
  * Author: WPify s.r.o.
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * WC requires at least: 7.0
  * WC tested up to: 10.6
  * Requires Plugins: woocommerce
- * Tested up to: 6.9
+ * Tested up to: 7.0
 */
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
@@ -94,8 +94,8 @@ function wpify_woo_uninstall() {
  */
 function wpify_woo_php_upgrade_notice() {
 	$info = get_plugin_data( __FILE__ );
-	/* translators: 1: Plugin name, 2: Minimal required PHP version, 3: current PHP version. */
 	$string = sprintf(
+		/* translators: 1: Plugin name, 2: Minimal required PHP version, 3: current PHP version. */
 		esc_html__( 'Opps! %1$s requires a minimum PHP version of %2$s. Your current version is: %3$s. Please contact your host to upgrade.', 'wpify-woo' ),
 		$info['Name'],
 		WPIFY_WOO_MIN_PHP_VERSION,
@@ -131,7 +131,7 @@ function wpify_woo_woocommerce_not_active() {
 	<div class="error notice">
 		<p><?php
 			/* translators: 1: Plugin name */
-			printf( __( 'Plugin %s requires WooCommerce. Please install and activate it first.', 'wpify-woo' ), $info['Name'] );
+			printf( esc_html__( 'Plugin %s requires WooCommerce. Please install and activate it first.', 'wpify-woo' ), esc_html( $info['Name'] ) );
 			?></p>
 	</div>
 	<?php
@@ -140,11 +140,6 @@ function wpify_woo_woocommerce_not_active() {
 /**
  * Load plugin textdomain.
  */
-add_action( 'init', 'wpify_woo_load_textdomain' );
-add_action( 'change_locale', 'wpify_woo_load_textdomain' );
-function wpify_woo_load_textdomain() {
-	load_plugin_textdomain( 'wpify-woo', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
 
 /**
  * Check if required plugin is active

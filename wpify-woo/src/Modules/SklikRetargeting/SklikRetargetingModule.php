@@ -82,7 +82,7 @@ class SklikRetargetingModule extends AbstractModule {
 			array(
 				'type'  => 'title',
 				'title' => __( 'Advanced data', 'wpify-woo' ),
-				'desc'  => __( 'Advanced data are optional parameters that help to better target advertising.' ),
+				'desc'  => __( 'Advanced data are optional parameters that help to better target advertising.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'item_id',
@@ -154,6 +154,7 @@ class SklikRetargetingModule extends AbstractModule {
 
 		?>
 		<!-- Sklik retargeting -->
+		<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Inline third-party tracking snippet. ?>
 		<script type="text/javascript" src="https://c.seznam.cz/js/rc.js"></script>
 		<script>
 			(function() {
@@ -183,6 +184,7 @@ class SklikRetargetingModule extends AbstractModule {
 				var retargetingConf = {
 					<?php
 					foreach ( $parameters as $key => $parameter ) {
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Internally generated retargeting parameters (keys and numeric/quoted values) written into an inline tracking script.
 						echo $key . ': ' . $parameter . ', ';
 					}
 					?>
@@ -194,7 +196,7 @@ class SklikRetargetingModule extends AbstractModule {
 				console.log('retargetingConf', retargetingConf);
 
 				<?php if ( $variation_map_json ) : ?>
-				var wpifyWooSklikVariationMap = <?php echo $variation_map_json; ?>;
+				var wpifyWooSklikVariationMap = <?php echo $variation_map_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Value already produced by wp_json_encode(); safe for inline script output. ?>;
 				if (window.jQuery) {
 					jQuery(function ($) {
 						var $form = $('.variations_form').first();

@@ -112,19 +112,23 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	}
 
 	function save_custom_variation_fields( $post_id ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified by WooCommerce core before this product-meta hook.
 		foreach ( array( '_wpify_woo_heureka_product_name', '_wpify_woo_heureka_product', '_wpify_woo_heureka_category' ) as $key ) {
 			if ( isset( $_POST[ $key ][ $post_id ] ) ) {
-				update_post_meta( $post_id, $key, sanitize_text_field( $_POST[ $key ][ $post_id ] ) );
+				update_post_meta( $post_id, $key, sanitize_text_field( wp_unslash( $_POST[ $key ][ $post_id ] ) ) );
 			}
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	public function save_custom_fields( $post_id ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified by WooCommerce core before this product-meta hook.
 		$product = wc_get_product( $post_id );
-		$product->update_meta_data( '_wpify_woo_heureka_product_name', sanitize_text_field( $_POST['_wpify_woo_heureka_product_name'] ) );
-		$product->update_meta_data( '_wpify_woo_heureka_product', sanitize_text_field( $_POST['_wpify_woo_heureka_product'] ) );
-		$product->update_meta_data( '_wpify_woo_heureka_category', sanitize_text_field( $_POST['_wpify_woo_heureka_category'] ) );
+		$product->update_meta_data( '_wpify_woo_heureka_product_name', isset( $_POST['_wpify_woo_heureka_product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpify_woo_heureka_product_name'] ) ) : '' );
+		$product->update_meta_data( '_wpify_woo_heureka_product', isset( $_POST['_wpify_woo_heureka_product'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpify_woo_heureka_product'] ) ) : '' );
+		$product->update_meta_data( '_wpify_woo_heureka_category', isset( $_POST['_wpify_woo_heureka_category'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpify_woo_heureka_category'] ) ) : '' );
 		$product->save();
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -324,8 +328,8 @@ class XmlFeedHeurekaModule extends AbstractModule {
 		$settings[] = array(
 			'id'             => 'generate_button',
 			'type'           => 'generate_feed',
-			/* translators: %1$s: feed URL, %2$s: REST API endpoint for cron job */
 			'desc'           => sprintf(
+				/* translators: %1$s: feed URL, %2$s: REST API endpoint for cron job */
 				__( 'Click to regenerate feed. Make sure to save the settings before generating the feed.<br/>The feed will be available at <a href="%1$s" target="_blank"><code style="-webkit-user-select: all;user-select: all;">%1$s</code></a>.<br/>You can also setup cron job to <code style="-webkit-user-select: all;user-select: all;">%2$s</code> to regenerate the feed automatically.', 'wpify-woo' ),
 				$this->feed->get_xml_url(),
 				$this->api_manager->get_rest_url() . '/feed/generate/heureka'
@@ -357,31 +361,31 @@ class XmlFeedHeurekaModule extends AbstractModule {
 
 		if ( ! file_exists( $dir ) ) {
 			$parent_dir = dirname( $dir );
-			if ( ! is_writable( $parent_dir ) ) {
-				/* translators: %s: parent directory path */
+			if ( ! is_writable( $parent_dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Direct file I/O required for streamed feed generation to uploads dir.
 				return sprintf(
+					/* translators: %s: parent directory path */
 					__( 'Nelze vytvořit složku – nadřazená složka není zapisovatelná: %s', 'wpify-woo' ),
 					$parent_dir
 				);
 			}
-			if ( ! mkdir( $dir, 0777, true ) ) {
-				/* translators: %s: directory path */
+			if ( ! mkdir( $dir, 0777, true ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Direct file I/O required for streamed feed generation to uploads dir.
 				return sprintf(
+					/* translators: %s: directory path */
 					__( 'Nepodařilo se vytvořit složku: %s', 'wpify-woo' ),
 					$dir
 				);
 			}
-		} elseif ( ! is_writable( $dir ) ) {
-			/* translators: %s: directory path */
+		} elseif ( ! is_writable( $dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Direct file I/O required for streamed feed generation to uploads dir.
 			return sprintf(
+				/* translators: %s: directory path */
 				__( 'Složka existuje, ale není zapisovatelná: %s', 'wpify-woo' ),
 				$dir
 			);
 		}
 
-		if ( file_exists( $file ) && ! is_writable( $file ) ) {
-			/* translators: %s: file path */
+		if ( file_exists( $file ) && ! is_writable( $file ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Direct file I/O required for streamed feed generation to uploads dir.
 			return sprintf(
+				/* translators: %s: file path */
 				__( 'Soubor existuje, ale není zapisovatelný: %s', 'wpify-woo' ),
 				$file
 			);
@@ -389,31 +393,31 @@ class XmlFeedHeurekaModule extends AbstractModule {
 
 		if ( ! file_exists( $temp_dir ) ) {
 			$parent_dir = dirname( $temp_dir );
-			if ( ! is_writable( $parent_dir ) ) {
-				/* translators: %s: parent directory path */
+			if ( ! is_writable( $parent_dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Direct file I/O required for streamed feed generation to uploads dir.
 				return sprintf(
+					/* translators: %s: parent directory path */
 					__( 'Nelze vytvořit temp složku – nadřazená složka není zapisovatelná: %s', 'wpify-woo' ),
 					$parent_dir
 				);
 			}
-			if ( ! mkdir( $temp_dir, 0777, true ) ) {
-				/* translators: %s: temporary directory path */
+			if ( ! mkdir( $temp_dir, 0777, true ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Direct file I/O required for streamed feed generation to uploads dir.
 				return sprintf(
+					/* translators: %s: temporary directory path */
 					__( 'Nepodařilo se vytvořit temp složku: %s', 'wpify-woo' ),
 					$temp_dir
 				);
 			}
-		} elseif ( ! is_writable( $temp_dir ) ) {
-			/* translators: %s: temporary directory path */
+		} elseif ( ! is_writable( $temp_dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Direct file I/O required for streamed feed generation to uploads dir.
 			return sprintf(
+				/* translators: %s: temporary directory path */
 				__( 'Složka temp existuje, ale není zapisovatelná: %s', 'wpify-woo' ),
 				$temp_dir
 			);
 		}
 
-		if ( file_exists( $temp_file ) && ! is_writable( $temp_file ) ) {
-			/* translators: %s: temporary file path */
+		if ( file_exists( $temp_file ) && ! is_writable( $temp_file ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Direct file I/O required for streamed feed generation to uploads dir.
 			return sprintf(
+				/* translators: %s: temporary file path */
 				__( 'Soubor temp existuje, ale není zapisovatelný: %s', 'wpify-woo' ),
 				$temp_file
 			);
@@ -529,7 +533,10 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	}
 
 	public function handle_actions() {
-		if ( isset( $_GET['wpify-woo-action'] ) && 'update-heureka-categories' === $_GET['wpify-woo-action'] && wp_verify_nonce( $_GET['_wpnonce'] ?? '', 'wpify-woo-update-heureka-categories' ) ) {
+		if ( isset( $_GET['wpify-woo-action'] )
+			&& 'update-heureka-categories' === $_GET['wpify-woo-action']
+			&& current_user_can( 'manage_woocommerce' )
+			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'wpify-woo-update-heureka-categories' ) ) {
 			$this->update_heureka_categories();
 		}
 	}
@@ -556,7 +563,7 @@ class XmlFeedHeurekaModule extends AbstractModule {
 				$response_xml_data = $this->file_get_contents_curl( $xml['url'] );
 			}
 			if ( ! $response_xml_data ) {
-				wp_die( __( 'Downloading of the categories XML failed, please contact your hosting provider.', 'wpify-woo' ) );
+				wp_die( esc_html__( 'Downloading of the categories XML failed, please contact your hosting provider.', 'wpify-woo' ) );
 			}
 
 			$feed = simplexml_load_string( $response_xml_data );
@@ -580,18 +587,19 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	 * @return bool|string
 	 */
 	public function file_get_contents_curl( $url ) {
-		$ch = curl_init();
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout'     => 30,
+				'redirection' => 5,
+			)
+		);
 
-		curl_setopt( $ch, CURLOPT_AUTOREFERER, true );
-		curl_setopt( $ch, CURLOPT_HEADER, 0 );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
 
-		$data = curl_exec( $ch );
-		curl_close( $ch );
-
-		return $data;
+		return wp_remote_retrieve_body( $response );
 	}
 
 	public function build_categories( $data, $category_id ) {

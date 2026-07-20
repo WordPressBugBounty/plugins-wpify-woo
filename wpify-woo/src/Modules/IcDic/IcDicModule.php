@@ -190,7 +190,7 @@ class IcDicModule extends AbstractModule {
 					'requireCompany'    => 'hidden' !== get_option( 'woocommerce_checkout_company_field', 'optional' ) ? $this->get_setting( 'required_company' ) : false,
 					'moveCompany'       => $this->get_setting( 'move_company_field' ),
 					'requireVatFields'  => $this->get_setting( 'required_ic' ),
-					'optionalText'      => '(' . esc_html__( 'optional', 'woocommerce' ) . ')',
+					'optionalText'      => '(' . esc_html__( 'optional', 'wpify-woo' ) . ')',
 					'changePlaceholder' => $this->get_setting( 'change_placeholder' ),
 					'checkingText'      => __( 'Checking in', 'wpify-woo' ),
 					'validateAres'      => $this->get_setting( 'validate_ares' ),
@@ -213,7 +213,7 @@ class IcDicModule extends AbstractModule {
 						'requireCompany'    => 'hidden' !== get_option( 'woocommerce_checkout_company_field', 'optional' ) ? $this->get_setting( 'required_company' ) : false,
 						'moveCompany'       => $this->get_setting( 'move_company_field' ),
 						'requireVatFields'  => $this->get_setting( 'required_ic' ),
-						'optionalText'      => '(' . esc_html__( 'optional', 'woocommerce' ) . ')',
+						'optionalText'      => '(' . esc_html__( 'optional', 'wpify-woo' ) . ')',
 						'changePlaceholder' => $this->get_setting( 'change_placeholder' ),
 						'checkingText'      => __( 'Checking in', 'wpify-woo' ),
 						'autofillAresText'  => $this->get_setting( 'autofill_ares_text' ) ?: __( 'Autofill from Ares', 'wpify-woo' ),
@@ -1081,7 +1081,15 @@ class IcDicModule extends AbstractModule {
 	 * @param       $errors
 	 */
 	public function checkout_validation( $fields, $errors ) {
-		$country = $_POST['billing_country'];
+		// WooCommerce verifies the checkout nonce before running validation hooks.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$country         = isset( $_POST['billing_country'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_country'] ) ) : '';
+		$billing_ic      = isset( $_POST['billing_ic'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_ic'] ) ) : '';
+		$billing_dic     = isset( $_POST['billing_dic'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_dic'] ) ) : '';
+		$billing_dic_dph = isset( $_POST['billing_dic_dph'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_dic_dph'] ) ) : '';
+		$billing_company = isset( $_POST['billing_company'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_company'] ) ) : '';
+		$company_details = isset( $_POST['company_details'] ) ? sanitize_text_field( wp_unslash( $_POST['company_details'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		// ARES validation (only for CZ)
 		if ( $country !== 'CZ' ) {
@@ -1090,11 +1098,11 @@ class IcDicModule extends AbstractModule {
 			|| ! in_array( 'order_submit', $this->get_setting( 'validate_ares' ) )
 		) {
 			$this->last_ares_result = 'skipped';
-		} elseif ( empty( $_POST['billing_ic'] ) ) {
+		} elseif ( empty( $billing_ic ) ) {
 			$this->last_ares_result = 'skipped';
 		} else {
 			$ares = ( new Ares\AresFactory() )->create();
-			$ic   = sanitize_text_field( $_POST['billing_ic'] );
+			$ic   = $billing_ic;
 
 			if ( ! is_numeric( $ic ) ) {
 				$this->last_ares_result = 'invalid';
@@ -1120,9 +1128,7 @@ class IcDicModule extends AbstractModule {
 		if ( ! $this->get_setting( 'validate_vies' ) ) {
 			$this->last_vies_result = 'skipped';
 		} else {
-			$dic_dph = $country === 'SK'
-				? ( $_POST['billing_dic_dph'] ?? null )
-				: ( $_POST['billing_dic'] ?? null );
+			$dic_dph = $country === 'SK' ? $billing_dic_dph : $billing_dic;
 
 			if ( empty( $dic_dph ) ) {
 				$this->last_vies_result = 'skipped';
@@ -1139,31 +1145,31 @@ class IcDicModule extends AbstractModule {
 		}
 
 		if ( $this->get_setting( 'validate_format' ) ) {
-			if ( ! empty( $_POST['billing_ic'] ) && ! preg_match( '~^\d{8,}$~', $_POST['billing_ic'] ) ) {
+			if ( ! empty( $billing_ic ) && ! preg_match( '~^\d{8,}$~', $billing_ic ) ) {
 				$errors->add( 'validation', __( 'The entered Company Number is not in the required format (8 or more digits without spaces).', 'wpify-woo' ) );
 			}
 
 			if ( $country === 'SK' ) {
-				if ( ! empty( $_POST['billing_dic'] ) && ! preg_match( '~^\d{10}$~', $_POST['billing_dic'] ) ) {
+				if ( ! empty( $billing_dic ) && ! preg_match( '~^\d{10}$~', $billing_dic ) ) {
 					$errors->add( 'validation', __( 'The entered VAT Number is not in the required format (10 digits without spaces).', 'wpify-woo' ) );
 				}
-				if ( ! empty( $_POST['billing_dic_dph'] ) && ! preg_match( '~^SK\d{10}$~', $_POST['billing_dic_dph'] ) ) {
+				if ( ! empty( $billing_dic_dph ) && ! preg_match( '~^SK\d{10}$~', $billing_dic_dph ) ) {
 					$errors->add( 'validation', __( 'The entered IN VAT Number is not in the required format (prefix SK + 10 digits without spaces).', 'wpify-woo' ) );
 				}
 			} elseif (
 				in_array( $country, [ 'CZ', 'PL', 'HU', 'DE' ] )
 				&&
-				! empty( $_POST['billing_dic'] )
-				&& ! preg_match( '~^' . $country . '\d{8,10}$~', $_POST['billing_dic'] )
+				! empty( $billing_dic )
+				&& ! preg_match( '~^' . $country . '\d{8,10}$~', $billing_dic )
 			) {
 				/* translators: %s: country code prefix */
 				$errors->add( 'validation', sprintf( __( 'The entered VAT Number is not in the required format (prefix %s + 8–10 digits without spaces).', 'wpify-woo' ), $country ) );
 			}
 		}
 
-		if ( $country === 'SK' && ! empty( $_POST['billing_dic_dph'] ) && ! empty( $_POST['billing_dic'] ) ) {
-			$dic     = trim( $_POST['billing_dic'] );
-			$dic_dph = trim( $_POST['billing_dic_dph'] );
+		if ( $country === 'SK' && ! empty( $billing_dic_dph ) && ! empty( $billing_dic ) ) {
+			$dic     = $billing_dic;
+			$dic_dph = $billing_dic_dph;
 
 			if ( 'SK' . $dic !== $dic_dph ) {
 				$errors->add( 'validation', __( 'The entered VAT Number must be same as IN VAT without SK.', 'wpify-woo' ) );
@@ -1176,27 +1182,29 @@ class IcDicModule extends AbstractModule {
 		if ( ! empty( $this->get_setting( 'required_company' ) )
 			 && get_option( 'woocommerce_checkout_company_field', 'optional' ) !== 'hidden'
 			 && $this->get_setting( 'required_company' )
-			 && ! empty( $_POST['company_details'] )
-			 && $_POST['company_details'] === '1'
-			 && empty( $_POST['billing_company'] )
+			 && ! empty( $company_details )
+			 && $company_details === '1'
+			 && empty( $billing_company )
 		) {
-			$company_field_label = __( 'Company name', 'woocommerce' ) . $is_required;
-			$errors->add( 'validation', '<strong>' . sprintf( _x( 'Billing %s', 'checkout-validation', 'woocommerce' ), $company_field_label ) );
+			$company_field_label = __( 'Company name', 'wpify-woo' ) . $is_required;
+			/* translators: %s: field label */
+			$errors->add( 'validation', '<strong>' . sprintf( _x( 'Billing %s', 'checkout-validation', 'wpify-woo' ), $company_field_label ) );
 		}
 
 		if ( ( ! empty( $this->get_setting( 'required_ic' ) )
 			   && 'if_checkbox' === $this->get_setting( 'required_ic' )
-			   && ! empty( $_POST['company_details'] )
-			   && $_POST['company_details'] === '1'
+			   && ! empty( $company_details )
+			   && $company_details === '1'
 			 )
 			 || ( ! empty( $this->get_setting( 'required_ic' ) )
 				  && 'if_company' === $this->get_setting( 'required_ic' )
-				  && ! empty( $_POST['billing_company'] )
+				  && ! empty( $billing_company )
 			 )
 		) {
-			if ( empty( $_POST['billing_ic'] ) ) {
+			if ( empty( $billing_ic ) ) {
 				$ic_field_label = __( 'Identification no.', 'wpify-woo' ) . $is_required;
-				$errors->add( 'validation', '<strong>' . sprintf( _x( 'Billing %s', 'checkout-validation', 'woocommerce' ), $ic_field_label ) );
+				/* translators: %s: field label */
+				$errors->add( 'validation', '<strong>' . sprintf( _x( 'Billing %s', 'checkout-validation', 'wpify-woo' ), $ic_field_label ) );
 			}
 		}
 	}
@@ -1551,12 +1559,12 @@ class IcDicModule extends AbstractModule {
 		} ?>
 		<div id="wpify-woo-ares-autofill">
 			<a href="#"
-			   id="wpify-woo-icdic__ares-autofill-button"><?php echo $this->get_setting( 'autofill_ares_text' ); ?></a>
+			   id="wpify-woo-icdic__ares-autofill-button"><?php echo esc_html( $this->get_setting( 'autofill_ares_text' ) ); ?></a>
 			<div class="wpify-woo-icdic__ares-autofill">
 				<input type="text" name="ares_vat_no" id="ares_in"
-					   placeholder="<?php _e( 'Identification number', 'wpify-woo' ); ?>"/>
+					   placeholder="<?php esc_attr_e( 'Identification number', 'wpify-woo' ); ?>"/>
 				<input type="button"
-					   value="<?php echo $this->get_setting( 'submit_ares_text' ) ?: __( 'Search in ARES', 'wpify-woo' ); ?>"
+					   value="<?php echo esc_attr( $this->get_setting( 'submit_ares_text' ) ?: __( 'Search in ARES', 'wpify-woo' ) ); ?>"
 					   id="wpify-woo-icdic__ares-submit"/>
 				<div id="wpify-woo-icdic__ares-result"></div>
 			</div>
@@ -1616,15 +1624,15 @@ class IcDicModule extends AbstractModule {
 
 		?>
 		<div class="wpify-vat-exempt-info" style="margin-top: 15px; padding: 10px; background: #f8f8f8; border-left: 4px solid <?php echo $vat_info['exempt'] ? '#46b450' : '#ddd'; ?>;">
-			<h4 style="margin: 0 0 8px 0;"><?php _e( 'VAT Exemption Status', 'wpify-woo' ); ?></h4>
+			<h4 style="margin: 0 0 8px 0;"><?php esc_html_e( 'VAT Exemption Status', 'wpify-woo' ); ?></h4>
 			<p style="margin: 4px 0;">
-				<strong><?php _e( 'VAT Exempt:', 'wpify-woo' ); ?></strong>
+				<strong><?php esc_html_e( 'VAT Exempt:', 'wpify-woo' ); ?></strong>
 				<span class="<?php echo esc_attr( $status_class ); ?>" style="color: <?php echo $vat_info['exempt'] ? '#46b450' : '#666'; ?>; font-weight: bold;">
 					<?php echo esc_html( $status_label ); ?>
 				</span>
 			</p>
 			<p style="margin: 4px 0;">
-				<strong><?php _e( 'Reason:', 'wpify-woo' ); ?></strong>
+				<strong><?php esc_html_e( 'Reason:', 'wpify-woo' ); ?></strong>
 				<?php echo esc_html( $reason_label ); ?>
 			</p>
 		</div>

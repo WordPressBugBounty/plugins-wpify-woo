@@ -420,7 +420,7 @@ class DeliveryDatesModule extends AbstractModule {
 		if (
 			( strtotime( current_time( 'H:i' ) ) > strtotime( $order_time ) )
 			|| // překlenutí času na další den
-			( date( 'N', strtotime( $today ) ) >= 6 && $days_group['skip_weekends'] ) // překlenutí wíkendu o další den
+			( wp_date( 'N', strtotime( $today ) ) >= 6 && $days_group['skip_weekends'] ) // překlenutí wíkendu o další den
 		) {
 			$days += 1;
 		}
@@ -429,9 +429,9 @@ class DeliveryDatesModule extends AbstractModule {
 		$date = date_i18n( $format, $days );
 
 		if ( $this->get_setting( 'date_as_text' ) ) {
-			if ( strtotime( $today ) === strtotime( date( 'Y-m-d', $days ) ) ) {
+			if ( strtotime( $today ) === strtotime( wp_date( 'Y-m-d', $days ) ) ) {
 				return __( 'Today', 'wpify-woo' );
-			} elseif ( strtotime( $today . ' +1 day' ) === strtotime( date( 'Y-m-d', $days ) ) ) {
+			} elseif ( strtotime( $today . ' +1 day' ) === strtotime( wp_date( 'Y-m-d', $days ) ) ) {
 				return __( 'Tomorrow', 'wpify-woo' );
 			}
 		}
@@ -505,8 +505,8 @@ class DeliveryDatesModule extends AbstractModule {
 			}
 			?>
 
-			<div id="zone-<?= esc_attr( $zone['id'] ) ?>"
-				 class="wpify-woo-delivery-date__shipping-methods <?= $show ? 'show' : '' ?>">
+			<div id="zone-<?php echo esc_attr( $zone['id'] ); ?>"
+				 class="wpify-woo-delivery-date__shipping-methods <?php echo $show ? 'show' : ''; ?>">
 				<table>
 
 					<?php
@@ -532,8 +532,8 @@ class DeliveryDatesModule extends AbstractModule {
 
 						?>
 						<tr>
-							<th><?= $line_data['title'] ?></th>
-							<td><?= $line_data['price'] ?></td>
+							<th><?php echo esc_html( $line_data['title'] ); ?></th>
+							<td><?php echo wp_kses_post( $line_data['price'] ); ?></td>
 						</tr>
 						<?php
 					}
@@ -576,8 +576,8 @@ class DeliveryDatesModule extends AbstractModule {
 
 					?>
 					<tr>
-						<th><?= $line_data['title'] ?></th>
-						<td><?= $line_data['price'] ?></td>
+						<th><?php echo esc_html( $line_data['title'] ); ?></th>
+						<td><?php echo wp_kses_post( $line_data['price'] ); ?></td>
 					</tr>
 					<?php
 				}
@@ -618,7 +618,7 @@ class DeliveryDatesModule extends AbstractModule {
 				?>
 				<label for="shipping_country"
 					   class="screen-reader-text">
-					<?php esc_html_e( 'Country / region:', 'woocommerce' ); ?>
+					<?php esc_html_e( 'Country / region:', 'wpify-woo' ); ?>
 				</label>
 				<?php
 			}
@@ -702,18 +702,18 @@ class DeliveryDatesModule extends AbstractModule {
 				$more_info_text = str_replace( '{date}', '<span class="date">' . $data['date'] . '</span>', $data['more_info_text'] );
 				?>
 				<div class="wpify-woo-delivery-date__line"
-					 data-zones='[<?= implode( ',', $allowed_zones ) ?>]'
-					 style="<?= ! in_array( '"zone-' . $selected . '"', $allowed_zones ) ? 'display:none' : '' ?>">
+					 data-zones='[<?php echo esc_attr( implode( ',', $allowed_zones ) ); ?>]'
+					 style="<?php echo esc_attr( ! in_array( '"zone-' . $selected . '"', $allowed_zones ) ? 'display:none' : '' ); ?>">
 					<p>
-						<?php echo $message; ?>
+						<?php echo wp_kses_post( $message ); ?>
 						<?php if ( $more_info ) { ?>
-							<a href="#<?php echo $key; ?>"
-							   data-id="wpify-woo-delivery-date-<?php echo $key; ?>"><?php echo $data['more_info_label']; ?></a>
+							<a href="#<?php echo esc_attr( $key ); ?>"
+							   data-id="wpify-woo-delivery-date-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $data['more_info_label'] ); ?></a>
 						<?php } ?>
 					</p>
 					<?php if ( $more_info ) { ?>
-						<div id="wpify-woo-delivery-date-<?php echo $key; ?>" class="wpify-woo-delivery-date__info">
-							<?php echo apply_filters( 'the_content', $more_info_text ); ?>
+						<div id="wpify-woo-delivery-date-<?php echo esc_attr( $key ); ?>" class="wpify-woo-delivery-date__info">
+							<?php echo apply_filters( 'the_content', $more_info_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core the_content filter output is display-safe. ?>
 							<?php
 							if ( $data['shipping_methods'] ) {
 								$this->display_delivery_methods( $data['shipping_methods'], $shipping_zones, $actual_zone_id );
@@ -740,12 +740,12 @@ class DeliveryDatesModule extends AbstractModule {
 			if ( ! empty( $payments_data['message'] ) ) {
 				?>
 				<p class="wpify-woo-delivery-date__line">
-					<?php echo $payments_data['message']; ?>
+					<?php echo wp_kses_post( $payments_data['message'] ); ?>
 					<a href="#"
-					   data-id="wpify-woo-delivery-date-payment"><?php echo $payments_data['more_info_label']; ?></a>
+					   data-id="wpify-woo-delivery-date-payment"><?php echo esc_html( $payments_data['more_info_label'] ); ?></a>
 				</p>
 				<div id="wpify-woo-delivery-date-payment" class="wpify-woo-delivery-date__info">
-					<?php echo $payments_data['more_info_text'] ?? ''; ?>
+					<?php echo wp_kses_post( $payments_data['more_info_text'] ?? '' ); ?>
 					<?php $this->display_payment_methods(); ?>
 				</div>
 				<?php
@@ -761,6 +761,7 @@ class DeliveryDatesModule extends AbstractModule {
 	 * Render html
 	 */
 	public function display_delivery_date() {
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Returns trusted, internally-escaped plugin markup.
 		echo $this->get_delivery_date_html();
 	}
 
@@ -917,7 +918,7 @@ class DeliveryDatesModule extends AbstractModule {
 		if ( ! isset( $_GET['wpify-delivery-dates-convert-data'] ) ) {
 			return;
 		}
-		if ( ! wp_verify_nonce( $_GET['_wpnonce'] ?? '', 'wpify-delivery-dates-convert-data' ) ) {
+		if ( ! wp_verify_nonce( isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '', 'wpify-delivery-dates-convert-data' ) ) {
 			return;
 		}
 
@@ -934,6 +935,7 @@ class DeliveryDatesModule extends AbstractModule {
 
 		$params = array(
 			'post_type'      => 'product',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- One-time admin data-migration lookup.
 			'meta_query'     => array(
 				array(
 					'key' => '_wpify_woo_delivery_dates',
@@ -1006,6 +1008,8 @@ class DeliveryDatesModule extends AbstractModule {
 	 * Show admin notices
 	 */
 	public function maybe_show_notice() {
+		// Read-only admin notice shown after a nonce-verified redirect; no state change here.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$process = isset( $_GET['wpf-delivery-dates-data-migrated'] )
 			? sanitize_text_field( wp_unslash( $_GET['wpf-delivery-dates-data-migrated'] ) )
 			: null;
@@ -1014,6 +1018,7 @@ class DeliveryDatesModule extends AbstractModule {
 			$success = isset( $_GET['success'] )
 				? sanitize_text_field( wp_unslash( $_GET['success'] ) )
 				: '';
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 			if ( $process === 'migrate-data' ) {
 				/* translators: %s: number of products migrated */
 				$string = sprintf( __( 'Wpify Woo delivery date data migration is success for %s products.', 'wpify-woo' ), (int) $success );
@@ -1029,7 +1034,13 @@ class DeliveryDatesModule extends AbstractModule {
 	 * Save the information that you dismissed the message
 	 */
 	public function wpify_delivery_dates_dismiss_admin_notice() {
+		if ( ! current_user_can( 'manage_woocommerce' )
+			|| ! check_ajax_referer( 'wpify_delivery_dates_dismiss_notice', 'nonce', false ) ) {
+			wp_send_json_error( '', 403 );
+		}
+
 		update_option( 'wpify_delivery_dates_admin_notice_dismissed', true );
+		wp_send_json_success();
 	}
 
 	/**
@@ -1040,7 +1051,8 @@ class DeliveryDatesModule extends AbstractModule {
 			return;
 		}
 
-		$script = "jQuery(document).on('click','.wpify-delivery-dates-notice .notice-dismiss',function(){jQuery.post(ajaxurl,{action:'wpify_delivery_dates_dismiss_notice'});});";
+		$nonce  = wp_create_nonce( 'wpify_delivery_dates_dismiss_notice' );
+		$script = "jQuery(document).on('click','.wpify-delivery-dates-notice .notice-dismiss',function(){jQuery.post(ajaxurl,{action:'wpify_delivery_dates_dismiss_notice',nonce:'" . esc_js( $nonce ) . "'});});";
 		wp_add_inline_script( 'jquery', $script );
 	}
 

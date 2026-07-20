@@ -416,7 +416,7 @@ class QRPaymentModule extends AbstractModule {
 			'total'          => $order->get_total(),
 			'vs'             => preg_replace( '/[^0-9]/', '', $order->get_order_number() ),
 			'currency'       => $order->get_currency(),
-			'due_date'       => date( 'Y-m-d' ),
+			'due_date'       => current_time( 'Y-m-d' ),
 			'account_number' => $account['number'] ?? '',
 			'bank_code'      => $account['bank_code'] ?? '',
 			'iban'           => isset( $account['iban'] ) ? str_replace( ' ', '', $account['iban'] ) : '',
@@ -704,7 +704,7 @@ class QRPaymentModule extends AbstractModule {
 			$base64 = $this->render_qr_code( $order, $account );
 
 			if ( is_wp_error( $base64 ) ) {
-				echo $base64->get_error_message();
+				echo esc_html( $base64->get_error_message() );
 				continue;
 			}
 
@@ -716,7 +716,7 @@ class QRPaymentModule extends AbstractModule {
 				$filename = 'qr-' . $account['type'] . $compa . $hash . '.png';
 
 				if ( ! file_exists( $qr_path ) ) {
-					mkdir( $qr_path, 0755, true );
+					mkdir( $qr_path, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Direct file I/O required to cache generated QR images in the uploads dir.
 				}
 
 				if ( ! file_exists( $qr_path . $filename ) ) {
@@ -746,23 +746,23 @@ class QRPaymentModule extends AbstractModule {
 
 			echo '<style>.wpify-woo-qr-payment_code {max-width: 120px;}</style>';
 			echo '<div class="wpify-woo-qr-payment">';
-			echo sprintf( '<div class="wpify-woo-qr-payment_title-before">%s</div>', $title_before );
+			echo wp_kses_post( sprintf( '<div class="wpify-woo-qr-payment_title-before">%s</div>', $title_before ) );
 			foreach ( $qrCodes as $qrKey => $qrCode ) {
 				if ( is_wp_error( $qrCode ) ) {
-					echo $qrCode->get_error_message();
+					echo esc_html( $qrCode->get_error_message() );
 				} else {
 					$altText = __( 'QR Payment', 'wpify-woo' );
 					if ( isset( $qrInfo[ $qrKey ] ) && ! empty( $qrInfo[ $qrKey ] ) ) {
 						echo '<div class="wpify-woo-qr-payment_code">';
-						echo '<p>' . $qrInfo[ $qrKey ] . '</p>';
-						echo "<img src='{$qrCode}' alt='{$altText}' style='display: inline-block'>";
+						echo '<p>' . esc_html( $qrInfo[ $qrKey ] ) . '</p>';
+						echo "<img src='" . esc_attr( $qrCode ) . "' alt='" . esc_attr( $altText ) . "' style='display: inline-block'>";
 						echo '</div>';
 					} else {
-						echo "<img class='wpify-woo-qr-payment_code' src='{$qrCode}' alt='{$altText}' style='display: inline-block'>";
+						echo "<img class='wpify-woo-qr-payment_code' src='" . esc_attr( $qrCode ) . "' alt='" . esc_attr( $altText ) . "' style='display: inline-block'>";
 					}
 				}
 			}
-			echo sprintf( '<div class="wpify-woo-qr-payment_title-after">%s</div>', $title_after );
+			echo wp_kses_post( sprintf( '<div class="wpify-woo-qr-payment_title-after">%s</div>', $title_after ) );
 			echo '</div>';
 		}
 	}
@@ -822,8 +822,8 @@ class QRPaymentModule extends AbstractModule {
 			$order_id = absint( $atts['order_id'] );
 
 			// 2. If there is a key in the URL
-		} elseif ( isset( $_GET['key'] ) ) {
-			$order_id = wc_get_order_id_by_order_key( sanitize_text_field( $_GET['key'] ) );
+		} elseif ( isset( $_GET['key'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only lookup of an order by its WooCommerce order key for display.
+			$order_id = wc_get_order_id_by_order_key( sanitize_text_field( wp_unslash( $_GET['key'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only lookup of an order by its WooCommerce order key for display.
 
 			// 3. If we run in an email context
 		} elseif ( did_action( 'woocommerce_email_header' ) ) {
