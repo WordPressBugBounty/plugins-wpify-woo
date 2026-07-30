@@ -37,6 +37,7 @@ class RequestsListTable extends WP_List_Table {
 			'order'         => __( 'Order', 'wpify-woo' ),
 			'customer'      => __( 'Customer', 'wpify-woo' ),
 			'period_status' => __( 'Period status (at submission)', 'wpify-woo' ),
+			'admin_note'    => __( 'Note', 'wpify-woo' ),
 			'actions'       => __( 'Actions', 'wpify-woo' ),
 		);
 	}
@@ -155,6 +156,16 @@ class RequestsListTable extends WP_List_Table {
 			esc_html__( 'ended', 'wpify-woo' ),
 			esc_html( $end_ts ? wp_date( wc_date_format(), $end_ts ) : '' )
 		);
+	}
+
+	public function column_admin_note( WithdrawalClaimsModel $item ): string {
+		if ( $item->admin_note === '' ) {
+			return '';
+		}
+
+		$preview = mb_strlen( $item->admin_note ) > 60 ? mb_substr( $item->admin_note, 0, 60 ) . '…' : $item->admin_note;
+
+		return esc_html( $preview );
 	}
 
 	public function column_actions( WithdrawalClaimsModel $item ): string {

@@ -2354,7 +2354,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			$count   = is_array( $decoded ) ? count( $decoded ) : 0;
 			printf(
 				'<tr><td>%s</td><td>%s</td><td>%d</td></tr>',
-				esc_html( $req->submitted_at ? mysql2date( wc_date_format() . ' ' . wc_time_format(), $req->submitted_at ) : '' ),
+				esc_html( $req->submitted_at ? wp_date( wc_date_format() . ' ' . wc_time_format(), strtotime( $req->submitted_at ) ) : '' ),
 				esc_html( $req->type_label() ),
 				(int) $count
 			);
@@ -2459,6 +2459,12 @@ class WithdrawalClaimsModule extends AbstractModule {
 			return;
 		}
 
+		if ( isset( $_POST['wpify_woo_save_note'] ) && current_user_can( 'manage_woocommerce' ) ) {
+			check_admin_referer( 'wpify_woo_save_request_note_' . $req->id, '_wpify_woo_note_nonce' );
+			$req->admin_note = isset( $_POST['wpify_woo_admin_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wpify_woo_admin_note'] ) ) : '';
+			$this->repository->save( $req );
+		}
+
 		$order = wc_get_order( $req->order_id );
 
 		echo '<div class="wrap">';
@@ -2470,7 +2476,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 
 		echo '<table class="form-table"><tbody>';
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Type', 'wpify-woo' ), esc_html( $req->type_label() ) );
-		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Submitted at', 'wpify-woo' ), esc_html( $req->submitted_at ? mysql2date( $datetime_format, $req->submitted_at ) : '' ) );
+		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Submitted at', 'wpify-woo' ), esc_html( $req->submitted_at ? wp_date( $datetime_format, strtotime( $req->submitted_at ) ) : '' ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Status', 'wpify-woo' ), esc_html( $req->status_label() ) );
 		if ( $order ) {
 			printf( '<tr><th>%s</th><td><a href="%s">#%s</a></td></tr>', esc_html__( 'Order', 'wpify-woo' ), esc_url( $order->get_edit_order_url() ), esc_html( $req->order_number ) );
@@ -2478,7 +2484,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 			printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Order', 'wpify-woo' ), esc_html( $req->order_number ) );
 		}
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Customer', 'wpify-woo' ), esc_html( $req->customer_name . ' <' . $req->customer_email . '>' ) );
-		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Period end (at submission)', 'wpify-woo' ), esc_html( $req->period_end ? mysql2date( $datetime_format, $req->period_end ) : '' ) );
+		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Period end (at submission)', 'wpify-woo' ), esc_html( $req->period_end ? wp_date( $datetime_format, strtotime( $req->period_end ) ) : '' ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Scope', 'wpify-woo' ), esc_html( $req->scope_label() ) );
 		printf( '<tr><th>%s</th><td>%s</td></tr>', esc_html__( 'Reason', 'wpify-woo' ), nl2br( esc_html( $req->reason ) ) );
 
@@ -2498,6 +2504,15 @@ class WithdrawalClaimsModule extends AbstractModule {
 		}
 
 		echo '</tbody></table>';
+
+		echo '<h2>' . esc_html__( 'Note', 'wpify-woo' ) . '</h2>';
+		echo '<form method="post">';
+		wp_nonce_field( 'wpify_woo_save_request_note_' . $req->id, '_wpify_woo_note_nonce' );
+		echo '<textarea name="wpify_woo_admin_note" rows="4" class="large-text" placeholder="' . esc_attr__( 'Internal note (e.g. processed, awaiting refund, exchange…). Not visible to the customer.', 'wpify-woo' ) . '">' . esc_textarea( $req->admin_note ) . '</textarea>';
+		echo '<p>';
+		submit_button( __( 'Save note', 'wpify-woo' ), 'secondary', 'wpify_woo_save_note', false );
+		echo '</p>';
+		echo '</form>';
 
 		// Items
 		$decoded = json_decode( $req->items_json, true );
@@ -2581,7 +2596,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 				);
 				?>
 				<tr>
-					<td><?php echo esc_html( $req->submitted_at ? mysql2date( wc_date_format() . ' ' . wc_time_format(), $req->submitted_at ) : '' ); ?></td>
+					<td><?php echo esc_html( $req->submitted_at ? wp_date( wc_date_format() . ' ' . wc_time_format(), strtotime( $req->submitted_at ) ) : '' ); ?></td>
 					<td><?php echo esc_html( $req->type_label() ); ?></td>
 					<td style="text-align:center;"><?php echo (int) $count; ?></td>
 					<td><a href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'View', 'wpify-woo' ); ?> →</a></td>
@@ -2655,7 +2670,7 @@ class WithdrawalClaimsModule extends AbstractModule {
 				array( 'page' => self::ADMIN_PAGE_SLUG, 'request_id' => $req->id ),
 				admin_url( 'admin.php' )
 			);
-			$date_str = $req->submitted_at ? mysql2date( wc_date_format(), $req->submitted_at ) : '';
+			$date_str = $req->submitted_at ? wp_date( wc_date_format(), strtotime( $req->submitted_at ) ) : '';
 
 			printf(
 				'<li><a href="%1$s"><strong>#%2$d</strong></a> %3$s · %4$s</li>',

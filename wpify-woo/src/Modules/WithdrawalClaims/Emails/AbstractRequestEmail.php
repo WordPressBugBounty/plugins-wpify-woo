@@ -121,6 +121,25 @@ abstract class AbstractRequestEmail extends WC_Email {
 		}
 	}
 
+	/**
+	 * Admin notification emails reply-to the customer directly — same convention
+	 * WooCommerce core uses for its own new_order/cancelled_order/failed_order
+	 * emails (see WC_Email::get_headers()).
+	 */
+	public function get_headers() {
+		$headers = parent::get_headers();
+
+		if ( ! $this->is_customer() && $this->request && is_email( $this->request->customer_email ) ) {
+			// Replace WC's default Reply-to (site's from-address) so replying to
+			// the admin notification goes straight to the customer.
+			$headers  = preg_replace( '/^Reply-to:.*\r\n/mi', '', $headers );
+			$name     = sanitize_text_field( trim( $this->request->customer_name ) ) ?: $this->request->customer_email;
+			$headers .= 'Reply-to: ' . $name . ' <' . $this->request->customer_email . ">\r\n";
+		}
+
+		return $headers;
+	}
+
 	public function get_content_html(): string {
 		return wc_get_template_html(
 			$this->template_html,

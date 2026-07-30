@@ -4,7 +4,7 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 5.4.17
+Stable tag: 5.4.18
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
@@ -247,6 +247,11 @@ This plugin is brought to you by the WordPress and WooCommerce experts at [wpify
 == Changelog ==
 
 For older releases, see [changelog.txt](https://plugins.svn.wordpress.org/wpify-woo/trunk/changelog.txt).
+
+= 5.4.18 =
+* Fix Withdrawal & Claim — request detail in administration now shows the correct submission and period-end time.
+* Add Withdrawal & Claim — internal note field on each request, visible in the admin list and detail (not shown to the customer).
+* Add Withdrawal & Claim — admin notification emails now use the customer's address as Reply-To, so you can reply directly.
 
 = 5.4.17 =
 * Security — fixed a privilege escalation vulnerability and hardened the plugin's public REST API endpoints. Updating is strongly recommended.

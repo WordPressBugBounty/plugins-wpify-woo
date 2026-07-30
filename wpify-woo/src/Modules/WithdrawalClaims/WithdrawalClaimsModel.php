@@ -63,6 +63,13 @@ class WithdrawalClaimsModel extends Model {
 	public string $created_at;
 
 	/**
+	 * Free-text note for internal use (e.g. "processed", "awaiting refund").
+	 * Set only by admins on the request detail screen; never shown to the customer.
+	 */
+	#[Column( type: Column::TEXT )]
+	public string $admin_note = '';
+
+	/**
 	 * Human-readable label for {@see self::$request_type}.
 	 *
 	 * Filter `wpify_woo_withdrawal_claims_request_type_labels` lets extensions

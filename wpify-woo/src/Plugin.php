@@ -24,7 +24,7 @@ class Plugin extends AbstractPlugin {
 	protected bool $requires_activation = false;
 
 	/** Plugin version */
-	public const VERSION = '5.4.17';
+	public const VERSION = '5.4.18';
 
 	/** Plugin slug name */
 	public const PLUGIN_SLUG = 'wpify-woo';

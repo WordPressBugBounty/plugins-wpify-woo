@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /*
  * Plugin Name: WPify Woo
  * Description: Custom functionality for WooCommerce
- * Version: 5.4.17
+ * Version: 5.4.18
  * Requires PHP: 8.1
  * Requires at least: 6.2
  * Author: WPify s.r.o.
