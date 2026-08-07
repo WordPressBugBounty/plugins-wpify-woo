@@ -393,7 +393,7 @@ WEBCONFIG;
             return 0;
         }
         // Get age threshold in seconds (default 24 hours).
-        $age_threshold = apply_filters('wpifycf_temp_file_age_threshold', DAY_IN_SECONDS);
+        $age_threshold = apply_filters('wpifycf_temp_file_age_threshold', \DAY_IN_SECONDS);
         $cutoff_time = time() - $age_threshold;
         $deleted_count = 0;
         // Get all files in temp directory.

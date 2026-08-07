@@ -870,6 +870,9 @@ class WithdrawalClaimsModule extends AbstractModule {
 	}
 
 	public function verify_time_trap( string $value, int $min_seconds = 1 ): bool {
+		// Page-wide typography filters can inject &nbsp; into hidden field values.
+		$value = (string) preg_replace( '/[\s\x{00A0}]+/u', '', $value );
+
 		if ( strpos( $value, '|' ) === false ) {
 			return false;
 		}

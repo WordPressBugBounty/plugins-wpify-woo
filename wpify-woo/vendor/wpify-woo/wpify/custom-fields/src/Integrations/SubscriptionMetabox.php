@@ -233,7 +233,7 @@ class SubscriptionMetabox extends ItemsIntegration
         if (!wp_verify_nonce($nonce, $this->id)) {
             return;
         }
-        if (defined('WpifyWooDeps\DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        if (defined('DOING_AUTOSAVE') && \DOING_AUTOSAVE) {
             return;
         }
         $this->order_id = $post_id;

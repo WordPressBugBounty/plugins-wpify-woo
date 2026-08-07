@@ -167,7 +167,7 @@ class Metabox extends ItemsIntegration
         if (!wp_verify_nonce($nonce, $this->id)) {
             return;
         }
-        if (defined('WpifyWooDeps\DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        if (defined('DOING_AUTOSAVE') && \DOING_AUTOSAVE) {
             return;
         }
         $post_id = $_POST['ID'] ?? $_POST['post_ID'] ?? $post_id;
