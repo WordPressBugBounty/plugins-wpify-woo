@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'wpify/woo',
-        'pretty_version' => '5.4.21',
-        'version' => '5.4.21.0',
-        'reference' => '844f8c4d1ec353a097b31f8ee37c766327045219',
+        'pretty_version' => '5.4.22',
+        'version' => '5.4.22.0',
+        'reference' => '754f901c38f3c43eb73023d74c9903f8b6999a8e',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'wpify/woo' => array(
-            'pretty_version' => '5.4.21',
-            'version' => '5.4.21.0',
-            'reference' => '844f8c4d1ec353a097b31f8ee37c766327045219',
+            'pretty_version' => '5.4.22',
+            'version' => '5.4.22.0',
+            'reference' => '754f901c38f3c43eb73023d74c9903f8b6999a8e',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

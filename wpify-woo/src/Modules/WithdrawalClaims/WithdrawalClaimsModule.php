@@ -554,7 +554,17 @@ class WithdrawalClaimsModule extends AbstractModule {
 			? $created
 			: \DateTimeImmutable::createFromInterface( $created );
 
-		$cutoff = ( new \DateTimeImmutable( 'now' ) )->modify( '-' . $amount . ' ' . $unit );
+		// Staleness cutoff must not be tighter than the longest period this
+		// order could legitimately be under (global settings or a per-product
+		// override, e.g. via $amount) — otherwise a normal late status change
+		// (item shipped later than the period length) gets misread as an
+		// old/stale order and wrongly clamped to date_created.
+		$days_w      = max( 1, (int) $this->get_setting( 'withdrawal_period_days' ) );
+		$months_c    = max( 1, (int) $this->get_setting( 'claim_warranty_months' ) );
+		$amount_days = 'months' === $unit ? $amount * 31 : $amount;
+		$max_days    = max( $days_w, $months_c * 31, $amount_days );
+
+		$cutoff = ( new \DateTimeImmutable( 'now' ) )->modify( '-' . $max_days . ' days' );
 
 		if ( $created_i < $cutoff && $start_i > $created_i ) {
 			return $created_i;
