@@ -198,7 +198,7 @@ class Metabox extends ItemsIntegration
             foreach ($items as $item) {
                 register_post_meta($post_type, $item['id'], array('type' => $this->custom_fields->get_wp_type($item), 'description' => $item['label'], 'single' => \true, 'default' => $this->custom_fields->get_default_value($item), 'sanitize_callback' => $this->custom_fields->sanitize_item_value($item), 'show_in_rest' => \false));
             }
-            add_action('wpifycf_register_post_meta', $items, $post_type);
+            do_action('wpifycf_register_post_meta', $items, $post_type);
         }
     }
     /**
