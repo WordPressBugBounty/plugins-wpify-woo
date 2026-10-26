@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /*
  * Plugin Name: WPify Woo
  * Description: Custom functionality for WooCommerce
- * Version: 5.4.23
+ * Version: 5.5.0
  * Requires PHP: 8.1
  * Requires at least: 6.2
  * Author: WPify s.r.o.
@@ -15,9 +15,9 @@ defined( 'ABSPATH' ) || exit;
  * Text Domain: wpify-woo
  * Domain Path: /languages
  * WC requires at least: 7.0
- * WC tested up to: 10.6
+ * WC tested up to: 11.1
  * Requires Plugins: woocommerce
- * Tested up to: 7.0
+ * Tested up to: 7.1
 */
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
@@ -179,16 +179,6 @@ if ( version_compare( PHP_VERSION, WPIFY_WOO_MIN_PHP_VERSION ) < 0 ) {
 	}
 }
 
-add_action( 'in_plugin_update_message-wpify-woo/wpify-woo.php', function ( $plugin_data, $response ) {
-	if ( ! empty( $response->upgrade_notice ) ) {
-		echo '<div style="background: red; color: white; padding: 10px;">' . wp_kses( $response->upgrade_notice, array(
-				'a' => array(
-					'href'  => array(),
-					'title' => array()
-				)
-			) ) . '</div>';
-	}
-}, 10, 2 );
 
 add_action( 'before_woocommerce_init', function () {
 	if ( class_exists( FeaturesUtil::class ) ) {

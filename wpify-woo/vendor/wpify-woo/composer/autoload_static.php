@@ -4,11 +4,12 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInite71ad2ee75fbec55436b692b34762142
+class ComposerStaticInitf5913a8957c1c8b59b880ca88f0de107
 {
     public static $files = array (
-        'wpifywoodeps7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'wpifywoodeps6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
+        'wpifywoodepsa4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
+        'wpifywoodeps7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'wpifywoodepscdf08174348db7aba2f2aa1537fac4b1' => __DIR__ . '/..' . '/wpify/custom-fields/custom-fields.php',
         'wpifywoodeps37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'wpifywoodeps127de97fc3d2758f39ade7a373dabb57' => __DIR__ . '/..' . '/h4kuna/ares/src/aliases.php',
@@ -31,6 +32,7 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
             'WpifyWooDeps\\Wpify\\License\\' => 27,
             'WpifyWooDeps\\Wpify\\CustomFields\\' => 32,
             'WpifyWooDeps\\Wpify\\Asset\\' => 25,
+            'WpifyWooDeps\\Symfony\\Polyfill\\Php80\\' => 36,
             'WpifyWooDeps\\Spatie\\ArrayToXml\\' => 31,
             'WpifyWooDeps\\Rikudou\\QrPayment\\' => 31,
             'WpifyWooDeps\\Rikudou\\QrPaymentQrCodeProvider\\' => 45,
@@ -104,6 +106,10 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
         'WpifyWooDeps\\Wpify\\Asset\\' => 
         array (
             0 => __DIR__ . '/..' . '/wpify/asset/src',
+        ),
+        'WpifyWooDeps\\Symfony\\Polyfill\\Php80\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
         ),
         'WpifyWooDeps\\Spatie\\ArrayToXml\\' => 
         array (
@@ -199,6 +205,7 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'WpifyWooDeps\\Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'WpifyWooDeps\\BaconQrCode\\Common\\BitArray' => __DIR__ . '/..' . '/bacon/bacon-qr-code/src/Common/BitArray.php',
         'WpifyWooDeps\\BaconQrCode\\Common\\BitMatrix' => __DIR__ . '/..' . '/bacon/bacon-qr-code/src/Common/BitMatrix.php',
         'WpifyWooDeps\\BaconQrCode\\Common\\BitUtils' => __DIR__ . '/..' . '/bacon/bacon-qr-code/src/Common/BitUtils.php',
@@ -447,14 +454,20 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
         'WpifyWooDeps\\GuzzleHttp\\Handler\\CurlFactoryInterface' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/CurlFactoryInterface.php',
         'WpifyWooDeps\\GuzzleHttp\\Handler\\CurlHandler' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/CurlHandler.php',
         'WpifyWooDeps\\GuzzleHttp\\Handler\\CurlMultiHandler' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/CurlMultiHandler.php',
+        'WpifyWooDeps\\GuzzleHttp\\Handler\\CurlShareHandleState' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/CurlShareHandleState.php',
+        'WpifyWooDeps\\GuzzleHttp\\Handler\\CurlVersion' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/CurlVersion.php',
         'WpifyWooDeps\\GuzzleHttp\\Handler\\EasyHandle' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/EasyHandle.php',
         'WpifyWooDeps\\GuzzleHttp\\Handler\\HeaderProcessor' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/HeaderProcessor.php',
+        'WpifyWooDeps\\GuzzleHttp\\Handler\\HostValidator' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/HostValidator.php',
         'WpifyWooDeps\\GuzzleHttp\\Handler\\MockHandler' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/MockHandler.php',
         'WpifyWooDeps\\GuzzleHttp\\Handler\\Proxy' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/Proxy.php',
+        'WpifyWooDeps\\GuzzleHttp\\Handler\\ProxyEnvironment' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/ProxyEnvironment.php',
         'WpifyWooDeps\\GuzzleHttp\\Handler\\StreamHandler' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/StreamHandler.php',
+        'WpifyWooDeps\\GuzzleHttp\\Handler\\TlsVersion' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Handler/TlsVersion.php',
         'WpifyWooDeps\\GuzzleHttp\\MessageFormatter' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/MessageFormatter.php',
         'WpifyWooDeps\\GuzzleHttp\\MessageFormatterInterface' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/MessageFormatterInterface.php',
         'WpifyWooDeps\\GuzzleHttp\\Middleware' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Middleware.php',
+        'WpifyWooDeps\\GuzzleHttp\\Multiplexing' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Multiplexing.php',
         'WpifyWooDeps\\GuzzleHttp\\Pool' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Pool.php',
         'WpifyWooDeps\\GuzzleHttp\\PrepareBodyMiddleware' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/PrepareBodyMiddleware.php',
         'WpifyWooDeps\\GuzzleHttp\\Promise\\AggregateException' => __DIR__ . '/..' . '/guzzlehttp/promises/src/AggregateException.php',
@@ -493,6 +506,7 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
         'WpifyWooDeps\\GuzzleHttp\\Psr7\\Query' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Query.php',
         'WpifyWooDeps\\GuzzleHttp\\Psr7\\Request' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Request.php',
         'WpifyWooDeps\\GuzzleHttp\\Psr7\\Response' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Response.php',
+        'WpifyWooDeps\\GuzzleHttp\\Psr7\\Rfc3986' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Rfc3986.php',
         'WpifyWooDeps\\GuzzleHttp\\Psr7\\Rfc7230' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Rfc7230.php',
         'WpifyWooDeps\\GuzzleHttp\\Psr7\\ServerRequest' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/ServerRequest.php',
         'WpifyWooDeps\\GuzzleHttp\\Psr7\\Stream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Stream.php',
@@ -508,6 +522,7 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
         'WpifyWooDeps\\GuzzleHttp\\RequestOptions' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/RequestOptions.php',
         'WpifyWooDeps\\GuzzleHttp\\RetryMiddleware' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/RetryMiddleware.php',
         'WpifyWooDeps\\GuzzleHttp\\TransferStats' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/TransferStats.php',
+        'WpifyWooDeps\\GuzzleHttp\\TransportSharing' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/TransportSharing.php',
         'WpifyWooDeps\\GuzzleHttp\\Utils' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Utils.php',
         'WpifyWooDeps\\Heureka\\ShopCertification' => __DIR__ . '/..' . '/heureka/overeno-zakazniky/src/ShopCertification.php',
         'WpifyWooDeps\\Heureka\\ShopCertification\\ApiEndpoint' => __DIR__ . '/..' . '/heureka/overeno-zakazniky/src/ShopCertification/ApiEndpoint.php',
@@ -603,6 +618,7 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
         'WpifyWooDeps\\PhpDocReader\\PhpDocReader' => __DIR__ . '/..' . '/php-di/phpdoc-reader/src/PhpDocReader/PhpDocReader.php',
         'WpifyWooDeps\\PhpDocReader\\PhpParser\\TokenParser' => __DIR__ . '/..' . '/php-di/phpdoc-reader/src/PhpDocReader/PhpParser/TokenParser.php',
         'WpifyWooDeps\\PhpDocReader\\PhpParser\\UseStatementParser' => __DIR__ . '/..' . '/php-di/phpdoc-reader/src/PhpDocReader/PhpParser/UseStatementParser.php',
+        'WpifyWooDeps\\PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
         'WpifyWooDeps\\Psr\\Container\\ContainerExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerExceptionInterface.php',
         'WpifyWooDeps\\Psr\\Container\\ContainerInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerInterface.php',
         'WpifyWooDeps\\Psr\\Container\\NotFoundExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/NotFoundExceptionInterface.php',
@@ -665,6 +681,11 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
         'WpifyWooDeps\\Rikudou\\QrPaymentQrCodeProvider\\QrCodeProviderLocator' => __DIR__ . '/..' . '/rikudou/qr-payment-qr-code-provider/src/QrCodeProviderLocator.php',
         'WpifyWooDeps\\Rikudou\\QrPayment\\QrPaymentInterface' => __DIR__ . '/..' . '/rikudou/qr-payment-interface/src/QrPaymentInterface.php',
         'WpifyWooDeps\\Spatie\\ArrayToXml\\ArrayToXml' => __DIR__ . '/..' . '/spatie/array-to-xml/src/ArrayToXml.php',
+        'WpifyWooDeps\\Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
+        'WpifyWooDeps\\Symfony\\Polyfill\\Php80\\Php80' => __DIR__ . '/..' . '/symfony/polyfill-php80/Php80.php',
+        'WpifyWooDeps\\Symfony\\Polyfill\\Php80\\PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/PhpToken.php',
+        'WpifyWooDeps\\UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
+        'WpifyWooDeps\\ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
         'WpifyWooDeps\\Wpify\\Asset\\Asset' => __DIR__ . '/..' . '/wpify/asset/src/Asset.php',
         'WpifyWooDeps\\Wpify\\Asset\\AssetConfig' => __DIR__ . '/..' . '/wpify/asset/src/AssetConfig.php',
         'WpifyWooDeps\\Wpify\\Asset\\AssetConfigInterface' => __DIR__ . '/..' . '/wpify/asset/src/AssetConfigInterface.php',
@@ -867,9 +888,9 @@ class ComposerStaticInite71ad2ee75fbec55436b692b34762142
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInite71ad2ee75fbec55436b692b34762142::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInite71ad2ee75fbec55436b692b34762142::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInite71ad2ee75fbec55436b692b34762142::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf5913a8957c1c8b59b880ca88f0de107::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf5913a8957c1c8b59b880ca88f0de107::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitf5913a8957c1c8b59b880ca88f0de107::$classMap;
 
         }, null, ClassLoader::class);
     }

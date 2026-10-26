@@ -2,13 +2,13 @@
 Contributors: wpify, vasikgreif, mejta, martinsvoboda
 Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 5.4.23
+Stable tag: 5.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
-WC tested up to: 10.6
+WC tested up to: 11.1
 Requires Plugins: woocommerce
 
 WooCommerce features for CZ/SK e-shops: withdrawal & claim, Heureka, CRN/VAT, QR payments, delivery dates, async emails and more.
@@ -248,8 +248,19 @@ This plugin is brought to you by the WordPress and WooCommerce experts at [wpify
 
 For older releases, see [changelog.txt](https://plugins.svn.wordpress.org/wpify-woo/trunk/changelog.txt).
 
+= 5.5.0 =
+* Improved multilingual support (WPML, Polylang) in the settings.
+* Add delivery date range, order deadline and country selection to Delivery Dates data for product feeds.
+* Fix Delivery Dates — text values with a dash (e.g. "2-3 weeks") no longer show a wrong date.
+* Fix Delivery Dates — an empty cut-off time no longer moves the delivery date by one day.
+* Updated libraries and WPify core — unified admin look.
+* Fix a PHP warning when opening the Heureka feed settings with assigned categories.
+* Fix Slovak checkout — orders from companies whose IČ DPH differs from DIČ (e.g. VAT group registration) are no longer blocked.
+* Withdrawal & Claim — new option to show the buttons also in the My Account orders list.
+
 = 5.4.23 =
 * Update WPify Custom Fields to 4.12.1 — faster settings pages (field data and option lists load on demand and are shared between fields), saved select values show their labels immediately, and asset URLs work on Windows hosting.
+
 = 5.4.22 =
 * Fix Withdrawal & Claim — orders completed later than the withdrawal/warranty period length no longer show an incorrect, already-passed end date.
 

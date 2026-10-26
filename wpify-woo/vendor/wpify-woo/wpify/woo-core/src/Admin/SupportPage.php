@@ -39,12 +39,14 @@ class SupportPage
         $doc_base = $this->get_docs_base_url();
         $doc_link = add_query_arg(array('utm_source' => 'plugin-support', 'utm_medium' => 'plugin-link', 'utm_campaign' => 'documentation-link'), $doc_base);
         $debug_link = add_query_arg(array('utm_source' => 'plugin-support', 'utm_medium' => 'plugin-link', 'utm_campaign' => 'troubleshooting-link'), $doc_base . 'general/');
-        $faqs = apply_filters('wpify_dashboard_support_faqs', array(array('title' => __('How do the pricing plans work?', 'wpify-core'), 'content' => __('When you purchase the plugin, you receive support and updates for one year. After this period, the license will automatically renew.', 'wpify-core')), array('title' => __('Will the plugin work if I do not renew my license?', 'wpify-core'), 'content' => __('Yes, the plugin will continue to work, but you will no longer have access to updates and support.', 'wpify-core')), array('title' => __('I need a feature that the plugin does not currently support.', 'wpify-core'), 'content' => __('Let us know, and we will consider adding the requested functionality.', 'wpify-core'))));
+        $faqs = apply_filters('wpify_dashboard_support_faqs', array(array('title' => __('Where do I find the license key?', 'wpify-core'), 'content' => __('There is no key to enter. Click "Activate domain" in the plugin settings and the site connects to your WPify account. If the button is missing, the license field tells you that the server blocks the plugin files and which file it is.', 'wpify-core')), array('title' => __('How do I move the license to a new domain?', 'wpify-core'), 'content' => __('On the old site, click "Deactivate domain" in the plugin settings, then click "Activate domain" on the new site. If the old site is no longer available, contact us.', 'wpify-core')), array('title' => __('Why is a plugin update not available?', 'wpify-core'), 'content' => __('Updates need a valid license for this domain. The license field in the plugin settings and the plugin list show the reason, e.g. an expired subscription or a license activated for another domain.', 'wpify-core')), array('title' => __('Will the plugin work if I do not renew my license?', 'wpify-core'), 'content' => __('Yes, the plugin will continue to work, but you will no longer have access to updates and support.', 'wpify-core')), array('title' => __('My settings do not apply in another language.', 'wpify-core'), 'content' => __('On multilingual sites (WPML, Polylang) the main settings apply to every language without settings of its own. When you change and save the settings with one language selected, that language gets its own copy. The notice at the top of the settings page tells you which settings you are editing and lets you delete the settings of a language.', 'wpify-core')), array('title' => __('I need a feature that the plugin does not currently support.', 'wpify-core'), 'content' => __('Let us know, and we will consider adding the requested functionality.', 'wpify-core'))));
         $active_plugins = $this->get_active_wpify_plugins();
         $log_files = $this->get_log_files();
         $logs_url = $this->get_logs_page_url();
+        $diagnostics = $this->get_diagnostics('general', $active_plugins);
+        unset($diagnostics['License status'], $diagnostics['License key']);
         ?>
-		<div class="wpify-dashboard__wrap wrap">
+		<div class="wpify-dashboard__wrap wrap wpify-support">
 			<div class="wpify-dashboard__content">
 				<h1><?php 
         _e('Support page', 'wpify-core');
@@ -54,9 +56,9 @@ class SupportPage
         $sent_status = isset($_GET['wpify_support_sent']) ? sanitize_text_field(wp_unslash($_GET['wpify_support_sent'])) : null;
         if ($sent_status !== null) {
             ?>
-					<div class="notice notice-<?php 
+					<div class="wpify-notice wpify-notice-<?php 
             echo $sent_status === '1' ? 'success' : 'error';
-            ?> is-dismissible">
+            ?>">
 						<p>
 							<?php 
             echo $sent_status === '1' ? esc_html__('Your support request has been sent. We will get back to you shortly.', 'wpify-core') : esc_html__('Your support request could not be sent. Please try again.', 'wpify-core');
@@ -71,253 +73,394 @@ class SupportPage
         do_action('wpify_dashboard_before_support_content');
         ?>
 
-				<div class="wpify__cards grid-layout-2">
-					<div class="wpify__card">
-						<div class="wpify__card-body">
-							<h2><?php 
+				<p class="wpify-support__intro">
+					<?php 
+        _e('Most problems can be solved in a few minutes with the steps and documentation below. Please go through them before sending a request — you will get the answer faster.', 'wpify-core');
+        ?>
+				</p>
+
+				<div class="wpify-card">
+					<div class="wpify-card__header">
+						<h2 class="wpify-card__title"><?php 
         _e('Quick debugging checklist', 'wpify-core');
         ?></h2>
-							<ol>
-								<li>
-									<h3><?php 
+					</div>
+					<div class="wpify-card__body">
+						<ol class="wpify-support__steps">
+							<li class="wpify-section">
+								<div class="wpify-section__head">
+									<strong class="wpify-section__title"><?php 
         _e('Check order notes', 'wpify-core');
-        ?></h3>
-                                    <p><?php 
+        ?></strong>
+									<p class="wpify-section__description"><?php 
         _e('In the WooCommerce order detail, you’ll find notes that plugins automatically add. Look for messages about errors or failed operations.', 'wpify-core');
         ?></p>
-								</li>
-								<li>
-									<h3><?php 
+								</div>
+							</li>
+							<li class="wpify-section">
+								<div class="wpify-section__head">
+									<strong class="wpify-section__title"><?php 
         _e('Review logs', 'wpify-core');
-        ?></h3>
-									<p><?php 
+        ?></strong>
+									<p class="wpify-section__description"><?php 
         _e('Most plugins log communication in WPify → WPify Logs. Select the relevant plugin and date, look for records marked as ERROR.', 'wpify-core');
         ?></p>
-									<?php 
-        if (!empty($log_files)) {
+								</div>
+								<?php 
+        if (!empty($log_files) && $logs_url) {
             ?>
-                                        <p>
-											<?php 
-            if ($logs_url) {
-                ?>
-                                                <a class="button" href="<?php 
-                echo esc_url($logs_url);
-                ?>">
-													<?php 
-                _e('Open WPify Logs', 'wpify-core');
-                ?>
-												</a>
-											<?php 
-            }
-            ?>
-                                        </p>
-									<?php 
+									<a class="button" href="<?php 
+            echo esc_url($logs_url);
+            ?>"><?php 
+            _e('Open WPify Logs', 'wpify-core');
+            ?></a>
+								<?php 
         }
         ?>
-                                </li>
-								<li>
-									<h3><?php 
+							</li>
+							<li class="wpify-section">
+								<div class="wpify-section__head">
+									<strong class="wpify-section__title"><?php 
         _e('Check plugin documentation', 'wpify-core');
-        ?></h3>
-                                    <p><?php 
+        ?></strong>
+									<p class="wpify-section__description"><?php 
         _e('Each plugin has its own troubleshooting section with descriptions of common errors and their solutions.', 'wpify-core');
         ?></p>
-                                    <ul>
-										<?php 
-        foreach ($active_plugins as $slug => $plugin) {
-            if (empty($plugin['doc_link'])) {
-                continue;
-            }
+								</div>
+								<?php 
+        if ($active_plugins) {
             ?>
-                                            <li>
-                                                <a href="<?php 
-            echo esc_url($plugin['doc_link']);
-            ?>" target="_blank">
-													<?php 
-            echo esc_html($plugin['title'] ?? $slug);
-            ?>
-                                                </a>
-                                            </li>
-										<?php 
+									<a href="#wpify-support-plugins"><?php 
+            _e('Find your plugin in the list below', 'wpify-core');
+            ?></a>
+								<?php 
         }
         ?>
-                                    </ul>
-                                </li>
-								<li>
-									<h3><?php 
+							</li>
+							<li class="wpify-section">
+								<div class="wpify-section__head">
+									<strong class="wpify-section__title"><?php 
         _e('Contact support', 'wpify-core');
-        ?></h3>
-                                    <p><?php 
-        _e('If the problem persists, email us at support@wpify.io with a description of the problem, steps to reproduce, and relevant log content.', 'wpify-core');
+        ?></strong>
+									<p class="wpify-section__description"><?php 
+        _e('If the problem persists, send us a request with the form below. Describe the problem and the steps to reproduce it — diagnostics and the selected logs are attached for you.', 'wpify-core');
         ?></p>
-								</li>
-							</ol>
-							<p>
-								<a href="<?php 
-        echo esc_url($debug_link);
-        ?>" target="_blank">
-									<?php 
-        _e('Full debugging guide', 'wpify-core');
-        ?>
-								</a>
-							</p>
-						</div>
+								</div>
+								<a href="#wpify-support-form"><?php 
+        _e('Go to the support form', 'wpify-core');
+        ?></a>
+							</li>
+						</ol>
 					</div>
-					<div class="wpify__card">
-						<div class="wpify__card-body">
-							<h2><?php 
+					<div class="wpify-card__footer">
+						<a href="<?php 
+        echo esc_url($debug_link);
+        ?>" target="_blank"><?php 
+        _e('Full debugging guide', 'wpify-core');
+        ?></a>
+					</div>
+				</div>
+
+				<div class="wpify-card">
+					<div class="wpify-card__header">
+						<h2 class="wpify-card__title"><?php 
         _e('Frequently Asked Questions', 'wpify-core');
         ?></h2>
-
-							<?php 
+					</div>
+					<div class="wpify-accordion wpify-support__faqs">
+						<?php 
         foreach ($faqs as $faq) {
             ?>
-								<div class="faq">
-									<h3><?php 
+							<details class="wpify-accordion__item">
+								<summary class="wpify-accordion__toggle">
+									<span class="wpify-accordion__title"><?php 
             echo wp_kses_post($faq['title'] ?? '');
-            ?></h3>
+            ?></span>
+									<span class="wpify-accordion__caret" aria-hidden="true">▾</span>
+								</summary>
+								<div class="wpify-accordion__content">
 									<p><?php 
             echo wp_kses_post($faq['content'] ?? '');
             ?></p>
 								</div>
-							<?php 
+							</details>
+						<?php 
+        }
+        ?>
+					</div>
+					<div class="wpify-card__footer">
+						<p><?php 
+        _e('Check out the plugin documentation to see if your question is already answered.', 'wpify-core');
+        ?></p>
+						<a href="<?php 
+        echo esc_url($doc_link);
+        ?>" target="_blank" class="button button-primary"><?php 
+        _e('Documentation', 'wpify-core');
+        ?></a>
+					</div>
+				</div>
+
+				<?php 
+        if ($active_plugins) {
+            ?>
+					<div class="wpify-card" id="wpify-support-plugins">
+						<div class="wpify-card__header">
+							<h2 class="wpify-card__title"><?php 
+            _e('Your WPify plugins', 'wpify-core');
+            ?></h2>
+							<p class="wpify-card__description"><?php 
+            _e('Open the documentation of the plugin you have trouble with — most common problems are described there.', 'wpify-core');
+            ?></p>
+						</div>
+						<table class="wpify-support__plugins">
+							<thead>
+								<tr>
+									<th><?php 
+            _e('Plugin', 'wpify-core');
+            ?></th>
+									<th><?php 
+            _e('Version', 'wpify-core');
+            ?></th>
+									<th><?php 
+            _e('License', 'wpify-core');
+            ?></th>
+									<th><?php 
+            _e('Documentation', 'wpify-core');
+            ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php 
+            foreach ($active_plugins as $slug => $plugin) {
+                $license = $this->get_license_badge($plugin['license'] ?? \true);
+                ?>
+									<tr>
+										<td><strong><?php 
+                echo esc_html($plugin['title'] ?? $slug);
+                ?></strong></td>
+										<td><?php 
+                echo esc_html($plugin['version'] ?? '');
+                ?></td>
+										<td>
+											<?php 
+                if ($license) {
+                    ?>
+												<span class="wpify-badge <?php 
+                    echo esc_attr($license['class']);
+                    ?>"><?php 
+                    echo esc_html($license['label']);
+                    ?></span>
+											<?php 
+                } else {
+                    ?>
+												<span class="wpify-text-muted">—</span>
+											<?php 
+                }
+                ?>
+										</td>
+										<td>
+											<?php 
+                if (!empty($plugin['doc_link'])) {
+                    ?>
+												<a href="<?php 
+                    echo esc_url($plugin['doc_link']);
+                    ?>" target="_blank"><?php 
+                    _e('Open documentation', 'wpify-core');
+                    ?></a>
+											<?php 
+                } else {
+                    ?>
+												<span class="wpify-text-muted">—</span>
+											<?php 
+                }
+                ?>
+										</td>
+									</tr>
+								<?php 
+            }
+            ?>
+							</tbody>
+						</table>
+					</div>
+				<?php 
         }
         ?>
 
-                            <h3><?php 
-        _e('Do you have any other questions?', 'wpify-core');
-        ?></h3>
-                            <p><?php 
-        _e('Check out the plugin documentation to see if your question is already answered.', 'wpify-core');
-        ?></p>
-                            <p><a href="<?php 
-        echo esc_url($doc_link);
-        ?>" target="_blank"
-                                  class="button button-primary"><?php 
-        _e('Documentation', 'wpify-core');
-        ?></a></p>
-
-						</div>
-					</div>
-
-					<div class="wpify__card wpify__card--100">
-						<div class="wpify__card-body">
-							<h2><?php 
+				<div class="wpify-card" id="wpify-support-form">
+					<div class="wpify-card__header">
+						<h2 class="wpify-card__title"><?php 
         _e('Send a support request', 'wpify-core');
         ?></h2>
-							<form method="post" action="<?php 
+						<p class="wpify-card__description"><?php 
+        _e('Did not find the answer in the steps and documentation above? Write to us.', 'wpify-core');
+        ?></p>
+					</div>
+					<div class="wpify-card__body">
+						<form class="wpify-support__form" method="post" action="<?php 
         echo esc_url(admin_url('admin-post.php'));
         ?>" enctype="multipart/form-data">
-								<?php 
+							<?php 
         wp_nonce_field('wpify_support_request');
         ?>
-								<input type="hidden" name="action" value="wpify_support_request">
+							<input type="hidden" name="action" value="wpify_support_request">
 
-								<p>
-									<label for="wpify-support-plugin"><strong><?php 
+							<div class="wpify-support__field">
+								<label for="wpify-support-plugin"><?php 
         _e('Plugin', 'wpify-core');
-        ?></strong></label><br>
-									<select id="wpify-support-plugin" name="plugin" class="regular-text">
-										<option value="general"><?php 
+        ?></label>
+								<select id="wpify-support-plugin" name="plugin">
+									<option value="general"><?php 
         _e('General', 'wpify-core');
         ?></option>
-										<?php 
+									<?php 
         foreach ($active_plugins as $slug => $plugin) {
             ?>
-											<option value="<?php 
+										<option value="<?php 
             echo esc_attr($slug);
+            ?>" data-doc="<?php 
+            echo esc_url($plugin['doc_link'] ?? '');
             ?>"><?php 
             echo esc_html($plugin['title'] ?? $slug);
             ?></option>
-										<?php 
+									<?php 
         }
         ?>
-									</select>
+								</select>
+								<p class="wpify-support__doc-hint" hidden>
+									<?php 
+        _e('Have you gone through the documentation of this plugin?', 'wpify-core');
+        ?>
+									<a href="#" target="_blank"><?php 
+        _e('Open documentation', 'wpify-core');
+        ?></a>
 								</p>
-								<p>
-									<label for="wpify-support-subject"><strong><?php 
+							</div>
+							<div class="wpify-support__field">
+								<label for="wpify-support-subject"><?php 
         _e('Subject (optional)', 'wpify-core');
-        ?></strong></label><br>
-									<input id="wpify-support-subject" class="regular-text" type="text" name="subject" placeholder="<?php 
+        ?></label>
+								<input id="wpify-support-subject" type="text" name="subject" placeholder="<?php 
         esc_attr_e('Short summary of the issue', 'wpify-core');
         ?>">
-								</p>
-								<p>
-									<label for="wpify-support-email"><strong><?php 
+							</div>
+							<div class="wpify-support__field">
+								<label for="wpify-support-email"><?php 
         _e('Contact email', 'wpify-core');
-        ?></strong></label><br>
-									<input id="wpify-support-email" class="regular-text" type="email" name="email" value="<?php 
+        ?></label>
+								<input id="wpify-support-email" type="email" name="email" value="<?php 
         echo esc_attr(wp_get_current_user()->user_email ?? '');
         ?>" required>
-								</p>
-								<p>
-									<label for="wpify-support-message"><strong><?php 
+							</div>
+							<div class="wpify-support__field">
+								<label for="wpify-support-message"><?php 
         _e('Message', 'wpify-core');
-        ?></strong></label><br>
-									<textarea id="wpify-support-message" class="large-text" rows="6" name="message" required></textarea>
-								</p>
-								<?php 
+        ?></label>
+								<textarea id="wpify-support-message" rows="6" name="message" required></textarea>
+							</div>
+							<?php 
         if (!empty($log_files)) {
             ?>
-									<p>
-										<label for="wpify-support-log"><strong><?php 
-            _e('Attach log (optional)', 'wpify-core');
-            ?></strong></label><br>
-										<span style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-											<select id="wpify-support-log" name="log_files[]" class="regular-text" multiple size="4">
+								<div class="wpify-support__field">
+									<label for="wpify-support-log-count"><?php 
+            _e('Attach logs', 'wpify-core');
+            ?></label>
+									<p class="wpify-support__logs-empty description"><?php 
+            _e('Select a plugin above to attach its logs.', 'wpify-core');
+            ?></p>
+									<p class="wpify-support__logs-none description" hidden><?php 
+            _e('This plugin has no logs.', 'wpify-core');
+            ?></p>
+									<div class="wpify-support__logs" hidden>
+										<select id="wpify-support-log-count" name="log_count">
+											<option value="0"><?php 
+            _e('Do not attach logs', 'wpify-core');
+            ?></option>
+											<option value="1"><?php 
+            _e('The latest log', 'wpify-core');
+            ?></option>
+											<option value="3" selected><?php 
+            _e('The latest 3 logs', 'wpify-core');
+            ?></option>
+											<option value="all" data-label="<?php 
+            /* translators: %d: number of log files kept for the plugin */
+            esc_attr_e('All kept logs (%d)', 'wpify-core');
+            ?>"><?php 
+            _e('All kept logs', 'wpify-core');
+            ?></option>
+										</select>
+										<details class="wpify-support__details">
+											<summary><?php 
+            _e('Choose specific files', 'wpify-core');
+            ?></summary>
+											<select id="wpify-support-log" name="log_files[]" multiple size="6">
 												<?php 
             foreach ($log_files as $log) {
                 ?>
-													<option
-														value="<?php 
+													<option value="<?php 
                 echo esc_attr($log['file']);
-                ?>"
-														data-channel="<?php 
+                ?>" data-channel="<?php 
                 echo esc_attr($log['channel']);
-                ?>"
-													>
-														<?php 
+                ?>"><?php 
                 echo esc_html($log['label']);
-                ?>
-													</option>
+                ?></option>
 												<?php 
             }
             ?>
 											</select>
-										</span>
-										<span class="description"><?php 
-            _e('Hold Ctrl (Windows) or Cmd (Mac) to select multiple logs.', 'wpify-core');
-            ?></span>
-									</p>
-								<?php 
+											<p class="description"><?php 
+            _e('Selected files are attached in addition to the latest logs. Hold Ctrl (Windows) or Cmd (Mac) to select multiple logs.', 'wpify-core');
+            ?></p>
+										</details>
+									</div>
+								</div>
+							<?php 
         }
         ?>
-								<p>
-									<label for="wpify-support-files"><strong><?php 
+							<div class="wpify-support__field">
+								<label for="wpify-support-files"><?php 
         _e('Attach files (optional)', 'wpify-core');
-        ?></strong></label><br>
-									<input id="wpify-support-files" type="file" name="support_files[]" multiple>
-									<span class="description"><?php 
+        ?></label>
+								<input id="wpify-support-files" type="file" name="support_files[]" multiple>
+								<p class="description"><?php 
         _e('Screenshots or documents that help explain the issue.', 'wpify-core');
-        ?></span>
-								</p>
-								<p>
+        ?></p>
+							</div>
+							<details class="wpify-support__details">
+								<summary><?php 
+        _e('What is sent automatically', 'wpify-core');
+        ?></summary>
+								<table class="wpify-support__diagnostics">
 									<?php 
+        foreach ($diagnostics as $label => $value) {
+            ?>
+										<tr>
+											<th><?php 
+            echo esc_html($label);
+            ?></th>
+											<td><?php 
+            echo esc_html($value !== '' ? (string) $value : '-');
+            ?></td>
+										</tr>
+									<?php 
+        }
+        ?>
+								</table>
+								<p class="description"><?php 
+        _e('With a plugin selected, also its license status and key.', 'wpify-core');
+        ?></p>
+							</details>
+							<div>
+								<?php 
         submit_button(__('Send request', 'wpify-core'), 'primary', 'submit', \false);
         ?>
-								</p>
-							</form>
-							<p class="description"><?php 
-        _e('Basic diagnostics (site, environment, active WPify plugins) are included automatically.', 'wpify-core');
-        ?></p>
-						</div>
+							</div>
+						</form>
 					</div>
+				</div>
 
-					<?php 
+				<?php 
         do_action('wpify_dashboard_support_cards');
         ?>
-
-				</div>
 
 				<?php 
         do_action('wpify_dashboard_after_support_content');
@@ -332,45 +475,144 @@ class SupportPage
         ?>
 			</div>
 		</div>
-		<?php 
-        if (!empty($log_files)) {
-            ?>
-			<script>
-				(function () {
-					const pluginSelect = document.getElementById('wpify-support-plugin');
-					const logSelect = document.getElementById('wpify-support-log');
-					if (!pluginSelect || !logSelect) {
+		<script>
+			(function () {
+				const pluginSelect = document.getElementById('wpify-support-plugin');
+				if (!pluginSelect) {
+					return;
+				}
+
+				const docHint = document.querySelector('.wpify-support__doc-hint');
+				const logs = document.querySelector('.wpify-support__logs');
+				const logsEmpty = document.querySelector('.wpify-support__logs-empty');
+				const logsNone = document.querySelector('.wpify-support__logs-none');
+				const logSelect = document.getElementById('wpify-support-log');
+				const allOption = document.querySelector('#wpify-support-log-count option[value="all"]');
+				const options = logSelect ? Array.from(logSelect.options) : [];
+				const normalizeChannel = (value) => (value || '').replace(/-/g, '_');
+
+				const sync = () => {
+					const plugin = pluginSelect.value || 'general';
+					const selected = pluginSelect.options[pluginSelect.selectedIndex];
+					const doc = selected ? selected.getAttribute('data-doc') : '';
+
+					if (docHint) {
+						docHint.hidden = !doc;
+						docHint.querySelector('a').href = doc || '#';
+					}
+
+					if (!logs) {
 						return;
 					}
 
-					const options = Array.from(logSelect.options);
-					const normalizeChannel = (value) => (value || '').replace(/-/g, '_');
-					const syncOptions = () => {
-						const plugin = pluginSelect.value || 'general';
-						const channel = plugin === 'general' ? '' : normalizeChannel(plugin);
+					const channel = plugin === 'general' ? '' : normalizeChannel(plugin);
+					let count = 0;
+					options.forEach(option => {
+						option.hidden = !channel || normalizeChannel(option.getAttribute('data-channel')) !== channel;
+						if (option.hidden) {
+							option.selected = false;
+						} else {
+							count++;
+						}
+					});
 
-						options.forEach(option => {
-							const optionChannel = normalizeChannel(option.getAttribute('data-channel') || '');
-							option.hidden = channel && optionChannel !== channel;
-							if (option.hidden) {
-								option.selected = false;
-							}
-						});
-					};
+					logsEmpty.hidden = !!channel;
+					logsNone.hidden = !channel || count > 0;
+					logs.hidden = !channel || count === 0;
+					if (allOption) {
+						allOption.textContent = allOption.getAttribute('data-label').replace('%d', count);
+					}
+				};
 
-					pluginSelect.addEventListener('change', syncOptions);
-					syncOptions();
-				})();
-			</script>
+				pluginSelect.addEventListener('change', sync);
+				sync();
+			})();
+		</script>
 		<?php 
+    }
+    /**
+     * Diagnostics sent with every request; also listed on the page so the user knows what is shared.
+     *
+     * @param string $plugin_slug    Plugin the request is about, or 'general'.
+     * @param array  $active_plugins Active WPify plugins.
+     *
+     * @return array<string, string>
+     */
+    private function get_diagnostics(string $plugin_slug, array $active_plugins): array
+    {
+        $license_data = $this->get_license_details($plugin_slug);
+        $woo_version = '';
+        if (defined('WpifyWooDeps\WC_VERSION')) {
+            $woo_version = WC_VERSION;
+        } else {
+            if (!function_exists('is_plugin_active')) {
+                require_once \ABSPATH . 'wp-admin/includes/plugin.php';
+            }
+            $woo_active = function_exists('is_plugin_active') && is_plugin_active('woocommerce/woocommerce.php');
+            if ($woo_active) {
+                $woo_version = (string) get_option('woocommerce_version', '');
+                if ($woo_version === '') {
+                    $woo_version = 'active';
+                }
+            }
         }
-        ?>
-		<?php 
+        if ($woo_version === '') {
+            $woo_version = 'not active';
+        }
+        $theme = wp_get_theme();
+        $theme_name = $theme ? $theme->get('Name') . ' ' . $theme->get('Version') : '';
+        return apply_filters('wpify_dashboard_support_email_diagnostics', array('Site URL' => site_url(), 'Home URL' => home_url(), 'WP Version' => get_bloginfo('version'), 'PHP Version' => \PHP_VERSION, 'Locale' => get_locale(), 'WooCommerce' => $woo_version, 'Active Theme' => $theme_name, 'WPify Plugins (active)' => $this->format_plugin_list($active_plugins), 'License status' => $license_data['status'], 'License key' => $license_data['key']), $plugin_slug);
+    }
+    /**
+     * Badge for the license state the plugin reports to the dashboard.
+     *
+     * @param mixed $license True when the plugin needs no activation, the stored activation, or false.
+     *
+     * @return array{class: string, label: string}|null Null when the plugin needs no license.
+     */
+    private function get_license_badge($license): ?array
+    {
+        if (\true === $license) {
+            return null;
+        }
+        if (!is_array($license) || empty($license['license'])) {
+            return array('class' => 'wpify-badge-warning', 'label' => __('Not activated', 'wpify-core'));
+        }
+        if (array_key_exists('valid', $license) && !$license['valid']) {
+            return array('class' => 'wpify-badge-error', 'label' => __('Invalid', 'wpify-core'));
+        }
+        return array('class' => 'wpify-badge-success', 'label' => __('Active', 'wpify-core'));
+    }
+    /**
+     * Newest logs of a plugin — the user picks how many, not which files.
+     *
+     * @param string     $plugin_slug Plugin slug from the form.
+     * @param string|int $count       Number of logs, or 'all'.
+     *
+     * @return string[]
+     */
+    private function get_latest_log_paths(string $plugin_slug, $count): array
+    {
+        if ($plugin_slug === 'general' || $count === '0' || $count === 0 || $count === '') {
+            return [];
+        }
+        $channel = str_replace('-', '_', $plugin_slug);
+        $files = array();
+        foreach ($this->get_log_files() as $log) {
+            if (str_replace('-', '_', $log['channel']) === $channel) {
+                $files[] = $log['file'];
+            }
+        }
+        // get_log_files() is sorted newest first within a channel (the label ends with the date).
+        if ($count !== 'all') {
+            $files = array_slice($files, 0, max(0, (int) $count));
+        }
+        return array_values(array_filter($files, 'is_readable'));
     }
     private function get_docs_base_url(): string
     {
         $domain = 'https://docs.wpify.cz/';
-        if (in_array(get_locale(), array('cs_CZ', 'sk_SK'), \true)) {
+        if (in_array(determine_locale(), array('cs_CZ', 'sk_SK'), \true)) {
             $domain = 'https://docs.wpify.cz/cs/';
         }
         return $domain;
@@ -399,6 +641,7 @@ class SupportPage
         $message_input = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash($_POST['message'])) : '';
         $email_input = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
         $log_files = isset($_POST['log_files']) ? (array) wp_unslash($_POST['log_files']) : [];
+        $log_count = isset($_POST['log_count']) ? sanitize_key(wp_unslash($_POST['log_count'])) : '0';
         $upload_files = isset($_FILES['support_files']) ? $_FILES['support_files'] : null;
         if (empty($message_input) || empty($email_input)) {
             wp_safe_redirect(add_query_arg(array('page' => self::SLUG, 'wpify_support_sent' => '0'), admin_url('admin.php')));
@@ -406,38 +649,17 @@ class SupportPage
         }
         $active_plugins = $this->get_active_wpify_plugins();
         $plugin_title = $active_plugins[$plugin_slug]['title'] ?? __('General', 'wpify-core');
-        $license_data = $this->get_license_details($plugin_slug);
         $site_host = wp_parse_url(home_url(), \PHP_URL_HOST);
         $subject = $subject_input ? $subject_input : $plugin_title;
         $subject = sprintf('WPify Support | %s | %s', $subject, $site_host ?: home_url());
-        $woo_version = '';
-        if (defined('WpifyWooDeps\WC_VERSION')) {
-            $woo_version = WC_VERSION;
-        } else {
-            if (!function_exists('is_plugin_active')) {
-                require_once \ABSPATH . 'wp-admin/includes/plugin.php';
-            }
-            $woo_active = function_exists('is_plugin_active') && is_plugin_active('woocommerce/woocommerce.php');
-            if ($woo_active) {
-                $woo_version = (string) get_option('woocommerce_version', '');
-                if ($woo_version === '') {
-                    $woo_version = 'active';
-                }
-            }
-        }
-        if ($woo_version === '') {
-            $woo_version = 'not active';
-        }
-        $theme = wp_get_theme();
-        $theme_name = $theme ? $theme->get('Name') . ' ' . $theme->get('Version') : '';
-        $diagnostics = apply_filters('wpify_dashboard_support_email_diagnostics', array('Site URL' => site_url(), 'Home URL' => home_url(), 'WP Version' => get_bloginfo('version'), 'PHP Version' => \PHP_VERSION, 'Locale' => get_locale(), 'WooCommerce' => $woo_version, 'Active Theme' => $theme_name, 'WPify Plugins (active)' => $this->format_plugin_list($active_plugins), 'License status' => $license_data['status'], 'License key' => $license_data['key']), $plugin_slug);
+        $diagnostics = $this->get_diagnostics($plugin_slug, $active_plugins);
         $body_lines = array('Plugin: ' . $plugin_title, 'From: ' . wp_get_current_user()->display_name, 'Contact email: ' . $email_input, '', 'Message:', $message_input, '', 'Diagnostics:');
         foreach ($diagnostics as $label => $value) {
             $body_lines[] = $label . ': ' . ($value !== '' ? $value : '-');
         }
         $attachments = [];
         $temp_paths = [];
-        $log_paths = $this->get_log_attachment_paths($log_files);
+        $log_paths = array_values(array_unique(array_merge($this->get_latest_log_paths($plugin_slug, $log_count), $this->get_log_attachment_paths($log_files))));
         if ($log_paths) {
             $attachments = array_merge($attachments, $log_paths);
             $body_lines[] = '';
@@ -445,27 +667,27 @@ class SupportPage
         }
         $upload_result = $this->handle_support_uploads($upload_files);
         if (!empty($upload_result['paths'])) {
-            $attachments = array_merge($attachments, $upload_result['paths']);
+            $names = $this->add_named_attachments($attachments, $upload_result['paths']);
             $body_lines[] = '';
-            $body_lines[] = 'File attachments: ' . implode(', ', array_map('basename', $upload_result['paths']));
+            $body_lines[] = 'File attachments: ' . implode(', ', $names);
         }
         $generated = apply_filters('wpify_dashboard_support_email_generated_attachments', [], $plugin_slug);
         if (is_array($generated) && $generated) {
             $generated_paths = $this->create_generated_attachments($generated);
             if (!empty($generated_paths['paths'])) {
-                $attachments = array_merge($attachments, $generated_paths['paths']);
-                $temp_paths = array_merge($temp_paths, $generated_paths['paths']);
+                $names = $this->add_named_attachments($attachments, $generated_paths['paths']);
+                $temp_paths = array_merge($temp_paths, array_column($generated_paths['paths'], 'path'));
                 $body_lines[] = '';
-                $body_lines[] = 'Generated attachments: ' . implode(', ', array_map('basename', $generated_paths['paths']));
+                $body_lines[] = 'Generated attachments: ' . implode(', ', $names);
             }
         }
         $attachments = apply_filters('wpify_dashboard_support_email_attachments', $attachments, $plugin_slug);
         $headers = array('Reply-To: ' . $email_input);
         $sent = wp_mail('support@wpify.io', $subject, implode("\n", $body_lines), $headers, $attachments);
         if (!empty($upload_result['paths'])) {
-            foreach ($upload_result['paths'] as $path) {
-                if (is_string($path) && $path !== '') {
-                    @unlink($path);
+            foreach ($upload_result['paths'] as $file) {
+                if ($file['path'] !== '') {
+                    @unlink($file['path']);
                 }
             }
         }
@@ -582,9 +804,34 @@ class SupportPage
                 @unlink($tmp);
                 continue;
             }
-            $paths[] = $tmp;
+            $paths[] = array('name' => $name, 'path' => $tmp);
         }
         return array('paths' => $paths);
+    }
+    /**
+     * Temp files have no extension, so the original name is passed to wp_mail() as the array key.
+     *
+     * @param array $attachments Attachments passed to wp_mail(), extended in place.
+     * @param array $files       List of [ 'name' => string, 'path' => string ].
+     *
+     * @return string[] Names actually used.
+     */
+    private function add_named_attachments(array &$attachments, array $files): array
+    {
+        $names = [];
+        foreach ($files as $file) {
+            $name = $file['name'] !== '' ? $file['name'] : 'attachment';
+            $base = pathinfo($name, \PATHINFO_FILENAME);
+            $ext = pathinfo($name, \PATHINFO_EXTENSION);
+            $counter = 1;
+            $unique = $name;
+            while (isset($attachments[$unique])) {
+                $unique = $base . '-' . ++$counter . ($ext !== '' ? '.' . $ext : '');
+            }
+            $attachments[$unique] = $file['path'];
+            $names[] = $unique;
+        }
+        return $names;
     }
     private function handle_support_uploads(?array $files): array
     {
@@ -617,7 +864,7 @@ class SupportPage
                 $errors[] = $name;
                 continue;
             }
-            $paths[] = $tmp_name;
+            $paths[] = array('name' => sanitize_file_name($name), 'path' => $tmp_name);
         }
         return array('paths' => $paths, 'errors' => $errors);
     }

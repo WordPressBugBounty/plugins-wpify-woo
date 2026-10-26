@@ -62,7 +62,7 @@ abstract class Repository implements RepositoryInterface
      */
     public function maybe_convert_to_type($property, $value): mixed
     {
-        if (empty($value) && $property['allows_null']) {
+        if (($value === null || $value === '') && $property['allows_null']) {
             return $property['default'];
         }
         $type = $property['type'];

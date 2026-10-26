@@ -633,7 +633,8 @@ class XmlFeedHeurekaModule extends AbstractModule {
 	 */
 	public function get_heureka_categories_list( $params ) {
 		$categories = $this->get_heureka_categories();
-		$search     = sanitize_title( $params['search'] );
+		// The saved-value lookup sends only `value`, without `search`.
+		$search     = sanitize_title( $params['search'] ?? '' );
 		$search_ids = array();
 		$list       = array();
 

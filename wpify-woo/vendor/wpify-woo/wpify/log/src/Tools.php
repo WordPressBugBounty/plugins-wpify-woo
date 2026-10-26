@@ -14,7 +14,7 @@ class Tools
     }
     public function add_menu_page()
     {
-        add_submenu_page($this->menu_args['parent_slug'] ?? 'tools.php', $this->menu_args['page_title'] ?? __('WPify Logs', 'wpify-log'), $this->menu_args['menu_title'] ?? __('WPify Logs', 'wpify-log'), $this->menu_args['capability'] ?? 'read', $this->menu_args['menu_slug'] ?? 'wpify-logs', [$this, 'logs_screen'], 109);
+        add_submenu_page($this->menu_args['parent_slug'] ?? 'tools.php', $this->menu_args['page_title'] ?? __('WPify Logs', 'wpify-log'), $this->menu_args['menu_title'] ?? __('WPify Logs', 'wpify-log'), $this->menu_args['capability'] ?? 'manage_options', $this->menu_args['menu_slug'] ?? 'wpify-logs', [$this, 'logs_screen'], 109);
     }
     public function logs_screen()
     {
@@ -29,8 +29,73 @@ class Tools
                 $files = array_merge($files, $log_files);
             }
         }
+        $requested_file = !empty($_GET['log-file']) ? wp_unslash($_GET['log-file']) : '';
+        $menu_slug = $this->menu_args['menu_slug'] ?? 'wpify-logs';
         ?>
         <style>
+            /* Defaults for the shared WPify classes. :where() keeps them at zero specificity,
+               so the WPify plugin styles win whenever they are loaded on the screen. */
+            :where(.wpify-log) :where(.wpify-badge) {
+                padding: 4px 8px;
+                font-size: 12px;
+                line-height: 1;
+                border-radius: 3px;
+                color: #1d2327;
+                background-color: #f0f0f1;
+            }
+
+            :where(.wpify-log) :where(.wpify-badge-success) {
+                color: #00a32a;
+                background-color: #edfaef;
+            }
+
+            :where(.wpify-log) :where(.wpify-badge-primary) {
+                color: #2271b1;
+                background-color: #f0f6fc;
+            }
+
+            :where(.wpify-log) :where(.wpify-badge-warning) {
+                color: #996800;
+                background-color: #fcf9e8;
+            }
+
+            :where(.wpify-log) :where(.wpify-badge-error) {
+                color: #d63638;
+                background-color: #fcf0f1;
+            }
+
+            :where(.wpify-log) :where(.wpify-notice) {
+                padding: 5px 10px;
+                margin-bottom: 10px;
+                border: 1px solid #d63638;
+                border-radius: 3px;
+                background-color: #fcf0f1;
+            }
+
+            .wpify-log__file-form {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            /* Above the Custom Fields select padding, which would put the text under the arrow. */
+            .wpify-log select.wpify-log__file-select {
+                max-width: 500px;
+                padding-right: 30px;
+            }
+
+            .wpify-log__context {
+                white-space: pre-wrap;
+                word-break: break-all;
+                font-size: 13px;
+                margin: 0;
+            }
+
+            .wpify-log__settings {
+                margin-bottom: 20px;
+            }
+
             .wpify-logs-settings-form {
                 display: flex;
                 justify-content: center;
@@ -38,28 +103,32 @@ class Tools
                 width: 100%;
                 gap: 10px;
                 flex-wrap: wrap;
-                border-top: 1px solid var(--wpify-core-light);
+                border-top: 1px solid var(--wpify-core-light, #dcdcde);
                 padding-top: 20px;
                 margin-top: 20px;
+            }
 
-                p.submit {
-                    width: auto;
-                    margin-top: 0;
-                    margin-bottom: 0;
-                    padding-top: 0;
-                    padding-bottom: 0;
-                }
+            .wpify-logs-settings-form__field {
+                flex: 1;
+                min-width: 250px;
+            }
+
+            .wpify-logs-settings-form p.submit {
+                width: auto;
+                margin-top: 0;
+                margin-bottom: 0;
+                padding-top: 0;
+                padding-bottom: 0;
             }
         </style>
-        <div class="wrap">
+        <div class="wrap wpify-log">
             <h2><?php 
-        echo $this->menu_args['page_title'] ?? __('WPify Logs', 'wpify-log');
+        echo esc_html($this->menu_args['page_title'] ?? __('WPify Logs', 'wpify-log'));
         ?></h2>
 
-            <form action="" style="display:flex; flex-wrap:wrap; justify-content: start; margin-bottom: 20px;gap: 10px">
+            <form action="" class="wpify-log__file-form">
                 <div class="wpifycf-select">
-                    <select class="wpifycf-select__control" name="log-file" id="log-file"
-                            style="max-width: 500px; padding-right: 30px">
+                    <select class="wpifycf-select__control wpify-log__file-select" name="log-file" id="log-file">
                         <option value=""></option>
 						<?php 
         foreach ($files as $file) {
@@ -78,11 +147,11 @@ class Tools
             $formated_name = implode(' ', $parts) . ' – ' . $date;
             ?>
                             <option value="<?php 
-            echo $file;
+            echo esc_attr($file);
             ?>" <?php 
-            echo selected($file, !empty($_GET['log-file']) ? esc_html($_GET['log-file']) : '');
+            selected($file, $requested_file);
             ?>><?php 
-            echo $formated_name;
+            echo esc_html($formated_name);
             ?></option>
 							<?php 
         }
@@ -90,26 +159,30 @@ class Tools
                     </select>
                 </div>
                 <input type="hidden" name="page" value="<?php 
-        echo $this->menu_args['menu_slug'] ?? 'wpify-logs';
+        echo esc_attr($menu_slug);
         ?>"/>
-                <input class="button" type="submit" value="Display log"/>
+                <input class="button" type="submit" value="<?php 
+        esc_attr_e('Display log', 'wpify-log');
+        ?>"/>
             </form>
         </div>
 
-        <div class="wrap">
+        <div class="wrap wpify-log">
 			<?php 
-        if (!empty($_GET['log-file'])) {
-            $file = str_replace('\\\\', '\\', $_GET['log-file']);
-            if (!\in_array($file, $files)) {
+        if ($requested_file) {
+            $file = $requested_file;
+            if (!\in_array($file, $files, \true)) {
                 ?>
-                    <p><?php 
-                _e('File not found, cheating, huh?', 'wpify-log');
+                    <div class="wpify-notice wpify-notice-error">
+                        <p><?php 
+                esc_html_e('File not found, cheating, huh?', 'wpify-log');
                 ?></p>
+                    </div>
 					<?php 
             } else {
                 $logs = array_map(function ($item) {
                     return json_decode($item, \ARRAY_A);
-                }, file($_GET['log-file']));
+                }, file($file));
                 if (!empty($logs)) {
                     $header = [];
                     foreach ($logs[0] as $key => $item) {
@@ -129,7 +202,7 @@ class Tools
                                     <th style="width: <?php 
                         echo $this->column_width($item);
                         ?>"><?php 
-                        echo $item;
+                        echo esc_html($item);
                         ?></th>
 									<?php 
                     }
@@ -168,17 +241,17 @@ class Tools
         ?>
         </div>
 
-        <div class="wrap">
+        <div class="wrap wpify-log">
             <form method="post" action="<?php 
-        echo admin_url('admin-post.php');
-        ?>" style="margin-bottom: 20px">
+        echo esc_url(admin_url('admin-post.php'));
+        ?>" class="wpify-log__settings">
 				<?php 
         wp_nonce_field('wpify_logs_settings', 'wpify_logs_nonce');
         ?>
                 <input type="hidden" name="action" value="wpify_logs_save_settings">
 
                 <div class="wpify-logs-settings-form">
-                    <div style="flex: 1;min-width: 250px;">
+                    <div class="wpify-logs-settings-form__field">
                         <label for="wpify_logs_max_files"><?php 
         _e('Maximum log files to keep per plugin', 'wpify-log');
         ?></label>
@@ -220,7 +293,7 @@ class Tools
             $level_name = esc_html($item);
             switch ($level_name) {
                 case 'DEBUG':
-                    $style = 'default';
+                    $style = 'light';
                     break;
                 case 'INFO':
                     $style = 'success';
@@ -238,7 +311,7 @@ class Tools
             printf('<span class="log-level log-level-%s wpify-badge wpify-badge-%s">%s</span>', esc_attr($level_name), $style, $level_name);
             return;
         }
-        if (is_string($item) && ($item[0] === '{' && str_ends_with($item, '}') || $item[0] === '[' && str_ends_with($item, ']'))) {
+        if (is_string($item) && '' !== $item && ($item[0] === '{' && str_ends_with($item, '}') || $item[0] === '[' && str_ends_with($item, ']'))) {
             $decoded = json_decode($item, \true);
             if (json_last_error() === \JSON_ERROR_NONE) {
                 $item = $decoded;
@@ -250,7 +323,7 @@ class Tools
             if ($body[0] === '{' && substr($body, -1) === '}') {
                 $body = substr($body, 1, -1);
             }
-            echo '<pre style="white-space: pre-wrap; word-break: break-all; font-size:13px; margin:0;">' . $body . '</pre>';
+            echo '<pre class="wpify-log__context">' . esc_html($body) . '</pre>';
         } else {
             echo esc_html($item);
         }

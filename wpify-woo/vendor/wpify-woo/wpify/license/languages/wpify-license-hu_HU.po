@@ -1,0 +1,106 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-09T13:45:20+02:00\n"
+"PO-Revision-Date: 2026-10-09 12:00+0200\n"
+"Last-Translator: WPify\n"
+"Language-Team: hu (draft, needs native review)\n"
+"Language: hu_HU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: wpify-license\n"
+"X-Generator: WP-CLI 2.11.0\n"
+
+#: src/License.php:162
+msgid "The license field could not be loaded"
+msgstr "A licencmezőt nem sikerült betölteni"
+
+#: src/License.php:163
+msgid "The browser did not receive the license script. The server or a security plugin is probably blocking files of this plugin (HTTP 403). Please ask your hosting or administrator to allow this file:"
+msgstr "A böngésző nem kapta meg a licencszkriptet. Valószínűleg a szerver vagy egy biztonsági bővítmény blokkolja a bővítmény fájljait (HTTP 403). Kérje meg a tárhelyszolgáltatót vagy a rendszergazdát, hogy engedélyezze ezt a fájlt:"
+
+#: src/License.php:165 build/settings.js:1
+msgid "Activate domain"
+msgstr "Domain aktiválása"
+
+#: src/License.php:360
+msgid "License not found"
+msgstr "A licenc nem található"
+
+#: build/settings.js:1
+msgid "Without renewal"
+msgstr "Megújítás nélkül"
+
+#: build/settings.js:1
+msgid "Status:"
+msgstr "Állapot:"
+
+#: build/settings.js:1
+msgid "Not valid"
+msgstr "Érvénytelen"
+
+#: build/settings.js:1
+msgid "Active"
+msgstr "Aktív"
+
+#: build/settings.js:1
+msgid "Not active"
+msgstr "Nem aktív"
+
+#: build/settings.js:1
+msgid "Domain is connected with your subscription in WPify account."
+msgstr "A domain össze van kapcsolva a WPify-fiókjában lévő előfizetésével."
+
+#: build/settings.js:1
+msgid "Please activate the domain by connecting it with your WPify account!"
+msgstr "Aktiválja a domaint a WPify-fiókjához kapcsolva!"
+
+#. translators: %s: domain the license is activated for
+#: build/settings.js:1
+msgid "The license is activated for the domain %s, not for this site."
+msgstr "A licenc a(z) %s domainhez van aktiválva, nem ehhez a webhelyhez."
+
+#: build/settings.js:1
+msgid "The license is activated for a different domain."
+msgstr "A licenc egy másik domainhez van aktiválva."
+
+#: build/settings.js:1
+msgid "The activation was not found in your WPify account. It may have been deactivated there."
+msgstr "Az aktiválás nem található a WPify-fiókjában. Lehet, hogy ott kikapcsolták."
+
+#: build/settings.js:1
+msgid "The subscription is on hold, waiting for payment."
+msgstr "Az előfizetés szünetel, fizetésre vár."
+
+#. translators: %s: date the subscription ended
+#: build/settings.js:1
+msgid "The subscription expired on %s."
+msgstr "Az előfizetés lejárt: %s."
+
+#: build/settings.js:1
+msgid "The subscription is not active."
+msgstr "Az előfizetés nem aktív."
+
+#: build/settings.js:1
+msgid "No active subscription was found for this license."
+msgstr "Ehhez a licenchez nem található aktív előfizetés."
+
+#: build/settings.js:1
+msgid "The license is not valid, please go to your account and review your subscription ."
+msgstr "A licenc nem érvényes. Kérjük, ellenőrizze előfizetését a fiókjában."
+
+#: build/settings.js:1
+msgid "Key:"
+msgstr "Kulcs:"
+
+#: build/settings.js:1
+msgid "Renewal:"
+msgstr "Megújítás:"
+
+#: build/settings.js:1
+msgid "Deactivate domain"
+msgstr "Domain kikapcsolása"

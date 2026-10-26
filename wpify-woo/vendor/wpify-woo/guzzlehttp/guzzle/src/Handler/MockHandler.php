@@ -7,7 +7,6 @@ use WpifyWooDeps\GuzzleHttp\HandlerStack;
 use WpifyWooDeps\GuzzleHttp\Promise as P;
 use WpifyWooDeps\GuzzleHttp\Promise\PromiseInterface;
 use WpifyWooDeps\GuzzleHttp\TransferStats;
-use WpifyWooDeps\GuzzleHttp\Utils;
 use WpifyWooDeps\Psr\Http\Message\RequestInterface;
 use WpifyWooDeps\Psr\Http\Message\ResponseInterface;
 use WpifyWooDeps\Psr\Http\Message\StreamInterface;
@@ -131,7 +130,7 @@ class MockHandler implements \Countable
             if ($value instanceof ResponseInterface || $value instanceof \Throwable || $value instanceof PromiseInterface || \is_callable($value)) {
                 $this->queue[] = $value;
             } else {
-                throw new \TypeError('Expected a Response, Promise, Throwable or callable. Found ' . Utils::describeType($value));
+                throw new \TypeError('Expected a Response, Promise, Throwable or callable. Found ' . \get_debug_type($value));
             }
         }
     }

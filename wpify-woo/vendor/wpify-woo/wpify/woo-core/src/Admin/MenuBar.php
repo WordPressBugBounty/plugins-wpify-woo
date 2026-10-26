@@ -11,11 +11,159 @@ namespace WpifyWooDeps\Wpify\WooCore\Admin;
  */
 class MenuBar
 {
+    const COMPONENTS_HANDLE = 'wpify-core-components';
     private Settings $settings;
     public function __construct(Settings $settings)
     {
         $this->settings = $settings;
+        // Priority 1 so plugins can enqueue the components handle on their own screens.
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_head_assets'], 1);
         add_action('in_admin_header', [$this, 'render']);
+        add_filter('wpifycf_print_app', [$this, 'print_fields_style']);
+    }
+    /**
+     * Custom Fields render their fields only after DOMContentLoaded, so a skeleton holds their place; product
+     * tabs also need a few fixes against WooCommerce's panel styles. Printed inline right before the first field
+     * instance, so the skeleton is there on the first paint. Echoed directly: in the admin WordPress
+     * concatenates styles and would postpone an inline style of a late handle.
+     *
+     * @param bool $print Whether Custom Fields print the app.
+     *
+     * @return bool
+     */
+    public function print_fields_style($print)
+    {
+        if (!$print || !is_admin() || did_action('wpify_core_fields_style_printed')) {
+            return $print;
+        }
+        do_action('wpify_core_fields_style_printed');
+        echo '<style id="wpify-core-fields">
+/* The skeleton copies the Custom Fields rows: label column, 40px input, description; 104px per row. */
+.wpifycf-app-instance[data-loaded="false"] {
+	display: block;
+	container-type: inline-size;
+}
+.wpifycf-app-instance[data-loaded="false"]::before {
+	--wpify-skeleton-column: 208px;
+	content: "";
+	display: block;
+	height: 272px;
+	background:
+		linear-gradient(#dcdcde 0 0) 0 12px / 140px 14px,
+		linear-gradient(#f0f0f1 0 0) var(--wpify-skeleton-column) 0px / calc(100% - var(--wpify-skeleton-column)) 40px,
+		linear-gradient(#f0f0f1 0 0) var(--wpify-skeleton-column) 50px / 40% 10px,
+		linear-gradient(#dcdcde 0 0) 0 116px / 140px 14px,
+		linear-gradient(#f0f0f1 0 0) var(--wpify-skeleton-column) 104px / calc(100% - var(--wpify-skeleton-column)) 40px,
+		linear-gradient(#f0f0f1 0 0) var(--wpify-skeleton-column) 154px / 40% 10px,
+		linear-gradient(#dcdcde 0 0) 0 220px / 140px 14px,
+		linear-gradient(#f0f0f1 0 0) var(--wpify-skeleton-column) 208px / calc(100% - var(--wpify-skeleton-column)) 40px,
+		linear-gradient(#f0f0f1 0 0) var(--wpify-skeleton-column) 258px / 40% 10px;
+	background-repeat: no-repeat;
+	animation: wpify-fields-loading 1.2s ease-in-out infinite alternate;
+}
+/* On the WPify settings pages the skeleton sits in the same white card as the fields. */
+.wpify-admin-page .wpifycf-app-instance[data-loaded="false"] {
+	padding: 40px;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;
+}
+.wpify-admin-page .wpifycf-app-instance[data-loaded="false"]::before {
+	--wpify-skeleton-column: 230px;
+}
+@media screen and (max-width: 782px) {
+	.wpify-admin-page .wpifycf-app-instance[data-loaded="false"] {
+		padding: 20px;
+	}
+}
+/* Custom Fields stack the label above the field in containers up to 600px. */
+@container (inline-size <= 600px) {
+	.wpifycf-app-instance[data-loaded="false"]::before {
+		height: 296px;
+		background:
+			linear-gradient(#dcdcde 0 0) 0 0px / 140px 14px,
+			linear-gradient(#f0f0f1 0 0) 0 24px / 100% 40px,
+			linear-gradient(#f0f0f1 0 0) 0 74px / 60% 10px,
+			linear-gradient(#dcdcde 0 0) 0 108px / 140px 14px,
+			linear-gradient(#f0f0f1 0 0) 0 132px / 100% 40px,
+			linear-gradient(#f0f0f1 0 0) 0 182px / 60% 10px,
+			linear-gradient(#dcdcde 0 0) 0 216px / 140px 14px,
+			linear-gradient(#f0f0f1 0 0) 0 240px / 100% 40px,
+			linear-gradient(#f0f0f1 0 0) 0 290px / 60% 10px;
+		background-repeat: no-repeat;
+	}
+}
+@keyframes wpify-fields-loading {
+	to { opacity: .4; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.wpifycf-app-instance[data-loaded="false"]::before { animation: none; }
+}
+/* WooCommerce product tabs: the fields would touch the panel edges, and WooCommerce gives every
+   label a fixed 150px and every text input half the width, floated. */
+.woocommerce_options_panel .wpifycf-app-instance {
+	padding: 12px 20px;
+}
+.woocommerce_options_panel .wpifycf-app-instance label.wpifycf-field__label {
+	width: auto;
+}
+.woocommerce_options_panel .wpifycf-app-instance input:is([type=text], [type=email], [type=number], [type=url], [type=tel], [type=password], [type=date]):not(.wpifycf-select__input) {
+	width: 100%;
+	float: none;
+}
+.woocommerce_options_panel .wpifycf-app-instance textarea {
+	width: 100%;
+	height: auto;
+	min-height: 100px;
+	float: none;
+}
+/* Outside the WPify screens the fields keep the native look; the select and the multi-group header,
+   which Custom Fields draw themselves, are brought to it. */
+body:not(.wpify-admin-page) .wpifycf-app-instance .wpifycf-select__control {
+	min-height: 40px;
+	border: 1px solid #949494;
+	border-radius: 2px;
+	box-shadow: none;
+	color: #1e1e1e;
+	font-size: 14px;
+}
+body:not(.wpify-admin-page) .wpifycf-app-instance .wpifycf-select__control--is-focused {
+	border-color: var(--wp-admin-theme-color, #2271b1);
+	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #2271b1);
+}
+body:not(.wpify-admin-page) .wpifycf-app-instance .wpifycf-select__value-container {
+	padding: 0 8px;
+}
+body:not(.wpify-admin-page) .wpifycf-app-instance .wpifycf-select__indicator-separator {
+	display: none;
+}
+body:not(.wpify-admin-page) .wpifycf-app-instance .wpifycf-select__dropdown-indicator {
+	color: #1e1e1e;
+}
+body:not(.wpify-admin-page) .wpifycf-app-instance .wpifycf-field-multi-group__item-header {
+	background: #f6f7f7;
+}
+</style>';
+        return $print;
+    }
+    /**
+     * Whether the current admin screen is one of ours.
+     *
+     * @return bool
+     */
+    private function should_render(): bool
+    {
+        $screen = get_current_screen();
+        $current_page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
+        // A plugin's OWN native screens (a CPT's list table / editor) never
+        // have a `?page=` query var at all — `post_type` instead — so this
+        // check is always false there, and the bar never renders. There was
+        // no hook around this early return for a plugin to opt its own such
+        // screens in; `wpify_woo_menu_bar_should_render` is that hook. The
+        // default behavior (bar only on `?page=...wpify...` screens) is
+        // unchanged for every plugin that doesn't use the filter.
+        $should_render = $screen && str_contains($current_page, 'wpify');
+        return (bool) apply_filters('wpify_woo_menu_bar_should_render', $should_render, $screen, $current_page);
     }
     /**
      * Render menu bar
@@ -24,15 +172,16 @@ class MenuBar
      */
     public function render(): void
     {
-        /** @var \WP_Screen $screen */
-        $screen = get_current_screen();
-        $current_page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
-        if (!$screen || !str_contains($current_page, 'wpify')) {
+        if (!$this->should_render()) {
             return;
         }
+        // Enqueued here, after <head> was printed, on purpose: the stylesheet lands in the
+        // body behind the Custom Fields styles that are injected at runtime, and its rules
+        // rely on that order to override them at the same specificity.
         $this->enqueue_styles();
         wp_enqueue_script('thickbox');
         wp_enqueue_style('thickbox');
+        $current_page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
         global $title;
         $data = array('title' => $title, 'icon' => '', 'parent' => '', 'plugin' => '', 'menu' => array(array('icon' => $this->get_dashboard_icon(), 'label' => __('Dashboard', 'wpify-core'), 'link' => add_query_arg(['page' => DashboardPage::SLUG], admin_url('admin.php')))), 'support_url' => add_query_arg(['page' => SupportPage::SLUG], admin_url('admin.php')), 'doc_link' => $this->get_docs_base_url());
         $data = apply_filters('wpify_admin_menu_bar_data', $data);
@@ -42,7 +191,15 @@ class MenuBar
                 unset($sections[$section_id]);
             }
         }
-        $data['sections'] = $sections;
+        // `$sections` above is `Settings::get_sections()`'s own result — the
+        // SAME array `Settings::register_settings()` reads to decide which
+        // real submenu pages to create. A plugin that wants a tab here for
+        // something that ISN'T a registered settings page (e.g. a link back
+        // to its own CPT's native list-table screen) can't add one to
+        // `$sections` itself without the framework also trying to register a
+        // phantom page for it. This filter is a separate, page-registration-
+        // blind list specifically for what the tab bar shows.
+        $data['sections'] = apply_filters('wpify_admin_menu_bar_sections', $sections, $data);
         $plugins = $this->settings->get_plugins();
         if (isset($plugins[$data['plugin']])) {
             $data['title'] = $plugins[$data['plugin']]['title'];
@@ -208,26 +365,73 @@ class MenuBar
 		<?php 
     }
     /**
+     * Register the components stylesheet for the whole admin and load it in <head> on our screens.
+     *
+     * @return void
+     */
+    public function enqueue_head_assets(): void
+    {
+        self::register_components_style();
+        if ($this->should_render()) {
+            wp_enqueue_style(self::COMPONENTS_HANDLE);
+        }
+    }
+    /**
+     * Load the components stylesheet (tokens, badges, notices) on a screen outside the WPify pages,
+     * e.g. the order list or detail. Registers it from this copy of woo-core when the copy
+     * that runs the WPify admin is older and did not register it.
+     * Plugins using the components on their own screens should call this themselves: an older
+     * copy running the admin doesn't know screens registered through newer filters.
+     *
+     * @return void
+     */
+    public static function enqueue_components_style(): void
+    {
+        self::register_components_style();
+        wp_enqueue_style(self::COMPONENTS_HANDLE);
+    }
+    /**
+     * @return void
+     */
+    private static function register_components_style(): void
+    {
+        if (wp_style_is(self::COMPONENTS_HANDLE, 'registered')) {
+            return;
+        }
+        [$url, $ver] = self::get_asset('components.css');
+        wp_register_style(self::COMPONENTS_HANDLE, $url, [], $ver);
+    }
+    /**
      * Enqueue admin styles
      *
      * @return void
      */
     private function enqueue_styles(): void
     {
-        $base_dir = dirname(__DIR__, 2);
-        $asset_path = $base_dir . '/assets/admin.css';
+        self::register_components_style();
+        [$url, $ver] = self::get_asset('admin.css');
+        wp_enqueue_style('wpify-core-admin', $url, [self::COMPONENTS_HANDLE], $ver);
+    }
+    /**
+     * URL and version of a file in this package's assets folder.
+     *
+     * @param string $file File name.
+     *
+     * @return array{0: string, 1: int|null}
+     */
+    private static function get_asset(string $file): array
+    {
+        $asset_path = dirname(__DIR__, 2) . '/assets/' . $file;
         $reflection = new \ReflectionClass(static::class);
         $package_root = dirname($reflection->getFileName(), 3);
         $relative_path = str_replace($package_root, '', $asset_path);
         $package_url = str_replace(wp_normalize_path(\WP_CONTENT_DIR), content_url(), wp_normalize_path($package_root));
-        $url = $package_url . $relative_path;
-        $ver = file_exists($asset_path) ? filemtime($asset_path) : null;
-        wp_enqueue_style('wpify-core-admin', $url, [], $ver);
+        return [$package_url . $relative_path, file_exists($asset_path) ? filemtime($asset_path) : null];
     }
     private function get_docs_base_url(): string
     {
         $domain = 'https://docs.wpify.cz/';
-        if (in_array(get_locale(), array('cs_CZ', 'sk_SK'), \true)) {
+        if (in_array(determine_locale(), array('cs_CZ', 'sk_SK'), \true)) {
             $domain = 'https://docs.wpify.cz/cs/';
         }
         return $domain;

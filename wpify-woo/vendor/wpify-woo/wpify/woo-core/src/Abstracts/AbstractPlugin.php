@@ -14,7 +14,7 @@ abstract class AbstractPlugin
     protected bool $requires_activation = \true;
     private WpifyWooCore $wpify_woo_core;
     private PluginUtils $plugin_utils;
-    private License $license;
+    private ?License $license = null;
     private ?array $plugin_data_cache = null;
     private ?string $icon_file_cache = null;
     public function __construct(WpifyWooCore $wpify_woo_core, PluginUtils $plugin_utils)
@@ -26,6 +26,7 @@ abstract class AbstractPlugin
         add_filter('plugin_row_meta', array($this, 'add_row_meta_links'), 10, 2);
         // Registrace filteru pro moduly - fallback na plugin dokumentaci
         add_filter('wpify_woo_plugin_documentation_url_' . $this->id(), array($this, 'documentation_url'));
+        add_action('in_plugin_update_message-' . $this->plugin_utils->get_plugin_basename(), array($this, 'upgrade_notice'), 10, 2);
         if ($this->requires_activation) {
             $this->license = new License($this->id(), \false, is_multisite() ? get_current_network_id() : 0);
             if (!$this->license->is_activated()) {
@@ -107,11 +108,24 @@ abstract class AbstractPlugin
     public function documentation_url(): string
     {
         $domain = 'https://docs.wpify.cz/';
-        if (in_array(get_locale(), array('cs_CZ', 'sk_SK'), \true)) {
+        if (in_array(determine_locale(), array('cs_CZ', 'sk_SK'), \true)) {
             $domain = 'https://docs.wpify.cz/cs/';
         }
         $path = $this->get_documentation_path();
         return esc_url($domain . $path);
+    }
+    /**
+     * Highlight the upgrade notice of an available update (e.g. a change that needs attention) in the plugin list.
+     *
+     * @param array  $plugin_data Plugin data.
+     * @param object $response    Update response.
+     */
+    public function upgrade_notice($plugin_data, $response): void
+    {
+        if (empty($response->upgrade_notice)) {
+            return;
+        }
+        echo '<div style="background: red; color: white; padding: 10px;">' . wp_kses($response->upgrade_notice, array('a' => array('href' => array(), 'title' => array()))) . '</div>';
     }
     /**
      * Plugin support url

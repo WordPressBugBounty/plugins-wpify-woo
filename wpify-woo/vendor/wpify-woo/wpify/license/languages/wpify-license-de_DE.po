@@ -1,0 +1,106 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-09T13:45:20+02:00\n"
+"PO-Revision-Date: 2026-10-09 12:00+0200\n"
+"Last-Translator: WPify\n"
+"Language-Team: de (draft, needs native review)\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: wpify-license\n"
+"X-Generator: WP-CLI 2.11.0\n"
+
+#: src/License.php:162
+msgid "The license field could not be loaded"
+msgstr "Das Lizenzfeld konnte nicht geladen werden"
+
+#: src/License.php:163
+msgid "The browser did not receive the license script. The server or a security plugin is probably blocking files of this plugin (HTTP 403). Please ask your hosting or administrator to allow this file:"
+msgstr "Der Browser hat das Lizenzskript nicht erhalten. Vermutlich blockiert der Server oder ein Sicherheits-Plugin Dateien dieses Plugins (HTTP 403). Bitten Sie Ihren Hoster oder Administrator, diese Datei freizugeben:"
+
+#: src/License.php:165 build/settings.js:1
+msgid "Activate domain"
+msgstr "Domain aktivieren"
+
+#: src/License.php:360
+msgid "License not found"
+msgstr "Lizenz nicht gefunden"
+
+#: build/settings.js:1
+msgid "Without renewal"
+msgstr "Ohne Verlängerung"
+
+#: build/settings.js:1
+msgid "Status:"
+msgstr "Status:"
+
+#: build/settings.js:1
+msgid "Not valid"
+msgstr "Ungültig"
+
+#: build/settings.js:1
+msgid "Active"
+msgstr "Aktiv"
+
+#: build/settings.js:1
+msgid "Not active"
+msgstr "Nicht aktiv"
+
+#: build/settings.js:1
+msgid "Domain is connected with your subscription in WPify account."
+msgstr "Die Domain ist mit Ihrem Abonnement im WPify-Konto verbunden."
+
+#: build/settings.js:1
+msgid "Please activate the domain by connecting it with your WPify account!"
+msgstr "Bitte aktivieren Sie die Domain, indem Sie sie mit Ihrem WPify-Konto verbinden!"
+
+#. translators: %s: domain the license is activated for
+#: build/settings.js:1
+msgid "The license is activated for the domain %s, not for this site."
+msgstr "Die Lizenz ist für die Domain %s aktiviert, nicht für diese Website."
+
+#: build/settings.js:1
+msgid "The license is activated for a different domain."
+msgstr "Die Lizenz ist für eine andere Domain aktiviert."
+
+#: build/settings.js:1
+msgid "The activation was not found in your WPify account. It may have been deactivated there."
+msgstr "Die Aktivierung wurde in Ihrem WPify-Konto nicht gefunden. Möglicherweise wurde sie dort deaktiviert."
+
+#: build/settings.js:1
+msgid "The subscription is on hold, waiting for payment."
+msgstr "Das Abonnement ist pausiert und wartet auf die Zahlung."
+
+#. translators: %s: date the subscription ended
+#: build/settings.js:1
+msgid "The subscription expired on %s."
+msgstr "Das Abonnement ist am %s abgelaufen."
+
+#: build/settings.js:1
+msgid "The subscription is not active."
+msgstr "Das Abonnement ist nicht aktiv."
+
+#: build/settings.js:1
+msgid "No active subscription was found for this license."
+msgstr "Für diese Lizenz wurde kein aktives Abonnement gefunden."
+
+#: build/settings.js:1
+msgid "The license is not valid, please go to your account and review your subscription ."
+msgstr "Die Lizenz ist nicht gültig. Bitte prüfen Sie Ihr Abonnement in Ihrem Konto."
+
+#: build/settings.js:1
+msgid "Key:"
+msgstr "Schlüssel:"
+
+#: build/settings.js:1
+msgid "Renewal:"
+msgstr "Verlängerung:"
+
+#: build/settings.js:1
+msgid "Deactivate domain"
+msgstr "Domain deaktivieren"

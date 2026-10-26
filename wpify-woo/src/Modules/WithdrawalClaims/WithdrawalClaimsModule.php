@@ -204,6 +204,14 @@ class WithdrawalClaimsModule extends AbstractModule {
 				'tab'     => 'withdrawal',
 			),
 			array(
+				'id'    => 'show_buttons_in_orders_list',
+				'type'  => 'toggle',
+				'label' => __( 'Buttons in orders list', 'wpify-woo' ),
+				'title' => __( 'Show the withdrawal and claim buttons also in My Account → Orders list', 'wpify-woo' ),
+				'desc'  => __( 'By default the buttons are shown only on the order detail. Buttons appear only for orders that are still within the period.', 'wpify-woo' ),
+				'tab'   => 'withdrawal',
+			),
+			array(
 				'id'      => 'withdrawal_confirm_text',
 				'type'    => 'text',
 				'label'   => __( 'Confirm button text', 'wpify-woo' ),
@@ -2319,11 +2327,11 @@ class WithdrawalClaimsModule extends AbstractModule {
 	 * Add withdrawal/claim entries to the native order actions array
 	 * (woocommerce_my_account_my_orders_actions filter). The same filter feeds
 	 * both the My Account → Orders list AND the order detail view (via
-	 * templates/order/order-details.php), so we restrict our entries to the
-	 * detail view only — the list would be visual clutter.
+	 * templates/order/order-details.php). The detail view always gets the
+	 * entries; the list only when `show_buttons_in_orders_list` is enabled.
 	 *
 	 * Gating:
-	 *  - only on view-order endpoint (detail page)
+	 *  - view-order endpoint, or orders endpoint with the setting enabled
 	 *  - is_active() per type (master switch)
 	 *  - is_order_eligible_for_request() (status not refunded/cancelled/failed/draft)
 	 *  - at least one eligible item
@@ -2332,8 +2340,9 @@ class WithdrawalClaimsModule extends AbstractModule {
 	 * @param \WC_Order $order   Order being rendered.
 	 */
 	public function add_my_orders_actions( array $actions, $order ): array {
-		// Skip on My Account → Orders list — buttons appear only on the order detail.
-		if ( ! is_wc_endpoint_url( 'view-order' ) ) {
+		// The same filter feeds the Orders list and the order detail; the list is opt-in.
+		$in_orders_list = is_wc_endpoint_url( 'orders' ) && $this->get_setting( 'show_buttons_in_orders_list' );
+		if ( ! is_wc_endpoint_url( 'view-order' ) && ! $in_orders_list ) {
 			return $actions;
 		}
 		if ( ! $order instanceof WC_Order ) {

@@ -14,6 +14,7 @@ class DashboardPage
     const SLUG = 'wpify';
     const MENU_ICON = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTUwIiBoZWlnaHQ9IjU1MCIgdmlld0JveD0iMCAwIDU1MCA1NTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IG9wYWNpdHk9IjAuMyIgd2lkdGg9IjUzMiIgaGVpZ2h0PSI3OCIgcng9IjM5IiB0cmFuc2Zvcm09Im1hdHJpeCgtNC4zNzExNGUtMDggMSAxIDQuMzcxMTRlLTA4IDM2Ny43NSA5LjAwMDEyKSIgZmlsbD0id2hpdGUiLz4KPHJlY3Qgb3BhY2l0eT0iMC4zIiB3aWR0aD0iNTMwIiBoZWlnaHQ9Ijc4IiByeD0iMzkiIHRyYW5zZm9ybT0ibWF0cml4KC00LjM3MTE0ZS0wOCAxIDEgNC4zNzExNGUtMDggMjA0Ljc1IDkuMDAwMTIpIiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCBvcGFjaXR5PSIwLjgiIHdpZHRoPSI1NTcuODgyIiBoZWlnaHQ9Ijc4LjE1ODUiIHJ4PSIzOS4wNzkyIiB0cmFuc2Zvcm09Im1hdHJpeCgwLjMzODc4MSAwLjk0MDg2NSAwLjk0MDg2NSAtMC4zMzg3ODEgMzEuNzUgMjQuNDc4OCkiIGZpbGw9IndoaXRlIi8+CjxyZWN0IG9wYWNpdHk9IjAuOCIgd2lkdGg9IjU2MC42NzYiIGhlaWdodD0iNzguMTU4NSIgcng9IjM5LjA3OTIiIHRyYW5zZm9ybT0ibWF0cml4KDAuMzM4NzgxIDAuOTQwODY1IDAuOTQwODY1IC0wLjMzODc4MSAxOTMuMjQ5IDI0LjQ3ODgpIiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCBvcGFjaXR5PSIwLjgiIHdpZHRoPSIyNTkuNjQ2IiBoZWlnaHQ9Ijc4LjE1ODUiIHJ4PSIzOS4wNzkyIiB0cmFuc2Zvcm09Im1hdHJpeCgwLjMzODc4MSAwLjk0MDg2NSAwLjk0MDg2NSAtMC4zMzg3ODEgMzU2Ljc1IDI0LjQ3ODYpIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=';
     const REMOTE_TIMEOUT = 3;
+    const REMOTE_DOWN_KEY = 'wpify_core_remote_down';
     private Settings $settings;
     public function __construct(Settings $settings)
     {
@@ -63,7 +64,8 @@ class DashboardPage
     public function get_plugins_overview(): string
     {
         $installed_plugins = $this->settings->get_plugins();
-        $extensions = $this->get_cached_remote_data('wpify_core_all_plugins', 'https://wpify.cz/wp-json/wpify/v1/plugins-list', 2 * \HOUR_IN_SECONDS, 15 * \MINUTE_IN_SECONDS, 'plugins');
+        $locale = determine_locale();
+        $extensions = $this->get_cached_remote_data('wpify_core_all_plugins_' . $locale, add_query_arg('locale', $locale, 'https://wpify.cz/wp-json/wpify/v1/plugins-list'), 2 * \HOUR_IN_SECONDS, 15 * \MINUTE_IN_SECONDS, 'plugins');
         $extensions_map = array();
         if (is_array($extensions)) {
             foreach ($extensions as $extension) {
@@ -82,8 +84,8 @@ class DashboardPage
                     }
                     unset($extensions_map[$slug]);
                 } else {
-                    $check_url = add_query_arg(['update_action' => 'get_metadata', 'update_slug' => $slug, 'installed_version' => $plugin['version'], 'locale' => get_locale(), 'checking_for_updates' => '1'], 'https://wpify.cz');
-                    $data = $this->get_cached_remote_data('wpify_core_plugin_update_data_' . $slug, $check_url, 6 * \HOUR_IN_SECONDS, 15 * \MINUTE_IN_SECONDS);
+                    $check_url = add_query_arg(['update_action' => 'get_metadata', 'update_slug' => $slug, 'installed_version' => $plugin['version'], 'locale' => $locale, 'checking_for_updates' => '1'], 'https://wpify.cz');
+                    $data = $this->get_cached_remote_data('wpify_core_plugin_update_data_' . $slug . '_' . $locale, $check_url, 6 * \HOUR_IN_SECONDS, 15 * \MINUTE_IN_SECONDS);
                     $update_data = ['name' => $data['name'] ?? '', 'version' => $data['version'] ?? '', 'requires_php' => $data['requires_php'] ?? '', 'requires_wp' => $data['requires'] ?? '', 'changelog' => $data['sections']['changelog'] ?? ''];
                     if ($update_data) {
                         $installed_plugins[$slug]['plugin_info'] = $update_data;
@@ -141,19 +143,22 @@ class DashboardPage
             }
             $is_active = $installed && (!empty($plugin['plugin_file']) ? is_plugin_active($plugin['plugin_file']) : !empty($plugin['settings_url']));
             $license = $plugin['license'] ?? \true;
+            // A stored activation counts unless the server reported it invalid; older activations carry no `valid` key.
+            $license_invalid = is_array($license) && !empty($license['license']) && \false === ($license['valid'] ?? \true);
+            $licensed = is_array($license) ? !empty($license['license']) && !$license_invalid : (bool) $license;
             ?>
 				<div class="wpify__card <?php 
             echo $installed ? $is_active ? 'active' : 'inactive' : 'buy';
-            echo $installed && !$license ? ' no-licence' : '';
+            echo $installed && !$licensed ? ' no-licence' : '';
             ?>">
 					<div class="wpify__card-head">
 						<?php 
             if (isset($plugin['icon']) && $plugin['icon']) {
                 ?>
 							<img src="<?php 
-                echo $plugin['icon'];
+                echo esc_url($plugin['icon']);
                 ?>" alt="<?php 
-                echo $plugin['title'];
+                echo esc_attr($plugin['title']);
                 ?>" width="50" height="50">
 							<?php 
             }
@@ -161,14 +166,14 @@ class DashboardPage
 						<div>
 							<h3>
 								<?php 
-            echo $plugin['title'];
+            echo esc_html($plugin['title']);
             ?>
 							</h3>
 							<?php 
             $metas = [];
             $notices = [];
-            if ($installed && isset($plugin['license']) && !$plugin['license']) {
-                $notices[] = array('type' => 'error', 'content' => sprintf('<a href="%s">❗ %s</a>', $plugin['settings_url'] ?? '#', __('Please, activate the license.', 'wpify-core')));
+            if ($installed && !$licensed) {
+                $notices[] = array('type' => 'error', 'content' => sprintf('<a href="%s">❗ %s</a>', esc_url($plugin['settings_url'] ?? '#'), $license_invalid ? esc_html__('The license is not valid.', 'wpify-core') : esc_html__('Please, activate the license.', 'wpify-core')));
             }
             if ($installed && isset($plugin['version'])) {
                 $version = $plugin['version'];
@@ -176,8 +181,8 @@ class DashboardPage
                     $available_v = $plugin['plugin_info']['version'] ?? 0;
                     if ($available_v && version_compare($available_v, $version, '>')) {
                         /* translators: %s: Available version number. */
-                        $update_notice = '⚠️ ' . sprintf(__('New version %s available.', 'wpify-core'), $available_v);
-                        if ($is_active && !empty($plugin['license'])) {
+                        $update_notice = '⚠️ ' . sprintf(esc_html__('New version %s available.', 'wpify-core'), esc_html($available_v));
+                        if ($is_active && !empty($plugin['license']) && !$license_invalid) {
                             $can_update = current_user_can('update_plugins');
                             if (is_multisite()) {
                                 $can_update = $can_update && current_user_can('manage_network_plugins');
@@ -191,12 +196,12 @@ class DashboardPage
                         $notices[] = array('type' => 'warning', 'content' => $update_notice);
                     }
                 }
-                $metas[] = $version;
+                $metas[] = esc_html($version);
             } elseif (isset($plugin['plugin_info']) && isset($plugin['plugin_info']['version'])) {
-                $metas[] = $plugin['plugin_info']['version'];
+                $metas[] = esc_html($plugin['plugin_info']['version']);
             }
             if (isset($plugin['rating']) && $plugin['rating']) {
-                $metas[] = sprintf('⭐ %s/5', $plugin['rating']);
+                $metas[] = sprintf('⭐ %s/5', esc_html($plugin['rating']));
             }
             if (!$installed && isset($plugin['doc_link']) && $plugin['doc_link']) {
                 $metas[] = sprintf('<a href="%s" target="_blank">%s</a>', esc_url($plugin['doc_link']), __('Documentation', 'wpify-core'));
@@ -213,14 +218,14 @@ class DashboardPage
                 }
             }
             if (!$installed) {
-                echo $plugin['desc'] ?? '';
+                echo wp_kses_post($plugin['desc'] ?? '');
             }
             ?>
 					</div>
 					<div class="wpify__card-footer">
 						<?php 
             if (!$installed && isset($plugin['price'])) {
-                echo '<strong>' . $plugin['price'] . '</strong>';
+                echo '<strong>' . wp_kses_post($plugin['price']) . '</strong>';
             }
             if ($installed && isset($plugin['doc_link']) && $plugin['doc_link']) {
                 ?>
@@ -236,7 +241,8 @@ class DashboardPage
 						<div style="flex: 1"></div>
 						<?php 
             if ($installed && $is_active) {
-                if (!empty($plugin['plugin_file'])) {
+                // WordPress refuses to deactivate a network-activated plugin from a site admin.
+                if (!empty($plugin['plugin_file']) && !(is_multisite() && is_plugin_active_for_network($plugin['plugin_file']))) {
                     $redirect_url = admin_url('admin.php?page=wpify');
                     $deactivate_url = wp_nonce_url(admin_url('plugins.php?action=deactivate&plugin=' . urlencode($plugin['plugin_file']) . '&wpify_redirect=' . urlencode($redirect_url)), 'deactivate-plugin_' . $plugin['plugin_file']);
                     ?>
@@ -302,7 +308,9 @@ class DashboardPage
      */
     public function render_news_posts(): void
     {
-        $posts = $this->get_cached_remote_data('wpify_core_news', 'https://wpify.cz/wp-json/wp/v2/posts?per_page=4&_embed', \DAY_IN_SECONDS, 15 * \MINUTE_IN_SECONDS, null, \false);
+        // The locale is sent and cached per language although wpify.cz answers in Czech for now.
+        $locale = determine_locale();
+        $posts = $this->get_cached_remote_data('wpify_core_news_' . $locale, add_query_arg('locale', $locale, 'https://wpify.cz/wp-json/wp/v2/posts?per_page=4&_embed'), \DAY_IN_SECONDS, 15 * \MINUTE_IN_SECONDS, null, \false);
         if (empty($posts)) {
             return;
         }
@@ -345,7 +353,7 @@ class DashboardPage
             ?>
 							</a></h3>
 						<?php 
-            echo $post->excerpt->rendered;
+            echo wp_kses_post($post->excerpt->rendered);
             ?>
 					</div>
 				</div>
@@ -363,12 +371,15 @@ class DashboardPage
         }
         $fallback_key = 'wpify_core_fallback_' . md5($cache_key);
         $failure_key = $cache_key . '_failed';
-        if (get_transient($failure_key)) {
+        // One unreachable request marks the whole host down, otherwise every
+        // installed plugin waits for its own timeout on a single page load.
+        if (get_transient($failure_key) || get_transient(self::REMOTE_DOWN_KEY)) {
             return get_option($fallback_key, []);
         }
         $response = wp_remote_get($url, ['timeout' => self::REMOTE_TIMEOUT]);
         if (is_wp_error($response)) {
             set_transient($failure_key, 1, $failure_ttl);
+            set_transient(self::REMOTE_DOWN_KEY, 1, $failure_ttl);
             return get_option($fallback_key, []);
         }
         $body = wp_remote_retrieve_body($response);

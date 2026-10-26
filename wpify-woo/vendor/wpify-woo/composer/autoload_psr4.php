@@ -18,6 +18,7 @@ return array(
     'WpifyWooDeps\\Wpify\\License\\' => array($vendorDir . '/wpify/license/src'),
     'WpifyWooDeps\\Wpify\\CustomFields\\' => array($vendorDir . '/wpify/custom-fields/src'),
     'WpifyWooDeps\\Wpify\\Asset\\' => array($vendorDir . '/wpify/asset/src'),
+    'WpifyWooDeps\\Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
     'WpifyWooDeps\\Spatie\\ArrayToXml\\' => array($vendorDir . '/spatie/array-to-xml/src'),
     'WpifyWooDeps\\Rikudou\\QrPayment\\' => array($vendorDir . '/rikudou/qr-payment-interface/src'),
     'WpifyWooDeps\\Rikudou\\QrPaymentQrCodeProvider\\' => array($vendorDir . '/rikudou/qr-payment-qr-code-provider/src'),

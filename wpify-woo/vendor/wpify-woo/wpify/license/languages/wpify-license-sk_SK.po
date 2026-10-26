@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-04T12:46:13+00:00\n"
+"POT-Creation-Date: 2026-10-09T13:45:20+02:00\n"
 "PO-Revision-Date: 2025-12-04 13:52+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -13,54 +13,92 @@ msgstr ""
 "X-Generator: Poedit 3.8\n"
 "X-Domain: wpify-license\n"
 
-#: src/License.php:246
+#: src/License.php:162
+msgid "The license field could not be loaded"
+msgstr "Pole licencie sa nepodarilo načítať"
+
+#: src/License.php:163
+msgid "The browser did not receive the license script. The server or a security plugin is probably blocking files of this plugin (HTTP 403). Please ask your hosting or administrator to allow this file:"
+msgstr "Prehliadač nedostal skript licencie. Server alebo bezpečnostný plugin pravdepodobne blokuje súbory tohto pluginu (HTTP 403). Požiadajte prosím hosting alebo správcu webu, aby povolil tento súbor:"
+
+#: src/License.php:165 build/settings.js:1
+msgid "Activate domain"
+msgstr "Aktivovať doménu"
+
+#: src/License.php:360
 msgid "License not found"
 msgstr "Licencia nebola nájdená"
 
-#: assets/admin/components/LicenseControl.js:35 build/settings.js:1
+#: build/settings.js:1
+msgid "Without renewal"
+msgstr "Bez obnovenia"
+
+#: build/settings.js:1
 msgid "Status:"
 msgstr "Stav:"
 
-#: assets/admin/components/LicenseControl.js:37 build/settings.js:1
+#: build/settings.js:1
 msgid "Not valid"
 msgstr "Neplatný"
 
-#: assets/admin/components/LicenseControl.js:37 build/settings.js:1
+#: build/settings.js:1
 msgid "Active"
 msgstr "Aktívny"
 
-#: assets/admin/components/LicenseControl.js:38 build/settings.js:1
+#: build/settings.js:1
 msgid "Not active"
 msgstr "Neaktívny"
 
-#: assets/admin/components/LicenseControl.js:42 build/settings.js:1
+#: build/settings.js:1
 msgid "Domain is connected with your subscription in WPify account."
 msgstr "Doména je prepojená s vaším predplatným v účte WPify."
 
-#: assets/admin/components/LicenseControl.js:43 build/settings.js:1
+#: build/settings.js:1
 msgid "Please activate the domain by connecting it with your WPify account!"
 msgstr "Aktivujte doménu pripojením k vášmu účtu WPify!"
 
-#: assets/admin/components/LicenseControl.js:54 build/settings.js:1
-msgid ""
-"The license is not valid, please go to your account and review your "
-"subscription ."
-msgstr ""
-"Licencia nie je platná, prejdite do svojho účtu a skontrolujte svoje "
-"predplatné."
+#. translators: %s: domain the license is activated for
+#: build/settings.js:1
+msgid "The license is activated for the domain %s, not for this site."
+msgstr "Licencia je aktivovaná pre doménu %s, nie pre tento web."
 
-#: assets/admin/components/LicenseControl.js:57 build/settings.js:1
+#: build/settings.js:1
+msgid "The license is activated for a different domain."
+msgstr "Licencia je aktivovaná pre inú doménu."
+
+#: build/settings.js:1
+msgid "The activation was not found in your WPify account. It may have been deactivated there."
+msgstr "Aktivácia sa vo vašom účte WPify nenašla. Mohla tam byť deaktivovaná."
+
+#: build/settings.js:1
+msgid "The subscription is on hold, waiting for payment."
+msgstr "Predplatné je pozastavené, čaká na platbu."
+
+#. translators: %s: date the subscription ended
+#: build/settings.js:1
+msgid "The subscription expired on %s."
+msgstr "Predplatné vypršalo %s."
+
+#: build/settings.js:1
+msgid "The subscription is not active."
+msgstr "Predplatné nie je aktívne."
+
+#: build/settings.js:1
+msgid "No active subscription was found for this license."
+msgstr "K tejto licencii sa nenašlo aktívne predplatné."
+
+#: build/settings.js:1
+msgid "The license is not valid, please go to your account and review your subscription ."
+msgstr "Licencia nie je platná, prejdite do svojho účtu a skontrolujte svoje predplatné."
+
+#: build/settings.js:1
 msgid "Key:"
 msgstr "Kľúč:"
 
-#: assets/admin/components/LicenseControl.js:60 build/settings.js:1
+#: build/settings.js:1
 msgid "Renewal:"
 msgstr "Obnovenie:"
 
-#: assets/admin/components/LicenseControl.js:66 build/settings.js:1
+#: build/settings.js:1
 msgid "Deactivate domain"
 msgstr "Deaktivovať doménu"
-
-#: assets/admin/components/LicenseControl.js:68 build/settings.js:1
-msgid "Activate domain"
-msgstr "Aktivovať doménu"

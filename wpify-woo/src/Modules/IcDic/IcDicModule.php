@@ -1167,15 +1167,6 @@ class IcDicModule extends AbstractModule {
 			}
 		}
 
-		if ( $country === 'SK' && ! empty( $billing_dic_dph ) && ! empty( $billing_dic ) ) {
-			$dic     = $billing_dic;
-			$dic_dph = $billing_dic_dph;
-
-			if ( 'SK' . $dic !== $dic_dph ) {
-				$errors->add( 'validation', __( 'The entered VAT Number must be same as IN VAT without SK.', 'wpify-woo' ) );
-			}
-		}
-
 
 		$is_required = '</strong> ' . _x( 'is a required field when purchasing for a company.', 'checkout-validation', 'wpify-woo' );
 

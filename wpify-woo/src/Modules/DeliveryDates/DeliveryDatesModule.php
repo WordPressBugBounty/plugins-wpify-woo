@@ -4,6 +4,7 @@ namespace WpifyWoo\Modules\DeliveryDates;
 
 defined( 'ABSPATH' ) || exit;
 
+use DateTimeImmutable;
 use WC_Product;
 use WC_Shipping_Zones;
 use WpifyWoo\Plugin;
@@ -15,6 +16,12 @@ use WpifyWooDeps\Wpify\CustomFields\CustomFields;
 use WpifyWooDeps\Wpify\PluginUtils\PluginUtils;
 
 class DeliveryDatesModule extends AbstractModule {
+
+	/** Shipping zones memoized per request — feeds resolve dates for thousands of products. */
+	private ?array $zones = null;
+
+	/** @var array<string, int|null> */
+	private array $zone_ids = array();
 
 	public function __construct(
 		private CustomFields $custom_fields,
@@ -239,7 +246,7 @@ class DeliveryDatesModule extends AbstractModule {
 
 		foreach ( $delivery_days as $key => $group ) {
 			$items[] = array(
-				'id'    => 'delivery_dates_' . $group['uuid'] ?? $key,
+				'id'    => $this->product_meta_key( $group, $key ),
 				'type'  => 'group',
 				'items' => array(
 					array(
@@ -347,6 +354,16 @@ class DeliveryDatesModule extends AbstractModule {
 	 * @return array
 	 */
 	public function get_all_zones(): array {
+		if ( null !== $this->zones ) {
+			return $this->zones;
+		}
+
+		$this->zones = $this->load_all_zones();
+
+		return $this->zones;
+	}
+
+	private function load_all_zones(): array {
 		$zones        = WC_Shipping_Zones::get_zones();
 		$default_zone = new \WC_Shipping_Zone( 0 );
 
@@ -411,36 +428,110 @@ class DeliveryDatesModule extends AbstractModule {
 	 * @return string
 	 */
 	public function get_formatted_date( $days, $days_group ): string {
-		$format     = $this->get_setting( 'delivery_date_format' );
-		$type       = $days_group['skip_weekends'] ? 'weekdays' : 'days';
-		$order_time = $days_group['delivery_order_time'];
-		$today      = current_time( 'Y-m-d' );
-		$days       = (int) $days;
+		$now = $this->now();
 
-		if (
-			( strtotime( current_time( 'H:i' ) ) > strtotime( $order_time ) )
-			|| // překlenutí času na další den
-			( wp_date( 'N', strtotime( $today ) ) >= 6 && $days_group['skip_weekends'] ) // překlenutí wíkendu o další den
-		) {
-			$days += 1;
-		}
+		return $this->format_date( $this->delivery_date( (int) $days, $days_group, $now ), $now );
+	}
 
-		$days = strtotime( sprintf( '+ %s %s', $days, $type ), strtotime( $today ) );
-		$date = date_i18n( $format, $days );
-
+	private function format_date( DateTimeImmutable $date, DateTimeImmutable $now ): string {
 		if ( $this->get_setting( 'date_as_text' ) ) {
-			if ( strtotime( $today ) === strtotime( wp_date( 'Y-m-d', $days ) ) ) {
+			if ( $date->format( 'Y-m-d' ) === $now->format( 'Y-m-d' ) ) {
 				return __( 'Today', 'wpify-woo' );
-			} elseif ( strtotime( $today . ' +1 day' ) === strtotime( wp_date( 'Y-m-d', $days ) ) ) {
+			} elseif ( $date->format( 'Y-m-d' ) === $now->modify( '+1 day' )->format( 'Y-m-d' ) ) {
 				return __( 'Tomorrow', 'wpify-woo' );
 			}
 		}
 
-		return $date;
+		return wp_date( (string) $this->get_setting( 'delivery_date_format' ), $date->getTimestamp(), wp_timezone() );
 	}
 
-	public function get_delivery_date_data( WC_Product $product ): array {
-		$delivery_groups = $this->resolve_delivery_date_groups( $product );
+	private function now(): DateTimeImmutable {
+		return new DateTimeImmutable( 'now', wp_timezone() );
+	}
+
+	/**
+	 * Day the delivery days are counted from: today, the next day after the cut-off time,
+	 * moved to the nearest weekday when weekends are skipped.
+	 */
+	private function start_date( array $group, DateTimeImmutable $now ): DateTimeImmutable {
+		$start  = $now->setTime( 0, 0 );
+		$cutoff = $this->order_time( $group );
+
+		// Minute precision — an order placed at the cut-off minute still counts.
+		if ( null !== $cutoff && $now->format( 'H:i' ) > $cutoff ) {
+			$start = $start->modify( '+1 day' );
+		}
+
+		if ( ! empty( $group['skip_weekends'] ) ) {
+			while ( (int) $start->format( 'N' ) >= 6 ) {
+				$start = $start->modify( '+1 day' );
+			}
+		}
+
+		return $start;
+	}
+
+	private function delivery_date( int $days, array $group, DateTimeImmutable $now ): DateTimeImmutable {
+		$type = ! empty( $group['skip_weekends'] ) ? 'weekdays' : 'days';
+
+		return $this->start_date( $group, $now )->modify( sprintf( '+%d %s', $days, $type ) );
+	}
+
+	/** Last moment of an order that still makes start_date(); null without a cut-off time. */
+	private function order_deadline( array $group, DateTimeImmutable $now ): ?DateTimeImmutable {
+		$cutoff = $this->order_time( $group );
+
+		if ( null === $cutoff ) {
+			return null;
+		}
+
+		[ $hours, $minutes ] = array_map( 'intval', explode( ':', $cutoff ) );
+
+		return $this->start_date( $group, $now )->setTime( $hours, $minutes );
+	}
+
+	/** Cut-off time normalized to "HH:MM", null when not set or invalid. */
+	private function order_time( array $group ): ?string {
+		$time = trim( (string) ( $group['delivery_order_time'] ?? '' ) );
+
+		if ( ! preg_match( '/^(\d{1,2}):(\d{2})/', $time, $matches ) || (int) $matches[1] > 23 || (int) $matches[2] > 59 ) {
+			return null;
+		}
+
+		return sprintf( '%02d:%02d', $matches[1], $matches[2] );
+	}
+
+	/**
+	 * Days as [min, max] — a number or a range like "1-3"; null for any other text.
+	 *
+	 * @return int[]|null
+	 */
+	private function parse_days( $days ): ?array {
+		if ( is_numeric( $days ) ) {
+			return array( (int) $days, (int) $days );
+		}
+
+		if ( is_string( $days ) && preg_match( '/^\s*(\d+)\s*-\s*(\d+)\s*$/', $days, $matches ) ) {
+			return array( (int) $matches[1], (int) $matches[2] );
+		}
+
+		return null;
+	}
+
+	private function product_meta_key( array $group, $key ): string {
+		return 'delivery_dates_' . ( ! empty( $group['uuid'] ) ? $group['uuid'] : $key );
+	}
+
+	/**
+	 * Delivery date of the first group visible for the zone of the customer, or of $country.
+	 *
+	 * @param WC_Product  $product
+	 * @param string|null $country Two-letter ISO country code; null = customer / store base country.
+	 *
+	 * @return array
+	 */
+	public function get_delivery_date_data( WC_Product $product, ?string $country = null ): array {
+		$delivery_groups = $this->resolve_delivery_date_groups( $product, $country );
 
 		foreach ( $delivery_groups as $group ) {
 			if ( empty( $group['is_visible'] ) ) {
@@ -455,9 +546,15 @@ class DeliveryDatesModule extends AbstractModule {
 					ENT_QUOTES | ENT_HTML5,
 					'UTF-8'
 				),
-				'date'          => (string) ( $group['data']['date'] ?? '' ),
-				'specific_date' => (string) ( $group['data']['date'] ?? '' ),
-				'score'         => $group['score'],
+				'date'           => (string) ( $group['data']['date'] ?? '' ),
+				'specific_date'  => (string) ( $group['data']['date'] ?? '' ),
+				'score'          => $group['score'],
+				'days_min'       => $group['data']['days_min'] ?? null,
+				'days_max'       => $group['data']['days_max'] ?? null,
+				'date_from'      => $group['data']['date_from'] ?? null,
+				'date_to'        => $group['data']['date_to'] ?? null,
+				'order_deadline' => $group['data']['order_deadline'] ?? null,
+				'group'          => (string) ( $group['data']['group'] ?? '' ),
 			);
 		}
 
@@ -774,20 +871,27 @@ class DeliveryDatesModule extends AbstractModule {
 		return $this->get_delivery_date_html();
 	}
 
-	private function resolve_delivery_date_groups( WC_Product $product ): array {
+	private function resolve_delivery_date_groups( WC_Product $product, ?string $country = null ): array {
 		$delivery_days = $this->get_setting( 'delivery_days' );
 
 		if ( empty( $delivery_days ) || empty( WC()->countries ) ) {
 			return array();
 		}
 
-		$actual_country = ! empty( WC()->customer ) && WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->countries->get_base_country();
+		$actual_country = $country ? strtoupper( $country ) : ( ! empty( WC()->customer ) && WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->countries->get_base_country() );
 		$shipping_zones = $this->get_all_zones();
-		$actual_zone_id = $this->get_zone_id_for_country( $actual_country, $shipping_zones );
+
+		if ( ! array_key_exists( $actual_country, $this->zone_ids ) ) {
+			$this->zone_ids[ $actual_country ] = $this->get_zone_id_for_country( $actual_country, $shipping_zones );
+		}
+
+		$actual_zone_id = $this->zone_ids[ $actual_country ];
 
 		if ( ! $actual_zone_id ) {
 			$actual_zone_id = array_key_first( $shipping_zones );
 		}
+
+		$now = $this->now();
 
 		$custom_dates = $product->get_meta( '_wpify_woo_delivery_dates' );
 
@@ -801,14 +905,16 @@ class DeliveryDatesModule extends AbstractModule {
 		$groups = array();
 
 		foreach ( $delivery_days as $key => $days_group ) {
+			$meta_key = $this->product_meta_key( $days_group, $key );
+
 			if ( $product->is_on_backorder() ) {
-				$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_backorder'] ?? null;
+				$custom_date = $custom_dates[ $meta_key ]['delivery_days_backorder'] ?? null;
 				$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_backorder'];
 			} elseif ( $product->is_in_stock() ) {
-				$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_in_stock'] ?? null;
+				$custom_date = $custom_dates[ $meta_key ]['delivery_days_in_stock'] ?? null;
 				$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_in_stock'];
 			} else {
-				$custom_date = $custom_dates[ 'delivery_dates_' . $days_group['uuid'] ]['delivery_days_out_of_stock'] ?? null;
+				$custom_date = $custom_dates[ $meta_key ]['delivery_days_out_of_stock'] ?? null;
 				$days        = ! empty( $custom_date ) || $custom_date === '0' ? $custom_date : $days_group['delivery_days_out_of_stock'];
 			}
 
@@ -819,22 +925,31 @@ class DeliveryDatesModule extends AbstractModule {
 			}
 
 			$data = array(
-				'date' => $days,
+				'date'           => $days,
+				'days_min'       => null,
+				'days_max'       => null,
+				'date_from'      => null,
+				'date_to'        => null,
+				'order_deadline' => null,
+				'group'          => (string) ( $days_group['group_title'] ?? '' ),
 			);
 
-			if ( is_numeric( $days ) ) {
-				$data['date'] = $this->get_formatted_date( $days, $days_group );
-			}
+			$range = $this->parse_days( $days );
 
-			if ( is_string( $days ) && str_contains( $days, '-' ) ) {
-				$range = explode( '-', $days );
-				$dates = array();
+			if ( null !== $range ) {
+				$date_from = $this->delivery_date( $range[0], $days_group, $now );
+				$date_to   = $this->delivery_date( $range[1], $days_group, $now );
+				$deadline  = $this->order_deadline( $days_group, $now );
 
-				foreach ( $range as $day ) {
-					$dates[] = $this->get_formatted_date( $day, $days_group );
-				}
+				$data['date'] = is_numeric( $days )
+					? $this->format_date( $date_from, $now )
+					: $this->format_date( $date_from, $now ) . '–' . $this->format_date( $date_to, $now );
 
-				$data['date'] = implode( '–', $dates );
+				$data['days_min']       = $range[0];
+				$data['days_max']       = $range[1];
+				$data['date_from']      = $date_from->format( 'Y-m-d' );
+				$data['date_to']        = $date_to->format( 'Y-m-d' );
+				$data['order_deadline'] = $deadline?->format( 'Y-m-d H:i' );
 			}
 
 			$data['message']          = $days_group['delivery_date_message'] ?? '';
