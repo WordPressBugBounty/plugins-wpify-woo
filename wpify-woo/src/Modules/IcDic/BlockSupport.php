@@ -86,6 +86,7 @@ class BlockSupport {
 				'label'             => __( 'Identification no.', 'wpify-woo' ),
 				'location'          => 'contact',
 				'type'              => 'text',
+				'required'          => $this->get_ic_required_rule(),
 				'meta_key'          => '_billing_ic', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Field registration config for WooCommerce checkout, not a database query.
 				'sanitize_callback' => function ( $field_value ) {
 					return str_replace( ' ', '', $field_value );
@@ -99,6 +100,7 @@ class BlockSupport {
 				'label'    => __( 'Company', 'wpify-woo' ),
 				'location' => 'contact',
 				'type'     => 'text',
+				'required' => $this->get_company_required_rule(),
 
 			),
 
@@ -126,6 +128,71 @@ class BlockSupport {
 					return strtoupper( str_replace( ' ', '', $field_value ) );
 				},
 			),
+		);
+	}
+
+	/**
+	 * Conditional "required" rule for the company field, mirroring the classic checkout.
+	 *
+	 * @return array|bool
+	 */
+	private function get_company_required_rule() {
+		if ( ! $this->module->get_setting( 'required_company' ) || 'hidden' === get_option( 'woocommerce_checkout_company_field', 'optional' ) ) {
+			return false;
+		}
+
+		return $this->get_contact_field_rule( 'wpify/ic_dic_toggle', array( 'const' => true ) );
+	}
+
+	/**
+	 * Conditional "required" rule for the IC field, mirroring the classic checkout.
+	 *
+	 * @return array|bool
+	 */
+	private function get_ic_required_rule() {
+		$required_ic = $this->module->get_setting( 'required_ic' );
+
+		if ( 'if_checkbox' === $required_ic ) {
+			return $this->get_contact_field_rule( 'wpify/ic_dic_toggle', array( 'const' => true ) );
+		}
+
+		if ( 'if_company' === $required_ic ) {
+			return $this->get_contact_field_rule( 'wpify/company', array( 'type' => 'string', 'minLength' => 1 ) );
+		}
+
+		return false;
+	}
+
+	/**
+	 * JSON schema rule matching a contact additional field. Older WooCommerce without
+	 * conditional field rules keeps the field optional.
+	 *
+	 * @param string $field  Additional field ID
+	 * @param array  $schema Schema the field value must match
+	 *
+	 * @return array|bool
+	 */
+	private function get_contact_field_rule( string $field, array $schema ) {
+		if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFieldsSchema\DocumentObject' ) ) {
+			return false;
+		}
+
+		return array(
+			'type'       => 'object',
+			'properties' => array(
+				'customer' => array(
+					'type'       => 'object',
+					'properties' => array(
+						'additional_fields' => array(
+							'type'       => 'object',
+							'properties' => array( $field => $schema ),
+							'required'   => array( $field ),
+						),
+					),
+					'required'   => array( 'additional_fields' ),
+				),
+			),
+			'required'   => array( 'customer' ),
 		);
 	}
 
@@ -214,6 +281,19 @@ class BlockSupport {
 		}
 
 		// Validation processing - detailed logging moved to order creation
+
+		if ( $this->module->get_setting( 'validate_format' ) ) {
+			$format_errors = $this->module->get_format_errors(
+				(string) $country,
+				'wpify/ic' === $field_key ? (string) $field_value : '',
+				'wpify/dic' === $field_key ? (string) $field_value : '',
+				'wpify/dic-dph' === $field_key ? (string) $field_value : ''
+			);
+
+			foreach ( $format_errors as $format_error ) {
+				$errors->add( 'validation', $format_error );
+			}
+		}
 
 		// For IC field, skip server-side validation for block checkout since we can't reliably get current country
 		if ( 'wpify/ic' === $field_key ) {

@@ -1,13 +1,13 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
-use function explode, is_string, str_contains;
+use function is_string;
 /**
  * ReflectionMethod preserving the original class name.
  * @internal

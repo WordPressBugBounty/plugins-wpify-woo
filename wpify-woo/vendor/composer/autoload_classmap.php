@@ -39,6 +39,7 @@ return array(
     'WpifyWoo\\Modules\\PricesLog\\PricesLogModule' => $baseDir . '/src/Modules/PricesLog/PricesLogModule.php',
     'WpifyWoo\\Modules\\PricesLog\\PricesLogRepository' => $baseDir . '/src/Modules/PricesLog/PricesLogRepository.php',
     'WpifyWoo\\Modules\\Prices\\PricesModule' => $baseDir . '/src/Modules/Prices/PricesModule.php',
+    'WpifyWoo\\Modules\\QRPayment\\PayBySquareFallback' => $baseDir . '/src/Modules/QRPayment/PayBySquareFallback.php',
     'WpifyWoo\\Modules\\QRPayment\\QRPaymentModule' => $baseDir . '/src/Modules/QRPayment/QRPaymentModule.php',
     'WpifyWoo\\Modules\\SklikRetargeting\\CombinationDataBuilder' => $baseDir . '/src/Modules/SklikRetargeting/CombinationDataBuilder.php',
     'WpifyWoo\\Modules\\SklikRetargeting\\SklikRetargetingModule' => $baseDir . '/src/Modules/SklikRetargeting/SklikRetargetingModule.php',

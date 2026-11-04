@@ -4,11 +4,11 @@ Tags: WooCommerce, Czech, Heureka, IČ DIČ, QR Payment
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 5.5.0
+Stable tag: 5.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 7.0
-WC tested up to: 11.1
+WC tested up to: 11.2
 Requires Plugins: woocommerce
 
 WooCommerce features for CZ/SK e-shops: withdrawal & claim, Heureka, CRN/VAT, QR payments, delivery dates, async emails and more.
@@ -204,7 +204,7 @@ Yes, the full documentation for the WPify Woo plugin is available on the website
 
 = How can I set a custom xz binary path for Slovak QR payments? =
 
-Use the `wpify_woo_qr_payment_sk_options` filter and pass the `xzBinary` option to the Slovak QR payment generator:
+If xz is not available on the server, the plugin generates the QR code without it automatically. To use a specific xz binary, use the `wpify_woo_qr_payment_sk_options` filter and pass the `xzBinary` option to the Slovak QR payment generator:
 
 `
 add_filter( 'wpify_woo_qr_payment_sk_options', function ( $options ) {
@@ -247,6 +247,14 @@ This plugin is brought to you by the WordPress and WooCommerce experts at [wpify
 == Changelog ==
 
 For older releases, see [changelog.txt](https://plugins.svn.wordpress.org/wpify-woo/trunk/changelog.txt).
+
+= 5.6.0 =
+* Add QR Payment — choose the payment reference format for EPC (SEPA) QR codes: ISO 11649 creditor reference (RF) or Belgian structured communication (OGM/VCS).
+* Add QR Payment — option to insert the QR code into packing slips from PDF Invoices & Packing Slips for WooCommerce.
+* Add CRN/VAT — required Company and Company number fields and number format validation now work in the block checkout too.
+* Fix QR Payment — Slovak PAY by square QR codes now work on hostings without the xz tool, without the compatibility mode.
+* Fix Heureka Ověřeno zákazníky — orders rejected by Heureka (e.g. wrong API key) are no longer marked as sent; the order note now shows the reason.
+* Fix a fatal error when the WooCommerce Store API is called with a Cart-Token header (e.g. by headless apps or bots).
 
 = 5.5.0 =
 * Improved multilingual support (WPML, Polylang) in the settings.

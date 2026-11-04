@@ -380,7 +380,8 @@ class QrPayment implements QrPaymentInterface
         $result[] = $this->getPayeeInternalId();
         $result[] = $this->getLoyaltyId();
         $result[] = $this->getNavVerificationCode();
-        $result = implode("\n", $result);
+        // every field, including the last one, must be closed with LF (17 fields, 17 LF characters)
+        $result = implode("\n", $result) . "\n";
         $byteLength = strlen($result);
         if ($byteLength > 345) {
             throw new LogicException(sprintf('The resulting QR string is limited to 345 bytes, yours has %d bytes', $byteLength));
@@ -410,7 +411,7 @@ class QrPayment implements QrPaymentInterface
     }
     private function checkCharacters(string $string): void
     {
-        if (strpos("\n", $string) !== \FALSE) {
+        if (strpos($string, "\n") !== \FALSE) {
             throw new InvalidArgumentException(sprintf('The string "%s" contains forbidden new line character.', $string));
         }
     }

@@ -257,6 +257,34 @@ class QRPaymentModule extends AbstractModule {
 								],
 							],
 							[
+								'id'          => 'epc_reference',
+								'type'        => 'select',
+								'label'       => __( 'EPC payment reference', 'wpify-woo' ),
+								'description' => __( 'Format of the structured payment reference in the EPC (SEPA) QR code.', 'wpify-woo' ),
+								'default'     => 'order',
+								'options'     => [
+									[
+										'label' => __( 'Order number', 'wpify-woo' ),
+										'value' => 'order',
+									],
+									[
+										'label' => __( 'ISO 11649 creditor reference (RF)', 'wpify-woo' ),
+										'value' => 'rf',
+									],
+									[
+										'label' => __( 'Belgian structured communication (OGM/VCS)', 'wpify-woo' ),
+										'value' => 'be_ogm',
+									],
+								],
+								'conditions'  => array(
+									array(
+										'field'     => '#.type',
+										'condition' => 'in',
+										'value'     => array( 'auto', 'epc' ),
+									),
+								),
+							],
+							[
 								'id'         => 'enabled_currencies',
 								'type'       => 'multi_select',
 								'label'      => __( 'Enabled currencies', 'wpify-woo' ),
@@ -382,6 +410,12 @@ class QRPaymentModule extends AbstractModule {
 				'id'    => 'in_wcpdf',
 				'title' => __( 'Insert into WCPDF invoice', 'wpify-woo' ),
 				'desc'  => __( 'Insert QR payment into PDF Invoices from PDF Invoices & Packing Slips for WooCommerce plugin.', 'wpify-woo' ),
+				'type'  => 'toggle',
+			];
+			$settings[] = [
+				'id'    => 'in_wcpdf_packing_slip',
+				'title' => __( 'Insert into WCPDF packing slip', 'wpify-woo' ),
+				'desc'  => __( 'Insert QR payment into packing slips from PDF Invoices & Packing Slips for WooCommerce plugin.', 'wpify-woo' ),
 				'type'  => 'toggle',
 			];
 		}
@@ -535,7 +569,9 @@ class QRPaymentModule extends AbstractModule {
 					$options = apply_filters( 'wpify_woo_qr_payment_sk_options', $options, $payment_details, $account, $order );
 
 					$payment->setOptions( $options );
-					$qrCode = $payment->getQrCode()->getDataUri();
+					$qrCode = PayBySquareFallback::is_xz_available( $payment )
+						? $payment->getQrCode()->getDataUri()
+						: PayBySquareFallback::get_data_uri( $payment );
 				} catch ( Exception $e ) {
 					$this->log->error( sprintf( 'QR payment: error create QR code.' ),
 						array(
@@ -591,7 +627,7 @@ class QRPaymentModule extends AbstractModule {
 						->setBeneficiaryName( $payment_details['recipient_name'] )
 						->setAmount( $payment_details['total'] )
 						->setPurpose( EuPurpose::ACCOUNT_MANAGEMENT )
-						->setCreditorReference( $payment_details['vs'] )
+						->setCreditorReference( $this->get_epc_reference( $payment_details, $account['epc_reference'] ?? 'order' ) )
 						->setInformation( $payment_details['note'] )
 						->setCurrency( $payment_details['currency'] );
 
@@ -613,6 +649,63 @@ class QRPaymentModule extends AbstractModule {
 		}
 
 		return $qrCode;
+	}
+
+	/**
+	 * Build the structured creditor reference for the EPC QR code.
+	 *
+	 * @param array  $payment_details payment details
+	 * @param string $format          order|rf|be_ogm
+	 *
+	 * @return string
+	 */
+	public function get_epc_reference( array $payment_details, string $format ): string {
+		if ( 'be_ogm' === $format ) {
+			$digits = preg_replace( '/[^0-9]/', '', (string) $payment_details['vs'] );
+
+			if ( '' === $digits ) {
+				return '';
+			}
+
+			$base  = str_pad( substr( $digits, -10 ), 10, '0', STR_PAD_LEFT );
+			$check = $this->mod97( $base ) ?: 97;
+
+			return $base . sprintf( '%02d', $check );
+		}
+
+		if ( 'rf' === $format ) {
+			// ISO 11649 allows max 21 reference characters after "RFxx".
+			$reference = substr( strtoupper( preg_replace( '/[^A-Za-z0-9]/', '', (string) $payment_details['order'] ) ), -21 );
+
+			if ( '' === $reference ) {
+				return '';
+			}
+
+			$numeric = '';
+			foreach ( str_split( $reference . 'RF00' ) as $char ) {
+				$numeric .= ctype_digit( $char ) ? $char : (string) ( ord( $char ) - 55 );
+			}
+
+			return 'RF' . sprintf( '%02d', 98 - $this->mod97( $numeric ) ) . $reference;
+		}
+
+		return (string) $payment_details['vs'];
+	}
+
+	/**
+	 * Modulo 97 of an arbitrarily long digit string.
+	 *
+	 * @param string $digits digit string
+	 *
+	 * @return int
+	 */
+	private function mod97( string $digits ): int {
+		$remainder = 0;
+		foreach ( str_split( $digits ) as $digit ) {
+			$remainder = ( $remainder * 10 + (int) $digit ) % 97;
+		}
+
+		return $remainder;
 	}
 
 	/**
@@ -714,7 +807,8 @@ class QRPaymentModule extends AbstractModule {
 				$qr_url   = wp_upload_dir()['baseurl'] . '/qr-payment/';
 				$hash     = ! empty( $account['number'] ) ? hash( 'sha1', $order->get_id() . $account['number'] ) : hash( 'sha1', $order->get_id() . $account['iban'] );
 				$compa    = $this->get_setting( 'compatibility_mode' ) ? '1' : '0';
-				$filename = 'qr-' . $account['type'] . $compa . $hash . '.png';
+				$reference = 'epc' === $account['type'] && ! empty( $account['epc_reference'] ) && 'order' !== $account['epc_reference'] ? '-' . $account['epc_reference'] . '-' : '';
+				$filename  = 'qr-' . $account['type'] . $compa . $reference . $hash . '.png';
 
 				if ( ! file_exists( $qr_path ) ) {
 					mkdir( $qr_path, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Direct file I/O required to cache generated QR images in the uploads dir.
@@ -941,7 +1035,7 @@ class QRPaymentModule extends AbstractModule {
 	}
 
 	/**
-	 * Display QR code in WCPDF invoices
+	 * Display QR code in WCPDF invoices and packing slips
 	 *
 	 * @param string   $invoice_type Type of WCPDF document
 	 * @param WC_Order $order        WooCommerce order object
@@ -950,9 +1044,12 @@ class QRPaymentModule extends AbstractModule {
 	 * @throws Exception
 	 */
 	public function display_qr_code_in_wcpdf( $invoice_type, $order ) {
-		$render = $this->get_setting( 'in_wcpdf' ) ?: false;
+		$enabled = [
+			'invoice'      => $this->get_setting( 'in_wcpdf' ),
+			'packing-slip' => $this->get_setting( 'in_wcpdf_packing_slip' ),
+		];
 
-		if ( 'invoice' !== $invoice_type || ! $render ) {
+		if ( empty( $enabled[ $invoice_type ] ) ) {
 			return;
 		}
 

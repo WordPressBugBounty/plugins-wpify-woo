@@ -684,6 +684,12 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 			}
 
 			$result = $shop_certification->logOrder();
+
+			// WpRequester returns the raw response, so a rejected request (e.g. invalid API key) does not throw.
+			if ( ! is_object( $result ) || 200 !== (int) ( $result->code ?? 0 ) ) {
+				throw new Exception( $result->description ?? $result->message ?? __( 'Unexpected response from Heureka.', 'wpify-woo' ) );
+			}
+
 			/* translators: %s: Yes or No answer */
 			$order->get_wc_order()->add_order_note( sprintf( __( 'Heureka: Agree with the satisfaction questionnaire: %s', 'wpify-woo' ), __( 'Yes. The order has been sent.', 'wpify-woo' ) ) );
 			$order->get_wc_order()->update_meta_data( '_wpify_woo_heureka_optout_agreement', 'yes' );
@@ -696,11 +702,14 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 				)
 			);
 		} catch ( Exception $e ) {
+			/* translators: %s: error message returned by Heureka */
+			$order->get_wc_order()->add_order_note( sprintf( __( 'Heureka: The order could not be sent: %s', 'wpify-woo' ), $e->getMessage() ) );
 			$this->log->error(
 				sprintf( 'Heureka Overeno: error sending to Heureka.' ),
 				array(
 					'data'     => $data,
 					'message'  => $e->getMessage(),
+					'result'   => $result ?? null,
 					'settings' => $this->get_settings(),
 					'options'  => $options,
 				)
@@ -751,6 +760,6 @@ class HeurekaOverenoZakaznikyModule extends AbstractModule {
 	}
 
 	public function name() {
-		return __( 'Heureka Ověřeno Zákázníky', 'wpify-woo' );
+		return __( 'Heureka Ověřeno zákazníky', 'wpify-woo' );
 	}
 }

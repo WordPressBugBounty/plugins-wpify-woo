@@ -4,7 +4,7 @@ namespace WpifyWoo\Modules\HeurekaOverenoZakazniky;
 
 defined( 'ABSPATH' ) || exit;
 
-use mysql_xdevapi\Exception;
+use WpifyWooDeps\Heureka\ShopCertification\Exception;
 use WpifyWooDeps\Heureka\ShopCertification\ApiEndpoint;
 use WpifyWooDeps\Heureka\ShopCertification\IRequester;
 

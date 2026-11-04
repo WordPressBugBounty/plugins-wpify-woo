@@ -1,14 +1,14 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
-use function array_merge, checkdate, implode, is_numeric, is_string, preg_replace_callback, sprintf, time, trim;
+use function is_string;
 /**
  * DateTime.
  */
@@ -106,7 +106,7 @@ class DateTime extends \DateTime implements \JsonSerializable
             return '';
         }, $datetime);
         if ($ctr) {
-            parent::__construct($absPart, $timezone);
+            parent::__construct(trim($absPart), $timezone);
             $this->handleErrors($datetime);
         } elseif (trim($absPart)) {
             parent::modify($absPart) && $this->handleErrors($datetime);

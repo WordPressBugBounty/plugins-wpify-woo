@@ -56,7 +56,10 @@ class ApiManager {
 			wc_load_cart();
 		}
 
-		WC()->session->set_customer_session_cookie( true );
+		// Store API token sessions (Cart-Token header) have no session cookie.
+		if ( WC()->session && method_exists( WC()->session, 'set_customer_session_cookie' ) ) {
+			WC()->session->set_customer_session_cookie( true );
+		}
 	}
 
 

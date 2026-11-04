@@ -1,14 +1,14 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
-use function array_pop, chmod, decoct, dirname, end, fclose, file_exists, file_get_contents, file_put_contents, fopen, implode, is_dir, is_file, is_link, mkdir, preg_match, preg_split, realpath, rename, rmdir, rtrim, sprintf, str_replace, stream_copy_to_stream, stream_is_local, strtr;
+use function sprintf;
 use const DIRECTORY_SEPARATOR;
 /**
  * File system tool.
@@ -44,9 +44,9 @@ final class FileSystem
             }
             foreach ($iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($origin, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $item) {
                 if ($item->isDir()) {
-                    static::createDir($target . '/' . $iterator->getSubPathName());
+                    static::createDir($target . '/' . $iterator->getSubPathname());
                 } else {
-                    static::copy($item->getPathname(), $target . '/' . $iterator->getSubPathName());
+                    static::copy($item->getPathname(), $target . '/' . $iterator->getSubPathname());
                 }
             }
         } else {

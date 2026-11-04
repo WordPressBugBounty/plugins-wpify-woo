@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /*
  * Plugin Name: WPify Woo
  * Description: Custom functionality for WooCommerce
- * Version: 5.5.0
+ * Version: 5.6.0
  * Requires PHP: 8.1
  * Requires at least: 6.2
  * Author: WPify s.r.o.
@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Text Domain: wpify-woo
  * Domain Path: /languages
  * WC requires at least: 7.0
- * WC tested up to: 11.1
+ * WC tested up to: 11.2
  * Requires Plugins: woocommerce
  * Tested up to: 7.1
 */

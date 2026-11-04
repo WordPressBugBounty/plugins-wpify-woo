@@ -285,6 +285,7 @@ return array(
     'WpifyWooDeps\\GuzzleHttp\\Promise\\PromisorInterface' => $vendorDir . '/guzzlehttp/promises/src/PromisorInterface.php',
     'WpifyWooDeps\\GuzzleHttp\\Promise\\RejectedPromise' => $vendorDir . '/guzzlehttp/promises/src/RejectedPromise.php',
     'WpifyWooDeps\\GuzzleHttp\\Promise\\RejectionException' => $vendorDir . '/guzzlehttp/promises/src/RejectionException.php',
+    'WpifyWooDeps\\GuzzleHttp\\Promise\\State' => $vendorDir . '/guzzlehttp/promises/src/State.php',
     'WpifyWooDeps\\GuzzleHttp\\Promise\\TaskQueue' => $vendorDir . '/guzzlehttp/promises/src/TaskQueue.php',
     'WpifyWooDeps\\GuzzleHttp\\Promise\\TaskQueueInterface' => $vendorDir . '/guzzlehttp/promises/src/TaskQueueInterface.php',
     'WpifyWooDeps\\GuzzleHttp\\Promise\\Utils' => $vendorDir . '/guzzlehttp/promises/src/Utils.php',

@@ -54,6 +54,7 @@ class ComposerStaticInit38c25aa05b152ebf78aa46f74d74576b
         'WpifyWoo\\Modules\\PricesLog\\PricesLogModule' => __DIR__ . '/../..' . '/src/Modules/PricesLog/PricesLogModule.php',
         'WpifyWoo\\Modules\\PricesLog\\PricesLogRepository' => __DIR__ . '/../..' . '/src/Modules/PricesLog/PricesLogRepository.php',
         'WpifyWoo\\Modules\\Prices\\PricesModule' => __DIR__ . '/../..' . '/src/Modules/Prices/PricesModule.php',
+        'WpifyWoo\\Modules\\QRPayment\\PayBySquareFallback' => __DIR__ . '/../..' . '/src/Modules/QRPayment/PayBySquareFallback.php',
         'WpifyWoo\\Modules\\QRPayment\\QRPaymentModule' => __DIR__ . '/../..' . '/src/Modules/QRPayment/QRPaymentModule.php',
         'WpifyWoo\\Modules\\SklikRetargeting\\CombinationDataBuilder' => __DIR__ . '/../..' . '/src/Modules/SklikRetargeting/CombinationDataBuilder.php',
         'WpifyWoo\\Modules\\SklikRetargeting\\SklikRetargetingModule' => __DIR__ . '/../..' . '/src/Modules/SklikRetargeting/SklikRetargetingModule.php',

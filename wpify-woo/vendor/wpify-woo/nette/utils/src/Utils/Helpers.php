@@ -1,14 +1,14 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
-use function array_unique, ini_get, levenshtein, max, min, ob_end_clean, ob_get_clean, ob_start, preg_replace, strlen;
+use function ini_get, strlen;
 use const PHP_OS_FAMILY;
 class Helpers
 {
@@ -82,8 +82,10 @@ class Helpers
             '<' => $left < $right,
             '<=' => $left <= $right,
             '=', '==' => $left == $right,
+            // intentionally ==
             '===' => $left === $right,
             '!=', '<>' => $left != $right,
+            // intentionally !=
             '!==' => $left !== $right,
             default => throw new Nette\InvalidArgumentException("Unknown operator '{$operator}'"),
         };

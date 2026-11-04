@@ -276,20 +276,18 @@ class IcDicModule extends AbstractModule {
 				'type'  => 'toggle',
 				'label' => __( 'Validate number format', 'wpify-woo' ),
 				'title' => __( 'Check if you want to check if the numbers entered are in a valid format when sending order. Checks for States CZ, SK, PL, HU, DE', 'wpify-woo' ),
-				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'    => 'required_company',
 				'type'  => 'toggle',
 				'label' => __( 'Required "Company" field for companies', 'wpify-woo' ),
 				'title' => __( 'Check if you want to set "Company" field as required if the checkbox "I\'m shopping for a company" is checked.', 'wpify-woo' ),
-				'desc'  => __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ),
 			),
 			array(
 				'id'      => 'required_ic',
 				'type'    => 'select',
 				'label'   => __( 'Required identification number field for companies', 'wpify-woo' ),
-				'desc'    => sprintf( '%s %s', __( 'Choose when the identification number field to be required.', 'wpify-woo' ), __( 'Valid for classic checkout only. Does not affect block checkout.', 'wpify-woo' ) ),
+				'desc'    => __( 'Choose when the identification number field to be required.', 'wpify-woo' ),
 				'options' => array(
 					array(
 						'label' => __( 'If the "I\'m shopping for a company" is checked', 'wpify-woo' ),
@@ -1080,6 +1078,43 @@ class IcDicModule extends AbstractModule {
 	 * @param array $fields Array of the fields.
 	 * @param       $errors
 	 */
+	/**
+	 * Format errors for IC / DIC / IC DPH (the "Validate format" setting), shared by classic and block checkout.
+	 *
+	 * @param string $country Billing country
+	 * @param string $ic      Identification number
+	 * @param string $dic     VAT number
+	 * @param string $dic_dph SK IN VAT number
+	 *
+	 * @return string[]
+	 */
+	public function get_format_errors( $country, $ic, $dic, $dic_dph ): array {
+		$errors = array();
+
+		if ( ! empty( $ic ) && ! preg_match( '~^\d{8,}$~', $ic ) ) {
+			$errors[] = __( 'The entered Company Number is not in the required format (8 or more digits without spaces).', 'wpify-woo' );
+		}
+
+		if ( $country === 'SK' ) {
+			if ( ! empty( $dic ) && ! preg_match( '~^\d{10}$~', $dic ) ) {
+				$errors[] = __( 'The entered VAT Number is not in the required format (10 digits without spaces).', 'wpify-woo' );
+			}
+			if ( ! empty( $dic_dph ) && ! preg_match( '~^SK\d{10}$~', $dic_dph ) ) {
+				$errors[] = __( 'The entered IN VAT Number is not in the required format (prefix SK + 10 digits without spaces).', 'wpify-woo' );
+			}
+		} elseif (
+			in_array( $country, [ 'CZ', 'PL', 'HU', 'DE' ] )
+			&&
+			! empty( $dic )
+			&& ! preg_match( '~^' . $country . '\d{8,10}$~', $dic )
+		) {
+			/* translators: %s: country code prefix */
+			$errors[] = sprintf( __( 'The entered VAT Number is not in the required format (prefix %s + 8–10 digits without spaces).', 'wpify-woo' ), $country );
+		}
+
+		return $errors;
+	}
+
 	public function checkout_validation( $fields, $errors ) {
 		// WooCommerce verifies the checkout nonce before running validation hooks.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
@@ -1145,25 +1180,8 @@ class IcDicModule extends AbstractModule {
 		}
 
 		if ( $this->get_setting( 'validate_format' ) ) {
-			if ( ! empty( $billing_ic ) && ! preg_match( '~^\d{8,}$~', $billing_ic ) ) {
-				$errors->add( 'validation', __( 'The entered Company Number is not in the required format (8 or more digits without spaces).', 'wpify-woo' ) );
-			}
-
-			if ( $country === 'SK' ) {
-				if ( ! empty( $billing_dic ) && ! preg_match( '~^\d{10}$~', $billing_dic ) ) {
-					$errors->add( 'validation', __( 'The entered VAT Number is not in the required format (10 digits without spaces).', 'wpify-woo' ) );
-				}
-				if ( ! empty( $billing_dic_dph ) && ! preg_match( '~^SK\d{10}$~', $billing_dic_dph ) ) {
-					$errors->add( 'validation', __( 'The entered IN VAT Number is not in the required format (prefix SK + 10 digits without spaces).', 'wpify-woo' ) );
-				}
-			} elseif (
-				in_array( $country, [ 'CZ', 'PL', 'HU', 'DE' ] )
-				&&
-				! empty( $billing_dic )
-				&& ! preg_match( '~^' . $country . '\d{8,10}$~', $billing_dic )
-			) {
-				/* translators: %s: country code prefix */
-				$errors->add( 'validation', sprintf( __( 'The entered VAT Number is not in the required format (prefix %s + 8–10 digits without spaces).', 'wpify-woo' ), $country ) );
+			foreach ( $this->get_format_errors( $country, $billing_ic, $billing_dic, $billing_dic_dph ) as $format_error ) {
+				$errors->add( 'validation', $format_error );
 			}
 		}
 

@@ -1,14 +1,14 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
-use function array_map, array_search, array_splice, count, explode, implode, is_a, is_resource, is_string, strcasecmp, strtolower, substr, trim;
+use function count, is_resource, is_string;
 use const PHP_VERSION_ID;
 /**
  * PHP type reflection.
@@ -123,7 +123,7 @@ final class Type
         return match (\true) {
             $this->allows($type) => $this,
             $type->allows($this) => $type,
-            default => new self(array_unique(array_merge($this->isIntersection() ? [$this] : $this->types, $type->isIntersection() ? [$type] : $type->types), \SORT_REGULAR), '|'),
+            default => new self(array_unique(array_merge($this->isIntersection() ? [$this] : $this->types, $type->isIntersection() ? [$type] : $type->types), \SORT_REGULAR)),
         };
     }
     /**

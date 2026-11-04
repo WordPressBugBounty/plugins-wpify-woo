@@ -1,16 +1,16 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\JetBrains\PhpStorm\Language;
 use WpifyWooDeps\Nette;
-use function array_keys, array_map, array_shift, array_values, bin2hex, class_exists, defined, extension_loaded, function_exists, htmlspecialchars, htmlspecialchars_decode, iconv, iconv_strlen, iconv_substr, implode, in_array, is_array, is_callable, is_int, is_object, is_string, key, max, mb_convert_case, mb_strlen, mb_strtolower, mb_strtoupper, mb_substr, pack, preg_last_error, preg_last_error_msg, preg_quote, preg_replace, str_contains, str_ends_with, str_repeat, str_replace, str_starts_with, strlen, strpos, strrev, strrpos, strtolower, strtoupper, strtr, substr, trim, unpack, utf8_decode;
-use const ENT_IGNORE, ENT_NOQUOTES, ICONV_IMPL, MB_CASE_TITLE, PHP_EOL, PREG_OFFSET_CAPTURE, PREG_PATTERN_ORDER, PREG_SET_ORDER, PREG_SPLIT_DELIM_CAPTURE, PREG_SPLIT_NO_EMPTY, PREG_SPLIT_OFFSET_CAPTURE, PREG_UNMATCHED_AS_NULL;
+use function defined, extension_loaded, function_exists, in_array, is_array, is_int, is_object, is_string, strlen;
+use const ENT_IGNORE, ENT_NOQUOTES;
 /**
  * String tools library.
  */
@@ -140,14 +140,14 @@ class Strings
      */
     public static function platformNewLines(string $s): string
     {
-        return preg_replace("~\r\n?|\n| | ~", PHP_EOL, $s);
+        return preg_replace("~\r\n?|\n| | ~", \PHP_EOL, $s);
     }
     /**
      * Converts UTF-8 string to ASCII, ie removes diacritics etc.
      */
     public static function toAscii(string $s): string
     {
-        $iconv = defined('ICONV_IMPL') ? trim(ICONV_IMPL, '"\'') : null;
+        $iconv = defined('ICONV_IMPL') ? trim(\ICONV_IMPL, '"\'') : null;
         static $transliterator = null;
         if ($transliterator === null) {
             if (class_exists('Transliterator', \false)) {
@@ -186,7 +186,8 @@ class Strings
             // temporarily hide these characters to distinguish them from the garbage that iconv creates
             $s = strtr($s, '`\'"^~?', "\x01\x02\x03\x04\x05\x06");
             if ($iconv === 'glibc') {
-                // glibc implementation is very limited. transliterate into Windows-1250 and then into ASCII, so most Eastern European characters are preserved
+                // glibc implementation is very limited. transliterate into Windows-1250 and then into ASCII,
+                // so most Eastern European characters are preserved
                 $s = iconv('UTF-8', 'WINDOWS-1250//TRANSLIT//IGNORE', $s);
                 $s = strtr($s, "\xa5\xa3\xbc\x8c\xa7\x8a\xaa\x8d\x8f\x8e\xaf\xb9\xb3\xbe\x9c\x9a\xba\x9d\x9f\x9e\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xfe\x96\xa0\x8b\x97\x9b\xa6\xad\xb7", 'ALLSSSSTZZZallssstzzzRAAAALCCCEEEEIIDDNNOOOOxRUUUUYTsraaaalccceeeeiiddnnooooruuuuyt- <->|-.');
                 $s = self::pcre('preg_replace', ['#[^\x00-\x7F]++#', '', $s]);
@@ -279,7 +280,7 @@ class Strings
      */
     public static function capitalize(string $s): string
     {
-        return mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
+        return mb_convert_case($s, \MB_CASE_TITLE, 'UTF-8');
     }
     /**
      * Compares two UTF-8 strings or their parts, without taking character case into account. If length is null, whole strings are compared,
@@ -340,7 +341,7 @@ class Strings
     public static function trim(string $s, string $charlist = self::TrimCharacters): string
     {
         $charlist = preg_quote($charlist, '#');
-        return self::replace($s, '#^[' . $charlist . ']+|[' . $charlist . ']+$#Du', '');
+        return self::replace($s, '#^[' . $charlist . ']+|[' . $charlist . ']+$#Du');
     }
     /**
      * Pads a UTF-8 string to given length by prepending the $pad string to the beginning.
@@ -441,9 +442,9 @@ class Strings
         bool $utf8 = \false
     ): array
     {
-        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_SPLIT_OFFSET_CAPTURE : 0) | ($skipEmpty ? PREG_SPLIT_NO_EMPTY : 0);
+        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? \PREG_SPLIT_OFFSET_CAPTURE : 0) | ($skipEmpty ? \PREG_SPLIT_NO_EMPTY : 0);
         $pattern .= $utf8 ? 'u' : '';
-        $m = self::pcre('preg_split', [$pattern, $subject, $limit, $flags | PREG_SPLIT_DELIM_CAPTURE]);
+        $m = self::pcre('preg_split', [$pattern, $subject, $limit, $flags | \PREG_SPLIT_DELIM_CAPTURE]);
         return $utf8 && $captureOffset ? self::bytesToChars($subject, [$m])[0] : $m;
     }
     /**
@@ -460,7 +461,7 @@ class Strings
         bool $utf8 = \false
     ): ?array
     {
-        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
+        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? \PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? \PREG_UNMATCHED_AS_NULL : 0);
         if ($utf8) {
             $offset = strlen(self::substring($subject, 0, $offset));
             $pattern .= 'u';
@@ -497,7 +498,7 @@ class Strings
             $pattern .= 'u';
         }
         if ($lazy) {
-            $flags = PREG_OFFSET_CAPTURE | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
+            $flags = \PREG_OFFSET_CAPTURE | ($unmatchedAsNull ? \PREG_UNMATCHED_AS_NULL : 0);
             return (function () use ($utf8, $captureOffset, $flags, $subject, $pattern, $offset) {
                 $counter = 0;
                 while ($offset <= strlen($subject) - ($counter ? 1 : 0) && self::pcre('preg_match', [$pattern, $subject, &$m, $flags, $offset])) {
@@ -514,8 +515,8 @@ class Strings
         if ($offset > strlen($subject)) {
             return [];
         }
-        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0) | ($patternOrder ? PREG_PATTERN_ORDER : 0);
-        self::pcre('preg_match_all', [$pattern, $subject, &$m, $flags & PREG_PATTERN_ORDER ? $flags : $flags | PREG_SET_ORDER, $offset]);
+        $flags = is_int($captureOffset) ? $captureOffset : ($captureOffset ? \PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? \PREG_UNMATCHED_AS_NULL : 0) | ($patternOrder ? \PREG_PATTERN_ORDER : 0);
+        self::pcre('preg_match_all', [$pattern, $subject, &$m, $flags & \PREG_PATTERN_ORDER ? $flags : $flags | \PREG_SET_ORDER, $offset]);
         return $utf8 && $captureOffset ? self::bytesToChars($subject, $m) : $m;
     }
     /**
@@ -536,7 +537,7 @@ class Strings
             if (!is_callable($replacement, \false, $textual)) {
                 throw new Nette\InvalidStateException("Callback '{$textual}' is not callable.");
             }
-            $flags = ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
+            $flags = ($captureOffset ? \PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? \PREG_UNMATCHED_AS_NULL : 0);
             if ($utf8) {
                 $pattern .= 'u';
                 if ($captureOffset) {

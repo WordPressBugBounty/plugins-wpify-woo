@@ -1,26 +1,23 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
-use const DIRECTORY_SEPARATOR;
 /**
  * Represents the file or directory returned by the Finder.
  * @internal do not create instances directly
  */
 final class FileInfo extends \SplFileInfo
 {
-    private string $relativePath;
-    public function __construct(string $file, string $relativePath = '')
+    public function __construct(string $file, private string $relativePath = '')
     {
         parent::__construct($file);
         $this->setInfoClass(static::class);
-        $this->relativePath = $relativePath;
     }
     /**
      * Returns the relative directory path.
@@ -34,7 +31,7 @@ final class FileInfo extends \SplFileInfo
      */
     public function getRelativePathname(): string
     {
-        return ($this->relativePath === '' ? '' : $this->relativePath . DIRECTORY_SEPARATOR) . $this->getBasename();
+        return ($this->relativePath === '' ? '' : $this->relativePath . \DIRECTORY_SEPARATOR) . $this->getBasename();
     }
     /**
      * Returns the contents of the file.

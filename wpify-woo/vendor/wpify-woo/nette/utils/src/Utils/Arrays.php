@@ -1,16 +1,16 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\JetBrains\PhpStorm\Language;
 use WpifyWooDeps\Nette;
-use function array_combine, array_intersect_key, array_is_list, array_key_exists, array_key_first, array_key_last, array_keys, array_reverse, array_search, array_slice, array_walk_recursive, count, func_num_args, in_array, is_array, is_int, is_object, key, preg_split, range;
-use const PHP_VERSION_ID, PREG_GREP_INVERT, PREG_SPLIT_DELIM_CAPTURE, PREG_SPLIT_NO_EMPTY;
+use function array_key_exists, count, func_num_args, is_array, is_int, is_object;
+use const PHP_VERSION_ID, PREG_SPLIT_DELIM_CAPTURE, PREG_SPLIT_NO_EMPTY;
 /**
  * Array tools library.
  */
@@ -101,7 +101,7 @@ class Arrays
         return in_array($value, $array, \true);
     }
     /**
-     * Returns the first item (matching the specified predicate if given). If there is no such item, it returns result of invoking $else or null.
+     * Returns the first item (matching the predicate if given). If there is no such item, returns the result of $else or null.
      * @template K of int|string
      * @template V
      * @param  array<K, V>  $array
@@ -114,7 +114,7 @@ class Arrays
         return $key === null ? $else ? $else() : null : $array[$key];
     }
     /**
-     * Returns the last item (matching the specified predicate if given). If there is no such item, it returns result of invoking $else or null.
+     * Returns the last item (matching the predicate if given). If there is no such item, returns the result of $else or null.
      * @template K of int|string
      * @template V
      * @param  array<K, V>  $array
@@ -206,7 +206,7 @@ class Arrays
         bool|int $invert = \false
     ): array
     {
-        $flags = $invert ? PREG_GREP_INVERT : 0;
+        $flags = $invert ? \PREG_GREP_INVERT : 0;
         return Strings::pcre('preg_grep', [$pattern, $array, $flags]);
     }
     /**
@@ -437,6 +437,7 @@ class Arrays
     public static function toKey(mixed $value): int|string
     {
         return key(@[$value => null]);
+        // @ null as an array offset is deprecated in PHP 8.5
     }
     /**
      * Returns copy of the $array where every item is converted to string

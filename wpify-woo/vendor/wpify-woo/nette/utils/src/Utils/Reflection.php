@@ -1,15 +1,15 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-declare (strict_types=1);
 namespace WpifyWooDeps\Nette\Utils;
 
 use WpifyWooDeps\Nette;
-use function constant, current, defined, end, explode, file_get_contents, implode, ltrim, next, ord, strrchr, strtolower, substr;
-use const PHP_VERSION_ID, T_AS, T_CLASS, T_COMMENT, T_CURLY_OPEN, T_DOC_COMMENT, T_DOLLAR_OPEN_CURLY_BRACES, T_ENUM, T_INTERFACE, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAMESPACE, T_NS_SEPARATOR, T_STRING, T_TRAIT, T_USE, T_WHITESPACE, TOKEN_PARSE;
+use function ord;
+use const PHP_VERSION_ID;
 /**
  * PHP reflection helpers.
  */
@@ -163,7 +163,7 @@ final class Reflection
     private static function parseUseStatements(string $code, ?string $forClass = null): array
     {
         try {
-            $tokens = \PhpToken::tokenize($code, TOKEN_PARSE);
+            $tokens = \PhpToken::tokenize($code, \TOKEN_PARSE);
         } catch (\ParseError $e) {
             trigger_error($e->getMessage(), \E_USER_NOTICE);
             $tokens = [];
@@ -171,19 +171,19 @@ final class Reflection
         $namespace = $class = null;
         $classLevel = $level = 0;
         $res = $uses = [];
-        $nameTokens = [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED];
+        $nameTokens = [\T_STRING, \T_NS_SEPARATOR, \T_NAME_QUALIFIED, \T_NAME_FULLY_QUALIFIED];
         while ($token = current($tokens)) {
             next($tokens);
             switch ($token->id) {
-                case T_NAMESPACE:
+                case \T_NAMESPACE:
                     $namespace = ltrim(self::fetch($tokens, $nameTokens) . '\\', '\\');
                     $uses = [];
                     break;
-                case T_CLASS:
-                case T_INTERFACE:
-                case T_TRAIT:
-                case PHP_VERSION_ID < 80100 ? T_CLASS : T_ENUM:
-                    if ($name = self::fetch($tokens, T_STRING)) {
+                case \T_CLASS:
+                case \T_INTERFACE:
+                case \T_TRAIT:
+                case PHP_VERSION_ID < 80100 ? \T_CLASS : \T_ENUM:
+                    if ($name = self::fetch($tokens, \T_STRING)) {
                         $class = $namespace . $name;
                         $classLevel = $level + 1;
                         $res[$class] = $uses;
@@ -192,13 +192,13 @@ final class Reflection
                         }
                     }
                     break;
-                case T_USE:
+                case \T_USE:
                     while (!$class && $name = self::fetch($tokens, $nameTokens)) {
                         $name = ltrim($name, '\\');
                         if (self::fetch($tokens, '{')) {
                             while ($suffix = self::fetch($tokens, $nameTokens)) {
-                                if (self::fetch($tokens, T_AS)) {
-                                    $uses[self::fetch($tokens, T_STRING)] = $name . $suffix;
+                                if (self::fetch($tokens, \T_AS)) {
+                                    $uses[self::fetch($tokens, \T_STRING)] = $name . $suffix;
                                 } else {
                                     $tmp = explode('\\', $suffix);
                                     $uses[end($tmp)] = $name . $suffix;
@@ -207,8 +207,8 @@ final class Reflection
                                     break;
                                 }
                             }
-                        } elseif (self::fetch($tokens, T_AS)) {
-                            $uses[self::fetch($tokens, T_STRING)] = $name;
+                        } elseif (self::fetch($tokens, \T_AS)) {
+                            $uses[self::fetch($tokens, \T_STRING)] = $name;
                         } else {
                             $tmp = explode('\\', $name);
                             $uses[end($tmp)] = $name;
@@ -218,8 +218,8 @@ final class Reflection
                         }
                     }
                     break;
-                case T_CURLY_OPEN:
-                case T_DOLLAR_OPEN_CURLY_BRACES:
+                case \T_CURLY_OPEN:
+                case \T_DOLLAR_OPEN_CURLY_BRACES:
                 case ord('{'):
                     $level++;
                     break;
@@ -238,7 +238,7 @@ final class Reflection
         while ($token = current($tokens)) {
             if ($token->is($take)) {
                 $res .= $token->text;
-            } elseif (!$token->is([T_DOC_COMMENT, T_WHITESPACE, T_COMMENT])) {
+            } elseif (!$token->is([\T_DOC_COMMENT, \T_WHITESPACE, \T_COMMENT])) {
                 break;
             }
             next($tokens);
